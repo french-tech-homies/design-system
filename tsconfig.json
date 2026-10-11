@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  // Deliberately standalone: the kit is copy-distributed through the shadcn
+  // registry, so it must typecheck on its own. Do not add `extends`:
+  // a project that copies the kit has no shared base to extend.
+  // Kept on purpose: strict + noUncheckedIndexedAccess.
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["dom", "dom.iterable", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "checkJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "incremental": false,
+    // The stories import the kit by its package name; this is what resolves
+    // it when no workspace link does.
+    "paths": {
+      "@french-tech-homies/design-system": ["./index.ts"],
+      "@french-tech-homies/design-system/*": ["./*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": [
+    "node_modules",
+    ".types",
+    ".design-sync",
+    ".ds-sync",
+    "ds-bundle",
+    "storybook-static"
+  ]
+}

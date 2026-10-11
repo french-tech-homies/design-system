@@ -1,0 +1,57 @@
+name: Pages
+
+# Publishes the kit's public surface on GitHub Pages: the Storybook catalog at
+# the site root and the shadcn registry at /r/{name}.json.
+#
+# Nothing is published that was not checked: the `checks` job runs checks.yml
+# whole on this commit and assembles the site, and `publish` needs it and
+# deploys the artifact that job uploaded. The built registry is not committed;
+# a build that fails any check publishes nothing and the previous site stays.
+#
+# ONE-TIME HUMAN STEP: Settings → Pages → Build and deployment → Source =
+# "GitHub Actions". Until that is done this workflow fails at "Configure
+# Pages". See the README, "Publishing this repository".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Read the repo, write the Pages deployment. Nothing else.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One publish at a time; let a newer commit supersede a queued one, but never
+# cancel a deployment that is already running.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    name: Checks
+    uses: ./.github/workflows/checks.yml
+
+  publish:
+    name: Catalog + registry → GitHub Pages
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+        # Fails with "Get Pages site failed" until Pages is enabled on the
+        # repository with Source = GitHub Actions. That is a one-time human
+        # step; see the header of this file.
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Where it landed
+        run: |
+          echo "catalog:  ${{ steps.deploy.outputs.page_url }}"
+          echo "registry: ${{ steps.deploy.outputs.page_url }}r/{name}.json"

@@ -1,0 +1,115 @@
+name: Checks
+
+# Keeps the kit honest on every change, and builds what Pages publishes: the
+# generated theme, the resolved token snapshot and the registry index must
+# match their sources, the one install must be whole, and the Storybook
+# catalog must build under the Vite pipeline (which silently drops misordered
+# @imports — see the README's troubleshooting section) with every story
+# passing its interaction test and axe.
+#
+# Called by pages.yml on a push to main: the site it publishes is the `_site`
+# this job assembled, after every step above it passed on the same commit.
+on:
+  pull_request:
+  workflow_call:
+
+jobs:
+  checks:
+    name: Tokens, registry & Storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # Pinned major (Node 24 = npm 12) so a new LTS cannot change npm's
+          # lockfile validation under us; bump deliberately with package-lock.
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: The theme is generated from DESIGN.md
+        # One file is edited by hand: DESIGN.md, the neutral default the kit
+        # ships. The theme in tokens/ and the complete DESIGN.md written back
+        # beside it for agents are generated.
+        run: |
+          npm run theme:generate
+          git diff --exit-code -- \
+            tokens/theme.css tokens/theme.v4.css tokens/DESIGN.resolved.md \
+            || { echo "::error::the theme is stale or was edited by hand — edit DESIGN.md, run 'npm run theme:generate' and commit"; exit 1; }
+
+      - name: The two DESIGN.md files pass the format's linter
+        run: npm run design:lint
+
+      - name: DESIGN.md derivation rules, and the theme is its file's
+        run: npm run theme:check
+
+      - name: Resolved tokens are up to date
+        run: |
+          npm run theme:resolve
+          git diff --exit-code -- tokens/resolved.json \
+            || { echo "::error::tokens/resolved.json is stale — run 'npm run theme:resolve' and commit it"; exit 1; }
+
+      - name: Registry index is up to date, and the registry builds
+        # registry.json is committed and must match the kit. The built items
+        # in r/ are not committed: they are built here and published from here.
+        run: |
+          npm run registry:build
+          git diff --exit-code -- registry.json \
+            || { echo "::error::registry.json is stale — run 'npm run registry:build' and commit it"; exit 1; }
+
+      - name: Registry items carry the kit version
+        # package.json `version` is the only source of truth; the build stamps
+        # it into every item's meta.version.
+        run: npm run registry:check-version
+
+      - name: The one install is whole, and its skills are the kit's
+        # `shadcn add @ds/ds` must reach the DESIGN.md generator, every skill
+        # and every file a skill names; an item that carries a script declares
+        # what it imports; and no skill names this repository, since a skill
+        # is read in whatever project installed the kit.
+        run: npm run registry:check-install
+
+      - name: Spec drift (m3.material.io moved since the last audit?)
+        continue-on-error: true
+        run: npm run md3 -- check --strict
+
+      - name: Lint and typecheck
+        run: npm run lint && npm run typecheck
+
+      - name: Build Storybook
+        run: npm run build-storybook -- --quiet
+
+      # The quality net. Every story is a test: it renders, its `play`
+      # function runs if it has one, and axe checks the result — once under
+      # the shipped Material tokens and once under the Editorial preset,
+      # because a component that is only accessible under one palette is not
+      # accessible. The bar for a new component is in conventions.md.
+      - name: Install Chromium for the interaction tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Interaction tests and axe over the catalog
+        run: npm run test-storybook
+
+      - name: Assemble the site
+        # Storybook builds with relative asset paths, so it serves correctly
+        # from the repository subpath with no base-path config. A directory
+        # listing is not served, so /r is reached through its index.
+        run: |
+          mkdir -p _site
+          cp -R storybook-static/. _site/
+          cp -R r _site/r
+          test -f _site/index.html
+          test -f _site/r/registry.json
+          test -f _site/r/ds.json
+          echo "site: $(find _site/r -name '*.json' | wc -l) registry files"
+
+      # The artifact pages.yml deploys. On a pull request it is only kept for
+      # reading: nothing publishes it.
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+          retention-days: 7

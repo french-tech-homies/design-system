@@ -1,0 +1,19 @@
+# emitted declarations (design-sync buildCmd)
+.types/
+# storybook
+*storybook.log
+/storybook-static/
+# design-sync (claude.ai/design) — transient state
+.design-sync/sb-reference/
+.design-sync/sb-reference-build.log
+.design-sync/learnings/
+.design-sync/.cache/
+.design-sync/node_modules
+.design-sync/.*.log
+.design-sync/.*.err
+.ds-sync/
+ds-bundle/
+# dependencies, the built registry and the assembled site (never committed)
+node_modules/
+/r/
+/_site/

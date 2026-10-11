@@ -1,0 +1,46 @@
+/* The kit's own Storybook stylesheet. Its compiled CSS is what design-sync ships
+   to claude.ai/design (`[CSS_FROM_STORYBOOK]`), so every MD3 role must exist in
+   the build even when no story uses it — `@source inline()` safelists them. */
+@import "tailwindcss" source(none);
+@import "../tokens/theme.css";
+@import "../tokens/bridge-shadcn.css";
+@import "../tokens/theme.v4.css";
+/* The un-Material preset, so the catalog can be flipped between the two
+   identities from the toolbar (see .storybook/preview.ts). Scoped to
+   `.preset-editorial`, so importing it changes nothing on its own. */
+@import "../tokens/preset-editorial.css";
+
+@source "../components";
+@source "../primitives";
+@source "../adapters";
+@source "../icons.tsx";
+@source "../stories";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  /* shadcn/ui aliases the kit's bridge-shadcn.css derives from the MD3 roles */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* Color roles × the utilities that carry them. */
+@source inline("{bg,text,border,ring,fill,stroke}-{background,error,error-container,inverse-on-surface,inverse-primary,inverse-surface,on-background,on-error,on-error-container,on-primary,on-primary-container,on-primary-fixed,on-primary-fixed-variant,on-secondary,on-secondary-container,on-secondary-fixed,on-secondary-fixed-variant,on-surface,on-surface-variant,on-tertiary,on-tertiary-container,on-tertiary-fixed,on-tertiary-fixed-variant,outline,outline-variant,primary,primary-container,primary-fixed,primary-fixed-dim,scrim,secondary,secondary-container,secondary-fixed,secondary-fixed-dim,shadow,surface,surface-bright,surface-container,surface-container-high,surface-container-highest,surface-container-low,surface-container-lowest,surface-dim,surface-tint,surface-variant,tertiary,tertiary-container,tertiary-fixed,tertiary-fixed-dim}");
+/* Shape, elevation and type roles (all of them, not just the ones in use). */
+@source inline("rounded-shape-{extra-small,small,medium,large,extra-large,full}");
+@source inline("shadow-elevation-{1,2,3,4,5}");
+@source inline("text-{display,headline,title,body,label}-{large,medium,small}");

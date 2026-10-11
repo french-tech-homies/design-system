@@ -1,0 +1,1807 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "ds",
+  "homepage": "https://french-tech-homies.github.io/design-system/r",
+  "items": [
+    {
+      "name": "base",
+      "type": "registry:base",
+      "title": "MD3 base",
+      "description": "Initialise a project on the MD3 kit: React Aria (aria-nova) stock components, lucide icons, the kit's theme files, the shadcn bridge and utils.",
+      "config": {
+        "style": "aria-nova",
+        "iconLibrary": "lucide"
+      },
+      "registryDependencies": [
+        "@ds/theme",
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "cssVars": {
+        "light": {
+          "background": "var(--md-sys-color-background)",
+          "foreground": "var(--md-sys-color-on-background)",
+          "card": "var(--md-sys-color-surface-container-low)",
+          "card-foreground": "var(--md-sys-color-on-surface)",
+          "popover": "var(--md-sys-color-surface-container)",
+          "popover-foreground": "var(--md-sys-color-on-surface)",
+          "primary": "var(--md-sys-color-primary)",
+          "primary-foreground": "var(--md-sys-color-on-primary)",
+          "secondary": "var(--md-sys-color-secondary)",
+          "secondary-foreground": "var(--md-sys-color-on-secondary)",
+          "muted": "var(--md-sys-color-surface-container-highest)",
+          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
+          "accent": "var(--md-sys-color-surface-container-high)",
+          "accent-foreground": "var(--md-sys-color-on-surface)",
+          "destructive": "var(--md-sys-color-error)",
+          "destructive-foreground": "var(--md-sys-color-on-error)",
+          "border": "var(--md-sys-color-outline-variant)",
+          "input": "var(--md-sys-color-outline)",
+          "ring": "var(--md-sys-color-secondary)",
+          "radius": "0.5rem"
+        },
+        "dark": {
+          "background": "var(--md-sys-color-background)",
+          "foreground": "var(--md-sys-color-on-background)",
+          "card": "var(--md-sys-color-surface-container-low)",
+          "card-foreground": "var(--md-sys-color-on-surface)",
+          "popover": "var(--md-sys-color-surface-container)",
+          "popover-foreground": "var(--md-sys-color-on-surface)",
+          "primary": "var(--md-sys-color-primary)",
+          "primary-foreground": "var(--md-sys-color-on-primary)",
+          "secondary": "var(--md-sys-color-secondary)",
+          "secondary-foreground": "var(--md-sys-color-on-secondary)",
+          "muted": "var(--md-sys-color-surface-container-highest)",
+          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
+          "accent": "var(--md-sys-color-surface-container-high)",
+          "accent-foreground": "var(--md-sys-color-on-surface)",
+          "destructive": "var(--md-sys-color-error)",
+          "destructive-foreground": "var(--md-sys-color-on-error)",
+          "border": "var(--md-sys-color-outline-variant)",
+          "input": "var(--md-sys-color-outline)",
+          "ring": "var(--md-sys-color-secondary)",
+          "radius": "0.5rem"
+        }
+      },
+      "css": {
+        "@import \"tw-animate-css\"": {}
+      },
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "theme",
+      "type": "registry:theme",
+      "title": "MD3 theme",
+      "description": "The kit's theme files (through `tokens`) and the shadcn variable bridge. Writes only the bridge into your CSS (--background: var(--md-sys-color-background), …), never a palette value: import <ui>/ds/tokens/theme.css and theme.v4.css, or your own generated ones, from your entry CSS.",
+      "dependencies": [
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "@ds/tokens",
+        "@ds/license"
+      ],
+      "cssVars": {
+        "light": {
+          "background": "var(--md-sys-color-background)",
+          "foreground": "var(--md-sys-color-on-background)",
+          "card": "var(--md-sys-color-surface-container-low)",
+          "card-foreground": "var(--md-sys-color-on-surface)",
+          "popover": "var(--md-sys-color-surface-container)",
+          "popover-foreground": "var(--md-sys-color-on-surface)",
+          "primary": "var(--md-sys-color-primary)",
+          "primary-foreground": "var(--md-sys-color-on-primary)",
+          "secondary": "var(--md-sys-color-secondary)",
+          "secondary-foreground": "var(--md-sys-color-on-secondary)",
+          "muted": "var(--md-sys-color-surface-container-highest)",
+          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
+          "accent": "var(--md-sys-color-surface-container-high)",
+          "accent-foreground": "var(--md-sys-color-on-surface)",
+          "destructive": "var(--md-sys-color-error)",
+          "destructive-foreground": "var(--md-sys-color-on-error)",
+          "border": "var(--md-sys-color-outline-variant)",
+          "input": "var(--md-sys-color-outline)",
+          "ring": "var(--md-sys-color-secondary)",
+          "radius": "0.5rem"
+        },
+        "dark": {
+          "background": "var(--md-sys-color-background)",
+          "foreground": "var(--md-sys-color-on-background)",
+          "card": "var(--md-sys-color-surface-container-low)",
+          "card-foreground": "var(--md-sys-color-on-surface)",
+          "popover": "var(--md-sys-color-surface-container)",
+          "popover-foreground": "var(--md-sys-color-on-surface)",
+          "primary": "var(--md-sys-color-primary)",
+          "primary-foreground": "var(--md-sys-color-on-primary)",
+          "secondary": "var(--md-sys-color-secondary)",
+          "secondary-foreground": "var(--md-sys-color-on-secondary)",
+          "muted": "var(--md-sys-color-surface-container-highest)",
+          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
+          "accent": "var(--md-sys-color-surface-container-high)",
+          "accent-foreground": "var(--md-sys-color-on-surface)",
+          "destructive": "var(--md-sys-color-error)",
+          "destructive-foreground": "var(--md-sys-color-on-error)",
+          "border": "var(--md-sys-color-outline-variant)",
+          "input": "var(--md-sys-color-outline)",
+          "ring": "var(--md-sys-color-secondary)",
+          "radius": "0.5rem"
+        }
+      },
+      "css": {
+        "@import \"tw-animate-css\"": {}
+      },
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "tokens",
+      "type": "registry:file",
+      "title": "MD3 theme files",
+      "description": "The kit's default theme as files under <ui>/ds/: tokens/theme.css (the 49 Material color roles, light + dark), tokens/theme.v4.css (the Tailwind v4 @theme inline mapping: type, shape, elevation, motion, state layers), tokens/bridge-shadcn.css, the complete tokens/DESIGN.resolved.md, and the kit's neutral DESIGN.md they are generated from. Import theme.css and theme.v4.css from your entry CSS, or the ones generated from your own DESIGN.md.",
+      "files": [
+        {
+          "path": "tokens/theme.css",
+          "type": "registry:file",
+          "target": "@ui/ds/tokens/theme.css"
+        },
+        {
+          "path": "tokens/theme.v4.css",
+          "type": "registry:file",
+          "target": "@ui/ds/tokens/theme.v4.css"
+        },
+        {
+          "path": "tokens/bridge-shadcn.css",
+          "type": "registry:file",
+          "target": "@ui/ds/tokens/bridge-shadcn.css"
+        },
+        {
+          "path": "tokens/DESIGN.resolved.md",
+          "type": "registry:file",
+          "target": "@ui/ds/tokens/DESIGN.resolved.md"
+        },
+        {
+          "path": "DESIGN.md",
+          "type": "registry:file",
+          "target": "@ui/ds/DESIGN.md"
+        }
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "design-md",
+      "type": "registry:file",
+      "title": "DESIGN.md generator",
+      "description": "Turns a project's DESIGN.md into its theme and writes the complete file back: tokens/design-md.mjs (the derivation) and tokens/generate-theme.mjs (the command), under <ui>/ds/. Run with `npx tsx <ui>/ds/tokens/generate-theme.mjs DESIGN.md --out theme`; lint with `npx designmd lint DESIGN.md`.",
+      "devDependencies": [
+        "@material/material-color-utilities@0.4.0",
+        "yaml@^2.9.0",
+        "tsx@^4.22.4",
+        "@google/design.md@0.4.0"
+      ],
+      "files": [
+        {
+          "path": "tokens/design-md.mjs",
+          "type": "registry:file",
+          "target": "@ui/ds/tokens/design-md.mjs"
+        },
+        {
+          "path": "tokens/generate-theme.mjs",
+          "type": "registry:file",
+          "target": "@ui/ds/tokens/generate-theme.mjs"
+        }
+      ],
+      "registryDependencies": [
+        "@ds/tokens",
+        "@ds/license"
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "license",
+      "type": "registry:file",
+      "title": "MIT licence",
+      "description": "The kit's MIT notice, landed next to the copied files at <ui>/ds/LICENSE. Every other item depends on it, so any install carries the licence with the code.",
+      "files": [
+        {
+          "path": "LICENSE",
+          "type": "registry:file",
+          "target": "@ui/ds/LICENSE"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "preset-editorial",
+      "type": "registry:file",
+      "title": "Editorial preset",
+      "description": "A deliberately un-Material identity for the kit: hand-written 49-role palette, 2px corners instead of pills, a serif face, 1px hairlines instead of elevation shadows, quicker motion and stacked field labels. Import it after tokens/theme.v4.css and put `preset-editorial` on <html>.",
+      "files": [
+        {
+          "path": "tokens/preset-editorial.css",
+          "type": "registry:file",
+          "target": "@ui/ds/tokens/preset-editorial.css"
+        }
+      ],
+      "registryDependencies": [
+        "@ds/theme",
+        "@ds/license"
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "Kit utils",
+      "description": "twMergeConfig, cn, tv and focusRing bound to the MD3 scales (server-safe).",
+      "dependencies": [
+        "clsx",
+        "tailwind-merge",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "utils.ts",
+          "type": "registry:lib",
+          "target": "@ui/ds/utils.ts"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "render-props",
+      "type": "registry:lib",
+      "title": "Render-prop helpers",
+      "description": "composeTailwindRenderProps for React Aria className render props (client-only).",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "render-props.ts",
+          "type": "registry:lib",
+          "target": "@ui/ds/render-props.ts"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "icons",
+      "type": "registry:lib",
+      "title": "Icon contract",
+      "description": "IconComponent / IconProp types, renderIcon, and the kit's built-in SVGs.",
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "icons.tsx",
+          "type": "registry:lib",
+          "target": "@ui/ds/icons.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "typography",
+      "type": "registry:ui",
+      "title": "Typography",
+      "description": "Display, Headline, Title, Body and Label primitives on the MD3 type scale, across its two faces (brand for display/headline/title, plain for body/label).",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "primitives/Typography.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/primitives/Typography.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "state-layer",
+      "type": "registry:ui",
+      "title": "State layer",
+      "description": "MD3 interaction state overlay (hover 8 %, focus/press 10 %, drag 16 %), whose opacities come from the theme's --md-sys-state-* tokens through the state-opacity-* utilities.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "primitives/StateLayer.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/primitives/StateLayer.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Filled, tonal, outlined, text, elevated and FAB variants.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Button.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Button.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "icon-button",
+      "type": "registry:ui",
+      "title": "Icon button",
+      "description": "Standard, filled, tonal and outlined icon buttons, optionally toggleable.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/state-layer",
+        "@ds/icons",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/IconButton.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/IconButton.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "chip",
+      "type": "registry:ui",
+      "title": "Chip",
+      "description": "Assist, filter and input chips.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Chip.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "description": "Filled, outlined and elevated cards with CardContent.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Card.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "description": "Data table on React Aria Table: sortable columns, optional row selection (checkbox column added), empty state — M2 data-table measurements on M3 roles.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/checkbox",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Table.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Table.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "tag",
+      "type": "registry:ui",
+      "title": "Tag",
+      "description": "Static label on a colour-role container (tonal / filled / outlined × neutral / primary / secondary / tertiary / error) — order numbers, plans, statuses. Server-safe.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Tag.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Tag.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "Round person picture with an initials fallback when the image is missing or fails, sized by `size`.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Avatar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Avatar.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "list-item",
+      "type": "registry:ui",
+      "title": "List item",
+      "description": "Material list row with leading/trailing elements (use inside GridList).",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/ListItem.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/ListItem.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "grid-list",
+      "type": "registry:ui",
+      "title": "List (GridList)",
+      "description": "React Aria GridList collection with MD3 state layers on items.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/GridList.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/GridList.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "menu-item",
+      "type": "registry:ui",
+      "title": "Menu item",
+      "description": "Menu row with icons, supporting text and shortcut.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/MenuItem.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/MenuItem.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "menu",
+      "type": "registry:ui",
+      "title": "Menu",
+      "description": "Popover menu from any trigger, items as data.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/menu-item",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Menu.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "dialog-content",
+      "type": "registry:ui",
+      "title": "Dialog content",
+      "description": "Icon, headline, supporting text and actions for a dialog (server-safe).",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/typography",
+        "@ds/button",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/DialogContent.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/DialogContent.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "React Aria Dialog wrapping DialogContent.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/dialog-content",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Dialog.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "modal",
+      "type": "registry:ui",
+      "title": "Modal",
+      "description": "Modal overlay with MD3 enter/exit motion.",
+      "dependencies": [
+        "react-aria-components",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Modal.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Modal.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "modal-dialog",
+      "type": "registry:ui",
+      "title": "Modal dialog",
+      "description": "Dialog inside a modal overlay, driven by isOpen.",
+      "registryDependencies": [
+        "@ds/dialog",
+        "@ds/modal",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/ModalDialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/ModalDialog.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "disclosure",
+      "type": "registry:ui",
+      "title": "Disclosure",
+      "description": "Expand/collapse on React Aria Disclosure: one section, or a DisclosureGroup (the accordion, single or allowsMultipleExpanded). MD3 publishes no page for this component — the anatomy is a 56dp list row with a state layer, outline-variant hairlines and MD3 motion, documented in the doc comment.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Disclosure.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Disclosure.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "side-sheet",
+      "type": "registry:ui",
+      "title": "Side sheet",
+      "description": "Standard (inline) or modal side sheet.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/icon-button",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/SideSheet.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/SideSheet.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "description": "Plain and rich tooltips.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Tooltip.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "preview-trigger",
+      "type": "registry:ui",
+      "title": "Preview trigger",
+      "description": "A non-modal popover that opens on hover, focus and long press and may hold interactive content — React Aria PreviewTrigger on a Material container surface. MD3 has no page for it; the doc comment says so and points at the rich tooltip for the simpler case.",
+      "dependencies": [
+        "react-aria-components",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/PreviewTrigger.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/PreviewTrigger.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "description": "Material primary and secondary tabs on React Aria Tabs: 48dp rows (64dp with a stacked icon), the 1dp divider, a 3dp rounded indicator that hugs its label for primary and a 2dp full-width one for secondary, fixed or scrollable.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Tabs.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Tabs.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "snackbar",
+      "type": "registry:ui",
+      "title": "Snackbar",
+      "description": "One-at-a-time bottom snackbar on React Aria Toast: a global queue and snackbar(text, { action, close, timeout }) helper, auto-dismiss paused on hover / focus, persistent when actionable.",
+      "dependencies": [
+        "react-aria-components",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Snackbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Snackbar.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "bottom-navigation",
+      "type": "registry:ui",
+      "title": "Bottom navigation",
+      "description": "Material navigation bar: a <nav> of three to five destinations as React Aria links or buttons, with aria-current on the active one and a pill indicator behind its icon.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/state-layer",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/BottomNavigation.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/BottomNavigation.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "top-app-bar",
+      "type": "registry:ui",
+      "title": "Top app bar",
+      "description": "Material top app bar in the spec's four baseline types (small, center-aligned, medium, large) with a leading action, a heading title, an optional subtitle and trailing actions. Server-safe. No on-scroll collapse — documented in the doc comment.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/TopAppBar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/TopAppBar.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "navigation-rail",
+      "type": "registry:ui",
+      "title": "Navigation rail",
+      "description": "The vertical destination list of a medium or expanded window, in both spec states: collapsed at 96dp with vertical items and a 56x32 pill indicator, expanded at 220dp with horizontal items in a full-width pill. A <nav> of links or buttons, not a tab set.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/state-layer",
+        "@ds/typography",
+        "@ds/bottom-navigation",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/NavigationRail.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/NavigationRail.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "navigation-drawer",
+      "type": "registry:ui",
+      "title": "Navigation drawer",
+      "description": "The full-height destination list, standard (inline, elevation 0) and modal (scrim, focus trap, Escape, on React Aria Modal + Dialog). 360dp with 16dp trailing corners, 56dp full-pill active indicators, optional headlines and Divider-separated sections.",
+      "dependencies": [
+        "react-aria-components",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/state-layer",
+        "@ds/typography",
+        "@ds/divider",
+        "@ds/bottom-navigation",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/NavigationDrawer.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/NavigationDrawer.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "title": "Slider",
+      "description": "Single or range slider.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Slider.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Slider.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "empty-state",
+      "type": "registry:ui",
+      "title": "Empty state",
+      "description": "Illustration, headline, supporting text and actions.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/EmptyState.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/EmptyState.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "divider",
+      "type": "registry:ui",
+      "title": "Divider",
+      "description": "The 1dp outline-variant line: full-width, inset (16dp leading) and middle-inset, horizontal or vertical, decorative by default. Server-safe.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Divider.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Divider.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "progress-indicator",
+      "type": "registry:ui",
+      "title": "Progress indicator",
+      "description": "Linear and circular progress indicators, each determinate or indeterminate, on React Aria ProgressBar — primary active indicator, secondary-container track, a 4dp gap, and a stop indicator on the determinate linear bar. Carries its own keyframe; no animation library.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/ProgressIndicator.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/ProgressIndicator.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "color-area",
+      "type": "registry:ui",
+      "title": "Color area",
+      "description": "React Aria ColorArea styled for MD3.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/color/ColorArea.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/color/ColorArea.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "color-field",
+      "type": "registry:ui",
+      "title": "Color field",
+      "description": "Hex input for a color value.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/color/ColorField.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/color/ColorField.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "color-slider",
+      "type": "registry:ui",
+      "title": "Color slider",
+      "description": "Single-channel color slider.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/color/ColorSlider.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/color/ColorSlider.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "color-swatch",
+      "type": "registry:ui",
+      "title": "Color swatch",
+      "description": "Color preview swatch.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/color/ColorSwatch.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/color/ColorSwatch.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "color-picker",
+      "type": "registry:ui",
+      "title": "Color picker",
+      "description": "Swatch trigger opening area, hue slider and hex field.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/color-area",
+        "@ds/color-field",
+        "@ds/color-slider",
+        "@ds/color-swatch",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/color/ColorPicker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/color/ColorPicker.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "field-styles",
+      "type": "registry:lib",
+      "title": "Field styles",
+      "description": "The MD3 field container as tailwind-variants slots (filled / outlined, floating label, icons, supporting text) with a kind variant for typed, composite and trigger fields — the one style module behind TextField, NumberField, PhoneField, Select and ComboBox.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/field-styles.ts",
+          "type": "registry:lib",
+          "target": "@ui/ds/components/field-styles.ts"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "text-field",
+      "type": "registry:ui",
+      "title": "Text field",
+      "description": "Filled and outlined text fields with floating label, icons, supporting text, error and character counter.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/field-styles",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/TextField.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/TextField.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "number-field",
+      "type": "registry:ui",
+      "title": "Number field",
+      "description": "Locale-aware number field: Intl.NumberFormat formatting, min / max / step, arrow-key and wheel stepping, optional trailing − / + steppers.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/field-styles",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/NumberField.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/NumberField.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "phone-field",
+      "type": "registry:ui",
+      "title": "Phone field",
+      "description": "Phone number field: E.164 value, as-you-type international formatting and a flag + calling-code country picker in the leading slot (react-phone-number-input on the text-field container).",
+      "dependencies": [
+        "react-aria-components",
+        "react-phone-number-input"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/field-styles",
+        "@ds/menu-item",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/PhoneField.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/PhoneField.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "image-field",
+      "type": "registry:ui",
+      "title": "Image field",
+      "description": "Image upload: drop zone + tonal \"Choose image\" (React Aria DropZone + FileTrigger), preview with remove icon button and replace, size / type rejection. Value is a data URL.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/button",
+        "@ds/icon-button",
+        "@ds/card",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/ImageField.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/ImageField.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "Checkbox and CheckboxGroup with indeterminate, error and disabled states.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Checkbox.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Checkbox.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "description": "MD3 switch with growing handle and optional icons.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Switch.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Switch.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "radio",
+      "type": "registry:ui",
+      "title": "Radio",
+      "description": "Radio and RadioGroup with label, supporting text, error and orientation.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Radio.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Radio.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "Exposed dropdown menu: text-field-shaped trigger with floating label opening a menu of options.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/field-styles",
+        "@ds/menu-item",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Select.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Select.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "combo-box",
+      "type": "registry:ui",
+      "title": "Combo box",
+      "description": "Autocomplete text field with a menu; selectionMode=\"multiple\" renders the selection as input chips inline with the caret.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/field-styles",
+        "@ds/select",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/ComboBox.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/ComboBox.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "react-hook-form-adapter",
+      "type": "registry:lib",
+      "title": "react-hook-form adapter",
+      "description": "FormTextField, FormNumberField, FormPhoneField, FormImageField, FormCheckbox, FormCheckboxGroup, FormSwitch, FormRadioGroup, FormSelect, FormChipGroup and FormComboBox: kit controls bound through Controller. Skip if not on react-hook-form.",
+      "dependencies": [
+        "react-hook-form",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/text-field",
+        "@ds/number-field",
+        "@ds/phone-field",
+        "@ds/image-field",
+        "@ds/checkbox",
+        "@ds/switch",
+        "@ds/radio",
+        "@ds/select",
+        "@ds/chip",
+        "@ds/combo-box",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "adapters/react-hook-form.tsx",
+          "type": "registry:lib",
+          "target": "@ui/ds/adapters/react-hook-form.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "next-adapter",
+      "type": "registry:lib",
+      "title": "Next.js adapter",
+      "description": "Router provider for React Aria links and a next/image renderer for Card media. Skip if not on Next.js.",
+      "dependencies": [
+        "next",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/card",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "adapters/next.tsx",
+          "type": "registry:lib",
+          "target": "@ui/ds/adapters/next.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "react-router-adapter",
+      "type": "registry:lib",
+      "title": "React Router adapter",
+      "description": "Router provider for React Aria links (Button / Chip / Menu / ListItem href) on React Router; the same shape adapts to TanStack Router. Skip if not on React Router.",
+      "dependencies": [
+        "react-router",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "adapters/react-router.tsx",
+          "type": "registry:lib",
+          "target": "@ui/ds/adapters/react-router.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "ds",
+      "type": "registry:style",
+      "title": "MD3 kit (everything)",
+      "description": "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, and the ds-theme, ds-build and ds-spec skills for Claude Code. Writes the shadcn bridge into your CSS, never a palette value.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/icons",
+        "@ds/typography",
+        "@ds/state-layer",
+        "@ds/button",
+        "@ds/icon-button",
+        "@ds/chip",
+        "@ds/card",
+        "@ds/table",
+        "@ds/tag",
+        "@ds/avatar",
+        "@ds/list-item",
+        "@ds/grid-list",
+        "@ds/menu-item",
+        "@ds/menu",
+        "@ds/dialog-content",
+        "@ds/dialog",
+        "@ds/modal",
+        "@ds/modal-dialog",
+        "@ds/disclosure",
+        "@ds/side-sheet",
+        "@ds/tooltip",
+        "@ds/preview-trigger",
+        "@ds/tabs",
+        "@ds/snackbar",
+        "@ds/bottom-navigation",
+        "@ds/top-app-bar",
+        "@ds/navigation-rail",
+        "@ds/navigation-drawer",
+        "@ds/slider",
+        "@ds/empty-state",
+        "@ds/divider",
+        "@ds/progress-indicator",
+        "@ds/color-area",
+        "@ds/color-field",
+        "@ds/color-slider",
+        "@ds/color-swatch",
+        "@ds/color-picker",
+        "@ds/field-styles",
+        "@ds/text-field",
+        "@ds/number-field",
+        "@ds/phone-field",
+        "@ds/image-field",
+        "@ds/checkbox",
+        "@ds/switch",
+        "@ds/radio",
+        "@ds/select",
+        "@ds/combo-box",
+        "@ds/tokens",
+        "@ds/design-md",
+        "@ds/spec-skill",
+        "@ds/theme-skill",
+        "@ds/build-skill",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "index.ts",
+          "type": "registry:lib",
+          "target": "@ui/ds/index.ts"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      },
+      "dependencies": [
+        "tw-animate-css"
+      ],
+      "cssVars": {
+        "light": {
+          "background": "var(--md-sys-color-background)",
+          "foreground": "var(--md-sys-color-on-background)",
+          "card": "var(--md-sys-color-surface-container-low)",
+          "card-foreground": "var(--md-sys-color-on-surface)",
+          "popover": "var(--md-sys-color-surface-container)",
+          "popover-foreground": "var(--md-sys-color-on-surface)",
+          "primary": "var(--md-sys-color-primary)",
+          "primary-foreground": "var(--md-sys-color-on-primary)",
+          "secondary": "var(--md-sys-color-secondary)",
+          "secondary-foreground": "var(--md-sys-color-on-secondary)",
+          "muted": "var(--md-sys-color-surface-container-highest)",
+          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
+          "accent": "var(--md-sys-color-surface-container-high)",
+          "accent-foreground": "var(--md-sys-color-on-surface)",
+          "destructive": "var(--md-sys-color-error)",
+          "destructive-foreground": "var(--md-sys-color-on-error)",
+          "border": "var(--md-sys-color-outline-variant)",
+          "input": "var(--md-sys-color-outline)",
+          "ring": "var(--md-sys-color-secondary)",
+          "radius": "0.5rem"
+        },
+        "dark": {
+          "background": "var(--md-sys-color-background)",
+          "foreground": "var(--md-sys-color-on-background)",
+          "card": "var(--md-sys-color-surface-container-low)",
+          "card-foreground": "var(--md-sys-color-on-surface)",
+          "popover": "var(--md-sys-color-surface-container)",
+          "popover-foreground": "var(--md-sys-color-on-surface)",
+          "primary": "var(--md-sys-color-primary)",
+          "primary-foreground": "var(--md-sys-color-on-primary)",
+          "secondary": "var(--md-sys-color-secondary)",
+          "secondary-foreground": "var(--md-sys-color-on-secondary)",
+          "muted": "var(--md-sys-color-surface-container-highest)",
+          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
+          "accent": "var(--md-sys-color-surface-container-high)",
+          "accent-foreground": "var(--md-sys-color-on-surface)",
+          "destructive": "var(--md-sys-color-error)",
+          "destructive-foreground": "var(--md-sys-color-on-error)",
+          "border": "var(--md-sys-color-outline-variant)",
+          "input": "var(--md-sys-color-outline)",
+          "ring": "var(--md-sys-color-secondary)",
+          "radius": "0.5rem"
+        }
+      },
+      "css": {
+        "@import \"tw-animate-css\"": {}
+      },
+      "docs": "The kit's theme arrives as files and is not written into your CSS. Import it from your entry CSS, with every @import above any other at-rule (the path is from that file to your ui folder):\n\n  @import \"tailwindcss\";\n  @import \"./components/ui/ds/tokens/theme.css\";\n  @import \"./components/ui/ds/tokens/theme.v4.css\";\n\nFor a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead."
+    },
+    {
+      "name": "spec-skill",
+      "type": "registry:file",
+      "title": "ds-spec skill",
+      "description": "Claude Code skill + script that reads Material 3 specs, Do/Don't guidelines, accessibility and component tokens straight from m3.material.io (no browser, cached per site version).",
+      "files": [
+        {
+          "path": "skills/ds-spec/SKILL.md",
+          "type": "registry:file",
+          "target": "~/.claude/skills/ds-spec/SKILL.md"
+        },
+        {
+          "path": "skills/ds-spec/md3.mjs",
+          "type": "registry:file",
+          "target": "~/.claude/skills/ds-spec/md3.mjs"
+        }
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "theme-skill",
+      "type": "registry:file",
+      "title": "ds-theme skill",
+      "description": "Claude Code skill: give the project a look of its own. Write its DESIGN.md from a brief, generate the theme with the kit's generator, read the warnings, wire the entry CSS, and take a kit update without losing the theme. Carries the DESIGN.md contract the kit reads.",
+      "files": [
+        {
+          "path": "skills/ds-theme/SKILL.md",
+          "type": "registry:file",
+          "target": "~/.claude/skills/ds-theme/SKILL.md"
+        },
+        {
+          "path": "skills/ds-theme/design-md.md",
+          "type": "registry:file",
+          "target": "~/.claude/skills/ds-theme/design-md.md"
+        }
+      ],
+      "registryDependencies": [
+        "@ds/design-md",
+        "@ds/license"
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "build-skill",
+      "type": "registry:file",
+      "title": "ds-build skill",
+      "description": "Claude Code skill: build screens with the kit. Role utilities and their pairing, the type primitives, state layers, the resolved DESIGN.md as the reference for values, and the three layers that say what a project may change.",
+      "files": [
+        {
+          "path": "skills/ds-build/SKILL.md",
+          "type": "registry:file",
+          "target": "~/.claude/skills/ds-build/SKILL.md"
+        }
+      ],
+      "registryDependencies": [
+        "@ds/tokens",
+        "@ds/license"
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.2.0",
+        "license": "MIT"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "carbonVersion": "2026-09-23_06-10-05",
+  "checked": "2026-10-11",
+  "audited": {
+    "text-fields": "2026-10-11",
+    "checkbox": "2026-08-24",
+    "switch": "2026-08-24",
+    "radio-button": "2026-08-24",
+    "menus": "2026-08-24",
+    "chips": "2026-08-24",
+    "snackbar": "2026-08-25",
+    "navigation-bar": "2026-08-27",
+    "divider": "2026-08-28",
+    "progress-indicators": "2026-08-28",
+    "tabs": "2026-08-28",
+    "app-bars": "2026-08-28",
+    "navigation-rail": "2026-08-28",
+    "navigation-drawer": "2026-08-28"
+  },
+  "note": "Site content version the kit's components were last reviewed against. `npm run md3 -- check` reports drift; re-audit and bump when it moves (conventions.md, \"Spec review\"). `carbonVersion` is the last version the *whole* list was covered against: each component either read in full that day, which is the date beside it, or shown unchanged by the site's own dates — its page `updated` date and its token table's revision both strictly earlier than the date beside it — in which case it keeps that date. A date is bumped only for what was really read. Components with no m3.material.io page (Disclosure, PreviewTrigger, Table, Tag, Avatar) are deliberately absent: an audit entry pointing at a page that does not exist is a false citation, and each says so in its doc comment instead."
+}

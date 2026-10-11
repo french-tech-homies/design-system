@@ -1,0 +1,27 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "incremental": false,
+    "rootDir": "..",
+    "outDir": "../.types",
+    "plugins": []
+  },
+  "include": [
+    "../**/*.ts",
+    "../**/*.tsx"
+  ],
+  "exclude": [
+    "../.types",
+    "../skills",
+    "../stories",
+    "../.storybook",
+    "../node_modules",
+    "../.design-sync",
+    "../.ds-sync",
+    "../ds-bundle",
+    "../storybook-static"
+  ]
+}

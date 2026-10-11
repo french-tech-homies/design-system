@@ -1,0 +1,80 @@
+{
+  "projectId": "461df9d7-374a-4bd7-a112-17db460a441b",
+  "pkg": "@pipao/md3",
+  "globalName": "PipaoMD3",
+  "shape": "storybook",
+  "entry": "index.ts",
+  "srcDir": ".",
+  "tsconfig": "./tsconfig.json",
+  "storybookConfigDir": ".storybook",
+  "storybookStatic": ".design-sync/sb-reference",
+  "tokensGlob": "tokens/theme.css",
+  "guidelinesGlob": [
+    "conventions.md"
+  ],
+  "titleMap": {
+    "Iconbutton": "IconButton",
+    "FAB": "Button",
+    "Emptystate": "EmptyState",
+    "Dialogcontent": "DialogContent",
+    "List": "GridList",
+    "Listitem": "ListItem",
+    "Sidesheet": "SideSheet",
+    "Bottomnavigation": "BottomNavigation",
+    "Menuitem": "MenuItem",
+    "Colorpicker": "ColorPicker",
+    "Textfield": "TextField",
+    "Numberfield": "NumberField",
+    "Phonefield": "PhoneField",
+    "Imagefield": "ImageField",
+    "Form(react-hook-form)": null,
+    "Color": null,
+    "Interactionstates": null,
+    "Motion": null,
+    "Shape&elevation": null,
+    "Typography": null,
+    "Overview": null
+  },
+  "buildCmd": "npx tsc -p .design-sync/tsconfig.kit.json",
+  "overrides": {
+    "Tooltip": {
+      "cardMode": "single",
+      "primaryStory": "PlainTooltip"
+    },
+    "DialogContent": {
+      "cardMode": "column"
+    },
+    "GridList": {
+      "cardMode": "column"
+    },
+    "BottomNavigation": {
+      "cardMode": "column"
+    },
+    "TextField": {
+      "cardMode": "column"
+    },
+    "Card": {
+      "viewport": "480x800"
+    },
+    "Dialog": {
+      "viewport": "480x400"
+    },
+    "Snackbar": {
+      "cardMode": "column"
+    },
+    "Tag": {
+      "cardMode": "column"
+    },
+    "Table": {
+      "cardMode": "column"
+    },
+    "ComboBox": {
+      "cardMode": "column"
+    },
+    "ImageField": {
+      "cardMode": "column"
+    }
+  },
+  "tokensPkg": "@pipao/md3",
+  "readmeHeader": ".design-sync/conventions.md"
+}
