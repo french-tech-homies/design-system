@@ -12,7 +12,11 @@
    skill, skills/ds-theme/design-md.md):
 
      scheme       `light` or `dark`: the scheme the file's colour roles write.
-     colors       `seed` (required) and the optional `*-key` colours
+                  The format has no such key: a file that writes none has it
+                  read from its ground (`colors.background`, else
+                  `colors.surface`), light or dark by its tone.
+     colors       `seed` (read from `primary` when the file writes none, the
+                  format having no such key) and the optional `*-key` colours
                   (`primary-key`, `secondary-key`, `tertiary-key`,
                   `neutral-key`, `neutral-variant-key`, `error-key`) build the
                   tonal palettes; any of the 49 role names written here wins
@@ -20,10 +24,11 @@
                   scheme is derived from the key colours alone. The `*-fixed*`
                   roles are the same in both schemes, so a written one applies
                   to both.
-     typography   the 15 Material type roles (`display-large` … `label-small`),
-                  and `mono`: the `fontFamily` of the face the project
+     typography   the 15 Material type roles (`display-large` … `label-small`,
+                  or with the format's short sizes, `title-md`), and `mono`: the `fontFamily` of the face the project
                   reaches for with `font-mono`. No kit component uses it.
-     rounded      the 6 corners (`extra-small` … `full`).
+     rounded      the 6 corners (`extra-small` … `full`, or the format's
+                  short `xs`, `sm`, `md`, `lg`, `xl`).
 
    What the body means to the kit: under `## Reference CSS`, the first `css`
    fence, and in it the first top-level `:root` rule.
@@ -34,7 +39,8 @@
                        easings and durations, under the theme's own names.
 
    Every other name is ignored and listed in the warnings; so is a written
-   colour pair whose contrast is poor. Prose is never read.
+   colour pair whose contrast is poor, and so is what was assumed (a scheme, a
+   seed), with the token it was read from. Prose is never read.
 
    `@material/material-color-utilities` 0.4.x ships extension-less ESM imports
    Node refuses, so whatever imports this module runs through `tsx`.
@@ -160,6 +166,46 @@ const KEYS = {
 };
 
 const SCHEMES = ["light", "dark"];
+
+/* The DESIGN.md format's short sizes, as its own examples and tools write
+   them, read as Material's names. Nothing outside these two tables is
+   mapped: any other name stays ignored and listed. */
+const SIZE_ALIASES = { lg: "large", md: "medium", sm: "small" };
+const CORNER_ALIASES = {
+  xs: "extra-small",
+  sm: "small",
+  md: "medium",
+  lg: "large",
+  xl: "extra-large",
+};
+
+/** `title-md` → `title-medium`; any other name is returned as it is. */
+function typeRoleOf(name) {
+  const [, group, size] = /^([a-z]+)-(lg|md|sm)$/.exec(name) ?? [];
+  const role = `${group}-${SIZE_ALIASES[size]}`;
+  return Object.hasOwn(TYPE_DEFAULTS, role) ? role : name;
+}
+
+const cornerOf = (name) =>
+  Object.hasOwn(CORNER_ALIASES, name) ? CORNER_ALIASES[name] : name;
+
+/** A section's entries under Material's names: `[name, value, written]`,
+    `written` being the key the file wrote. Where a file writes both a short
+    name and Material's, Material's is read and the short one is listed. */
+function byMaterialName(written, section, nameOf, warnings) {
+  const entries = [];
+  for (const [key, value] of Object.entries(written)) {
+    const name = nameOf(key);
+    if (name !== key && Object.hasOwn(written, name)) {
+      warnings.push({
+        kind: "unapplied",
+        token: `${section}.${key}`,
+        message: `${section}.${key}: ${section}.${name} is written too, and is the one read — not applied`,
+      });
+    } else entries.push([name, value, key]);
+  }
+  return entries;
+}
 
 /* Material's baseline type scale and corners: what a DESIGN.md that writes
    none of them gets, so the output never depends on what a previous run left
@@ -769,21 +815,51 @@ function deriveFront(front, warnings) {
 function deriveColors(front, warnings) {
   const colors = section(front, "colors");
 
-  const scheme = front.scheme;
-  if (!SCHEMES.includes(scheme)) {
+  /* `scheme` and `seed` are the kit's own keys: a file in the format's own
+     words writes neither. Each is then read from the one token that says it,
+     and listed as assumed, naming that token; with no such token the file is
+     refused. A value that is written is never replaced. */
+  const assumed = {};
+  let scheme = front.scheme;
+  if (scheme === undefined) {
+    const ground = ["background", "surface"].find(
+      (role) => colors[role] !== undefined,
+    );
+    if (ground === undefined) {
+      throw new DesignMdError(
+        "DESIGN.md: no `scheme` — say which scheme the colour roles write, `scheme: light` or `scheme: dark`",
+      );
+    }
+    const tone = argb(ground, colors[ground]);
+    scheme = lstarFromArgb(tone) >= 50 ? "light" : "dark";
+    assumed.scheme = ground;
+    warnings.push({
+      kind: "assumed",
+      token: "scheme",
+      message: `scheme: the file writes none — read as ${scheme} from colors.${ground} (${hexFromArgb(tone)}), a ${scheme} ground. Write \`scheme: ${scheme}\` to say it`,
+    });
+  } else if (!SCHEMES.includes(scheme)) {
     throw new DesignMdError(
-      scheme === undefined
-        ? "DESIGN.md: no `scheme` — say which scheme the colour roles write, `scheme: light` or `scheme: dark`"
-        : `DESIGN.md: scheme is ${JSON.stringify(scheme)} — the kit reads \`light\` or \`dark\``,
+      `DESIGN.md: scheme is ${JSON.stringify(scheme)} — the kit reads \`light\` or \`dark\``,
     );
   }
-  if (colors.seed === undefined) {
-    throw new DesignMdError(
-      "DESIGN.md: no colors.seed — the key colour both schemes are derived from",
-    );
+  let seed = colors.seed;
+  if (seed === undefined) {
+    if (colors.primary === undefined) {
+      throw new DesignMdError(
+        "DESIGN.md: no colors.seed — the key colour both schemes are derived from",
+      );
+    }
+    seed = hexFromArgb(argb("primary", colors.primary));
+    assumed.seed = "primary";
+    warnings.push({
+      kind: "assumed",
+      token: "colors.seed",
+      message: `colors.seed: the file writes none — read from colors.primary (${seed}): the ${scheme === "light" ? "dark" : "light"} scheme and every role the file does not write are derived from it. Write \`seed\` under \`colors\` to say it`,
+    });
   }
 
-  const keys = { seed: argb("seed", colors.seed) };
+  const keys = { seed: argb(assumed.seed ?? "seed", seed) };
   const written = {};
   for (const [name, value] of Object.entries(colors)) {
     if (name in KEYS) keys[name] = argb(name, value);
@@ -820,7 +896,13 @@ function deriveColors(front, warnings) {
     return roles;
   };
 
-  const result = { scheme, keys, light: derive("light"), dark: derive("dark") };
+  const result = {
+    scheme,
+    keys,
+    assumed,
+    light: derive("light"),
+    dark: derive("dark"),
+  };
 
   /* A derived pair is Material's own and holds; a written role is checked
      against its partner, in the scheme it is written in (a fixed role is the
@@ -844,23 +926,46 @@ function deriveColors(front, warnings) {
 
 function deriveTypography(front, warnings) {
   const written = section(front, "typography");
-  const typography = {};
-  for (const [role, defaults] of Object.entries(TYPE_DEFAULTS)) {
-    const token = written[role] ?? {};
-    if (!isMap(token)) {
-      throw new DesignMdError(`DESIGN.md: typography.${role} is not a map`);
+  const typography = Object.fromEntries(
+    Object.entries(TYPE_DEFAULTS).map(([role, defaults]) => [
+      role,
+      { ...defaults },
+    ]),
+  );
+  /** Material's role → the key the file wrote it under (`title-md`). */
+  const names = {};
+  for (const [role, token, key] of byMaterialName(
+    written,
+    "typography",
+    typeRoleOf,
+    warnings,
+  )) {
+    if (!Object.hasOwn(TYPE_DEFAULTS, role)) {
+      if (role !== MONO) {
+        warnings.push({
+          kind: "ignored",
+          token: `typography.${role}`,
+          message: `typography.${role} is not a Material type role: ignored`,
+        });
+      }
+      continue;
     }
-    typography[role] = { ...defaults };
+    names[role] = key;
+    if (token === undefined || token === null) continue;
+    if (!isMap(token)) {
+      throw new DesignMdError(`DESIGN.md: typography.${key} is not a map`);
+    }
     for (const [property, value] of Object.entries(token)) {
       if (Object.hasOwn(TYPE_FORMS, property)) {
         typography[role][property] = oneValue(
-          `typography.${role}.${property}`,
+          `typography.${key}.${property}`,
           value,
           TYPE_FORMS[property],
         );
-      } else if (Object.hasOwn(defaults, property)) {
+      } else if (Object.hasOwn(TYPE_DEFAULTS[role], property)) {
         typography[role][property] = value;
       } else {
+        // Under Material's name, as the resolved file writes the role.
         warnings.push({
           kind: "unapplied",
           token: `typography.${role}.${property}`,
@@ -869,24 +974,20 @@ function deriveTypography(front, warnings) {
       }
     }
   }
-  for (const role of Object.keys(written)) {
-    if (!(role in TYPE_DEFAULTS) && role !== MONO) {
-      warnings.push({
-        kind: "ignored",
-        token: `typography.${role}`,
-        message: `typography.${role} is not a Material type role: ignored`,
-      });
-    }
-  }
-  return typography;
+  return { typography, names };
 }
 
 function deriveRounded(front, warnings) {
   const written = section(front, "rounded");
   const rounded = { ...CORNER_DEFAULTS };
-  for (const [step, value] of Object.entries(written)) {
+  for (const [step, value, key] of byMaterialName(
+    written,
+    "rounded",
+    cornerOf,
+    warnings,
+  )) {
     if (Object.hasOwn(rounded, step)) {
-      rounded[step] = oneValue(`rounded.${step}`, value, CORNER_FORM);
+      rounded[step] = oneValue(`rounded.${key}`, value, CORNER_FORM);
     } else {
       warnings.push({
         kind: "ignored",
@@ -1013,7 +1114,7 @@ export function deriveTheme(text) {
   const warnings = [];
   deriveFront(front, warnings);
   const colors = deriveColors(front, warnings);
-  const typography = deriveTypography(front, warnings);
+  const { typography, names: typeNames } = deriveTypography(front, warnings);
   const mono = deriveMono(front, warnings);
   const rounded = deriveRounded(front, warnings);
   const faces = deriveFaces(typography, warnings);
@@ -1023,6 +1124,7 @@ export function deriveTheme(text) {
     body,
     colors,
     typography,
+    typeNames,
     rounded,
     faces,
     mono,
@@ -1312,7 +1414,7 @@ ${fenced}`;
     schemes tabulated, and the warnings when there are any. Feeding it back to
     the generator gives the same theme and the same warnings. */
 export function renderResolvedDesignMd(theme, warnings = theme.warnings) {
-  const { front, colors, typography, rounded } = theme;
+  const { front, colors, typography, typeNames, rounded } = theme;
   const written = colors[colors.scheme];
   const known = (name) => name === "seed" || name in KEYS || name in ROLES;
   const extra = (name, kept) =>
@@ -1321,18 +1423,32 @@ export function renderResolvedDesignMd(theme, warnings = theme.warnings) {
         ([key]) => !kept(key),
       ),
     );
+  /* What was assumed is not written: the file reads back with the same
+     warning, from the same token. A seed read from the primary is left out,
+     and so is a `background` the file did not write when its scheme was read
+     from its surface, the background being read first. Both are derived the
+     same from what is written, and the table below holds every role. */
+  const unsaid = (name) =>
+    (name === "seed" && colors.assumed.seed !== undefined) ||
+    (name === "background" && colors.assumed.scheme === "surface");
+  /* A short name the kit read is written under Material's. One that lost to
+     Material's own stays as written, to be listed again. */
+  const readShort = (section, nameOf) => (key) =>
+    nameOf(key) !== key && !Object.hasOwn(front[section], nameOf(key));
+  const shortRole = readShort("typography", typeRoleOf);
 
   const complete = {
     ...front,
     colors: {
       ...Object.fromEntries(
-        Object.entries(colors.keys).map(([key, value]) => [
-          key,
-          hexFromArgb(value),
-        ]),
+        Object.entries(colors.keys)
+          .filter(([key]) => !unsaid(key))
+          .map(([key, value]) => [key, hexFromArgb(value)]),
       ),
       ...Object.fromEntries(
-        Object.keys(ROLES).map((role) => [role, hexFromArgb(written[role])]),
+        Object.keys(ROLES)
+          .filter((role) => !unsaid(role))
+          .map((role) => [role, hexFromArgb(written[role])]),
       ),
       ...extra("colors", known),
     },
@@ -1341,12 +1457,24 @@ export function renderResolvedDesignMd(theme, warnings = theme.warnings) {
       ...Object.fromEntries(
         Object.entries(typography).map(([role, token]) => [
           role,
-          { ...token, ...extra("typography", () => false)[role] },
+          {
+            ...token,
+            ...extra("typography", () => false)[typeNames[role] ?? role],
+          },
         ]),
       ),
-      ...extra("typography", (role) => role in TYPE_DEFAULTS),
+      ...extra(
+        "typography",
+        (role) => role in TYPE_DEFAULTS || shortRole(role),
+      ),
     },
-    rounded: { ...rounded, ...extra("rounded", (step) => step in rounded) },
+    rounded: {
+      ...rounded,
+      ...extra(
+        "rounded",
+        (step) => step in rounded || readShort("rounded", cornerOf)(step),
+      ),
+    },
   };
 
   const cell = (value) => `\`${hexFromArgb(value)}\` \`${hslColor(value)}\``;

@@ -238,8 +238,8 @@
       "loose": "cb0b2f4f16e4cbf0c46c40256514b088602a8c000aeef16993d6a86aadaf545c"
     },
     "tokens/design-md.mjs": {
-      "exact": "3ae59f4b880185a48e69108a3033bca8ba028049d5f2ccf03c7882bcb2dc54fd",
-      "loose": "7a7e242e3b7eddb7ac84361773bdd2453e01302e28586ce7ec7afda26e6bb7f3"
+      "exact": "de7cf511981911b48b54b686e141f458119fcec91e6da45c373faa18c3d65067",
+      "loose": "d6c80956f7cdaf38a7d5bbc0737aae7fe9297616a49b47fb4722faa244d132e8"
     },
     "tokens/generate-theme.mjs": {
       "exact": "0a7f19678cee574e34fbc5cde94afc8026bc5d57dba6e99b6d41a989663f6603",
@@ -276,12 +276,12 @@
       "loose": "4d99089debfece419b5da2cb23b96638022d7e6a5ebe9048a36f6c07a9ff5097"
     },
     ".claude/skills/ds-theme/SKILL.md": {
-      "exact": "167398b01d60bc8425968d7ebc79bc88fc139eb34df0877f5d1bd67276661e44",
-      "loose": "8c507b67809342d80cc61faabbd80b34ece851fc5f4eca6bd8e924feab69620a"
+      "exact": "f40551b55fed561bbb14697b041b74a58174eabd3c79a74bfd0316faabdb9bf4",
+      "loose": "1bda3841d6977881f62e46bcca2995bd349b84d289c8ce8221c7ad98b6f10699"
     },
     ".claude/skills/ds-theme/design-md.md": {
-      "exact": "4ae9303ebdfcd3bde0628f8df492bba32691184b1405c4662a6396f0ffccb183",
-      "loose": "a961689a16977510a67fc045a51553ba150c7827ae998ab6f8a17b50ba334132"
+      "exact": "a29040e1bf445172f6608e86a25ea17f429fd7172a68178439c08166e7fcec74",
+      "loose": "b207053a4fdf745ac86126250eccb7ecfb3e404cd0198e2718808d75595991cb"
     }
   },
   "optional": {

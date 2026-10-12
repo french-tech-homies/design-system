@@ -672,6 +672,14 @@ What a handed theme does not move, said on the page too:
   `tokens/resolved.json`, and the **Editorial preset**, which is off while a
   handed theme draws.
 
+A DESIGN.md in the format's own words is drawn too: one with no `scheme` and
+no `colors.seed`, which are the kit's keys and not the format's, and with the
+format's short sizes (`title-md`, `rounded.sm`). The scheme is read from the
+file's ground (`colors.background`, else `colors.surface`) and the seed from
+`colors.primary`; the page lists each as assumed, with the token it was read
+from, beside what it ignored. A file with neither a ground nor a primary is
+still refused, in words that say what to write.
+
 `theme.css` or `theme.v4.css` alone is refused, in words that say to hand
 both: half a theme under the name "Your theme" would mislead. The machinery
 is `.storybook/handed-theme/`; its tests are the hidden stories of

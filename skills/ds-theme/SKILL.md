@@ -57,8 +57,11 @@ matter and one CSS block.
 - **`name`, `description`**: the project's, not the kit's.
 - **`scheme`**: `light` or `dark`, the scheme the written colours belong to. A
   brief that is dark by nature (cyberpunk, a terminal, a cinema) writes
-  `scheme: dark`; the light scheme is then derived from the keys.
-- **`colors`**: `seed` is required. Add `primary-key`, `secondary-key`,
+  `scheme: dark`; the light scheme is then derived from the keys. Always
+  write it: with none, the generator reads it from the file's ground and
+  lists that as assumed.
+- **`colors`**: write `seed`: with none, the generator reads it from
+  `primary` and lists that as assumed. Add `primary-key`, `secondary-key`,
   `tertiary-key` for the brief's main colours, `neutral-key` to tint the
   surfaces. Then write a role (`primary`, `surface`, `on-surface`, …) only
   where an exact colour matters: a written role holds in the written scheme
@@ -79,7 +82,10 @@ matter and one CSS block.
 A DESIGN.md that arrives from elsewhere, or a brief with colour names of its
 own, is mapped by you onto `seed`, the keys and the 49 roles: see "Colour
 names that are not the kit's" in `design-md.md`. The other names may stay in
-the file. They are ignored and listed as warnings.
+the file. They are ignored and listed as warnings. A file in the format's own
+words (no `scheme`, no `seed`, sizes written `title-md` and `rounded.sm`)
+generates as it is, with what was assumed listed: take that as a first
+drawing, then write `scheme` and `seed` into the file.
 
 ## 3. Generate
 
@@ -105,8 +111,11 @@ Each `warning:` line on stderr is something the file says that is not in the
 theme, or a pair that reads badly. They are also in `## Generator warnings`
 at the end of `theme/DESIGN.resolved.md`. For each one, decide:
 
-- **an unknown name** (`colors.brand-pink`, `typography.h1`, `rounded.sm`):
+- **an unknown name** (`colors.brand-pink`, `typography.h1`, `rounded.pill`):
   map it to a name the kit reads, or leave it and say it is ignored;
+- **assumed** (`scheme`, `colors.seed`): the file wrote none and the kit read
+  it from the token the line names. Write the key into DESIGN.md, the value
+  the line gives or the one the brief means;
 - **a value with no variable** (a tracking on a role Material gives none):
   not applied; drop it or accept it. A weight is applied on every role;
 - **poor contrast**: a written role under 4.5:1 against its pair. Fix the
@@ -115,7 +124,8 @@ at the end of `theme/DESIGN.resolved.md`. For each one, decide:
   the `:root` selector.
 
 Exit code 1 with nothing written means the file was refused: no front matter,
-no `scheme`, no `seed`, a colour that is not a hex, or a type value, a
+no `scheme` and no `background` or `surface` to read one from, no `seed` and
+no `primary`, a colour that is not a hex, or a type value, a
 corner, a family or a reference value that is not one value of its kind (a
 size with no unit, an easing written as a `var()`). The message names the
 token and says what to write.

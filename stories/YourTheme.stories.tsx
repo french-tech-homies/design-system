@@ -62,6 +62,12 @@ export const DesignMdAlone: Story = {
   play: plays.designMdAlone,
 };
 
+export const FormatsOwnWords: Story = {
+  tags: ["!dev"],
+  beforeEach,
+  play: plays.formatsOwnWords,
+};
+
 export const HeldAcrossAReload: Story = {
   tags: ["!dev"],
   beforeEach,

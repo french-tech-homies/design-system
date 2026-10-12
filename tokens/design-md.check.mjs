@@ -172,10 +172,12 @@ test("refusals name the token", () => {
       () => generateTheme(text, kitV4),
       (error) => error instanceof DesignMdError && pattern.test(error.message),
     );
+  // Neither a seed nor a primary to read one from.
   refuses(
-    designMd("scheme: light", 'colors:\n  primary: "#ff0000"'),
+    designMd("scheme: light", 'colors:\n  secondary: "#ff0000"'),
     /colors\.seed/,
   );
+  refuses(designMd("scheme: light"), /colors\.seed/);
   refuses(
     designMd("scheme: light", "colors:\n  seed: hsl(236 30% 42%)"),
     /colors\.seed/,
@@ -188,8 +190,15 @@ test("refusals name the token", () => {
     designMd("scheme: light", SEED, '  tertiary-key: "#12345"'),
     /colors\.tertiary-key/,
   );
+  // Neither a scheme nor a ground to read one from.
   refuses(designMd(SEED), /`scheme`/);
+  refuses(designMd(SEED, '  primary: "#ff0000"'), /`scheme`/);
+  // A scheme that is written is never read from the ground instead.
   refuses(designMd("scheme: auto", SEED), /scheme is "auto"/);
+  refuses(
+    designMd("scheme: auto", SEED, '  background: "#ffffff"'),
+    /scheme is "auto"/,
+  );
   refuses(
     withRoot("  --md-sys-state-hover-state-layer-opacity: 0.08;"),
     /--md-sys-state-hover-state-layer-opacity is "0\.08"/,
@@ -200,6 +209,157 @@ test("refusals name the token", () => {
   );
   refuses(withRoot("  --md3-dark-mode: media;"), /--md3-dark-mode is "media"/);
   refuses("## Overview\n\nNo front matter.\n", /front matter/);
+});
+
+/* ---- a file in the format's own words ---------------------------------- */
+
+/* The format has no `scheme` and no `seed`: a file its own tools write names
+   neither, and writes its sizes short (`title-md`, `rounded.sm`). */
+const LIGHT_WORDS = 'colors:\n  primary: "#3050A0"\n  background: "#FBF8F2"';
+const DARK_WORDS = 'colors:\n  primary: "#a8c0ff"\n  surface: "#14161a"';
+const assumed = (warnings) =>
+  warnings.filter(({ kind }) => kind === "assumed");
+
+test("no scheme: it is read from the ground, and said", () => {
+  const light = generateTheme(designMd(LIGHT_WORDS), kitV4);
+  assert.equal(light.theme.colors.scheme, "light");
+  assert.equal(cssRole(light.themeCss, ":root", "background"), hsl("#fbf8f2"));
+  const [scheme] = assumed(light.warnings);
+  assert.equal(scheme.token, "scheme");
+  assert.match(scheme.message, /colors\.background/);
+  assert.match(scheme.message, /`scheme: light`/);
+
+  // With no background, the surface is the ground.
+  const dark = generateTheme(designMd(DARK_WORDS), kitV4);
+  assert.equal(dark.theme.colors.scheme, "dark");
+  assert.equal(cssRole(dark.themeCss, ".dark", "surface"), hsl("#14161a"));
+  assert.notEqual(cssRole(dark.themeCss, ":root", "surface"), hsl("#14161a"));
+  assert.match(assumed(dark.warnings)[0].message, /colors\.surface/);
+  assert.match(assumed(dark.warnings)[0].message, /`scheme: dark`/);
+
+  // The background is read before the surface.
+  const both = generateTheme(
+    designMd(LIGHT_WORDS, '  surface: "#14161a"'),
+    kitV4,
+  );
+  assert.equal(both.theme.colors.scheme, "light");
+});
+
+test("no seed: it is read from the primary, and said", () => {
+  const read = generateTheme(designMd(LIGHT_WORDS), kitV4);
+  const [, seed] = assumed(read.warnings);
+  assert.equal(seed.token, "colors.seed");
+  assert.match(seed.message, /colors\.primary/);
+  assert.deepEqual(kinds(read.warnings), [
+    ["assumed", "scheme"],
+    ["assumed", "colors.seed"],
+  ]);
+
+  // What is assumed is what the file would have written.
+  const said = generateTheme(
+    designMd("scheme: light", LIGHT_WORDS, '  seed: "#3050a0"'),
+    kitV4,
+  );
+  assert.deepEqual(said.warnings, []);
+  assert.equal(read.themeCss, said.themeCss);
+  assert.equal(read.themeV4Css, said.themeV4Css);
+
+  // A written seed is never replaced by the primary.
+  const own = generateTheme(
+    designMd("scheme: light", SEED, '  primary: "#3050a0"'),
+    kitV4,
+  );
+  assert.deepEqual(own.warnings, []);
+  assert.notEqual(own.themeCss, said.themeCss);
+});
+
+test("the format's short names are read as Material's: the type sizes and the corners", () => {
+  const short = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  title-md:\n    fontSize: 19px\n  label-sm:\n    fontWeight: 700\n  headline-lg:\n    lineHeight: 44px",
+      "rounded:\n  xs: 1px\n  sm: 2px\n  md: 3px\n  lg: 5px\n  xl: 7px",
+    ),
+    kitV4,
+  );
+  const long = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  title-medium:\n    fontSize: 19px\n  label-small:\n    fontWeight: 700\n  headline-large:\n    lineHeight: 44px",
+      "rounded:\n  extra-small: 1px\n  small: 2px\n  medium: 3px\n  large: 5px\n  extra-large: 7px",
+    ),
+    kitV4,
+  );
+  assert.deepEqual(short.warnings, []);
+  assert.equal(short.themeV4Css, long.themeV4Css);
+  assert.equal(short.themeCss, long.themeCss);
+  assert.equal(
+    valueOf(short.themeV4Css, "--md-sys-typescale-title-medium-size"),
+    "19px",
+  );
+  assert.equal(valueOf(short.themeV4Css, "--md-sys-shape-corner-small"), "2px");
+  // The resolved file says them in Material's words, once.
+  assert.equal(short.resolvedDesignMd, long.resolvedDesignMd);
+  assert.doesNotMatch(short.resolvedDesignMd, /title-md|^  sm:/m);
+});
+
+test("Material's name wins over the short one, which is listed; a name outside the table is ignored", () => {
+  const both = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  title-md:\n    fontSize: 19px\n  title-medium:\n    fontSize: 21px\n  headline-display:\n    fontSize: 80px\n  body-xl:\n    fontSize: 20px",
+      "rounded:\n  sm: 2px\n  small: 6px\n  xxl: 40px",
+    ),
+    kitV4,
+  );
+  assert.equal(
+    valueOf(both.themeV4Css, "--md-sys-typescale-title-medium-size"),
+    "21px",
+  );
+  assert.equal(valueOf(both.themeV4Css, "--md-sys-shape-corner-small"), "6px");
+  assert.deepEqual(kinds(both.warnings), [
+    ["unapplied", "typography.title-md"],
+    ["ignored", "typography.headline-display"],
+    ["ignored", "typography.body-xl"],
+    ["unapplied", "rounded.sm"],
+    ["ignored", "rounded.xxl"],
+  ]);
+  // A refusal names the token as the file wrote it.
+  refusal(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  body-md:\n    fontSize: big",
+    ),
+    "typography.body-md.fontSize",
+    "a length",
+  );
+});
+
+test("round trip: what was assumed and the short names survive the resolved DESIGN.md", () => {
+  const words =
+    "typography:\n  title-md:\n    fontSize: 19px\n    fontFeature: tnum\n  headline-display:\n    fontSize: 80px\nrounded:\n  sm: 2px\n  bubble-ish: 3px";
+  for (const text of [
+    designMd(LIGHT_WORDS, words),
+    designMd(DARK_WORDS, words),
+    designMd(DARK_WORDS, '  background: "#101114"'),
+    designMd("scheme: light", SEED, words, "  small: 6px"),
+  ]) {
+    const first = generateTheme(text, kitV4);
+    const again = generateTheme(first.resolvedDesignMd, kitV4);
+    assert.equal(again.themeCss, first.themeCss);
+    assert.equal(again.themeV4Css, first.themeV4Css);
+    assert.deepEqual(again.warnings, first.warnings);
+    assert.equal(again.resolvedDesignMd, first.resolvedDesignMd);
+  }
+  // Nothing the file did not say is written into its front matter.
+  const { resolvedDesignMd } = generateTheme(designMd(LIGHT_WORDS, words), kitV4);
+  const front = resolvedDesignMd.slice(0, resolvedDesignMd.indexOf("\n---\n"));
+  assert.doesNotMatch(front, /^scheme:|^  seed:/m);
+  assert.match(resolvedDesignMd, /\*\*assumed\*\* — /);
 });
 
 test("the command exits non-zero on a refusal and writes nothing", () => {
@@ -262,7 +422,7 @@ test("unknown names are ignored and listed", () => {
       SEED,
       '  brand-pink: "#ff66aa"',
       "typography:\n  h1:\n    fontSize: 3rem",
-      "rounded:\n  sm: 4px",
+      "rounded:\n  pill: 4px",
     ),
     kitV4,
   );
@@ -274,7 +434,7 @@ test("unknown names are ignored and listed", () => {
     [
       ["ignored", "colors.brand-pink"],
       ["ignored", "typography.h1"],
-      ["ignored", "rounded.sm"],
+      ["ignored", "rounded.pill"],
     ],
   );
 });
