@@ -37,7 +37,115 @@ npm run registry:check-version # what CI runs
 What the kit's first two installs of 0.3.0 asked of it. Three entries need an
 act of a project and say **Action needed**; the others need none.
 
+Then what a board built on the kit and three DESIGN.md files written
+elsewhere asked of it: the focus ring's gap, a table's edge and last line,
+the theme's colour scheme and scroll bars, a family per type role, and a
+DESIGN.md in the format's own words. They are the first entries of each
+group below. Four say **Action needed**.
+
 ### Changed
+
+- **The focus ring's gap shows the ground under it. Action needed if you
+  painted the gap yourself.** Before: `focusRing` drew its ring as a box
+  shadow and painted the 2px gap in the page's `background`, so a focused
+  control on anything else (a card, a table, a sheet) showed a band of page
+  ground between itself and its ring, and forced-colours mode dropped the
+  ring. Now: the ring is an outline, 3px of `ring` 2px away, as before, and
+  the gap is not painted: it shows whatever the control stands on, in both
+  schemes. What you see at the update: the band is gone on every surface that
+  is not the page's ground, and nothing moves on the page's ground. To do:
+  if you hid the band with a gap colour of your own
+  (`focus-visible:ring-offset-<role>` on a kit control), remove it: it does
+  nothing now. If you wrote the kit's ring by hand, write
+  `outline-none outline-3 outline-offset-2 outline-ring focus-visible:outline-solid`
+  or extend `focusRing`. An ancestor that clips cuts an outline as it cut the
+  shadow: a part that fills such a box draws its ring inside with
+  `-outline-offset-2`, as a table's header, rows and cells do. The slider's
+  thumb follows, with its own 2px ring. Four rings are the components' own
+  and did not change: the fields' (`field-styles.ts`), and the three of the
+  colour picker (`ColorField`, `ColorPicker`, `ColorArea`).
+- **The generated theme declares its colour scheme and gives scroll bars the
+  theme's colours. Action needed: regenerate, and look at your native
+  controls.** Before: a generated `theme.css` never told the browser which
+  scheme the page is in, so what the browser draws itself stayed light on a
+  dark page: a white scroll bar, a native select's list, a date field's
+  picker. Now: each scheme block declares `color-scheme` (`light` under
+  `:root`, `dark` under `.dark` or under the system's query) and
+  `scrollbar-color: var(--md-sys-color-outline) transparent`, a thumb in
+  `outline` on a lane that shows the ground. A `.dark` on a subtree follows.
+  What you see once you regenerate: scroll bars, native selects, date and
+  time fields, native checkboxes and the autofill ground are drawn in the
+  page's scheme, and scroll bars in the theme's colours. Colours only: the
+  kit sets no width and hides no bar at rest. To do: run the generator again
+  (the two declarations are written by it, not by the update), then look at
+  a page with a form and a scroller in both schemes. To keep what you had,
+  declare your own on `<body>`: `color-scheme: normal` and
+  `scrollbar-color: auto`. Both are inherited, so a rule of your own on
+  `<body>` or on one scroller wins over the theme's.
+- **A type role takes the family your DESIGN.md writes on it. Action needed:
+  regenerate your theme after the update.** Before: the theme had two
+  families, one per face (the family of `display-large` for display,
+  headline and title; the family of `body-large` for body and label), and a
+  different family on any other role was listed as not applied. Now: each
+  of the 15 roles has a family of its own, as Material's tokens do
+  (`--md-sys-typescale-<role>-font`, and the utility `font-<role>`). A role
+  your DESIGN.md writes no family on keeps its face's, so a DESIGN.md with
+  one family per face draws what it drew. A role it writes another family on
+  takes it: running text in a reading face and the labels in a squared one
+  is `body-large` with the first and the three `label-*` roles with the
+  second. Each family is a hook (`--font-<name>`) and one more font your
+  project loads; the theme loads none. The "one family, not applied"
+  warning is gone, and `DESIGN.resolved.md` shows the family applied on
+  every role. To do: run the generator again after the update. The update
+  brings a `theme.v4.css` with the new declarations at the kit's own values,
+  as every update does; until you regenerate, your faces are the kit's. If
+  your DESIGN.md wrote a family on a role that was dropped until now, it is
+  applied from then on: load that font, or take the family off the role.
+- **The text a component writes is in its role's family. Action needed if
+  your page's font is not your theme's plain face.** Before: the type
+  primitives (`Title`, `Body`, `Label`…) set a face, and a component that
+  wrote a `text-<role>` itself set none: a table's header and cells, a
+  field's input, label and supporting text, a checkbox's, a radio's and a
+  switch's label, their groups' labels, a chip group's label, a slider's
+  label, a progress indicator's, a disclosure's header and panel, an image
+  field's texts, a snackbar's, a combo box's list. Those inherited the
+  page's font. Now: each is written with its role's `font-<role>`, so a role
+  is one family in a page. What you see: where your page's font is your
+  plain face, the body and label roles do not move, and the titles a
+  component writes (a checkbox, radio or chip group's label, an image
+  field's label, a disclosure's header) change to your brand face where it
+  differs. Where your page's font is neither face, all of the texts above
+  change from the page's font to their role's. To do, if that is not what
+  you want: write the family you want on those roles in DESIGN.md and
+  regenerate, or fill the face's hook (`--font-<name>`) with your page's
+  font. Under the Editorial preset the catalog shows it: those titles are
+  now in the preset's serif.
+- **A `Table` clips at its own edge.** Before: a control whose touch target
+  reaches past its row (an `xsmall` icon button in a dense row reaches 4dp
+  under it) made the table's content taller than the table, so a box that
+  scrolled the table sideways scrolled upright too and showed an upright
+  bar beside rows that fit. Now: the `<table>` is `overflow-clip`. The
+  button keeps its 48dp target everywhere but under the last row, where it
+  ends at the table's edge. Nothing to do; a wrapper you clipped for this
+  can go. A column header now draws its focus ring inside, as rows and cells
+  did.
+- **A DESIGN.md in the format's own words generates, where it was refused.**
+  Before: a file with no `scheme` or no `colors.seed` was refused, though
+  both are the kit's keys and the format has neither, and the format's short
+  sizes (`title-md`, `rounded.sm`) were ignored. Now, in the command and on
+  the catalog's "Your theme" page alike: with no `scheme`, it is read from
+  the file's ground (`colors.background`, else `colors.surface`: light when
+  its tone is 50 or more); with no `seed`, from `colors.primary`. Each is
+  listed as a warning of a new kind, **assumed**, naming the token it was
+  read from and the line to write. The type sizes `-lg`, `-md`, `-sm` and
+  the corners `xs`, `sm`, `md`, `lg`, `xl` are read as Material's names,
+  silently; where a file writes both, Material's is read and the short one
+  is listed. Still refused, in the same words: a file with no `scheme` and
+  no ground, one with no `seed` and no `primary`, and a `scheme` that is
+  neither `light` nor `dark`. Nothing to do: a DESIGN.md that writes
+  `scheme` and `seed` generates what it generated. If yours used
+  `rounded.sm` or `title-md` as names of its own and counted on them being
+  ignored, they are now read.
 
 - **`@ds/ds` writes nothing into your entry CSS. Action needed if stock
   shadcn components rely on the bridge.** Before: the item carried the shadcn
@@ -174,6 +282,22 @@ act of a project and say **Action needed**; the others need none.
 
 ### Added
 
+- **`<Table showLastRowDivider={false}>`**: the body's last row draws no line
+  under it, for a table that closes with an edge of your own (a frame, a
+  card's border). Default `true`: nothing changes until you say it. The
+  header's line is not covered. A `last:border-b-0` on each `Row` can go.
+- **`font-<role>` utilities**, one per type role (`font-title-small`,
+  `font-label-large`), and their variables
+  `--md-sys-typescale-<role>-font`. Write one beside a raw `text-<role>` to
+  draw it in the role's family; the primitives and the components do. They
+  are registered in `twMergeConfig`, so a `font-mono` of yours still wins
+  over one.
+- **Catalog pages**: `MD3/Foundations/Focus ring` (the ring on two grounds,
+  enlarged, and read after Tab), `MD3/Foundations/Color scheme` (native
+  controls and a scroller, on the page and in a `.dark` box),
+  `MD3/Foundations/Typography` "Family from the theme" and "Family in
+  components", and on `MD3/Containment/Table`, "Dense in a scroller" and
+  "Last row divider off".
 - **A record for each item the whole install does not bring**:
   `<ui>/ds/releases/<item>.json`, carried by `@ds/next-adapter`,
   `@ds/react-router-adapter`, `@ds/react-hook-form-adapter` and
