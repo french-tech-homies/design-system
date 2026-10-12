@@ -263,6 +263,7 @@ export const Dense: Story = {
               <Cell>{row.parcels}</Cell>
               <Cell>
                 <IconButton
+                  variant="standard"
                   size="xsmall"
                   icon={CopyIcon}
                   aria-label={`Copy ${row.id}`}
@@ -304,6 +305,7 @@ export const DenseInAScroller: Story = {
               <Cell>{row.address}</Cell>
               <Cell>
                 <IconButton
+                  variant="standard"
                   size="xsmall"
                   icon={CopyIcon}
                   aria-label={`Copy ${row.id}`}
@@ -324,7 +326,7 @@ export const DenseInAScroller: Story = {
 };
 
 /**
- * `showLastRowDivider={false}`: the body's last row draws no line, for a
+ * `showLastRowDivider={false}`: the table's last row draws no line, for a
  * table that closes with an edge of the project's own, as the card's border
  * here. The header's line and the other rows' stay.
  */
@@ -380,6 +382,85 @@ export const LastRowDividerOff: Story = {
 
     const byDefault = rowsOf("Deliveries, the default");
     await expect(line(byDefault.at(-1))).toBe("1px");
+  },
+};
+
+/**
+ * `showLastRowDivider={false}` on a table with a footer: the closing line is
+ * the footer's, and it is the one removed. The line between the body's last
+ * row and the footer stays, since it separates the total from the data. The
+ * second table is the default: both lines are drawn.
+ */
+export const LastRowDividerOffWithFooter: Story = {
+  name: "Last row divider off, with a footer",
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <Card variant="outlined" className="w-[560px] overflow-hidden">
+        <Table aria-label="Deliveries with a total, no last line" showLastRowDivider={false}>
+          <TableHeader>
+            <Column id="id" isRowHeader>
+              Delivery
+            </Column>
+            <Column id="address">Address</Column>
+          </TableHeader>
+          <TableBody items={deliveries}>
+            {(row) => (
+              <Row>
+                <Cell>{row.id}</Cell>
+                <Cell>{row.address}</Cell>
+              </Row>
+            )}
+          </TableBody>
+          <TableFooter>
+            <Row>
+              <Cell>Total</Cell>
+              <Cell>{deliveries.length} deliveries</Cell>
+            </Row>
+          </TableFooter>
+        </Table>
+      </Card>
+      <div className="w-[560px]">
+        <Table aria-label="Deliveries with a total, the default">
+          <TableHeader>
+            <Column id="id" isRowHeader>
+              Delivery
+            </Column>
+            <Column id="address">Address</Column>
+          </TableHeader>
+          <TableBody items={deliveries}>
+            {(row) => (
+              <Row>
+                <Cell>{row.id}</Cell>
+                <Cell>{row.address}</Cell>
+              </Row>
+            )}
+          </TableBody>
+          <TableFooter>
+            <Row>
+              <Cell>Total</Cell>
+              <Cell>{deliveries.length} deliveries</Cell>
+            </Row>
+          </TableFooter>
+        </Table>
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const line = (row?: Element) =>
+      row && getComputedStyle(row).borderBottomWidth;
+    // After the header's row: the body's rows, then the footer's.
+    const rowsOf = (name: string) =>
+      within(canvas.getByRole("grid", { name })).getAllByRole("row").slice(1);
+
+    const off = rowsOf("Deliveries with a total, no last line");
+    await expect(off.at(-1)).toHaveTextContent("Total");
+    await expect(line(off.at(-1))).toBe("0px");
+    await expect(line(off.at(-2))).toBe("1px");
+
+    const byDefault = rowsOf("Deliveries with a total, the default");
+    await expect(line(byDefault.at(-1))).toBe("1px");
+    await expect(line(byDefault.at(-2))).toBe("1px");
   },
 };
 
