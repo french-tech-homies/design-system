@@ -176,6 +176,7 @@ function Page({
                 ord-4821
               </Body>
               <IconButton
+                variant="standard"
                 size="xsmall"
                 icon={ImageIcon}
                 aria-label="Open the proof"
@@ -252,6 +253,7 @@ function Page({
                 <Cell className="font-mono">{order.price}</Cell>
                 <Cell>
                   <IconButton
+                    variant="standard"
                     size={dense ? "xsmall" : "small"}
                     icon={ImageIcon}
                     aria-label={`Open the proof of ${order.id}`}

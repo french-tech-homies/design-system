@@ -7,8 +7,8 @@
    Reads theme.css (color roles, light + dark) and theme.v4.css (type scale,
    shape, elevation, motion) and writes a framework-free snapshot: every role
    as a hex color, every scale as numbers. It is the hand-off format for tools
-   that cannot read Tailwind or CSS variables — Claude Design's canvas (which
-   transcribes resolved values), design-token pipelines, docs — and it is the
+   that cannot read Tailwind or CSS variables — a design canvas that
+   transcribes resolved values, design-token pipelines, docs — and it is the
    file the kit's Storybook tokens page renders.
 
    Source of truth stays theme.css / theme.v4.css; never edit resolved.json by

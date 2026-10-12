@@ -155,7 +155,8 @@ test("each scheme block declares its colour scheme and the scroll bars' roles", 
     assert.match(light, /^  color-scheme: light;$/m);
     assert.match(dark, /^  color-scheme: dark;$/m);
     assert.ok(light.includes(bars) && dark.includes(bars));
-    assert.equal(css.match(/color-scheme: /g).length, 2);
+    // Declarations only: the head comment names the property in its prose.
+    assert.equal(css.match(/^ +color-scheme: [a-z]+;$/gm).length, 2);
   }
   // Dark by the system's setting: the declarations are in the query's block.
   const system = renderThemeCss(
@@ -164,6 +165,30 @@ test("each scheme block declares its colour scheme and the scroll bars' roles", 
   const query = block(system, "@media (prefers-color-scheme: dark) {\n  :root {");
   assert.match(query, /^    color-scheme: dark;$/m);
   assert.ok(query.includes(bars));
+});
+
+test("the head comment gives the opt-out as a rule on the root", () => {
+  const heads = {
+    class: [
+      renderThemeCss(deriveTheme(designMd("scheme: light", SEED))),
+      ":root, .dark",
+    ],
+    system: [
+      renderThemeCss(deriveTheme(withRoot("  --md3-dark-mode: system;"))),
+      ":root",
+    ],
+  };
+  for (const [mode, [css, selector]] of Object.entries(heads)) {
+    const head = css.slice(0, css.indexOf("*/"));
+    assert.ok(head.includes(`on \`${selector}\`, the two\n`), mode);
+    assert.match(head, /`color-scheme: normal` and `scrollbar-color: auto`/);
+    // A rule on <body> does not reach the page's own bar or canvas.
+    assert.doesNotMatch(head, /on `<body>` or on a scroller wins/, mode);
+    assert.match(head, /on `<body>` reach only/, mode);
+    assert.match(head, /::-webkit-scrollbar/, mode);
+    // What reads a scheme block by its opening finds the block, not the head.
+    assert.doesNotMatch(head, /(:root|\.dark) \{/, mode);
+  }
 });
 
 test("refusals name the token", () => {

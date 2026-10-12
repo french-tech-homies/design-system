@@ -45,7 +45,11 @@ const accountItems = [
 export const FromIconButton: Story = {
   args: {
     triggerButton: (
-      <IconButton aria-label="Open menu" icon={EllipsisVertical} />
+      <IconButton
+        variant="standard"
+        aria-label="Open menu"
+        icon={EllipsisVertical}
+      />
     ),
     items: accountItems,
   },

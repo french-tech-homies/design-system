@@ -90,8 +90,10 @@ import { cn, focusRing, tv } from "../utils";
  *
  * **Last row's line.** Every row draws a line under it. A table that closes
  * with an edge of the project's own (a frame, a card's border) says
- * `<Table showLastRowDivider={false}>` and the last row of the body draws
- * none. The header's line stays.
+ * `<Table showLastRowDivider={false}>` and the table's closing line is not
+ * drawn: the footer's row when a `TableFooter` follows, otherwise the last
+ * row of the body. The line between the body and a footer stays, since it
+ * separates the total from the data, and so does the header's.
  *
  * **Cut cells.** `<Cell truncate>` cuts its text to one line. When the text is
  * really cut, the whole of it shows in a rich `Tooltip` while the pointer
@@ -150,7 +152,8 @@ const styles = tv({
     },
     showLastRowDivider: {
       true: {},
-      false: { row: "last:border-b-0" },
+      // The last row of the table's last section: a footer's, or the body's.
+      false: { row: "[:last-child>&]:last:border-b-0" },
     },
     // A cut cell takes no width of its own: its column's decides.
     truncate: {
@@ -172,7 +175,10 @@ export type TableProps = Omit<AriaTableProps, "className"> & {
   className?: string;
   /** `dense` draws 40dp rows under a 44dp header. Default 52dp under 56dp. */
   density?: TableDensity;
-  /** `false` leaves the body's last row without its line. Default `true`. */
+  /**
+   * `false` leaves the table's last row without its line: the footer's when
+   * a `TableFooter` follows, otherwise the body's. Default `true`.
+   */
   showLastRowDivider?: boolean;
 };
 

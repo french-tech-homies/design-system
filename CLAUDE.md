@@ -56,8 +56,6 @@ What the kit is, and which components are its own, is said once: `README.md`,
   Adobe's, with its record in `skills-lock.json`.
 - `NOTICE` and `LICENSES/`: the credit for what is here and is not the
   kit's, and each such licence in full (`LICENSES/Apache-2.0.txt`).
-- `.design-sync/`: carried untouched; not maintained here yet. Do not edit
-  it and do not run it.
 
 ## Read first
 

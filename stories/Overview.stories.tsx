@@ -104,8 +104,17 @@ export const Everything: Story = {
       </Section>
 
       <Section title="Icon buttons">
-        <IconButton icon={SettingsIcon} aria-label="Settings" />
-        <IconButton icon={SettingsIcon} aria-label="Settings" isContained />
+        <IconButton
+          variant="standard"
+          icon={SettingsIcon}
+          aria-label="Settings"
+        />
+        <IconButton
+          variant="standard"
+          icon={SettingsIcon}
+          aria-label="Settings"
+          isContained
+        />
         <IconButton
           icon={SettingsIcon}
           aria-label="Settings"
@@ -173,7 +182,11 @@ export const Everything: Story = {
                 headline="Table 12"
                 supportingText="Two orders in progress"
                 trailingElement={
-                  <IconButton icon={TrashIcon} aria-label="Delete" />
+                  <IconButton
+                    variant="standard"
+                    icon={TrashIcon}
+                    aria-label="Delete"
+                  />
                 }
               />
             </GridListItem>

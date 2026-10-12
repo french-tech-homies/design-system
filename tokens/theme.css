@@ -7,8 +7,8 @@
 
    Every role is a finished color (`hsl(...)`) under the `--md-sys-color-*`
    namespace, mirroring Material's own token names. Finished colors are what
-   Tailwind v4's `@theme inline` mapping (theme.v4.css), `color-mix()`, the
-   shadcn CLI and Claude Design all expect; opacity modifiers such as
+   Tailwind v4's `@theme inline` mapping (theme.v4.css), `color-mix()` and the
+   shadcn CLI expect; opacity modifiers such as
    `bg-primary/8` are applied by Tailwind through color-mix(), so no bare
    `H S% L%` triplet is needed anywhere.
 
@@ -33,8 +33,18 @@
    theme's roles (`scrollbar-color`: a thumb in `outline`, a lane that shows
    the ground). So what the browser draws itself (a scroll bar, a native
    select's list, a date field's picker) follows the theme, in light, in dark
-   and in a `.dark` subtree. Both are inherited: a project's own
-   `color-scheme` or `scrollbar-color` on `<body>` or on a scroller wins.
+   and in a `.dark` subtree.
+
+   To keep what the browser drew before, write one rule in your own CSS, after
+   this file's import and outside any `@layer`: on `:root, .dark`, the two
+   declarations `color-scheme: normal` and `scrollbar-color: auto`.
+
+   It goes on the root because the page's own scroll bar and canvas read the
+   root element: the same declarations on `<body>` reach only what is inside
+   the body. And while `scrollbar-color` is set, browsers that support it ignore
+   `::-webkit-scrollbar` rules. A project that styles its bars that way
+   writes that rule, or `scrollbar-color: auto` on the scrollers it
+   styles, or moves its colours to `scrollbar-color`.
    ========================================================================== */
 
 :root {

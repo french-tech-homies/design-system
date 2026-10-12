@@ -47,10 +47,7 @@ function Enlarged({ ground, name }: { ground: string; name: string }) {
       <Label size="large" component="div" className="text-on-surface-variant">
         On {name}
       </Label>
-      <div
-        className="flex flex-col items-start gap-4 p-3"
-        style={{ zoom: 4 }}
-      >
+      <div className="flex flex-col items-start gap-4 p-3" style={{ zoom: 4 }}>
         <Button autoFocus className="outline-solid">
           Save
         </Button>
@@ -100,7 +97,7 @@ export const Keyboard: Story = {
     <div className="bg-surface-container-low flex flex-col items-start gap-6 p-6">
       <div className="flex items-center gap-6">
         <Button variant="outlined">Save</Button>
-        <IconButton icon={Heart} aria-label="Like" />
+        <IconButton variant="standard" icon={Heart} aria-label="Like" />
         <Link href="#" className={link}>
           Read the run
         </Link>

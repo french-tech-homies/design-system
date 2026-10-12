@@ -165,7 +165,7 @@ const styles = tv({
     },
   ],
   defaultVariants: {
-    variant: "standard",
+    variant: "filled",
     size: "small",
     isContained: false,
     selection: "none",
@@ -187,7 +187,7 @@ const iconSizes: Record<IconButtonSize, number> = {
 };
 
 type BaseIconButtonProps = {
-  /** The colour style. Default `standard`. */
+  /** The colour style. Default `filled`, Material's. */
   variant?: IconButtonVariant;
   /**
    * Material's five sizes: 32, 40, 56, 96 and 136 pixels square. Default
@@ -272,12 +272,8 @@ type IconButtonProps = StandardIconButtonProps | ToggleIconButtonProps;
  *   version of its icon. The button draws the `icon` it is given; swap it
  *   from the toggle's state.
  * - **Button groups**: neighbours that answer to each other's press.
- * - **Filled as the default colour style**: see below.
  *
  * Not Material's:
- * - **`standard` is the default colour style**; Material's is filled. Say
- *   `variant` on a button that must not move when a later release takes
- *   Material's default.
  * - **`isContained`**: `isContained={false}` on `filled` or `tonal` draws only
  *   the icon, in `primary` or `secondary`; `isContained` on `standard` draws
  *   a `surface-container-lowest` container at elevation 1, and on `outlined`
@@ -352,7 +348,7 @@ const StandardIconButton = forwardRef<
     className,
     classNames,
     isContained: isContainedProp,
-    variant = "standard",
+    variant = "filled",
     size = "small",
     icon,
     "aria-label": ariaLabel,
@@ -433,7 +429,7 @@ const ToggleIconButton = forwardRef<HTMLButtonElement, ToggleIconButtonProps>(
   (props, ref) => {
     const {
       isContained: isContainedProp,
-      variant = "standard",
+      variant = "filled",
       size = "small",
       className,
       classNames,

@@ -12,10 +12,6 @@ const reactHooksRecommended =
 export default tseslint.config(
   {
     ignores: [
-      ".types/**",
-      ".design-sync/**",
-      ".ds-sync/**",
-      "ds-bundle/**",
       "storybook-static/**",
       ".storybook/**",
       "scripts/**",

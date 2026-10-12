@@ -136,7 +136,12 @@ export default function SideSheet(props: SideSheetProps) {
               {title}
             </div>
           )}
-          <IconButton aria-label="Close" icon={XIcon} onPress={onClose} />
+          <IconButton
+            variant="standard"
+            aria-label="Close"
+            icon={XIcon}
+            onPress={onClose}
+          />
         </div>
       )}
       <Body className={s.content()} component="div">
