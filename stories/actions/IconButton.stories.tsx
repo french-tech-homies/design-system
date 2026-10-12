@@ -6,8 +6,8 @@ import IconButton from "@french-tech-homies/design-system/components/IconButton"
 
 /**
  * Material's icon button: a default button or a toggle, in four colour styles
- * and five sizes. `standard` is the kit's default colour style, `small`
- * Material's default size.
+ * and five sizes. `filled` is the default colour style and `small` the
+ * default size, both Material's.
  */
 const meta = {
   title: "MD3/Actions/Icon button",
@@ -49,7 +49,7 @@ function Labelled({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** The button as it comes: standard, small. The controls move it. */
+/** The button as it comes: filled, small. The controls move it. */
 export const Default: Story = {
   args: {
     icon: Settings,
@@ -64,7 +64,11 @@ export const ColorStyles: Story = {
     <div className="flex items-start gap-6">
       {variants.map((variant) => (
         <Labelled key={variant} label={variant}>
-          <IconButton variant={variant} icon={Plus} aria-label={`Add, ${variant}`} />
+          <IconButton
+            variant={variant}
+            icon={Plus}
+            aria-label={`Add, ${variant}`}
+          />
         </Labelled>
       ))}
     </div>
@@ -166,7 +170,12 @@ export const Contained: Story = {
     <div className="flex flex-col gap-6">
       <div className="flex items-start gap-6">
         <Labelled label="standard">
-          <IconButton isContained icon={Share2} aria-label="Share, standard" />
+          <IconButton
+            variant="standard"
+            isContained
+            icon={Share2}
+            aria-label="Share, standard"
+          />
         </Labelled>
         <Labelled label="outlined">
           <IconButton

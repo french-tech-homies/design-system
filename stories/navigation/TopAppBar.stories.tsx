@@ -45,12 +45,20 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const leading = (
-  <IconButton icon={ArrowLeft} aria-label="Back to the venue" />
+  <IconButton
+    variant="standard"
+    icon={ArrowLeft}
+    aria-label="Back to the venue"
+  />
 );
 const actions = (
   <>
-    <IconButton icon={Search} aria-label="Search tables" />
-    <IconButton icon={MoreVertical} aria-label="More options" />
+    <IconButton variant="standard" icon={Search} aria-label="Search tables" />
+    <IconButton
+      variant="standard"
+      icon={MoreVertical}
+      aria-label="More options"
+    />
   </>
 );
 
@@ -72,8 +80,12 @@ export const CenterAligned: Story = {
   args: {
     variant: "center-aligned",
     title: "Acme",
-    leading: <IconButton icon={ArrowLeft} aria-label="Back" />,
-    actions: <IconButton icon={Settings} aria-label="Settings" />,
+    leading: (
+      <IconButton variant="standard" icon={ArrowLeft} aria-label="Back" />
+    ),
+    actions: (
+      <IconButton variant="standard" icon={Settings} aria-label="Settings" />
+    ),
   },
 };
 
@@ -124,7 +136,9 @@ export const InAShell: Story = {
       <TopAppBar
         title="Tables & QR"
         subtitle="Pizzeria Bellini"
-        leading={<IconButton icon={ArrowLeft} aria-label="Back" />}
+        leading={
+          <IconButton variant="standard" icon={ArrowLeft} aria-label="Back" />
+        }
         actions={actions}
       />
       <div className="bg-surface-container m-4 flex-1 rounded-shape-large p-4">

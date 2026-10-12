@@ -90,11 +90,21 @@ export const WithHeaderAndFooter: Story = {
     defaultSelectedKey: "live",
     header: (
       <>
-        <IconButton icon={MenuIcon} aria-label="Open navigation" />
+        <IconButton
+          variant="standard"
+          icon={MenuIcon}
+          aria-label="Open navigation"
+        />
         <Button variant="fab" icon={Plus} aria-label="New order" />
       </>
     ),
-    footer: <IconButton icon={LayoutGrid} aria-label="Switch workspace" />,
+    footer: (
+      <IconButton
+        variant="standard"
+        icon={LayoutGrid}
+        aria-label="Switch workspace"
+      />
+    ),
   },
   render: (args) => frame(<NavigationRail {...args} />),
 };

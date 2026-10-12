@@ -1200,9 +1200,9 @@ Material look. For an identity of its own, see the preset above.
   a 56dp header, and with `density="dense"` 40dp under 44dp, the kit's own
   pair.
 - **`IconButton` has Material's five sizes and four colour styles, and is
-  round.** The square shape, the shape morphs, the narrow and
-  wide widths, the tooltip on hover and button groups are not built, and
-  `standard`, not Material's filled, is the default colour style.
+  round.** `filled` is the default colour style, Material's. The square
+  shape, the shape morphs, the narrow and wide widths, the tooltip on hover
+  and button groups are not built.
 - **There is no separate alert dialog.** MD3's dialogs page covers one
   component in two sizes; "alert" is a *use*, not a variant. So it is
   `<Dialog role="alertdialog">` — the ARIA role, plus `ModalDialog` turning

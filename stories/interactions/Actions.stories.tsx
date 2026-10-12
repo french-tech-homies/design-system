@@ -37,10 +37,30 @@ const onPress = fn();
 export const IconButtonKeyboard: Story = {
   render: () => (
     <div className="flex gap-4">
-      <IconButton icon={Plus} aria-label="Add" onPress={onPress} />
-      <IconButton icon={Plus} aria-label="Add, disabled" isDisabled />
-      <IconButton isToggle icon={Heart} aria-label="Favorite" />
-      <IconButton icon={Plus} aria-label="Open" href="#open" />
+      <IconButton
+        variant="standard"
+        icon={Plus}
+        aria-label="Add"
+        onPress={onPress}
+      />
+      <IconButton
+        variant="standard"
+        icon={Plus}
+        aria-label="Add, disabled"
+        isDisabled
+      />
+      <IconButton
+        variant="standard"
+        isToggle
+        icon={Heart}
+        aria-label="Favorite"
+      />
+      <IconButton
+        variant="standard"
+        icon={Plus}
+        aria-label="Open"
+        href="#open"
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -97,7 +117,7 @@ export const IconButtonSizes: Story = {
           aria-label={`Add, ${size}`}
         />
       ))}
-      <IconButton icon={Plus} aria-label="Add, no size" />
+      <IconButton variant="standard" icon={Plus} aria-label="Add, no size" />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -139,6 +159,7 @@ function ControlledToggle() {
   const [isSelected] = useState(true);
   return (
     <IconButton
+      variant="standard"
       isToggle
       isSelected={isSelected}
       onChange={() => undefined}
@@ -149,7 +170,8 @@ function ControlledToggle() {
 }
 
 /**
- * Filled and tonal draw Material's container with nothing more said, the
+ * A button that names no colour style is filled, Material's default. Filled
+ * and tonal draw Material's container with nothing more said, the
  * outline is `outline-variant`, and a toggle's `isSelected` is its parent's
  * to hold. The colours are compared with probes drawn by the same theme, so
  * the test holds under any preset.
@@ -157,11 +179,13 @@ function ControlledToggle() {
 export const IconButtonColorStyles: Story = {
   render: () => (
     <div className="flex items-center gap-4">
+      <IconButton icon={Plus} aria-label="Add, no colour style" />
       <IconButton variant="filled" icon={Plus} aria-label="Add, filled" />
       <IconButton variant="tonal" icon={Plus} aria-label="Add, tonal" />
       <IconButton variant="outlined" icon={Plus} aria-label="Add, outlined" />
       <ControlledToggle />
       <span data-probe="primary" className="bg-primary size-4" />
+      <span data-probe="on-primary" className="text-on-primary size-4" />
       <span
         data-probe="secondary-container"
         className="bg-secondary-container size-4"
@@ -178,15 +202,26 @@ export const IconButtonColorStyles: Story = {
       getComputedStyle(canvasElement.querySelector(`[data-probe="${name}"]`)!);
     const button = (name: string) => canvas.getByRole("button", { name });
 
+    // With no colour style said, the button is Material's default: filled.
+    const unsaid = button("Add, no colour style");
+    await expect(unsaid).toHaveAttribute("data-variant", "filled");
+    await expect(getComputedStyle(unsaid).backgroundColor).toBe(
+      probe("primary").backgroundColor,
+    );
     await expect(
-      getComputedStyle(button("Add, filled")).backgroundColor,
-    ).toBe(probe("primary").backgroundColor);
+      getComputedStyle(unsaid.querySelector('[data-slot="icon-button-icon"]')!)
+        .color,
+    ).toBe(probe("on-primary").color);
+
+    await expect(getComputedStyle(button("Add, filled")).backgroundColor).toBe(
+      probe("primary").backgroundColor,
+    );
     await expect(getComputedStyle(button("Add, tonal")).backgroundColor).toBe(
       probe("secondary-container").backgroundColor,
     );
-    await expect(
-      getComputedStyle(button("Add, outlined")).borderTopColor,
-    ).toBe(probe("outline-variant").borderTopColor);
+    await expect(getComputedStyle(button("Add, outlined")).borderTopColor).toBe(
+      probe("outline-variant").borderTopColor,
+    );
     await expect(button("Add, tonal")).toHaveAttribute("data-variant", "tonal");
 
     // Keyboard: Space on the held toggle asks, and the parent's answer stays.
@@ -224,6 +259,7 @@ export const IconButtonTargetInDenseRow: Story = {
               <Cell>{row.id}</Cell>
               <Cell>
                 <IconButton
+                  variant="standard"
                   size="xsmall"
                   icon={CopyIcon}
                   aria-label={`Copy ${row.id}`}

@@ -2,7 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Star, Trash2 } from "lucide-react";
 import React from "react";
 
-import { GridList, GridListItem } from "@french-tech-homies/design-system/components/GridList";
+import {
+  GridList,
+  GridListItem,
+} from "@french-tech-homies/design-system/components/GridList";
 import IconButton from "@french-tech-homies/design-system/components/IconButton";
 import ListItem from "@french-tech-homies/design-system/components/ListItem";
 import { Label } from "@french-tech-homies/design-system/primitives/Typography";
@@ -108,7 +111,11 @@ export const WithActions: Story = {
                   isToggle
                   variant="standard"
                 />
-                <IconButton aria-label="Delete" icon={Trash2} />
+                <IconButton
+                  variant="standard"
+                  aria-label="Delete"
+                  icon={Trash2}
+                />
               </div>
             }
           />
