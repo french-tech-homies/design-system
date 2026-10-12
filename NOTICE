@@ -1,0 +1,23 @@
+MD3 kit
+Copyright (c) 2026 french-tech-homies
+
+The kit is licensed under the MIT License (see LICENSE).
+
+This repository also holds the work of others, listed below. None of it is
+part of the kit: the registry does not carry it and an install does not
+receive it. It is here for the agents that work in this repository.
+
+--------------------------------------------------------------------------
+
+React Aria skill
+
+  Author:   Adobe
+  Source:   https://react-aria.adobe.com
+  Licence:  Apache License 2.0 (as its SKILL.md states)
+  Path:     .claude/skills/react-aria/
+  Record:   skills-lock.json (the source and the hash, written by the same
+            command)
+
+  Taken on 2026-10-12 with `npx skills add https://react-aria.adobe.com -a
+  claude-code` (skills CLI 1.7.2) and committed as that command wrote it,
+  unmodified. The licence's text is in LICENSES/Apache-2.0.txt.
