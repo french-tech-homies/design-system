@@ -579,8 +579,13 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
   role) to state one. Set `color` on `<body>` to override the default.
 - **Type** — `text-display-large` → `text-label-small` (15 roles), on two
   faces: `font-brand` (display / headline / title) and `font-plain` (body /
-  label), both defaulting to the same `--font-inter` hook. The `Typography`
-  primitives apply them; raw `text-*` classes do not. Each `text-*` class
+  label), both defaulting to the same `--font-inter` hook. Each role has a
+  family of its own beside them, `font-<role>` (`font-label-large`), which
+  reads `--md-sys-typescale-<role>-font`: the family a project's DESIGN.md
+  writes on that role, and its face where it writes none. So a face
+  overridden in a preset or on a subtree still moves every role with no
+  family of its own. The `Typography` primitives write `font-<role>`; a raw
+  `text-*` class carries no family. Each `text-*` class
   carries its role's size, line height, tracking and weight
   (`--md-sys-typescale-<role>-weight`, one for each of the 15 roles), and the
   primitives write no weight of their own: a weight a project's DESIGN.md
@@ -671,6 +676,14 @@ What a handed theme does not move, said on the page too:
 - **`MD3/Foundations`**, which documents the shipped theme from
   `tokens/resolved.json`, and the **Editorial preset**, which is off while a
   handed theme draws.
+
+A DESIGN.md in the format's own words is drawn too: one with no `scheme` and
+no `colors.seed`, which are the kit's keys and not the format's, and with the
+format's short sizes (`title-md`, `rounded.sm`). The scheme is read from the
+file's ground (`colors.background`, else `colors.surface`) and the seed from
+`colors.primary`; the page lists each as assumed, with the token it was read
+from, beside what it ignored. A file with neither a ground nor a primary is
+still refused, in words that say what to write.
 
 `theme.css` or `theme.v4.css` alone is refused, in words that say to hand
 both: half a theme under the name "Your theme" would mislead. The machinery
@@ -1171,7 +1184,9 @@ Material look. For an identity of its own, see the preset above.
   state layers (`group-data-focus-visible/button:state-opacity-focus`) follow
   the same rule.
 - **Focus indicator is MD3's**: a 3px `secondary` ring offset 2px
-  (`focusRing` in `utils.ts`), not shadcn's 2px primary ring.
+  (`focusRing` in `utils.ts`), not shadcn's 2px primary ring. It is an
+  outline, and its gap is not painted: on a card, a table or a sheet it shows
+  that surface, not the page's ground.
 - **`data-slot` on every root** (`button`, `card`, `chip`, `state-layer`,
   `modal`, …) plus `data-variant` / `data-size` where a variant exists — the
   shadcn convention, so consumers can target parts without reaching into

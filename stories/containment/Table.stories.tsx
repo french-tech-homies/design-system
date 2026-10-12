@@ -16,6 +16,7 @@ import {
 } from "@french-tech-homies/design-system/components/Table";
 import { Tag } from "@french-tech-homies/design-system/components/Tag";
 import { CopyIcon } from "lucide-react";
+import { expect, within } from "storybook/test";
 
 /**
  * Data table on React Aria `Table`: keyboard-navigable grid with optional
@@ -273,6 +274,113 @@ export const Dense: Story = {
       </Table>
     </Card>
   ),
+};
+
+/**
+ * A dense table of one row in a box that scrolls sideways. The `xsmall`
+ * button's 48dp target reaches 4dp under the row; the table clips it at its
+ * edge, so the box has nothing to scroll upright and draws no upright bar.
+ */
+export const DenseInAScroller: Story = {
+  render: () => (
+    <div
+      data-testid="scroller"
+      className="border-outline-variant w-[420px] overflow-x-auto border"
+    >
+      <Table aria-label="Deliveries" density="dense" className="min-w-[560px]">
+        <TableHeader>
+          <Column id="id" isRowHeader>
+            Delivery
+          </Column>
+          <Column id="address">Address</Column>
+          <Column id="copy" align="end">
+            Copy
+          </Column>
+        </TableHeader>
+        <TableBody items={deliveries.slice(0, 1)}>
+          {(row) => (
+            <Row>
+              <Cell>{row.id}</Cell>
+              <Cell>{row.address}</Cell>
+              <Cell>
+                <IconButton
+                  size="xsmall"
+                  icon={CopyIcon}
+                  aria-label={`Copy ${row.id}`}
+                />
+              </Cell>
+            </Row>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const scroller = within(canvasElement).getByTestId("scroller");
+    // It does scroll sideways: the test is of a real scroller.
+    await expect(scroller.scrollWidth).toBeGreaterThan(scroller.clientWidth);
+    await expect(scroller.scrollHeight).toBe(scroller.clientHeight);
+  },
+};
+
+/**
+ * `showLastRowDivider={false}`: the body's last row draws no line, for a
+ * table that closes with an edge of the project's own, as the card's border
+ * here. The header's line and the other rows' stay.
+ */
+export const LastRowDividerOff: Story = {
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <Card variant="outlined" className="w-[560px] overflow-hidden">
+        <Table aria-label="Deliveries, no last line" showLastRowDivider={false}>
+          <TableHeader>
+            <Column id="id" isRowHeader>
+              Delivery
+            </Column>
+            <Column id="address">Address</Column>
+          </TableHeader>
+          <TableBody items={deliveries}>
+            {(row) => (
+              <Row>
+                <Cell>{row.id}</Cell>
+                <Cell>{row.address}</Cell>
+              </Row>
+            )}
+          </TableBody>
+        </Table>
+      </Card>
+      <Table aria-label="Deliveries, the default" className="w-[560px]">
+        <TableHeader>
+          <Column id="id" isRowHeader>
+            Delivery
+          </Column>
+          <Column id="address">Address</Column>
+        </TableHeader>
+        <TableBody items={deliveries}>
+          {(row) => (
+            <Row>
+              <Cell>{row.id}</Cell>
+              <Cell>{row.address}</Cell>
+            </Row>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const line = (row?: Element) =>
+      row && getComputedStyle(row).borderBottomWidth;
+    const rowsOf = (name: string) =>
+      within(canvas.getByRole("grid", { name })).getAllByRole("row").slice(1);
+
+    const off = rowsOf("Deliveries, no last line");
+    await expect(line(off.at(-1))).toBe("0px");
+    await expect(line(off.at(-2))).toBe("1px");
+
+    const byDefault = rowsOf("Deliveries, the default");
+    await expect(line(byDefault.at(-1))).toBe("1px");
+  },
 };
 
 /**

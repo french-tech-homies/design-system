@@ -33,6 +33,7 @@ import {
   hostileColors,
   hostileScales,
   NOT_A_THEME,
+  OWN_WORDS,
   themeCssBrokenOut,
 } from "./fixtures";
 import { MAX_FILE_BYTES, readHanded, type Generate } from "./read-theme";
@@ -296,6 +297,42 @@ export const designMdAlone: Play = async ({ canvasElement }) => {
 
   await forget(canvasElement);
   await draws(canvasElement, before);
+};
+
+/** A DESIGN.md in the format's own words (no `scheme`, no `seed`, short
+    sizes) is drawn, not refused: its primary is in the scheme its ground
+    says, and the page lists what was assumed and the token it was read from. */
+export const formatsOwnWords: Play = async ({ canvasElement }) => {
+  const before = await settled(canvasElement);
+  for (const { scheme, name, primary, text } of OWN_WORDS) {
+    const theme = fixture(text);
+    // What is drawn is what the same file draws with the two keys said.
+    const said = fixture(
+      text
+        .replace("colors:\n", `scheme: ${scheme}\ncolors:\n`)
+        .replace("colors:\n", `colors:\n  seed: "${primary}"\n`),
+    );
+    await expect(said.warnings).toEqual([]);
+    for (const drawn of ["light", "dark"] as const) {
+      await expect(theme.expected(drawn)).toEqual(said.expected(drawn));
+    }
+    await expect(
+      theme.warnings.map((warning) => warning.kind),
+    ).toEqual(["assumed", "assumed"]);
+
+    hand(canvasElement, [textFile("DESIGN.md", text)]);
+    await draws(canvasElement, theme.expected("light"));
+    await expect(status(canvasElement)).toHaveTextContent(name);
+    await expect(status(canvasElement)).toHaveTextContent(
+      `read as ${scheme} from colors.background`,
+    );
+    await expect(status(canvasElement)).toHaveTextContent(
+      "read from colors.primary",
+    );
+
+    await forget(canvasElement);
+    await draws(canvasElement, before);
+  }
 };
 
 /* ---- it holds --------------------------------------------------------- */

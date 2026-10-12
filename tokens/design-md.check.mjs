@@ -140,16 +140,44 @@ test("scheme: dark puts written roles under .dark and derives :root", () => {
   );
 });
 
+test("each scheme block declares its colour scheme and the scroll bars' roles", () => {
+  const block = (css, opening) => {
+    const start = css.indexOf(opening);
+    assert.notEqual(start, -1, opening);
+    return css.slice(start, css.indexOf("\n}", start));
+  };
+  const bars = "scrollbar-color: var(--md-sys-color-outline) transparent;";
+  // Whichever scheme the file writes, `:root` is light and `.dark` is dark.
+  for (const scheme of ["light", "dark"]) {
+    const css = renderThemeCss(deriveTheme(designMd(`scheme: ${scheme}`, SEED)));
+    const light = block(css, ":root {");
+    const dark = block(css, ".dark {");
+    assert.match(light, /^  color-scheme: light;$/m);
+    assert.match(dark, /^  color-scheme: dark;$/m);
+    assert.ok(light.includes(bars) && dark.includes(bars));
+    assert.equal(css.match(/color-scheme: /g).length, 2);
+  }
+  // Dark by the system's setting: the declarations are in the query's block.
+  const system = renderThemeCss(
+    deriveTheme(withRoot("  --md3-dark-mode: system;")),
+  );
+  const query = block(system, "@media (prefers-color-scheme: dark) {\n  :root {");
+  assert.match(query, /^    color-scheme: dark;$/m);
+  assert.ok(query.includes(bars));
+});
+
 test("refusals name the token", () => {
   const refuses = (text, pattern) =>
     assert.throws(
       () => generateTheme(text, kitV4),
       (error) => error instanceof DesignMdError && pattern.test(error.message),
     );
+  // Neither a seed nor a primary to read one from.
   refuses(
-    designMd("scheme: light", 'colors:\n  primary: "#ff0000"'),
+    designMd("scheme: light", 'colors:\n  secondary: "#ff0000"'),
     /colors\.seed/,
   );
+  refuses(designMd("scheme: light"), /colors\.seed/);
   refuses(
     designMd("scheme: light", "colors:\n  seed: hsl(236 30% 42%)"),
     /colors\.seed/,
@@ -162,8 +190,15 @@ test("refusals name the token", () => {
     designMd("scheme: light", SEED, '  tertiary-key: "#12345"'),
     /colors\.tertiary-key/,
   );
+  // Neither a scheme nor a ground to read one from.
   refuses(designMd(SEED), /`scheme`/);
+  refuses(designMd(SEED, '  primary: "#ff0000"'), /`scheme`/);
+  // A scheme that is written is never read from the ground instead.
   refuses(designMd("scheme: auto", SEED), /scheme is "auto"/);
+  refuses(
+    designMd("scheme: auto", SEED, '  background: "#ffffff"'),
+    /scheme is "auto"/,
+  );
   refuses(
     withRoot("  --md-sys-state-hover-state-layer-opacity: 0.08;"),
     /--md-sys-state-hover-state-layer-opacity is "0\.08"/,
@@ -174,6 +209,157 @@ test("refusals name the token", () => {
   );
   refuses(withRoot("  --md3-dark-mode: media;"), /--md3-dark-mode is "media"/);
   refuses("## Overview\n\nNo front matter.\n", /front matter/);
+});
+
+/* ---- a file in the format's own words ---------------------------------- */
+
+/* The format has no `scheme` and no `seed`: a file its own tools write names
+   neither, and writes its sizes short (`title-md`, `rounded.sm`). */
+const LIGHT_WORDS = 'colors:\n  primary: "#3050A0"\n  background: "#FBF8F2"';
+const DARK_WORDS = 'colors:\n  primary: "#a8c0ff"\n  surface: "#14161a"';
+const assumed = (warnings) =>
+  warnings.filter(({ kind }) => kind === "assumed");
+
+test("no scheme: it is read from the ground, and said", () => {
+  const light = generateTheme(designMd(LIGHT_WORDS), kitV4);
+  assert.equal(light.theme.colors.scheme, "light");
+  assert.equal(cssRole(light.themeCss, ":root", "background"), hsl("#fbf8f2"));
+  const [scheme] = assumed(light.warnings);
+  assert.equal(scheme.token, "scheme");
+  assert.match(scheme.message, /colors\.background/);
+  assert.match(scheme.message, /`scheme: light`/);
+
+  // With no background, the surface is the ground.
+  const dark = generateTheme(designMd(DARK_WORDS), kitV4);
+  assert.equal(dark.theme.colors.scheme, "dark");
+  assert.equal(cssRole(dark.themeCss, ".dark", "surface"), hsl("#14161a"));
+  assert.notEqual(cssRole(dark.themeCss, ":root", "surface"), hsl("#14161a"));
+  assert.match(assumed(dark.warnings)[0].message, /colors\.surface/);
+  assert.match(assumed(dark.warnings)[0].message, /`scheme: dark`/);
+
+  // The background is read before the surface.
+  const both = generateTheme(
+    designMd(LIGHT_WORDS, '  surface: "#14161a"'),
+    kitV4,
+  );
+  assert.equal(both.theme.colors.scheme, "light");
+});
+
+test("no seed: it is read from the primary, and said", () => {
+  const read = generateTheme(designMd(LIGHT_WORDS), kitV4);
+  const [, seed] = assumed(read.warnings);
+  assert.equal(seed.token, "colors.seed");
+  assert.match(seed.message, /colors\.primary/);
+  assert.deepEqual(kinds(read.warnings), [
+    ["assumed", "scheme"],
+    ["assumed", "colors.seed"],
+  ]);
+
+  // What is assumed is what the file would have written.
+  const said = generateTheme(
+    designMd("scheme: light", LIGHT_WORDS, '  seed: "#3050a0"'),
+    kitV4,
+  );
+  assert.deepEqual(said.warnings, []);
+  assert.equal(read.themeCss, said.themeCss);
+  assert.equal(read.themeV4Css, said.themeV4Css);
+
+  // A written seed is never replaced by the primary.
+  const own = generateTheme(
+    designMd("scheme: light", SEED, '  primary: "#3050a0"'),
+    kitV4,
+  );
+  assert.deepEqual(own.warnings, []);
+  assert.notEqual(own.themeCss, said.themeCss);
+});
+
+test("the format's short names are read as Material's: the type sizes and the corners", () => {
+  const short = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  title-md:\n    fontSize: 19px\n  label-sm:\n    fontWeight: 700\n  headline-lg:\n    lineHeight: 44px",
+      "rounded:\n  xs: 1px\n  sm: 2px\n  md: 3px\n  lg: 5px\n  xl: 7px",
+    ),
+    kitV4,
+  );
+  const long = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  title-medium:\n    fontSize: 19px\n  label-small:\n    fontWeight: 700\n  headline-large:\n    lineHeight: 44px",
+      "rounded:\n  extra-small: 1px\n  small: 2px\n  medium: 3px\n  large: 5px\n  extra-large: 7px",
+    ),
+    kitV4,
+  );
+  assert.deepEqual(short.warnings, []);
+  assert.equal(short.themeV4Css, long.themeV4Css);
+  assert.equal(short.themeCss, long.themeCss);
+  assert.equal(
+    valueOf(short.themeV4Css, "--md-sys-typescale-title-medium-size"),
+    "19px",
+  );
+  assert.equal(valueOf(short.themeV4Css, "--md-sys-shape-corner-small"), "2px");
+  // The resolved file says them in Material's words, once.
+  assert.equal(short.resolvedDesignMd, long.resolvedDesignMd);
+  assert.doesNotMatch(short.resolvedDesignMd, /title-md|^  sm:/m);
+});
+
+test("Material's name wins over the short one, which is listed; a name outside the table is ignored", () => {
+  const both = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  title-md:\n    fontSize: 19px\n  title-medium:\n    fontSize: 21px\n  headline-display:\n    fontSize: 80px\n  body-xl:\n    fontSize: 20px",
+      "rounded:\n  sm: 2px\n  small: 6px\n  xxl: 40px",
+    ),
+    kitV4,
+  );
+  assert.equal(
+    valueOf(both.themeV4Css, "--md-sys-typescale-title-medium-size"),
+    "21px",
+  );
+  assert.equal(valueOf(both.themeV4Css, "--md-sys-shape-corner-small"), "6px");
+  assert.deepEqual(kinds(both.warnings), [
+    ["unapplied", "typography.title-md"],
+    ["ignored", "typography.headline-display"],
+    ["ignored", "typography.body-xl"],
+    ["unapplied", "rounded.sm"],
+    ["ignored", "rounded.xxl"],
+  ]);
+  // A refusal names the token as the file wrote it.
+  refusal(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  body-md:\n    fontSize: big",
+    ),
+    "typography.body-md.fontSize",
+    "a length",
+  );
+});
+
+test("round trip: what was assumed and the short names survive the resolved DESIGN.md", () => {
+  const words =
+    "typography:\n  title-md:\n    fontSize: 19px\n    fontFeature: tnum\n  headline-display:\n    fontSize: 80px\nrounded:\n  sm: 2px\n  bubble-ish: 3px";
+  for (const text of [
+    designMd(LIGHT_WORDS, words),
+    designMd(DARK_WORDS, words),
+    designMd(DARK_WORDS, '  background: "#101114"'),
+    designMd("scheme: light", SEED, words, "  small: 6px"),
+  ]) {
+    const first = generateTheme(text, kitV4);
+    const again = generateTheme(first.resolvedDesignMd, kitV4);
+    assert.equal(again.themeCss, first.themeCss);
+    assert.equal(again.themeV4Css, first.themeV4Css);
+    assert.deepEqual(again.warnings, first.warnings);
+    assert.equal(again.resolvedDesignMd, first.resolvedDesignMd);
+  }
+  // Nothing the file did not say is written into its front matter.
+  const { resolvedDesignMd } = generateTheme(designMd(LIGHT_WORDS, words), kitV4);
+  const front = resolvedDesignMd.slice(0, resolvedDesignMd.indexOf("\n---\n"));
+  assert.doesNotMatch(front, /^scheme:|^  seed:/m);
+  assert.match(resolvedDesignMd, /\*\*assumed\*\* — /);
 });
 
 test("the command exits non-zero on a refusal and writes nothing", () => {
@@ -236,7 +422,7 @@ test("unknown names are ignored and listed", () => {
       SEED,
       '  brand-pink: "#ff66aa"',
       "typography:\n  h1:\n    fontSize: 3rem",
-      "rounded:\n  sm: 4px",
+      "rounded:\n  pill: 4px",
     ),
     kitV4,
   );
@@ -248,7 +434,7 @@ test("unknown names are ignored and listed", () => {
     [
       ["ignored", "colors.brand-pink"],
       ["ignored", "typography.h1"],
-      ["ignored", "rounded.sm"],
+      ["ignored", "rounded.pill"],
     ],
   );
 });
@@ -400,25 +586,199 @@ test("setting by name refuses an elevation that appears twice", () => {
 
 /* ---- slice 1's documented rules --------------------------------------- */
 
-test("a face is one family: another family on the same face is not applied, and is listed", () => {
-  const plain = generateTheme(seedOnly, kitV4);
+/* ---- a family per role ------------------------------------------------- */
+
+const ROLE_NAMES = Object.keys(TYPE_DEFAULTS);
+const roleFont = (css, role) =>
+  valueOf(css, `--md-sys-typescale-${role}-font`);
+const families = (...pairs) =>
+  `typography:\n${pairs
+    .map(([role, family]) => `  ${role}:\n    fontFamily: ${family}`)
+    .join("\n")}`;
+
+test("a role takes the family written on it, and a role with none keeps its face's", () => {
+  const labels = ["label-large", "label-medium", "label-small"];
   const mixed = generateTheme(
     designMd(
       "scheme: light",
       SEED,
-      "typography:\n  headline-small:\n    fontFamily: Space Grotesk",
+      families(
+        ["body-large", "Inter"],
+        ...labels.map((role) => [role, "Space Grotesk, Georgia, serif"]),
+      ),
     ),
     kitV4,
   );
-  assert.deepEqual(kinds(mixed.warnings), [
-    ["unapplied", "typography.headline-small.fontFamily"],
-  ]);
-  assert.equal(mixed.themeCss, plain.themeCss);
-  assert.equal(mixed.themeV4Css, plain.themeV4Css);
-  assert.ok(
-    mixed.themeV4Css.includes(
-      "  --md-sys-typescale-brand-font: var(--font-roboto);\n",
+  assert.deepEqual(mixed.warnings, []);
+  // The faces, as before: read from display-large and body-large.
+  assert.equal(
+    valueOf(mixed.themeV4Css, "--md-sys-typescale-brand-font"),
+    "var(--font-roboto)",
+  );
+  assert.equal(
+    valueOf(mixed.themeV4Css, "--md-sys-typescale-plain-font"),
+    "var(--font-inter)",
+  );
+  for (const role of ROLE_NAMES) {
+    assert.equal(
+      roleFont(mixed.themeV4Css, role),
+      labels.includes(role) ? "var(--font-space-grotesk)" : "initial",
+      role,
+    );
+  }
+  // Three roles, one family: one hook, declared once.
+  assert.equal(
+    valueOf(mixed.themeCss, "--font-space-grotesk"),
+    '"Space Grotesk", Georgia, serif',
+  );
+
+  // Taken out of the file, it leaves the theme: the role is its face's again.
+  const plain = generateTheme(
+    designMd("scheme: light", SEED, families(["body-large", "Inter"])),
+    mixed.themeV4Css,
+  );
+  for (const role of ROLE_NAMES) {
+    assert.equal(roleFont(plain.themeV4Css, role), "initial", role);
+  }
+  assert.doesNotMatch(plain.themeCss, /--font-space-grotesk/);
+});
+
+test("one family per face generates no family of a role's own, and no warning", () => {
+  const kit = generateTheme(project, kitV4);
+  const twoFaces = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ...ROLE_NAMES.map((role) => [
+          role,
+          /^(display|headline|title)/.test(role) ? "Fraunces" : "Inter",
+        ]),
+      ),
     ),
+    kitV4,
+  );
+  // A family on the two roles that name the faces says the same.
+  const twoRoles = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      families(["display-large", "Fraunces"], ["body-large", "Inter"]),
+    ),
+    kitV4,
+  );
+  for (const { themeV4Css, warnings } of [kit, twoFaces, twoRoles]) {
+    assert.deepEqual(warnings, []);
+    for (const role of ROLE_NAMES) {
+      assert.equal(roleFont(themeV4Css, role), "initial", role);
+    }
+  }
+  assert.equal(twoRoles.themeCss, twoFaces.themeCss);
+  assert.equal(twoRoles.themeV4Css, twoFaces.themeV4Css);
+  assert.equal(twoRoles.resolvedDesignMd, twoFaces.resolvedDesignMd);
+});
+
+test("a hook carries one stack: the first stands, and another's fallbacks are listed", () => {
+  const { themeCss, themeV4Css, warnings } = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ["body-large", "Inter"],
+        ["body-small", "Inter, Verdana, sans-serif"],
+        ["title-small", "Space Grotesk, Georgia, serif"],
+        ["label-small", "Space Grotesk, monospace"],
+      ),
+    ),
+    kitV4,
+  );
+  assert.deepEqual(kinds(warnings), [
+    ["unapplied", "typography.body-small.fontFamily"],
+    ["unapplied", "typography.label-small.fontFamily"],
+  ]);
+  assert.equal(
+    valueOf(themeCss, "--font-inter"),
+    '"Inter", ui-sans-serif, system-ui, sans-serif',
+  );
+  assert.equal(
+    valueOf(themeCss, "--font-space-grotesk"),
+    '"Space Grotesk", Georgia, serif',
+  );
+  // The family is applied all the same: its face's, or its own hook.
+  assert.equal(roleFont(themeV4Css, "body-small"), "initial");
+  assert.equal(roleFont(themeV4Css, "label-small"), "var(--font-space-grotesk)");
+});
+
+test("the resolved file shows the family applied on every role, and reads back the same", () => {
+  for (const text of [
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ["display-large", "Fraunces"],
+        ["body-large", "Inter"],
+        ["title-md", "Inter"],
+        ["label-small", "Space Grotesk, monospace"],
+        ["label-large", "Space Grotesk"],
+        ["mono", "JetBrains Mono"],
+      ),
+    ),
+    designMd("scheme: light", SEED, families(["headline-small", "Fraunces"])),
+    // Two faces on one hook, each with its own fallbacks: no role but the
+    // two that name the faces wrote a family, so none is listed, twice.
+    designMd(
+      "scheme: light",
+      SEED,
+      families(["display-large", "Inter, Georgia, serif"], ["body-large", "Inter"]),
+    ),
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ["display-large", "Inter, Georgia, serif"],
+        ["body-large", "Inter"],
+        ["title-small", "Inter, Georgia, serif"],
+        ["headline-small", "Inter, Verdana, sans-serif"],
+      ),
+    ),
+  ]) {
+    const first = generateTheme(text, kitV4);
+    const again = generateTheme(first.resolvedDesignMd, kitV4);
+    assert.equal(again.themeCss, first.themeCss);
+    assert.equal(again.themeV4Css, first.themeV4Css);
+    assert.deepEqual(again.warnings, first.warnings);
+    assert.equal(again.resolvedDesignMd, first.resolvedDesignMd);
+  }
+  const { theme } = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ["display-large", "Fraunces"],
+        ["title-md", "Inter"],
+        ["label-large", "Space Grotesk"],
+      ),
+    ),
+    kitV4,
+  );
+  const applied = (role) => theme.typography[role].fontFamily;
+  assert.equal(applied("headline-small"), "Fraunces");
+  assert.equal(applied("title-medium"), "Inter");
+  assert.equal(applied("body-small"), "Roboto");
+  assert.equal(applied("label-large"), "Space Grotesk");
+});
+
+test("a family whose hook would be a role's utility is refused", () => {
+  refusal(
+    designMd("scheme: light", SEED, families(["label-large", "Label Large"])),
+    "typography.label-large.fontFamily",
+    "a family whose font hook is not `--font-label-large`",
+  );
+  // Named as the file wrote the role.
+  refusal(
+    designMd("scheme: light", SEED, families(["title-md", "Body Small"])),
+    "typography.title-md.fontFamily",
+    "a family whose font hook is not `--font-body-small`",
   );
 });
 

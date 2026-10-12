@@ -82,6 +82,17 @@ import { cn, focusRing, tv } from "../utils";
  * the kit's own measures; a `Row`'s `className="h-…"` still wins. A 40dp row
  * holds an `xsmall` icon button, whose target it cuts to 48 by 40.
  *
+ * **Edge.** The table clips at its own edge (`overflow-clip`): a control's
+ * touch target that reaches under the last row is cut there, so the table's
+ * content is never taller than the table and a box that scrolls it sideways
+ * does not scroll upright too. A header, a row and a cell draw their focus
+ * ring inside for the same reason.
+ *
+ * **Last row's line.** Every row draws a line under it. A table that closes
+ * with an edge of the project's own (a frame, a card's border) says
+ * `<Table showLastRowDivider={false}>` and the last row of the body draws
+ * none. The header's line stays.
+ *
  * **Cut cells.** `<Cell truncate>` cuts its text to one line. When the text is
  * really cut, the whole of it shows in a rich `Tooltip` while the pointer
  * rests on the cell (300 ms) or the keyboard is on it (arrow keys). It stays
@@ -105,12 +116,12 @@ import { cn, focusRing, tv } from "../utils";
  */
 const styles = tv({
   slots: {
-    table: "w-full border-collapse text-on-surface",
+    table: "w-full border-collapse overflow-clip text-on-surface",
     header: "",
     column: [
       focusRing(),
-      "h-14 px-4 text-start align-middle text-label-large text-on-surface-variant",
-      "border-b border-outline-variant",
+      "h-14 px-4 text-start align-middle text-label-large font-label-large text-on-surface-variant",
+      "border-b border-outline-variant -outline-offset-2",
     ],
     columnContent: "flex items-center gap-1",
     sortIcon:
@@ -118,14 +129,14 @@ const styles = tv({
     body: "",
     row: [
       focusRing(),
-      "group/row relative h-[52px] border-b border-outline-variant bg-surface text-body-medium transition-colors duration-short-4 -outline-offset-2",
+      "group/row relative h-[52px] border-b border-outline-variant bg-surface text-body-medium font-body-medium transition-colors duration-short-4 -outline-offset-2",
       "data-[href]:cursor-pointer data-selected:bg-secondary-container data-selected:text-on-secondary-container",
       "data-[interactive]:hover:bg-on-surface/8 data-[interactive]:data-pressed:bg-on-surface/10 data-[interactive]:data-focus-visible:bg-on-surface/10",
       "data-disabled:text-on-surface/38",
     ],
     cell: [focusRing(), "px-4 align-middle -outline-offset-2"],
     cellText: "block truncate",
-    footer: "text-label-large text-on-surface",
+    footer: "text-label-large font-label-large text-on-surface",
   },
   variants: {
     align: {
@@ -136,6 +147,10 @@ const styles = tv({
     density: {
       default: {},
       dense: { column: "h-11", row: "h-10" },
+    },
+    showLastRowDivider: {
+      true: {},
+      false: { row: "last:border-b-0" },
     },
     // A cut cell takes no width of its own: its column's decides.
     truncate: {
@@ -150,22 +165,34 @@ type TableDensity = "default" | "dense";
 /** The table's density, for the rows and the header cells under it. */
 const TableDensityContext = createContext<TableDensity>("default");
 
+/** Whether the body's last row draws its line, for the rows under it. */
+const TableLastRowDividerContext = createContext(true);
+
 export type TableProps = Omit<AriaTableProps, "className"> & {
   className?: string;
   /** `dense` draws 40dp rows under a 44dp header. Default 52dp under 56dp. */
   density?: TableDensity;
+  /** `false` leaves the body's last row without its line. Default `true`. */
+  showLastRowDivider?: boolean;
 };
 
-export function Table({ className, density = "default", ...props }: TableProps) {
+export function Table({
+  className,
+  density = "default",
+  showLastRowDivider = true,
+  ...props
+}: TableProps) {
   const s = styles();
   return (
     <TableDensityContext.Provider value={density}>
-      <AriaTable
-        data-slot="table"
-        data-density={density}
-        {...props}
-        className={composeTailwindRenderProps(className, s.table())}
-      />
+      <TableLastRowDividerContext.Provider value={showLastRowDivider}>
+        <AriaTable
+          data-slot="table"
+          data-density={density}
+          {...props}
+          className={composeTailwindRenderProps(className, s.table())}
+        />
+      </TableLastRowDividerContext.Provider>
     </TableDensityContext.Provider>
   );
 }
@@ -296,7 +323,8 @@ export function Row<T extends object>({
 }: RowProps<T>) {
   const { selectionBehavior, selectionMode } = useTableOptions();
   const density = useContext(TableDensityContext);
-  const s = styles({ density });
+  const showLastRowDivider = useContext(TableLastRowDividerContext);
+  const s = styles({ density, showLastRowDivider });
   const isInteractive =
     selectionMode !== "none" || props.href !== undefined || !!props.onAction;
   return (

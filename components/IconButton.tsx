@@ -254,7 +254,8 @@ type IconButtonProps = StandardIconButtonProps | ToggleIconButtonProps;
  * around it. Where two targets overlap, the later button in the document
  * answers in the overlap; in a `Table`'s dense row of 40 pixels, each button
  * so answers over at least 48 by 40. An ancestor that clips (`overflow-hidden`)
- * cuts the target at its edge.
+ * cuts the target at its edge: a `Table` does, so a button in its last row
+ * answers down to the table's edge and no further.
  *
  * Parts, each with its `data-slot` and its key in `classNames`: `icon`
  * (`icon-button-icon`). The root is `data-slot="icon-button"` with

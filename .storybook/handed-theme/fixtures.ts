@@ -64,6 +64,54 @@ export const FIXTURE_WARNING = "colors.brand-pink";
 /** A DESIGN.md the generator refuses: it names no scheme. */
 export const DESIGN_MD_REFUSED = DESIGN_MD_CLASS.replace("scheme: light\n", "");
 
+/** A DESIGN.md in the format's own words, as its own tools write one: no
+    `scheme` and no `seed`, which are the kit's keys, and the short sizes
+    (`title-md`, `rounded.sm`). The generator reads the scheme from the
+    ground and the seed from the primary, and says both. The elevation is
+    written so that the tests can read it drawn, as in the fixture above. */
+const ownWords = (name: string, primary: string, ground: string) => `---
+version: alpha
+name: ${name}
+description: A theme in the format's own words, for the catalog's own tests.
+colors:
+  primary: "${primary}"
+  background: "${ground}"
+typography:
+  title-md:
+    fontSize: 19px
+rounded:
+  sm: 3px
+  full: 6px
+---
+
+## Overview
+
+A fixture.
+
+## Reference CSS
+
+\`\`\`css
+:root {
+  --md-sys-elevation-1: 0 0 0 3px rgb(200 30 90);
+}
+\`\`\`
+`;
+
+export const OWN_WORDS = [
+  {
+    scheme: "light",
+    name: "Own words on a light ground",
+    primary: "#8a1c7c",
+    text: ownWords("Own words on a light ground", "#8a1c7c", "#fff8f2"),
+  },
+  {
+    scheme: "dark",
+    name: "Own words on a dark ground",
+    primary: "#ffb0e8",
+    text: ownWords("Own words on a dark ground", "#ffb0e8", "#17121a"),
+  },
+] as const;
+
 /** A generated theme.css as a generator with no guard on a family name wrote
     it: the brand hook's declaration ends early, and what follows names two
     addresses. The kit's generator writes a family as one string, so no

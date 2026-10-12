@@ -10,7 +10,29 @@ import {
   Label,
   Title,
 } from "@french-tech-homies/design-system/primitives/Typography";
+import { Checkbox, CheckboxGroup } from "@french-tech-homies/design-system/components/Checkbox";
+import Chip, { ChipGroup } from "@french-tech-homies/design-system/components/Chip";
+import {
+  Disclosure,
+  DisclosureHeader,
+  DisclosurePanel,
+} from "@french-tech-homies/design-system/components/Disclosure";
+import { ImageField } from "@french-tech-homies/design-system/components/ImageField";
+import { ProgressIndicator } from "@french-tech-homies/design-system/components/ProgressIndicator";
+import { Radio, RadioGroup } from "@french-tech-homies/design-system/components/Radio";
+import { Slider } from "@french-tech-homies/design-system/components/Slider";
+import { Switch } from "@french-tech-homies/design-system/components/Switch";
+import {
+  Cell,
+  Column,
+  Row,
+  Table,
+  TableBody,
+  TableFooter,
+  TableHeader,
+} from "@french-tech-homies/design-system/components/Table";
 import { Tag } from "@french-tech-homies/design-system/components/Tag";
+import { TextField } from "@french-tech-homies/design-system/components/TextField";
 
 /**
  * The 15-role Material type scale. Specs come from `tokens/resolved.json`
@@ -290,6 +312,291 @@ export const WeightFromTheTheme: Story = {
     // A kit component that draws its text through a primitive follows too.
     await expect(tag(STANDS)).toBe(weight(STANDS, "label-medium", "class"));
     await expect(tag(HEAVIER)).toBe("700");
+  },
+};
+
+/** Every primitive at every size, by its role. */
+function FamilySamples({ name }: { name: string }) {
+  return (
+    <div data-testid={name} className="flex flex-col gap-1">
+      <Label size="small" component="div" colorRole="on-surface-variant">
+        {name}
+      </Label>
+      {(Object.keys(PRIMITIVES) as (keyof typeof PRIMITIVES)[]).map(
+        (variant) => {
+          const Primitive = PRIMITIVES[variant];
+          return SIZES.map((size) => (
+            <Primitive
+              key={size}
+              size={size}
+              component="div"
+              className="truncate"
+              data-role={`${variant}-${size}`}
+            >
+              {variant}-{size}
+            </Primitive>
+          ));
+        },
+      )}
+    </div>
+  );
+}
+
+/** A theme whose DESIGN.md writes a family on `label-large` alone. */
+const ONE_ROLE = {
+  "--md-sys-typescale-label-large-font": "Georgia, serif",
+} as React.CSSProperties;
+
+/** A subtree that overrides the plain face, as a preset does. */
+const ONE_FACE = {
+  "--md-sys-typescale-plain-font": '"Courier New", monospace',
+} as React.CSSProperties;
+
+/**
+ * A primitive draws its role in the role's family. Material gives each role
+ * a font token of its own, which reads one of the two faces unless the theme
+ * says otherwise: so does `--md-sys-typescale-<role>-font` here, through the
+ * `font-<role>` utility the primitive writes. The first group is the theme
+ * as it stands. The second gives `label-large` a family of its own, the way
+ * a theme generated from a DESIGN.md that writes one on that role does: only
+ * that role moves. The third overrides the plain face on a subtree, as a
+ * preset does: every body and label role follows, having no family of its
+ * own, and no brand role does. The last line is a caller's own `font-mono`
+ * on a primitive, which wins.
+ */
+export const FamilyFromTheTheme: Story = {
+  render: () => (
+    <div className="bg-surface text-on-surface flex flex-col gap-6 p-4">
+      <div className="grid grid-cols-3 gap-8">
+        <FamilySamples name="the theme as it stands" />
+        <div style={ONE_ROLE}>
+          <FamilySamples name="a family on label-large alone" />
+        </div>
+        <div style={ONE_FACE}>
+          <FamilySamples name="the plain face overridden on a subtree" />
+        </div>
+      </div>
+      <Body size="medium" className="font-mono font-bold" data-testid="own">
+        a caller&apos;s own font-mono and font-bold on Body
+      </Body>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const family = (group: string, role: TypeRole) =>
+      getComputedStyle(
+        canvas.getByTestId(group).querySelector(`[data-role="${role}"]`)!,
+      ).fontFamily;
+    const STANDS = "the theme as it stands";
+    const ONE = "a family on label-large alone";
+    const FACE = "the plain face overridden on a subtree";
+
+    for (const role of Object.keys(typeClass) as TypeRole[]) {
+      const isPlain = /^(body|label)/.test(role);
+      // A family on one role moves that role, and no other.
+      await expect(`${role}: ${family(ONE, role)}`).toBe(
+        `${role}: ${role === "label-large" ? "Georgia, serif" : family(STANDS, role)}`,
+      );
+      // A face overridden where the text is drawn moves every role that
+      // has no family of its own, and only the roles of that face.
+      await expect(`${role}: ${family(FACE, role)}`).toBe(
+        `${role}: ${isPlain ? '"Courier New", monospace' : family(STANDS, role)}`,
+      );
+    }
+    // A caller's own family wins, and its weight stays beside it.
+    const own = getComputedStyle(canvas.getByTestId("own"));
+    await expect(own.fontFamily).toMatch(/monospace$/);
+    await expect(own.fontFamily).not.toBe(family(STANDS, "body-medium"));
+    await expect(own.fontWeight).toBe("700");
+  },
+};
+
+/** A theme that gives every role one family no face has. */
+const PROBE = "Georgia, serif";
+const EVERY_ROLE = Object.fromEntries(
+  (Object.keys(typeClass) as TypeRole[]).map((role) => [
+    `--md-sys-typescale-${role}-font`,
+    PROBE,
+  ]),
+) as React.CSSProperties;
+
+/** Components that write a `text-<role>` themselves, not through a primitive. */
+function ComponentSamples() {
+  return (
+    <div className="grid grid-cols-2 items-start gap-8">
+      <div className="flex flex-col gap-6">
+        <CheckboxGroup
+          label="Days open"
+          supportingText="Pick at least one day"
+          defaultValue={["mon"]}
+        >
+          <Checkbox value="mon">Monday</Checkbox>
+          <Checkbox value="tue">Tuesday</Checkbox>
+        </CheckboxGroup>
+        <RadioGroup label="Delivery" supportingText="One of the two">
+          <Radio value="home">At home</Radio>
+          <Radio value="shop">At the shop</Radio>
+        </RadioGroup>
+        <Switch>Open on Sunday</Switch>
+        <ChipGroup
+          label="Tags"
+          selectionMode="multiple"
+          supportingText="Any number"
+        >
+          <Chip id="new" variant="filter">
+            New
+          </Chip>
+        </ChipGroup>
+        <Slider label="Opacity" defaultValue={[25]} className="w-72" />
+        <ProgressIndicator label="Uploading menu" value={62} showValue />
+      </div>
+      <div className="flex flex-col gap-6">
+        <TextField
+          label="Display name"
+          defaultValue="Chez Ada"
+          supportingText="Shown on the storefront"
+          className="w-80"
+        />
+        <ImageField
+          label="Photo"
+          supportingText="PNG, JPEG or WebP, up to 2 MB"
+          className="w-80"
+        />
+        <Disclosure defaultExpanded>
+          <DisclosureHeader>Opening hours</DisclosureHeader>
+          <DisclosurePanel>Every day but Sunday, 9 to 18.</DisclosurePanel>
+        </Disclosure>
+        <Table aria-label="Deliveries">
+          <TableHeader>
+            <Column id="id" isRowHeader>
+              Delivery
+            </Column>
+            <Column id="town">Town</Column>
+          </TableHeader>
+          <TableBody>
+            <Row>
+              <Cell>d-4821</Cell>
+              <Cell>Paris</Cell>
+            </Row>
+          </TableBody>
+          <TableFooter>
+            <Row>
+              <Cell>Total</Cell>
+              <Cell>1 town</Cell>
+            </Row>
+          </TableFooter>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The text a component writes itself takes its role's family too: beside each
+ * `text-<role>` a kit file writes `font-<role>`, so a role is one family in a
+ * page, in a primitive and in a table's header alike. The first group is the
+ * theme as it stands: a title a component writes (a group's label, a
+ * disclosure's header) is in the brand face, which the Editorial preset
+ * shows. The second gives every role one family, the way a theme generated
+ * from a DESIGN.md does: every element that carries a role draws it.
+ *
+ * Text drawn outside the story's box (a snackbar, a combo box's list) is not
+ * read here.
+ */
+export const FamilyInComponents: Story = {
+  render: () => (
+    <div className="bg-surface text-on-surface flex flex-col gap-10 p-4">
+      <div data-testid="stands">
+        <ComponentSamples />
+      </div>
+      <div data-testid="every-role" style={EVERY_ROLE}>
+        <ComponentSamples />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const ROLE = /^text-(?:display|headline|title|body|label)-(?:large|medium|small)$/;
+    /** Every element under `group` that carries a role at rest, by role. */
+    const withRole = (group: string) =>
+      Array.from(canvas.getByTestId(group).querySelectorAll("*")).flatMap(
+        (element) => {
+          const role = Array.from(element.classList).find((name) =>
+            ROLE.test(name),
+          );
+          return role ? [{ element, role: role.slice(5) }] : [];
+        },
+      );
+    const family = (element: Element) => getComputedStyle(element).fontFamily;
+    /** What the role's own utility computes to, where the element stands. */
+    const expected = (element: Element, role: string) => {
+      const probe = document.createElement("span");
+      probe.style.fontFamily = `var(--md-sys-typescale-${role}-font, var(--md-sys-typescale-${/^(body|label)/.test(role) ? "plain" : "brand"}-font))`;
+      // Beside it, not inside: an input holds no element.
+      element.after(probe);
+      const result = family(probe);
+      probe.remove();
+      return result;
+    };
+
+    const themed = withRole("every-role");
+    for (const { element, role } of themed) {
+      await expect(`${role} ${element.tagName}: ${family(element)}`).toBe(
+        `${role} ${element.tagName}: ${PROBE}`,
+      );
+    }
+    // As the theme stands, each draws its role's face, not the page's font.
+    for (const { element, role } of withRole("stands")) {
+      await expect(`${role}: ${family(element)}`).toBe(
+        `${role}: ${expected(element, role)}`,
+      );
+    }
+
+    // The parts the story is there for are among them.
+    const drawn = (text: string) =>
+      within(canvas.getByTestId("every-role"))
+        .getByText(text)
+        .closest('[class*="font-"]');
+    for (const text of [
+      "Days open", // a checkbox group's label
+      "Pick at least one day", // and its supporting text
+      "Monday", // a checkbox's label
+      "Delivery", // a radio group's label, and a table's column
+      "At home", // a radio's label
+      "Open on Sunday", // a switch's label
+      "Tags", // a chip group's label
+      "Opacity", // a slider's label
+      "Uploading menu", // a progress indicator's label
+      "Display name", // a field's label
+      "Shown on the storefront", // and its supporting text
+      "Photo", // an image field's label
+      "Opening hours", // a disclosure's header
+      "Every day but Sunday, 9 to 18.", // and its panel
+      "Town", // a table's column header
+      "Paris", // a table's cell
+      "1 town", // a table's footer, through its row
+    ]) {
+      const element =
+        text === "Delivery"
+          ? within(canvas.getByTestId("every-role"))
+              .getAllByText(text)
+              .map((found) => found.closest('[class*="font-"]'))
+              .find(Boolean)
+          : drawn(text);
+      await expect(`${text}: ${element && family(element)}`).toBe(
+        `${text}: ${PROBE}`,
+      );
+    }
+    const input = within(canvas.getByTestId("every-role")).getByRole(
+      "textbox",
+      { name: "Display name" },
+    );
+    await expect(family(input)).toBe(PROBE);
+    // The footer itself carries a role, read with the others above.
+    await expect(
+      themed.filter(({ element }) => element.tagName === "TFOOT"),
+    ).toHaveLength(1);
+    await expect(themed.length).toBeGreaterThan(20);
   },
 };
 
