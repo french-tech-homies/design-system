@@ -65,9 +65,14 @@ Other scales, one utility family each:
 - Type: `text-display-large` … `text-label-small` (15 roles; includes size,
   line-height, tracking, weight), on two faces — `font-brand` for
   display/headline/title, `font-plain` for body/label, both defaulting to
-  `--font-inter`. Prefer the `Display/Headline/Title/Body/Label` primitives
-  over raw classes: they add the face, which a `text-*` class alone does not
-  carry. The weight is the role's, in the `text-*` utility
+  `--font-inter`. Each role has a family of its own, `font-<role>`
+  (`font-title-small`): the one a project's `DESIGN.md` writes on the role,
+  else the role's face. Prefer the `Display/Headline/Title/Body/Label`
+  primitives over raw classes: they add the family, which a `text-*` class
+  alone does not carry. **A `text-<role>` written in a kit file is written
+  with its `font-<role>`**, under the same variant where the role is under
+  one (`peer-focus:text-body-small peer-focus:font-body-small`), so a role is
+  one family in a page, in a primitive and in a table's header alike. The weight is the role's, in the `text-*` utility
   (`--md-sys-typescale-<role>-weight`): a component writes no weight class
   beside a role, or a project's `DESIGN.md` could not move it. The one
   written weight Material asks for is the prominent weight of an active

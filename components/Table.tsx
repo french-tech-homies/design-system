@@ -120,7 +120,7 @@ const styles = tv({
     header: "",
     column: [
       focusRing(),
-      "h-14 px-4 text-start align-middle text-label-large text-on-surface-variant",
+      "h-14 px-4 text-start align-middle text-label-large font-label-large text-on-surface-variant",
       "border-b border-outline-variant -outline-offset-2",
     ],
     columnContent: "flex items-center gap-1",
@@ -129,14 +129,14 @@ const styles = tv({
     body: "",
     row: [
       focusRing(),
-      "group/row relative h-[52px] border-b border-outline-variant bg-surface text-body-medium transition-colors duration-short-4 -outline-offset-2",
+      "group/row relative h-[52px] border-b border-outline-variant bg-surface text-body-medium font-body-medium transition-colors duration-short-4 -outline-offset-2",
       "data-[href]:cursor-pointer data-selected:bg-secondary-container data-selected:text-on-secondary-container",
       "data-[interactive]:hover:bg-on-surface/8 data-[interactive]:data-pressed:bg-on-surface/10 data-[interactive]:data-focus-visible:bg-on-surface/10",
       "data-disabled:text-on-surface/38",
     ],
     cell: [focusRing(), "px-4 align-middle -outline-offset-2"],
     cellText: "block truncate",
-    footer: "text-label-large text-on-surface",
+    footer: "text-label-large font-label-large text-on-surface",
   },
   variants: {
     align: {

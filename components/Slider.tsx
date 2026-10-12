@@ -22,8 +22,8 @@ interface SliderProps<T extends number | number[]> extends AriaSliderProps<T> {
 const styles = tv({
   slots: {
     root: "grid gap-2 grid-cols-[1fr_auto] [grid-template-areas:'label_output'_'track_track'] max-w-[300px]",
-    label: "text-label-large text-on-surface [grid-area:label]",
-    output: "text-label-large text-on-surface-variant [grid-area:output]",
+    label: "text-label-large font-label-large text-on-surface [grid-area:label]",
+    output: "text-label-large font-label-large text-on-surface-variant [grid-area:output]",
     track: [
       "relative [grid-area:track] col-span-2",
       "h-8 w-full touch-none",
