@@ -31,9 +31,9 @@
    that mirrors the kit tree under the consumer's ui alias (`@ui/ds/…`).
    ========================================================================== */
 
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 
-import { RECORD, digests, landedText } from "../changed.mjs";
+import { RECORD, digests, itemRecord, landedText } from "../changed.mjs";
 
 const KIT = ".";
 const NS = "@ds";
@@ -90,6 +90,8 @@ const licenseItem = {
 // told plainly that the check cannot speak for it. The record is carried by
 // `ds` alone: only the whole install replaces it, so an `add` of one item at
 // a newer release never makes it say a release the other files are not at.
+// An item `ds` does not bring carries a record of its own instead: see "the
+// release record" at the end of this script.
 const CHANGED = "changed";
 
 const changedItem = {
@@ -97,7 +99,7 @@ const changedItem = {
   type: "registry:file",
   title: "Update check",
   description:
-    "Lists the kit files a project changed since it installed them, before an update overwrites them: `node <ui>/ds/changed.mjs`. Reads the release record the whole install brings (<ui>/ds/RELEASE.json); writes nothing, merges nothing. Exit 0: none differs. 1: some do. 2: it cannot tell (no record: a copy installed before 0.3.0).",
+    "Lists the kit files a project changed since it installed them, before an update overwrites them: `node <ui>/ds/changed.mjs`. Reads the release record the whole install brings (<ui>/ds/RELEASE.json) and the record each adapter or preset brings (<ui>/ds/releases/); writes nothing, merges nothing. Names the files changed or missing, the optional items left at an earlier release, and prints the update command for what the project holds. Exit 0: none differs. 1: some do, or a file of what the project holds is missing. 2: it cannot tell (no record: a copy installed before 0.3.0).",
   files: [
     {
       path: "changed.mjs",
@@ -112,6 +114,7 @@ const changedItem = {
 /* ---- the theme, as files ---------------------------------------------- */
 
 const read = (p) => readFileSync(`${KIT}/${p}`, "utf8");
+const dirnameOf = (p) => p.slice(0, p.lastIndexOf("/"));
 
 // The kit's default theme and the DESIGN.md it is generated from, landed
 // under `<ui>/ds/` exactly as they sit here. A project imports the two
@@ -251,7 +254,10 @@ const presets = [
         target: `${UI}/tokens/preset-editorial.css`,
       },
     ],
-    registryDependencies: [`${NS}/theme`, `${NS}/${LICENSE}`],
+    // The theme files, not the `theme` item: an update names this item
+    // beside `ds`, and nothing an update names may reach an item that writes
+    // into the project's CSS (`scripts/check-install.mjs`).
+    registryDependencies: [`${NS}/${TOKENS}`, `${NS}/${LICENSE}`],
     ...stamp,
   },
 ];
@@ -884,33 +890,76 @@ const registry = {
 
 /* ---- the release record ----------------------------------------------- */
 
-// What `changed.mjs` reads in a project: this version, and the digests of
-// every file every item carries (of both its forms where it has two), keyed by where it lands (under the kit's
-// folder, or under the project's root). Built here, where every file and its
-// target is known, with the function the check itself uses. It does not
-// record itself.
-const record = { version: VERSION, kit: {}, project: {} };
-for (const { path, target } of registry.items.flatMap((i) => i.files ?? [])) {
-  if (path === RECORD) continue;
-  const [group, landed] = target.startsWith(`${UI}/`)
-    ? ["kit", target.slice(UI.length + 1)]
-    : target.startsWith("~/")
-      ? ["project", target.slice(2)]
-      : [];
-  if (!group) throw new Error(`${path}: a target the record cannot place, ${target}`);
-  // A source that opens with a comment has two forms in a project: the kit's
-  // own, and the one the CLI lands, from the first token on. Both are kept,
-  // so the check compares a project's text as it stands and hides no edit.
+/** A file's entry in a record: the digests of its text, and of the form the
+    CLI lands where it has a second one. A source that opens with a comment
+    has two forms in a project: the kit's own, and the one the CLI lands,
+    from the first token on. Both are kept, so the check compares a
+    project's text as it stands and hides no edit. */
+const entry = (path, landed) => {
   const text = read(path);
   const second = landedText(text, landed);
-  record[group][landed] =
-    second === null ? digests(text) : { ...digests(text), landed: digests(second) };
+  return second === null ? digests(text) : { ...digests(text), landed: digests(second) };
+};
+
+/** Where a file lands: under the kit's folder, or under the project's root. */
+const placed = ({ path, target }) => {
+  if (target.startsWith(`${UI}/`)) return ["kit", target.slice(UI.length + 1)];
+  if (target.startsWith("~/")) return ["project", target.slice(2)];
+  throw new Error(`${path}: a target the record cannot place, ${target}`);
+};
+const sorted = (object) =>
+  Object.fromEntries(Object.entries(object).sort(([a], [b]) => (a < b ? -1 : 1)));
+
+// The items the whole install does not bring, derived: every item that
+// carries a file and that `ds` does not reach (the adapters, a preset). A
+// project asks for each by name, so `RELEASE.json`, which `ds` alone brings,
+// cannot say whether a project holds one or which release its file is from.
+// Each therefore brings a record of its own, `releases/<item>.json`, landed
+// beside the kit: its version and its files' digests. `changed.mjs` reads
+// it to tell an item never installed from one whose file was deleted, and
+// to name an item an update left at an earlier release.
+const reached = new Set();
+const reach = (name) => {
+  if (reached.has(name)) return;
+  reached.add(name);
+  const found = registry.items.find((i) => i.name === name);
+  for (const d of found?.registryDependencies ?? []) reach(d.slice(NS.length + 1));
+};
+reach(everything.name);
+const optional = {};
+const RECORDS = dirnameOf(itemRecord("x"));
+rmSync(RECORDS, { recursive: true, force: true });
+mkdirSync(RECORDS);
+for (const found of registry.items) {
+  if (reached.has(found.name) || !found.files?.length) continue;
+  const own = { item: found.name, version: VERSION, kit: {} };
+  for (const f of found.files) {
+    const [group, landed] = placed(f);
+    if (group !== "kit") {
+      throw new Error(`${found.name}: ${f.path} lands outside the kit's folder, where its record cannot name it`);
+    }
+    own.kit[landed] = entry(f.path, landed);
+  }
+  own.kit = sorted(own.kit);
+  optional[found.name] = Object.keys(own.kit);
+  const path = itemRecord(found.name);
+  writeFileSync(path, JSON.stringify(own, null, 2) + "\n");
+  found.files.push({ path, type: "registry:file", target: `${UI}/${path}` });
 }
-for (const group of ["kit", "project"]) {
-  record[group] = Object.fromEntries(
-    Object.entries(record[group]).sort(([a], [b]) => (a < b ? -1 : 1)),
-  );
+
+// What `changed.mjs` reads in a project: this version, the digests of
+// every file every item carries (of both its forms where it has two), keyed
+// by where it lands (under the kit's folder, or under the project's root),
+// and the optional items with their files. Built here, where every file and
+// its target is known, with the function the check itself uses. It records
+// neither itself nor the items' own records.
+const record = { version: VERSION, kit: {}, project: {}, optional: sorted(optional) };
+for (const f of registry.items.flatMap((i) => i.files ?? [])) {
+  if (f.path === RECORD || f.path.startsWith(`${RECORDS}/`)) continue;
+  const [group, landed] = placed(f);
+  record[group][landed] = entry(f.path, landed);
 }
+for (const group of ["kit", "project"]) record[group] = sorted(record[group]);
 writeFileSync(RECORD, JSON.stringify(record, null, 2) + "\n");
 
 writeFileSync("registry.json", JSON.stringify(registry, null, 2) + "\n");

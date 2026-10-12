@@ -74,6 +74,20 @@ test("`ds` writing into a project's CSS is refused: no `cssVars`, no `css`", () 
     }),
     /item "ds" carries `css`/,
   );
+  // An update names each optional item a project holds beside `ds`: none
+  // may reach an item that writes into the CSS.
+  refuses(
+    changed((k) => {
+      item(k, "preset-editorial").registryDependencies.push("@ds/theme");
+    }),
+    /item "theme" carries `cssVars`, and "preset-editorial", which an update names, reaches it/,
+  );
+  refuses(
+    changed((k) => {
+      item(k, "next-adapter").css = { "@layer base": {} };
+    }),
+    /item "next-adapter" carries `css`/,
+  );
   // `theme` and `base` are asked for by name, once: they keep the bridge.
   assert.ok(item(kit, "theme").cssVars);
   assert.ok(item(kit, "base").cssVars);

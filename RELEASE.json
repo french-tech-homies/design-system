@@ -22,8 +22,8 @@
       "loose": "dc46065d70763a05ae86ad9a0aec8506ca407822bc2ed9cf343daceb27704949"
     },
     "changed.mjs": {
-      "exact": "a19ced29a51aa5a010e18cf1be80f26f3d93018e93f1d14c54d1f6262b588f08",
-      "loose": "f7d191c3e7266c6e74caf5453cb6c8072f9c57368c72b1af86cfc5298d7cf2dc"
+      "exact": "e5349bde03258e8f2b6e288af3b165560a20c8ce27b4a0c1dec4ec0ff3821320",
+      "loose": "782911681dce3677f2b882600fbce98081cb3e14c37d409a34519afbebaa98a3"
     },
     "components/Avatar.tsx": {
       "exact": "f672b4d9473a458826ccf7c7d381e117d5d84ebd4416944339a38e42960cc3c9",
@@ -264,8 +264,8 @@
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "0dc659c14394af3e21d85f63753ada0ec9e7a5474695700de46e7cb5475ea2c9",
-      "loose": "4f3e37d5777e55cd8733f4e82ef24c86dccc2cc0884beb9c0ba21af1f15aa42a"
+      "exact": "680aa4087cc57c679fda529bd77383d4e661e392234354076465a325317a53db",
+      "loose": "c3cc515525808434ff203808200047f9f07d4a327bd9e858b624672643c93407"
     },
     ".claude/skills/ds-spec/SKILL.md": {
       "exact": "42d5010544841c07c5c9f09a224c8dbf74008b48664134d0053887ab471b61dc",
@@ -276,12 +276,26 @@
       "loose": "4d99089debfece419b5da2cb23b96638022d7e6a5ebe9048a36f6c07a9ff5097"
     },
     ".claude/skills/ds-theme/SKILL.md": {
-      "exact": "1a90f15b9abd2166914b851d7280892b46ed47df2c197c9eac0bef4f78bed0f1",
-      "loose": "851a2c13ea6535c301b7fee7597b98ec8fb22d27da75fea17444f4d850ab68b0"
+      "exact": "a9fc6745227eca31bf548ead79e4194813554ff3ac951119615a70d2cf658ec6",
+      "loose": "8cfcf4848aa9d4443eca92399055d8697781e06dc980c58b61d56d46703aff4d"
     },
     ".claude/skills/ds-theme/design-md.md": {
       "exact": "2db9c6e395c6a18a5d97b10271582f06412a1f25e68935d5a23e0aeb2d7e8613",
       "loose": "2023f01f10d691f38c695b8c555e86c61ee2baa1a159821d28688e2572f01e4b"
     }
+  },
+  "optional": {
+    "next-adapter": [
+      "adapters/next.tsx"
+    ],
+    "preset-editorial": [
+      "tokens/preset-editorial.css"
+    ],
+    "react-hook-form-adapter": [
+      "adapters/react-hook-form.tsx"
+    ],
+    "react-router-adapter": [
+      "adapters/react-router.tsx"
+    ]
   }
 }

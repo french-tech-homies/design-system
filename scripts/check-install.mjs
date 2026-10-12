@@ -10,7 +10,7 @@
    holds needs nothing else from the kit:
 
    - `ds` writes nothing into a project's entry CSS: it carries no `cssVars`
-     and no `css`;
+     and no `css`, and neither does anything an update names or reaches;
    - `ds` reaches the DESIGN.md generator, with its template beside it;
    - `ds` reaches every file under skills/, landed in the project's
      `.claude/skills/`;
@@ -148,11 +148,31 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
   // 0. The one install is also every update, and the CLI writes what an
   //    item carries in `cssVars` or `css` into the project's entry CSS each
   //    time it is asked for. The shadcn bridge is a file the project imports.
-  for (const field of ["cssVars", "css"]) {
-    if (items.get(ENTRY)?.[field] !== undefined) {
-      problems.push(
-        `item "${ENTRY}" carries \`${field}\`: the CLI would write it into a project's entry CSS at every install and update. The bridge is tokens/bridge-shadcn.css, imported`,
-      );
+  //    An update names `ds` and each optional item the project holds (an
+  //    adapter, a preset: every item with files that `ds` does not reach),
+  //    so none of those may carry either field, nor reach an item that does.
+  const reaching = (name, seen = new Set()) => {
+    if (seen.has(name)) return seen;
+    seen.add(name);
+    for (const d of items.get(name)?.registryDependencies ?? []) {
+      if (d.startsWith(NS)) reaching(d.slice(NS.length), seen);
+    }
+    return seen;
+  };
+  const updated = [
+    ENTRY,
+    ...registry.items
+      .filter((i) => !closure.has(i.name) && i.files?.length)
+      .map((i) => i.name),
+  ];
+  for (const named of updated) {
+    for (const name of reaching(named)) {
+      for (const field of ["cssVars", "css"]) {
+        if (items.get(name)?.[field] === undefined) continue;
+        problems.push(
+          `item "${name}" carries \`${field}\`${name === named ? "" : `, and "${named}", which an update names, reaches it`}: the CLI would write it into a project's entry CSS at every install and update. The bridge is tokens/bridge-shadcn.css, imported`,
+        );
+      }
     }
   }
 

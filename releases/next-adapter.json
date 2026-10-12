@@ -1,0 +1,10 @@
+{
+  "item": "next-adapter",
+  "version": "0.3.0",
+  "kit": {
+    "adapters/next.tsx": {
+      "exact": "0a22a25cde40f8dd123fbe88398947e0b8dd61eddcabd48be122ad5c010ff43c",
+      "loose": "7e2a811b5f9755f761529a49bc547cbb9c0d4fe2b9cf9b51077b5a254d3884eb"
+    }
+  }
+}

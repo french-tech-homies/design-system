@@ -25,11 +25,23 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { RECORD, UPDATE, compare, digests, landedText } from "../changed.mjs";
+import {
+  RECORD,
+  UPDATE,
+  compare,
+  digests,
+  itemRecord,
+  landedText,
+  updateCommand,
+} from "../changed.mjs";
 
 const kit = dirname(dirname(fileURLToPath(import.meta.url)));
 const registry = JSON.parse(readFileSync(join(kit, "registry.json"), "utf8"));
 const record = JSON.parse(readFileSync(join(kit, RECORD), "utf8"));
+
+/** The items the whole install does not bring, as the record names them. */
+const OPTIONAL = Object.keys(record.optional);
+const NEXT = "next-adapter";
 
 const UI = "src/components/ui/ds";
 const TAG = `${UI}/components/Tag.tsx`;
@@ -49,8 +61,9 @@ const landing = (target) =>
     : target.replace(/^~\//, "");
 
 /** A project holding the files of these items (every item when none is
-    named), as the CLI lands them. Removed when the test ends. */
-function install(t, { only, config = { rsc: true, tsx: true } } = {}) {
+    named, but the ones in `without`), as the CLI lands them. Removed when
+    the test ends. `without: OPTIONAL` is `add @ds/ds` alone. */
+function install(t, { only, without = [], config = { rsc: true, tsx: true } } = {}) {
   const root = mkdtempSync(join(tmpdir(), "ds-changed-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   if (config) {
@@ -58,6 +71,7 @@ function install(t, { only, config = { rsc: true, tsx: true } } = {}) {
   }
   for (const item of registry.items) {
     if (only && !only.includes(item.name)) continue;
+    if (without.includes(item.name)) continue;
     for (const { path, target } of item.files ?? []) {
       const to = join(root, landing(target));
       mkdirSync(dirname(to), { recursive: true });
@@ -71,23 +85,24 @@ function install(t, { only, config = { rsc: true, tsx: true } } = {}) {
     writeFileSync(join(root, path), after);
   };
   /** The command, run from the project's root as a person runs it. */
-  const run = () => {
+  const run = (...args) => {
     const { status, stdout, stderr } = spawnSync(
       process.execPath,
-      [`${UI}/changed.mjs`],
+      [`${UI}/changed.mjs`, ...args],
       { cwd: root, encoding: "utf8" },
     );
-    return { status, stdout, stderr, files: listed(stdout) };
+    const { changed, whitespace, ...others } = listed(stdout);
+    return { status, stdout, stderr, files: { changed, whitespace }, ...others };
   };
   return { root, edit, run };
 }
 
 /** The files a run listed, by group. */
 function listed(stdout) {
-  const files = { changed: [], whitespace: [] };
+  const files = { changed: [], whitespace: [], missing: [], behind: [], "not here": [] };
   let group = null;
   for (const line of stdout.split("\n")) {
-    const title = /^(changed|whitespace) \(/.exec(line);
+    const title = /^(changed|whitespace|missing|behind|not here) \(/.exec(line);
     if (title) group = title[1];
     else if (group && line.startsWith("  ")) files[group].push(line.trim());
     else group = null;
@@ -109,6 +124,9 @@ test("an install nothing was changed in: nothing listed, exit 0", (t) => {
   assert.match(stdout, /^Kit \d+\.\d+\.\d+: none of the \d+ recorded files differs/);
   assert.ok(!stdout.includes(UI), stdout);
   assert.equal(status, 0);
+  // Every optional item is held here, and the command takes them all.
+  assert.ok(stdout.endsWith(`\nTo update, from a clean working tree: ${updateCommand(OPTIONAL)}\n`), stdout);
+  assert.ok(!stdout.includes("Not installed"), stdout);
 });
 
 test("one kit file edited: that file under `changed` and no other, exit 1", (t) => {
@@ -270,15 +288,157 @@ test("no comment is set aside: an edit inside a source's opening comment is list
   });
 });
 
-test("a recorded file that is not there is counted, not listed", (t) => {
+/* ---- what a project holds ---------------------------------------------- */
+
+test("`@ds/ds` alone: the items it does not bring are named once, no file is listed, exit 0", (t) => {
+  const project = install(t, { without: OPTIONAL });
+  const { status, stdout, stderr, files, missing, behind } = project.run();
+  assert.equal(stderr, "");
+  assert.deepEqual(files, NOTHING);
+  assert.deepEqual(missing, []);
+  assert.deepEqual(behind, []);
+  const line = `Not installed, and no finding: ${OPTIONAL.map((i) => `@ds/${i}`).join(", ")}.`;
+  assert.equal(stdout.split("\n").filter((l) => l === line).length, 1, stdout);
+  assert.deepEqual(OPTIONAL, [
+    "next-adapter",
+    "preset-editorial",
+    "react-hook-form-adapter",
+    "react-router-adapter",
+  ]);
+  // No file of theirs is named, and they are not counted as looked for.
+  assert.ok(!stdout.includes("adapters/"), stdout);
+  assert.match(
+    stdout,
+    new RegExp(`^Kit \\S+: none of the ${Object.keys(record.kit).length + Object.keys(record.project).length - OPTIONAL.length} recorded files differs`),
+  );
+  assert.ok(stdout.endsWith(`\nTo update, from a clean working tree: ${UPDATE}\n`), stdout);
+  assert.equal(status, 0);
+
+  // `--missing` names each of their files, with its item, as not installed.
+  const named = project.run("--missing");
+  assert.deepEqual(named["not here"], [
+    `${UI}/adapters/next.tsx  @ds/next-adapter, not installed`,
+    `${UI}/tokens/preset-editorial.css  @ds/preset-editorial, not installed`,
+    `${UI}/adapters/react-hook-form.tsx  @ds/react-hook-form-adapter, not installed`,
+    `${UI}/adapters/react-router.tsx  @ds/react-router-adapter, not installed`,
+  ]);
+  assert.equal(named.status, 0);
+});
+
+test("an adapter the project holds, its file deleted: the file under `missing`, exit 1", (t) => {
+  const project = install(t, { without: OPTIONAL.filter((i) => i !== NEXT) });
+  assert.equal(project.run().status, 0);
+  rmSync(join(project.root, UI, "adapters/next.tsx"));
+  const { status, stdout, files, missing } = project.run();
+  assert.deepEqual(files, NOTHING);
+  assert.deepEqual(missing, [`${UI}/adapters/next.tsx`]);
+  assert.match(stdout, /^Kit \S+: 1 of \d+ recorded files differ/);
+  // The other three are still said once, as not installed.
+  assert.match(stdout, /\nNot installed, and no finding: @ds\/preset-editorial, @ds\/react-hook-form-adapter, @ds\/react-router-adapter\.\n/);
+  // It is held, so the update takes it.
+  assert.ok(stdout.endsWith(`: ${updateCommand([NEXT])}\n`), stdout);
+  assert.equal(status, 1);
+  assert.deepEqual(project.run("--missing")["not here"].slice(0, 1), [
+    `${UI}/adapters/next.tsx  @ds/next-adapter, installed: missing`,
+  ]);
+});
+
+test("a file of the whole install that is not there is under `missing`, exit 1", (t) => {
   const project = install(t);
   rmSync(join(project.root, TAG));
-  rmSync(join(project.root, UI, "adapters"), { recursive: true });
-  const { status, files, stdout } = project.run();
+  const { status, files, missing } = project.run();
   assert.deepEqual(files, NOTHING);
-  assert.match(stdout, /\n4 recorded file\(s\) are not here, removed or never installed: not listed\.\n/);
+  assert.deepEqual(missing, [TAG]);
+  assert.equal(status, 1);
+  assert.deepEqual(project.run("--missing")["not here"], [
+    `${TAG}  @ds/ds, the whole install: missing`,
+  ]);
+});
+
+/** The project with one adapter, as an update that named only `@ds/ds` left
+    it: the adapter's file and its record are an earlier release's. */
+function leftBehind(t) {
+  const project = install(t, { without: OPTIONAL.filter((i) => i !== NEXT) });
+  const older = `${readFileSync(join(kit, "adapters/next.tsx"), "utf8")}\n// as 0.2.0 had it\n`;
+  writeFileSync(join(project.root, UI, "adapters/next.tsx"), older);
+  writeFileSync(
+    join(project.root, UI, itemRecord(NEXT)),
+    JSON.stringify({ item: NEXT, version: "0.2.0", kit: { "adapters/next.tsx": digests(older) } }),
+  );
+  return project;
+}
+
+test("an adapter left at an earlier release is named as behind, with the command that takes it", (t) => {
+  const project = leftBehind(t);
+  const { status, stdout, files, missing, behind } = project.run();
+  // Its file is what its own release had: no edit, so not `changed`.
+  assert.deepEqual(files, NOTHING);
+  assert.deepEqual(missing, []);
+  assert.deepEqual(behind, ["@ds/next-adapter  0.2.0"]);
+  assert.match(stdout, new RegExp(`\\nbehind \\(installed from another release than ${record.version.replaceAll(".", "\\.")}, `));
+  assert.ok(
+    stdout.endsWith("\nTo update, from a clean working tree: npx shadcn add @ds/ds @ds/next-adapter --overwrite -y\n"),
+    stdout,
+  );
+  assert.equal(status, 0);
+  // Edited since its own release: behind, and `changed` too.
+  project.edit(`${UI}/adapters/next.tsx`, (text) => `${text}// mine\n`);
+  const edited = project.run();
+  assert.deepEqual(edited.files, { changed: [`${UI}/adapters/next.tsx`], whitespace: [] });
+  assert.deepEqual(edited.behind, ["@ds/next-adapter  0.2.0"]);
+  assert.equal(edited.status, 1);
+});
+
+test("an adapter with no record of its own (installed at 0.3.0) is held, and compared with the whole install's", (t) => {
+  const project = install(t, { without: OPTIONAL.filter((i) => i !== NEXT) });
+  rmSync(join(project.root, UI, itemRecord(NEXT)));
+  const same = project.run();
+  assert.deepEqual(same.files, NOTHING);
+  assert.ok(same.stdout.endsWith(`: ${updateCommand([NEXT])}\n`), same.stdout);
+  assert.ok(!same.stdout.includes("may be behind"), same.stdout);
+  assert.equal(same.status, 0);
+  // Differing: listed, with the one thing the check cannot tell.
+  project.edit(`${UI}/adapters/next.tsx`, (text) => `${text}// another release's, or mine\n`);
+  const differs = project.run();
+  assert.deepEqual(differs.files, { changed: [`${UI}/adapters/next.tsx`], whitespace: [] });
+  assert.match(
+    differs.stdout,
+    /\n@ds\/next-adapter: installed before the item brought a record of its own, .* it may be behind, not edited\.\n/,
+  );
+  assert.equal(differs.status, 1);
+});
+
+test("a record of the 0.3.0 shape, with no item named: a file not here is counted, and `--missing` names it", (t) => {
+  const project = install(t, { without: OPTIONAL });
+  project.edit(`${UI}/${RECORD}`, (text) => {
+    const { optional, ...old } = JSON.parse(text);
+    assert.ok(optional);
+    return JSON.stringify(old);
+  });
+  rmSync(join(project.root, TAG));
+  const { status, stdout, files, missing } = project.run();
+  assert.deepEqual(files, NOTHING);
+  assert.deepEqual(missing, []);
+  assert.match(stdout, /\n5 recorded file\(s\) are not here, removed or never installed: --missing names them\.\n/);
+  assert.match(stdout, /\nThis record names no optional item: add to that command each adapter or preset the project holds /);
   assert.ok(!stdout.includes("Tag.tsx"));
   assert.equal(status, 0);
+  const named = project.run("--missing");
+  assert.deepEqual(named["not here"], [
+    `${UI}/adapters/next.tsx`,
+    `${UI}/adapters/react-hook-form.tsx`,
+    `${UI}/adapters/react-router.tsx`,
+    TAG,
+    `${UI}/tokens/preset-editorial.css`,
+  ]);
+  assert.equal(named.status, 0);
+});
+
+test("an option it does not know: the usage, exit 2", (t) => {
+  const { status, stdout, stderr } = install(t).run("--mising");
+  assert.equal(stdout, "");
+  assert.match(stderr, /^Unknown option --mising\.\nUsage: node changed\.mjs \[--missing\]/);
+  assert.equal(status, 2);
 });
 
 test("a project whose CLI rewrites the files as it installs them: it cannot tell, exit 2", (t) => {
@@ -401,19 +561,71 @@ test("compare: pure, the record and a reader in, the two groups out", () => {
     {
       changed: [["kit", "a.ts"], ["kit", "g.ts"]],
       whitespace: [["kit", "b.ts"], ["kit", "f.ts"]],
-      missing: 1,
+      missing: [["kit", "c.ts"]],
+      behind: [],
+      absent: [],
+      held: [],
+      unrecorded: [],
+      grouped: false,
       unread: 0,
       recorded: 8,
     },
   );
 });
 
+test("compare: an optional item is absent, held, behind or unrecorded by what is on disk", () => {
+  const then = {
+    version: "2.0.0",
+    kit: {
+      "a.ts": digests("a\n"),
+      "x/one.ts": digests("one\n"),
+      "x/two.ts": digests("two\n"),
+      "x/three.ts": digests("three\n"),
+      "x/four.ts": digests("four\n"),
+    },
+    project: {},
+    optional: { one: ["x/one.ts"], two: ["x/two.ts"], three: ["x/three.ts"], four: ["x/four.ts"] },
+  };
+  const own = (item, version, files) =>
+    JSON.stringify({ item, version, kit: Object.fromEntries(files.map(([p, t]) => [p, digests(t)])) });
+  const texts = {
+    "a.ts": "a\n",
+    // one: nothing of it here. two: its record at an earlier release, its
+    // file as that release had it. three: its record, and no file. four: a
+    // file, and no record.
+    [itemRecord("two")]: own("two", "1.0.0", [["x/two.ts", "two, before\n"]]),
+    "x/two.ts": "two, before\n",
+    [itemRecord("three")]: own("three", "2.0.0", [["x/three.ts", "three\n"]]),
+    "x/four.ts": "four, edited or older\n",
+  };
+  assert.deepEqual(compare({ record: then, read: (_, path) => texts[path] ?? null }), {
+    changed: [["kit", "x/four.ts"]],
+    whitespace: [],
+    missing: [["kit", "x/three.ts"]],
+    behind: [{ item: "two", version: "1.0.0" }],
+    absent: ["one"],
+    held: ["four", "three", "two"],
+    unrecorded: ["four"],
+    grouped: true,
+    unread: 0,
+    recorded: 4,
+  });
+  // A record that is not one does not make an item held.
+  assert.deepEqual(
+    compare({ record: then, read: (_, path) => (path === itemRecord("one") ? "{" : null) }).absent,
+    ["four", "one", "three", "two"],
+  );
+});
+
 /* ---- the record, as committed ------------------------------------------ */
+
+/** An optional item's own record: carried by its item, recorded nowhere. */
+const isItemRecord = (path) => OPTIONAL.some((item) => path === itemRecord(item));
 
 test("RELEASE.json is what the build computes for every file the registry carries", () => {
   const expected = { kit: {}, project: {} };
   for (const { path, target } of registry.items.flatMap((i) => i.files ?? [])) {
-    if (path === RECORD) continue;
+    if (path === RECORD || isItemRecord(path)) continue;
     const [group, to] = target.startsWith("@ui/ds/")
       ? ["kit", target.slice("@ui/ds/".length)]
       : ["project", target.replace(/^~\//, "")];
@@ -437,8 +649,9 @@ test("RELEASE.json is what the build computes for every file the registry carrie
   assert.ok(Object.keys(record.kit).length > 60);
   assert.ok(Object.keys(record.project).every((p) => p.startsWith(".claude/skills/ds-")));
   assert.ok("changed.mjs" in record.kit);
-  // It does not record itself.
+  // It does not record itself, nor the optional items' own records.
   assert.ok(!(RECORD in record.kit));
+  assert.deepEqual(Object.keys(record.kit).filter((p) => p.startsWith("releases/")), []);
   assert.equal(
     record.version,
     JSON.parse(readFileSync(join(kit, "package.json"), "utf8")).version,
@@ -468,6 +681,7 @@ function built(t, change = () => {}) {
   // The build must write both: neither is taken from the copy.
   rmSync(join(copy, RECORD));
   rmSync(join(copy, "registry.json"));
+  rmSync(join(copy, "releases"), { recursive: true });
   change(copy);
   const { status, stderr } = spawnSync(
     process.execPath,
@@ -479,7 +693,7 @@ function built(t, change = () => {}) {
   const index = JSON.parse(readFileSync(join(copy, "registry.json"), "utf8"));
   const expected = { kit: {}, project: {} };
   for (const { path, target } of index.items.flatMap((i) => i.files ?? [])) {
-    if (path === RECORD) continue;
+    if (path === RECORD || isItemRecord(path)) continue;
     const [group, to] = target.startsWith("@ui/ds/")
       ? ["kit", target.slice("@ui/ds/".length)]
       : ["project", target.replace(/^~\//, "")];
@@ -492,34 +706,79 @@ test("the build here writes the record the check expects, for every file the reg
   const { copy, written, index, expected } = built(t);
   assert.deepEqual(written.kit, expected.kit);
   assert.deepEqual(written.project, expected.project);
-  assert.deepEqual(Object.keys(written), ["version", "kit", "project"]);
-  // Every file of every item is in it, but itself.
-  const named = index.items.flatMap((i) => i.files ?? []).filter((f) => f.path !== RECORD);
+  assert.deepEqual(Object.keys(written), ["version", "kit", "project", "optional"]);
+  // Every file of every item is in it, but itself and the items' own records.
+  const named = index.items
+    .flatMap((i) => i.files ?? [])
+    .filter((f) => f.path !== RECORD && !isItemRecord(f.path));
   assert.ok(named.length > 60);
   assert.equal(
     Object.keys(written.kit).length + Object.keys(written.project).length,
     new Set(named.map((f) => f.target)).size,
   );
   // And it is the committed one, byte for byte, with the committed index.
-  for (const path of [RECORD, "registry.json"]) {
+  for (const path of [RECORD, "registry.json", ...OPTIONAL.map(itemRecord)]) {
     assert.equal(
       readFileSync(join(copy, path), "utf8"),
       readFileSync(join(kit, path), "utf8"),
       path,
     );
   }
+  // The optional items are the ones `ds` does not reach, derived; each has
+  // a record of its own: its name, this version, its files' digests.
+  const reached = new Set();
+  const reach = (name) => {
+    if (reached.has(name)) return;
+    reached.add(name);
+    const found = index.items.find((i) => i.name === name);
+    for (const d of found?.registryDependencies ?? []) reach(d.replace("@ds/", ""));
+  };
+  reach("ds");
+  assert.deepEqual(
+    Object.keys(written.optional),
+    index.items.filter((i) => !reached.has(i.name) && i.files?.length).map((i) => i.name).sort(),
+  );
+  for (const [name, paths] of Object.entries(written.optional)) {
+    assert.deepEqual(JSON.parse(readFileSync(join(copy, itemRecord(name)), "utf8")), {
+      item: name,
+      version: written.version,
+      kit: Object.fromEntries(paths.map((path) => [path, written.kit[path]])),
+    });
+    const carried = index.items.find((i) => i.name === name).files;
+    assert.deepEqual(
+      carried.find((f) => f.path === itemRecord(name)),
+      { path: itemRecord(name), type: "registry:file", target: `@ui/ds/${itemRecord(name)}` },
+    );
+    // No other item carries it: `ds` least of all.
+    assert.equal(
+      index.items.filter((i) => (i.files ?? []).some((f) => f.path === itemRecord(name))).length,
+      1,
+    );
+  }
   // The check itself, on an install of what the build wrote, lists nothing.
+  const all = index.items.flatMap((i) => i.files ?? []);
   assert.deepEqual(
     compare({
       record: written,
       read: (group, path) => {
-        const file = named.find(
+        const file = all.find(
           (f) => f.target === (group === "kit" ? `@ui/ds/${path}` : `~/${path}`),
         );
         return readFileSync(join(copy, file.path), "utf8");
       },
     }),
-    { changed: [], whitespace: [], missing: 0, unread: 0, recorded: named.length },
+    {
+      changed: [],
+      whitespace: [],
+      missing: [],
+      behind: [],
+      absent: [],
+      held: OPTIONAL,
+      unrecorded: [],
+      grouped: true,
+      unread: 0,
+      recorded: named.length,
+    },
   );
 });
 

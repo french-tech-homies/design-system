@@ -229,35 +229,61 @@ node <kit>/changed.mjs
 
 It compares each kit file, and each skill, with the release it was installed
 from, which `<kit>/RELEASE.json` records. It writes nothing and merges
-nothing. Its exit code says which answer it gave:
+nothing. **Its last line is the update command for what this project holds:
+keep it for step 2.** Its exit code says which answer it gave:
 
-- **0**: no recorded file differs. Step 3 has nothing to put back.
-- **1**: it lists files in two groups. `changed`: the text differs, and step
-  2 loses that edit: these are the files to put back in step 3. `whitespace`:
-  the same text laid out differently, which is a formatter or an indent, and
-  also a change of spaces inside a string or a class list; step 2 puts the
-  kit's layout back. Keep the list.
+- **0**: no recorded file of what the project holds differs or is missing.
+  Step 3 has nothing to put back.
+- **1**: it lists files in three groups. `changed`: the text differs, and
+  step 2 loses that edit: these are the files to put back in step 3.
+  `whitespace`: the same text laid out differently, which is a formatter or
+  an indent, and also a change of spaces inside a string or a class list;
+  step 2 puts the kit's layout back. `missing`: a file of the whole install,
+  or of an adapter or preset the project holds, is not there; step 2 brings
+  it back, so delete it again if the project removed it on purpose. Keep the
+  list.
 - **2**: it cannot tell, and says why. There is no `<kit>/RELEASE.json`: the
   kit was installed before 0.3.0, and the update that follows brings the
   record. Or `components.json` makes the CLI rewrite the files as it installs
   them (`tsx: false`, a Tailwind prefix, `cssVariables: false`). Then the
   update is as below, and `git diff` alone says what moved.
 
-What it cannot know: a recorded file that is not there is counted, not
-listed (4 after a whole install: the adapters and the preset it does not
-bring); a file the project wrote beside the kit is not looked at; and a
-formatter that moves more than whitespace (quotes, commas, parentheses)
-makes every file it touched `changed`, so keep `<kit>` out of the project's
-formatter. Nothing is set aside: a comment put at the top of a kit file
+The whole install does not bring the three adapters (`@ds/next-adapter`,
+`@ds/react-router-adapter`, `@ds/react-hook-form-adapter`) or the Editorial
+preset (`@ds/preset-editorial`): a project asks for each by name. The check
+knows which of them the project holds, and says two more things that do not
+change the exit code:
+
+- `Not installed, and no finding`: those of which nothing is here, in one
+  line. `node <kit>/changed.mjs --missing` names every recorded file that is
+  not here, with its item and whether the project holds it.
+- `behind`: one the project holds at an earlier release than the kit's
+  other files, because an update named only `@ds/ds`. The command on the
+  check's last line takes it.
+
+What it cannot know: a file the project wrote beside the kit is not looked
+at; an adapter or preset installed at 0.3.0 has no record of its own, so if
+its file differs it is listed as `changed` and the check says it may be
+behind instead; and a formatter that moves more than whitespace (quotes,
+commas, parentheses) makes every file it touched `changed`, so keep `<kit>`
+out of the project's formatter. Nothing is set aside: a comment put at the top of a kit file
 (`// @ts-nocheck`) is listed like any edit. A project that has no `<kit>/changed.mjs` gets it alone, with no
 other file touched, by `npx shadcn add @ds/changed`.
 
 1. Commit, or stash, everything first. The working tree must be clean: the
    next step's diff is the update.
-2. Take the kit's files whole:
+2. Take the kit's files whole, with the command the check printed. For a
+   project that holds no adapter and no preset it is
 
    ```bash
    npx shadcn add @ds/ds --overwrite -y
+   ```
+
+   and for one that holds some, each is named in it, or it stays at the old
+   release:
+
+   ```bash
+   npx shadcn add @ds/ds @ds/next-adapter @ds/react-hook-form-adapter --overwrite -y
    ```
 
    Every kit file that differs is replaced. The project's `DESIGN.md`,

@@ -217,9 +217,12 @@ them:
 node <kit>/changed.mjs
 ```
 
-It lists them and writes nothing (exit 0: none; 1: the files listed; 2: it
-cannot tell, as for a kit installed before 0.3.0). Then update from a clean
-working tree with
+It lists them and writes nothing (exit 0: none; 1: the files listed, changed
+or missing; 2: it cannot tell, as for a kit installed before 0.3.0). Its
+last line is the update command for what the project holds: an adapter or a
+preset the project added by name is named in it, since `@ds/ds` alone leaves
+it at the old release. Then update from a clean working tree with that
+command, which for a project with no adapter and no preset is
 
 ```bash
 npx shadcn add @ds/ds --overwrite -y
