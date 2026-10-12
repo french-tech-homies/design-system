@@ -43,8 +43,39 @@ the theme's colour scheme and scroll bars, a family per type role, and a
 DESIGN.md in the format's own words. They are the first entries of each
 group below. Four say **Action needed**.
 
+Then three things settled before this release: the icon button's default
+colour style, which is this release's break and the first entry below; the
+scroll bar's opt-out and a table's closing line, said as they work; and how
+a project gives Claude a design system of its own.
+
 ### Changed
 
+- **Breaking: an `IconButton` that names no colour style is filled,
+  Material's default. Action needed: state `variant="standard"` on each icon
+  button that named none.** Before: the default `variant` was `standard`, a
+  gap named in 0.3.0. Now: it is `filled`, as Material's specs page gives it
+  ("Color: Filled (default), tonal, outlined, standard"). What you see at
+  the update without an edit: every `<IconButton>` with no `variant` gains a
+  `primary` container and an `on-primary` icon. That covers a toggle
+  (`isToggle`) and an `isContained` button that named none: an unsaid
+  `isContained` button goes from the `surface-container-lowest` container to
+  the filled one. A button that names its `variant` does not move, and
+  neither does the kit's own: `SideSheet`'s close button now says `standard`.
+  To do, in one pass, to keep every screen as it is: list the icon buttons
+  that name no colour style, and write `variant="standard"` on each.
+
+  ```bash
+  rg -U --pcre2 -n '<IconButton\b(?![^>]*\bvariant=)' src
+  ```
+
+  Run on the kit's own files it listed its 27 unsaid buttons, the example in
+  a doc comment, and nothing else.
+  Read each hit: a `>` inside a prop that comes before `variant=` (an arrow
+  function) lists a button that does name one. It does not find a button
+  imported under another name, nor one whose props are spread from an object
+  (`<IconButton {...props} />` is listed, and the object may hold the
+  `variant`). Without ripgrep, `grep -rn "<IconButton" src` lists every
+  icon button, to read by hand. A button you want filled needs nothing.
 - **The focus ring's gap shows the ground under it. Action needed if you
   painted the gap yourself.** Before: `focusRing` drew its ring as a box
   shadow and painted the 2px gap in the page's `background`, so a focused
@@ -84,10 +115,36 @@ group below. Four say **Action needed**.
   page's scheme, and scroll bars in the theme's colours. Colours only: the
   kit sets no width and hides no bar at rest. To do: run the generator again
   (the two declarations are written by it, not by the update), then look at
-  a page with a form and a scroller in both schemes. To keep what you had,
-  declare your own on `<body>`: `color-scheme: normal` and
-  `scrollbar-color: auto`. Both are inherited, so a rule of your own on
-  `<body>` or on one scroller wins over the theme's.
+  a page with a form and a scroller in both schemes.
+
+  To keep what the browser drew before, write one rule of your own on the
+  root, after the theme's import and outside any `@layer`:
+
+  ```css
+  :root,
+  .dark {
+    color-scheme: normal;
+    scrollbar-color: auto;
+  }
+  ```
+
+  With `--md3-dark-mode: system` the selector is `:root` alone. The rule goes
+  on the root because the page's own scroll bar and its canvas read the root
+  element: the same two declarations on `<body>` reach what is inside the
+  body and not the page's bar, which keeps the theme's thumb, nor the
+  canvas, which stays dark under `.dark`. The catalog shows both and reads
+  them back: `MD3/Foundations/Color scheme`, "The opt-out" and "On body
+  alone".
+
+  **If you style your scroll bars with `::-webkit-scrollbar`**: once you
+  regenerate, those rules stop applying, on every scroller. A browser that
+  supports `scrollbar-color` ignores `::-webkit-scrollbar` rules wherever
+  `scrollbar-color` is not `auto`, and the theme now sets it on the root,
+  from where it is inherited. To do, one of three: write the rule above;
+  or write `scrollbar-color: auto` on each scroller you style; or move your
+  colours to `scrollbar-color`, which wins over the theme's on the element
+  that writes it. The generated `theme.css` says the same in its head
+  comment.
 - **A type role takes the family your DESIGN.md writes on it. Action needed:
   regenerate your theme after the update.** Before: the theme had two
   families, one per face (the family of `display-large` for display,
@@ -288,10 +345,23 @@ group below. Four say **Action needed**.
 
 ### Added
 
-- **`<Table showLastRowDivider={false}>`**: the body's last row draws no line
-  under it, for a table that closes with an edge of your own (a frame, a
-  card's border). Default `true`: nothing changes until you say it. The
-  header's line is not covered. A `last:border-b-0` on each `Row` can go.
+- **`<Table showLastRowDivider={false}>`**: the table's closing line is not
+  drawn, for a table that closes with an edge of your own (a frame, a
+  card's border). It is the line under the last row of the table: the
+  footer's row when a `TableFooter` follows, otherwise the body's last row.
+  The line between the body and a footer stays, since it separates the
+  total from the data, and so does the header's. Default `true`: nothing
+  changes until you say it. A `last:border-b-0` on each `Row` can go.
+- **The README says how a project gives Claude a design system of its own**
+  ("Your project's design system in Claude"), and the `ds-theme` skill says
+  the agent's half. It is built from your own repository, with your look and
+  the kit version you hold, and updated when you choose: the look goes from
+  `DESIGN.md` to the generated theme to the design system, never back. For
+  creating and updating it, both link Anthropic's own page and restate no
+  step of it. The kit publishes no design system for others to build on and
+  ships nothing that produces one: a shared one would tie every project to
+  the kit's updates and would wear the kit's neutral look. Nothing to do;
+  the update rewrites `ds-theme`'s `SKILL.md`.
 - **`font-<role>` utilities**, one per type role (`font-title-small`,
   `font-label-large`), and their variables
   `--md-sys-typescale-<role>-font`. Write one beside a raw `text-<role>` to
@@ -300,10 +370,11 @@ group below. Four say **Action needed**.
   over one.
 - **Catalog pages**: `MD3/Foundations/Focus ring` (the ring on two grounds,
   enlarged, and read after Tab), `MD3/Foundations/Color scheme` (native
-  controls and a scroller, on the page and in a `.dark` box),
+  controls and a scroller, on the page and in a `.dark` box, then "The
+  opt-out" and "On body alone", each with what the root computes),
   `MD3/Foundations/Typography` "Family from the theme" and "Family in
-  components", and on `MD3/Containment/Table`, "Dense in a scroller" and
-  "Last row divider off".
+  components", and on `MD3/Containment/Table`, "Dense in a scroller",
+  "Last row divider off" and "Last row divider off, with a footer".
 - **A record for each item the whole install does not bring**:
   `<ui>/ds/releases/<item>.json`, carried by `@ds/next-adapter`,
   `@ds/react-router-adapter`, `@ds/react-hook-form-adapter` and
