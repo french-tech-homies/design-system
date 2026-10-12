@@ -28,6 +28,7 @@ import {
   Row,
   Table,
   TableBody,
+  TableFooter,
   TableHeader,
 } from "@french-tech-homies/design-system/components/Table";
 import { Tag } from "@french-tech-homies/design-system/components/Tag";
@@ -478,6 +479,12 @@ function ComponentSamples() {
               <Cell>Paris</Cell>
             </Row>
           </TableBody>
+          <TableFooter>
+            <Row>
+              <Cell>Total</Cell>
+              <Cell>1 town</Cell>
+            </Row>
+          </TableFooter>
         </Table>
       </div>
     </div>
@@ -567,6 +574,7 @@ export const FamilyInComponents: Story = {
       "Every day but Sunday, 9 to 18.", // and its panel
       "Town", // a table's column header
       "Paris", // a table's cell
+      "1 town", // a table's footer, through its row
     ]) {
       const element =
         text === "Delivery"
@@ -584,6 +592,10 @@ export const FamilyInComponents: Story = {
       { name: "Display name" },
     );
     await expect(family(input)).toBe(PROBE);
+    // The footer itself carries a role, read with the others above.
+    await expect(
+      themed.filter(({ element }) => element.tagName === "TFOOT"),
+    ).toHaveLength(1);
     await expect(themed.length).toBeGreaterThan(20);
   },
 };

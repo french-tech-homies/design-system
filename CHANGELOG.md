@@ -60,10 +60,16 @@ group below. Four say **Action needed**.
   `outline-none outline-3 outline-offset-2 outline-ring focus-visible:outline-solid`
   or extend `focusRing`. An ancestor that clips cuts an outline as it cut the
   shadow: a part that fills such a box draws its ring inside with
-  `-outline-offset-2`, as a table's header, rows and cells do. The slider's
-  thumb follows, with its own 2px ring. Four rings are the components' own
+  `-outline-offset-2`, as a table's header, rows and cells do. Four rings are the components' own
   and did not change: the fields' (`field-styles.ts`), and the three of the
   colour picker (`ColorField`, `ColorPicker`, `ColorArea`).
+- **A slider's thumb shows a focus ring.** Before: none drew. The thumb's
+  ring was keyed on the thumb's own focus, and the focus is on the input
+  hidden inside it, so a keyboard user saw nothing on a focused slider. Now:
+  on keyboard focus the thumb draws 2px of `ring`, 2px away, an outline with
+  its gap unpainted like the kit's. What you see at the update: a ring
+  around the thumb when you Tab to a slider, where there was none. Nothing
+  to do.
 - **The generated theme declares its colour scheme and gives scroll bars the
   theme's colours. Action needed: regenerate, and look at your native
   controls.** Before: a generated `theme.css` never told the browser which
