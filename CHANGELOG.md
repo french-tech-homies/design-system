@@ -56,10 +56,12 @@ a project gives Claude a design system of its own.
   gap named in 0.3.0. Now: it is `filled`, as Material's specs page gives it
   ("Color: Filled (default), tonal, outlined, standard"). What you see at
   the update without an edit: every `<IconButton>` with no `variant` gains a
-  `primary` container and an `on-primary` icon. That covers a toggle
-  (`isToggle`) and an `isContained` button that named none: an unsaid
-  `isContained` button goes from the `surface-container-lowest` container to
-  the filled one. A button that names its `variant` does not move, and
+  `primary` container and an `on-primary` icon. A toggle (`isToggle`) that
+  named none moves too, in Material's two states for a filled toggle: not
+  selected, it gains a `surface-container` container under an
+  `on-surface-variant` icon; selected, the `primary` one. So does an
+  `isContained` button that named none: it goes from the
+  `surface-container-lowest` container to the filled one. A button that names its `variant` does not move, and
   neither does the kit's own: `SideSheet`'s close button now says `standard`.
   To do, in one pass, to keep every screen as it is: list the icon buttons
   that name no colour style, and write `variant="standard"` on each.

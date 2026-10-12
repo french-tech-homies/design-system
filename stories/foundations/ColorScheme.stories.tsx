@@ -119,8 +119,9 @@ export const NativeControlsAndScrollBars: Story = {
 
 /**
  * The rule a project writes to keep what the browser drew before: on the
- * root, after the theme and outside any layer. The same text is in the
- * generated `theme.css`'s head comment, for a theme keyed on `.dark`.
+ * root, after the theme and outside any layer. The generated `theme.css`
+ * gives the same rule in words in its head comment, with this selector for
+ * a theme keyed on `.dark`.
  */
 const OPT_OUT = ":root, .dark { color-scheme: normal; scrollbar-color: auto; }";
 /** The same declarations where they do not reach the page: on `<body>`. */

@@ -1145,9 +1145,9 @@ Material look. For an identity of its own, see the preset above.
 
 ## Your project's design system in Claude
 
-Claude can hold a design system: Anthropic's help page says it "captures your
-colors, typography, components, and layout patterns, so Claude applies them"
-when it designs. A project that installed the kit has what one is built from,
+Claude can hold a design system, the colours, type, components and layout
+it then applies when it designs: Anthropic's help page, linked below, says
+what one is. A project that installed the kit has what one is built from,
 in its own repository: the kit's components under `<ui>/ds/`, its `DESIGN.md`
 and its generated theme.
 
@@ -1176,9 +1176,7 @@ The flow, in order:
    an update of the kit.
 6. **Design with it.**
 
-Anthropic's page says design systems are in beta, on the Pro, Max, Team and
-Enterprise plans. It is asked of a session you sit in: a script or a CI job
-does not make one.
+Which plans have design systems, and where one is made, is on the same page.
 
 ---
 

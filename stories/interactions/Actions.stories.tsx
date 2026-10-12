@@ -170,7 +170,8 @@ function ControlledToggle() {
 }
 
 /**
- * A button that names no colour style is filled, Material's default. Filled
+ * A button or a toggle that names no colour style is filled, Material's
+ * default. Filled
  * and tonal draw Material's container with nothing more said, the
  * outline is `outline-variant`, and a toggle's `isSelected` is its parent's
  * to hold. The colours are compared with probes drawn by the same theme, so
@@ -180,12 +181,21 @@ export const IconButtonColorStyles: Story = {
   render: () => (
     <div className="flex items-center gap-4">
       <IconButton icon={Plus} aria-label="Add, no colour style" />
+      <IconButton
+        isToggle
+        icon={Heart}
+        aria-label="Favorite, no colour style"
+      />
       <IconButton variant="filled" icon={Plus} aria-label="Add, filled" />
       <IconButton variant="tonal" icon={Plus} aria-label="Add, tonal" />
       <IconButton variant="outlined" icon={Plus} aria-label="Add, outlined" />
       <ControlledToggle />
       <span data-probe="primary" className="bg-primary size-4" />
       <span data-probe="on-primary" className="text-on-primary size-4" />
+      <span
+        data-probe="surface-container"
+        className="bg-surface-container size-4"
+      />
       <span
         data-probe="secondary-container"
         className="bg-secondary-container size-4"
@@ -212,6 +222,15 @@ export const IconButtonColorStyles: Story = {
       getComputedStyle(unsaid.querySelector('[data-slot="icon-button-icon"]')!)
         .color,
     ).toBe(probe("on-primary").color);
+
+    // A toggle's default is its own: filled too, and while it is not
+    // selected Material's filled toggle stands on `surface-container`.
+    const unsaidToggle = button("Favorite, no colour style");
+    await expect(unsaidToggle).toHaveAttribute("data-variant", "filled");
+    await expect(unsaidToggle).toHaveAttribute("aria-pressed", "false");
+    await expect(getComputedStyle(unsaidToggle).backgroundColor).toBe(
+      probe("surface-container").backgroundColor,
+    );
 
     await expect(getComputedStyle(button("Add, filled")).backgroundColor).toBe(
       probe("primary").backgroundColor,

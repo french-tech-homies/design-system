@@ -346,8 +346,8 @@ project:
   and the person chooses when.
 - **How it is created and updated is Anthropic's to say, and it moves.**
   Read [Set up your design system](https://support.claude.com/en/articles/14604397) on Anthropic's help centre and
-  follow the route it gives for a design system that lives in code. It is
-  made in a session the person sits in, on a plan that has design systems.
+  follow the route it gives for a design system that lives in code. The
+  same page says which plans have one.
 
 ## What this skill does not change
 
