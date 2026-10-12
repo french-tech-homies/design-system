@@ -19,9 +19,12 @@
    No item writes a palette value into a project's entry CSS. The theme
    travels as files (`tokens`) the entry CSS imports, so a project that
    generated a theme of its own from its DESIGN.md imports that one instead,
-   and no `add` can put the kit's default back over it. What `theme`, `base`
-   and `ds` still write is the shadcn bridge: references to the roles
-   (`--background: var(--md-sys-color-background)`), the same under any theme.
+   and no `add` can put the kit's default back over it. `ds`, the one install
+   and every update, writes nothing at all into that file. What `theme` and
+   `base` still write, asked for by name, is the shadcn bridge: references to
+   the roles (`--background: var(--md-sys-color-background)`), the same under
+   any theme. The bridge is also a file (`tokens/bridge-shadcn.css`), and
+   importing it is how a project that installed `ds` gets it.
 
    Kit files import each other with relative paths, which the shadcn
    transformer leaves untouched, so every file carries an explicit `target`
@@ -788,19 +791,22 @@ const skills = [
   }),
 ];
 
-// A registry:style, not registry:item: the CLI applies `cssVars` only for the
-// item it was asked to add (theme/style types), never for a nested
-// dependency. Carrying the bridge here makes `add @ds/ds` also point an
-// existing shadcn palette at the Material roles. It is the one install: the
-// components, the theme files, the DESIGN.md generator, the three skills,
-// the update check and the release record the check reads.
+// The one install: the components, the theme files, the DESIGN.md
+// generator, the three skills, the update check and the release record the
+// check reads. It is also what every update asks for, so it carries no
+// `cssVars` and no `css`: the CLI writes those into the project's entry CSS
+// each time the item is added (seen on two installs of 0.3.0: the bridge a
+// second time, 19 self-referential lines in the project's `@theme`). The
+// bridge is `tokens/bridge-shadcn.css`, which a project with stock shadcn
+// components imports. `scripts/check-install.mjs` refuses either field here.
+// It stays a `registry:style`, the type the CLI was seen to print `docs` for.
 const everything = {
   ...item({
     name: "ds",
     type: "registry:style",
     title: "MD3 kit (everything)",
     description:
-      "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes the shadcn bridge into your CSS, never a palette value.",
+      "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes nothing into your CSS: the theme, and the shadcn bridge, are files your entry CSS imports.",
     files: [file("index.ts", "registry:lib"), file(RECORD, "registry:file")],
     deps: [
       ...components
@@ -820,15 +826,23 @@ const everything = {
     ],
   }),
   dependencies: themeItem.dependencies,
-  cssVars: themeItem.cssVars,
-  css: themeItem.css,
-  // Printed by the CLI after the install: the one thing left to do by hand.
+  // Printed by the CLI after the install, a first one or an update: which
+  // release it took, and the one thing left to do by hand.
   docs: [
-    "The kit's theme arrives as files and is not written into your CSS. Import it from your entry CSS, with every @import above any other at-rule (the path is from that file to your ui folder):",
+    `MD3 kit ${VERSION}, under <ui>/ds/ (the release is recorded in <ui>/ds/RELEASE.json). This install wrote nothing into your entry CSS.`,
+    "",
+    "A first install: import the theme from your entry CSS, with every @import above any other at-rule. The path is from that file to your ui folder: ./components/ui/ds/ from src/index.css to src/components/ui, ../app/_components/ui/ds/ from src/styles/globals.css to src/app/_components/ui.",
     "",
     '  @import "tailwindcss";',
     '  @import "./components/ui/ds/tokens/theme.css";',
     '  @import "./components/ui/ds/tokens/theme.v4.css";',
+    '  @import "tw-animate-css";',
+    "",
+    "An update, or a theme of your own already imported (theme/theme.css, theme/theme.v4.css): keep your lines as they are.",
+    "",
+    "Stock shadcn components in the project read the Material roles through one more import, written after theme.css:",
+    "",
+    '  @import "./components/ui/ds/tokens/bridge-shadcn.css";',
     "",
     "For a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead.",
   ].join("\n"),

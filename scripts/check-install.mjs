@@ -9,6 +9,8 @@
    on registry.json and the skills as they are in the kit, that what it then
    holds needs nothing else from the kit:
 
+   - `ds` writes nothing into a project's entry CSS: it carries no `cssVars`
+     and no `css`;
    - `ds` reaches the DESIGN.md generator, with its template beside it;
    - `ds` reaches every file under skills/, landed in the project's
      `.claude/skills/`;
@@ -142,6 +144,17 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
   /** A named path is brought when it is a file's target or a folder of one. */
   const brought = (target) =>
     targets.some((t) => t === target || t.startsWith(`${target}/`));
+
+  // 0. The one install is also every update, and the CLI writes what an
+  //    item carries in `cssVars` or `css` into the project's entry CSS each
+  //    time it is asked for. The shadcn bridge is a file the project imports.
+  for (const field of ["cssVars", "css"]) {
+    if (items.get(ENTRY)?.[field] !== undefined) {
+      problems.push(
+        `item "${ENTRY}" carries \`${field}\`: the CLI would write it into a project's entry CSS at every install and update. The bridge is tokens/bridge-shadcn.css, imported`,
+      );
+    }
+  }
 
   // 1. The generator, and the template it reads beside itself.
   for (const path of GENERATOR_FILES) {

@@ -59,6 +59,26 @@ test("the generator out of reach of `ds` is refused", () => {
   );
 });
 
+test("`ds` writing into a project's CSS is refused: no `cssVars`, no `css`", () => {
+  // The one install is also every update: what it carries in either field,
+  // the CLI writes into the project's entry CSS, each time.
+  refuses(
+    changed((k) => {
+      item(k, "ds").cssVars = { light: { ring: "var(--x)" }, dark: {} };
+    }),
+    /item "ds" carries `cssVars`/,
+  );
+  refuses(
+    changed((k) => {
+      item(k, "ds").css = { '@import "tw-animate-css"': {} };
+    }),
+    /item "ds" carries `css`/,
+  );
+  // `theme` and `base` are asked for by name, once: they keep the bridge.
+  assert.ok(item(kit, "theme").cssVars);
+  assert.ok(item(kit, "base").cssVars);
+});
+
 test("a generator dependency its item does not declare is refused", () => {
   const without = (name) =>
     changed((k) => {

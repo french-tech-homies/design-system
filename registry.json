@@ -1626,7 +1626,7 @@
       "name": "ds",
       "type": "registry:style",
       "title": "MD3 kit (everything)",
-      "description": "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes the shadcn bridge into your CSS, never a palette value.",
+      "description": "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes nothing into your CSS: the theme, and the shadcn bridge, are files your entry CSS imports.",
       "registryDependencies": [
         "@ds/utils",
         "@ds/render-props",
@@ -1705,56 +1705,7 @@
       "dependencies": [
         "tw-animate-css"
       ],
-      "cssVars": {
-        "light": {
-          "background": "var(--md-sys-color-background)",
-          "foreground": "var(--md-sys-color-on-background)",
-          "card": "var(--md-sys-color-surface-container-low)",
-          "card-foreground": "var(--md-sys-color-on-surface)",
-          "popover": "var(--md-sys-color-surface-container)",
-          "popover-foreground": "var(--md-sys-color-on-surface)",
-          "primary": "var(--md-sys-color-primary)",
-          "primary-foreground": "var(--md-sys-color-on-primary)",
-          "secondary": "var(--md-sys-color-secondary)",
-          "secondary-foreground": "var(--md-sys-color-on-secondary)",
-          "muted": "var(--md-sys-color-surface-container-highest)",
-          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
-          "accent": "var(--md-sys-color-surface-container-high)",
-          "accent-foreground": "var(--md-sys-color-on-surface)",
-          "destructive": "var(--md-sys-color-error)",
-          "destructive-foreground": "var(--md-sys-color-on-error)",
-          "border": "var(--md-sys-color-outline-variant)",
-          "input": "var(--md-sys-color-outline)",
-          "ring": "var(--md-sys-color-secondary)",
-          "radius": "0.5rem"
-        },
-        "dark": {
-          "background": "var(--md-sys-color-background)",
-          "foreground": "var(--md-sys-color-on-background)",
-          "card": "var(--md-sys-color-surface-container-low)",
-          "card-foreground": "var(--md-sys-color-on-surface)",
-          "popover": "var(--md-sys-color-surface-container)",
-          "popover-foreground": "var(--md-sys-color-on-surface)",
-          "primary": "var(--md-sys-color-primary)",
-          "primary-foreground": "var(--md-sys-color-on-primary)",
-          "secondary": "var(--md-sys-color-secondary)",
-          "secondary-foreground": "var(--md-sys-color-on-secondary)",
-          "muted": "var(--md-sys-color-surface-container-highest)",
-          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
-          "accent": "var(--md-sys-color-surface-container-high)",
-          "accent-foreground": "var(--md-sys-color-on-surface)",
-          "destructive": "var(--md-sys-color-error)",
-          "destructive-foreground": "var(--md-sys-color-on-error)",
-          "border": "var(--md-sys-color-outline-variant)",
-          "input": "var(--md-sys-color-outline)",
-          "ring": "var(--md-sys-color-secondary)",
-          "radius": "0.5rem"
-        }
-      },
-      "css": {
-        "@import \"tw-animate-css\"": {}
-      },
-      "docs": "The kit's theme arrives as files and is not written into your CSS. Import it from your entry CSS, with every @import above any other at-rule (the path is from that file to your ui folder):\n\n  @import \"tailwindcss\";\n  @import \"./components/ui/ds/tokens/theme.css\";\n  @import \"./components/ui/ds/tokens/theme.v4.css\";\n\nFor a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead."
+      "docs": "MD3 kit 0.3.0, under <ui>/ds/ (the release is recorded in <ui>/ds/RELEASE.json). This install wrote nothing into your entry CSS.\n\nA first install: import the theme from your entry CSS, with every @import above any other at-rule. The path is from that file to your ui folder: ./components/ui/ds/ from src/index.css to src/components/ui, ../app/_components/ui/ds/ from src/styles/globals.css to src/app/_components/ui.\n\n  @import \"tailwindcss\";\n  @import \"./components/ui/ds/tokens/theme.css\";\n  @import \"./components/ui/ds/tokens/theme.v4.css\";\n  @import \"tw-animate-css\";\n\nAn update, or a theme of your own already imported (theme/theme.css, theme/theme.v4.css): keep your lines as they are.\n\nStock shadcn components in the project read the Material roles through one more import, written after theme.css:\n\n  @import \"./components/ui/ds/tokens/bridge-shadcn.css\";\n\nFor a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead."
     },
     {
       "name": "spec-skill",

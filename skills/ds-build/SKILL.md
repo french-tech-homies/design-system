@@ -98,7 +98,7 @@ Write colours as the role's utility. Never a hex, never a palette class
 
 If the project also has stock shadcn components, their `bg-background`,
 `bg-card`, `bg-muted`, `border-border` read the same roles through the bridge
-the install wrote. `bg-primary` and `bg-secondary` are the Material roles.
+file, `<kit>/tokens/bridge-shadcn.css`, where the entry CSS imports it. `bg-primary` and `bg-secondary` are the Material roles.
 
 ## Type, shape, elevation, motion
 
@@ -204,8 +204,8 @@ npx shadcn add @ds/ds       # the whole kit, the first time
 npx shadcn add @ds/button    # one component and what it needs
 ```
 
-No `add` writes a colour into the project's CSS or touches `DESIGN.md` or
-`theme/`.
+`@ds/ds` writes nothing into the project's CSS, and no `add` writes a colour
+there or touches `DESIGN.md` or `theme/`.
 
 **Updating is not the same command.** Over an existing install, a plain `add`
 asks about the first kit file that differs, defaulting to No, even under

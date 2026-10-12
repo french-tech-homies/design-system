@@ -1069,9 +1069,9 @@ const themeCssHead = ({
 }) => `/* =============================================================================
    MD3 color scheme — light (:root) and ${title}
    -----------------------------------------------------------------------------
-   Generated from the project's DESIGN.md by tokens/generate-theme.mjs
-   (\`npm run theme:generate\`). Never edit this file: edit DESIGN.md and
-   regenerate; \`npm run theme:resolve\` then refreshes tokens/resolved.json.
+   Generated from the project's DESIGN.md by the kit's generator
+   (generate-theme.mjs, in the kit's tokens folder). Never edit this file:
+   edit DESIGN.md and run the generator again.
 
    Every role is a finished color (\`hsl(...)\`) under the \`--md-sys-color-*\`
    namespace, mirroring Material's own token names. Finished colors are what

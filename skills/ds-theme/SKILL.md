@@ -133,8 +133,8 @@ derives it, and the resolved file has it.
 
 ## 5. Point the entry CSS at the theme
 
-The install writes no colour into the entry CSS: the theme is whatever that
-file imports. Replace the kit's two theme imports with the project's (paths
+The whole install writes nothing into the entry CSS, at a first install or
+at an update: the theme is whatever that file imports. Replace the kit's two theme imports with the project's (paths
 are relative to the entry CSS; here it is `src/index.css`):
 
 ```css
@@ -157,11 +157,20 @@ are relative to the entry CSS; here it is `src/index.css`):
   element that carries the class: replace it. With `system`, remove the line
   altogether: Tailwind's `dark:` then follows the system setting, as the
   theme does.
-- The `:root` and `.dark` blocks the install wrote hold only references such
-  as `--background: var(--md-sys-color-background)`. Leave them. If either
-  holds a `--md-sys-color-*` value, or the file has an `@theme inline` block
-  setting `--color-primary` and the like, it is from an older install of the
-  kit and overrides the imports: delete those declarations.
+- If the project has stock shadcn components (`bg-background`, `bg-card`,
+  `border-border`), they read the theme through the bridge, a file imported
+  right after `theme.css`: `@import "<kit>/tokens/bridge-shadcn.css";`, with
+  the real path. A project with none leaves it out.
+- A `:root` or `.dark` block in the entry CSS itself comes after every import
+  and wins over it. An install of 0.3.0 or earlier wrote the bridge there
+  (references such as `--background: var(--md-sys-color-background)`, lines
+  such as `--ring: var(--ring);` inside `@theme`, four `--radius-*` lines):
+  delete them and import the bridge file instead. If either block holds a
+  `--md-sys-color-*` value, or the file has an `@theme inline` block setting
+  `--color-primary` and the like, it is from an older install still and
+  overrides the theme: delete those declarations too. The same goes for the
+  bridged names under a `@media (prefers-color-scheme: dark)` rule of the
+  project's own: the theme owns both schemes.
 - Load the font the theme names (see "Fonts go through a hook" in
   `design-md.md`). The theme does not fetch it.
 - Tailwind scans markdown: if junk utilities appear, exclude the theme

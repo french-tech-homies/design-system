@@ -194,21 +194,27 @@ edits a kit component, or writes one beside the kit, will also want React
 Aria's documentation at hand: Adobe publishes it as a skill of its own,
 installed with `npx skills add https://react-aria.adobe.com`.
 
-**Then import the theme. No item writes a palette value into your CSS.** The
-theme is whatever your entry CSS imports, so a fresh install is unthemed until
-these two lines are there (the CLI prints them after `add @ds/ds`):
+**Then import the theme. `add @ds/ds` writes nothing into your entry CSS**,
+at the first install or at any update: no palette value, no variable, no
+`@import`. The theme is whatever that file imports, so a fresh install is
+unthemed until these lines are there (the CLI prints them after `add @ds/ds`,
+with the release it took):
 
 ```css
 @import "tailwindcss";
 @import "./components/ui/ds/tokens/theme.css";
+@import "./components/ui/ds/tokens/bridge-shadcn.css"; /* only beside stock shadcn components */
 @import "./components/ui/ds/tokens/theme.v4.css";
+@import "tw-animate-css";
 ```
 
-What `@ds/ds`, `@ds/theme` and `@ds/base` do write into `:root` / `.dark`
-is the shadcn bridge: references such as
+The shadcn bridge is that third line: a file of references such as
 `--background: var(--md-sys-color-background)`, the same under any theme, so
-an existing shadcn palette follows the Material roles. Components pulled in
-only as _dependencies_ write nothing.
+stock shadcn components follow the Material roles. A project with none leaves
+the line out. Through 0.3.0 the install wrote the bridge into the entry CSS
+itself, at every run; see _What each item does to your CSS variables_ for
+what such a project deletes. `@ds/theme` and `@ds/base`, asked for by name,
+still write it there: with `@ds/ds` installed, the import is the better road.
 
 **For a look of your own**, open your agent in the project and ask for one
 ("make it look like cyberpunk"). The `ds-theme` skill copies the kit's
@@ -239,6 +245,24 @@ this folder by `npm run registry:build` (`scripts/build-registry.mjs` →
 above), and the router adapters, which are not part of `@ds/ds`: add
 `@ds/next-adapter` or `@ds/react-router-adapter` explicitly, or `Button href`
 / `Chip href` / `Menu` item `href` will do full page loads.
+
+**What the CLI's dependency step does to your `package.json`.** The CLI
+installs what the items declare with your package manager's own command
+(`npm install`, and `npm install -D` for the generator's four). That command
+is the registry's and not the kit's: no field of an item changes it. Observed
+on 2026-10-12 (shadcn 4.19, npm, an install of 0.3.0 into a project that
+already had `tsx`):
+
+- **A range you already had can move.** `tsx` went from `^4.19.1` to
+  `^4.23.15`: the range is rewritten to the latest version it resolves.
+- **The kit's two pins are written with a caret.** The kit tests on
+  `@google/design.md` and `@material/material-color-utilities` at `0.4.0`
+  exactly, and the item declares them so; `package.json` receives `^0.4.0`
+  for both.
+
+After an install or an update, read `git diff package.json`, put back the
+ranges that were yours, write the two pins as `0.4.0`, and install again from
+your lockfile.
 
 **The licence comes with it.** Every item depends on `@ds/license`, a
 `registry:file` that drops the kit's MIT notice at `<ui>/ds/LICENSE`, beside
@@ -685,8 +709,13 @@ No item writes a palette value. The `--md-sys-*` variables, the `@theme
 inline` mapping and the utilities are in the theme files, and your entry CSS
 chooses which pair it imports: the kit's, or your own generated ones.
 
-- **`@ds/ds`** (a `registry:style`), **`@ds/theme`** (a `registry:theme`)
-  and **`@ds/base`** write the shadcn bridge into `:root` / `.dark`, and
+- **`@ds/ds`** writes nothing into your entry CSS, at an install or at an
+  update: it carries no CSS variable and no `@import`, and
+  `npm run registry:check-install` refuses a registry where it would. The
+  shadcn bridge is the file `<ui>/ds/tokens/bridge-shadcn.css`, which you
+  import after `theme.css` if the project has stock shadcn components.
+- **`@ds/theme`** (a `registry:theme`) and **`@ds/base`**, asked for by
+  name, write the shadcn bridge into `:root` / `.dark`, and
   `@import "tw-animate-css"`: 19 variables, each a `var(--md-sys-color-*)`
   reference, and `--radius`. Asking for one by name again rewrites those same
   references and nothing else.
@@ -695,6 +724,15 @@ chooses which pair it imports: the kit's, or your own generated ones.
   of its own (`theme/`), which no item targets.
 - **`@ds/button`, `@ds/select`, any component** only ever writes component
   files.
+
+**Coming from 0.3.0 or earlier?** `@ds/ds` wrote the bridge into the entry
+CSS at every run, in three places: a `:root` and a `.dark` block of 20
+variables each at the end of the file, 19 lines of the form
+`--ring: var(--ring);` inside your `@theme` block, and four `--radius-*`
+lines. Those blocks come after every `@import`, so they override the bridge
+file and any `--radius` of your own. Delete all three, then import
+`bridge-shadcn.css` if stock shadcn components rely on it. From this release
+on an update leaves the file alone.
 
 **Coming from an install made before the theme travelled as files?** The all-in-one item, `theme` and `base` used
 to write the 49 roles and the whole `@theme inline` mapping into the entry

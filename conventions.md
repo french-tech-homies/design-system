@@ -114,8 +114,8 @@ is invited to touch only the first two:
   any of them, by generating its own from its `DESIGN.md` into a folder of its
   own and importing those. No update reaches that folder: components name
   roles and scales, never values, and no registry item writes a palette value
-  — the `tokens` item carries the kit's files, and `theme` / `base` / `ds`
-  write only the shadcn bridge's references.
+  — the `tokens` item carries the kit's files, `theme` / `base` write only
+  the shadcn bridge's references, and `ds` writes nothing into an app's CSS.
 - **style modules** — `components/<x>-styles.ts` exporting a `tv` object named
   `<x>Styles`. `components/field-styles.ts` → `fieldStyles` is the precedent
   and the naming contract. These are the only component-level files whose
