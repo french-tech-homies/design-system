@@ -33,10 +33,6 @@
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": [
     "node_modules",
-    ".types",
-    ".design-sync",
-    ".ds-sync",
-    "ds-bundle",
     "storybook-static"
   ]
 }

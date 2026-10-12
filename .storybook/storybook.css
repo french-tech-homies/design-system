@@ -1,6 +1,7 @@
-/* The kit's own Storybook stylesheet. Its compiled CSS is what design-sync ships
-   to claude.ai/design (`[CSS_FROM_STORYBOOK]`), so every MD3 role must exist in
-   the build even when no story uses it — `@source inline()` safelists them. */
+/* The kit's own Storybook stylesheet. Every MD3 role must exist in the build
+   even when no story uses it, so that a theme handed on the `MD3/Your theme`
+   page and the tokens pages find each utility: `@source inline()` safelists
+   them. */
 @import "tailwindcss" source(none);
 @import "../tokens/theme.css";
 @import "../tokens/bridge-shadcn.css";

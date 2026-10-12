@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "description": "Material Design 3 component kit on React Aria Components + Tailwind v4, distributed as a shadcn registry (copy-in source, no npm package) with a DESIGN.md at its centre.",
-  "types": ".types/index.d.ts",
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

@@ -326,6 +326,29 @@ build, then commit.
 5. Lint both files again and read the diff of `theme/`: it is what the update
    changed in the project's look. Build, then commit.
 
+## The project's design system in Claude
+
+Claude can hold a design system for a project, and apply it when it designs.
+When the person asks for one, or asks why a design does not look like the
+project:
+
+- **It is the project's own, built from this project**: the components in
+  `<kit>/`, the theme folder and `DESIGN.md`. The kit publishes none, so
+  there is none to look for or to install. One shared by the kit would wear
+  the kit's neutral look and change with the kit's releases.
+- **The look goes one way**: `DESIGN.md`, then the generator (step 3), then
+  the design system. A look found while designing is written into
+  `DESIGN.md` first (step 2) and generated; the design system is then
+  updated from the project. Never copy values from a design back into the
+  theme folder.
+- **Update it when the project's look or its kit changes**: after step 6,
+  and after "Taking a kit update". It does not follow the project by itself,
+  and the person chooses when.
+- **How it is created and updated is Anthropic's to say, and it moves.**
+  Read [Set up your design system](https://support.claude.com/en/articles/14604397) on Anthropic's help centre and
+  follow the route it gives for a design system that lives in code. It is
+  made in a session the person sits in, on a plan that has design systems.
+
 ## What this skill does not change
 
 A look that tokens cannot reach (a field's label position, a component's

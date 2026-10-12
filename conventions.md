@@ -262,14 +262,14 @@ of them:
 
 1. **A story** in `stories/<Category>/<Component>.stories.tsx`, titled
    `MD3/<Category>/<Component>`, showing at least three visually distinct
-   variants. This is the visual catalog, and design-sync grades every one of
-   these as an image.
+   variants. This is the visual catalog: each of these is looked at as a
+   picture.
 2. **An interaction test wherever there is behaviour.** If the component
    responds to a keystroke, a press or a selection, it needs a story with a
    `play` function proving it. Those live in `stories/interactions/`, titled
    `MD3/Interactions/<Group>`, deliberately apart from the catalog — a story
    whose point is a keystroke has nothing to show, and mixing them would put
-   noise into design-sync. Name each one after what it proves
+   noise among the pictures. Name each one after what it proves
    (`SelectEscapeCloses`, not `Test3`), and **assert the keyboard path**: a
    control that only works with a mouse is broken. Portalled surfaces
    (popovers, menus, modals) are not inside `canvasElement` — reach them with

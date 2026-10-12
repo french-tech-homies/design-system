@@ -7,8 +7,8 @@
 
    Every role is a finished color (`hsl(...)`) under the `--md-sys-color-*`
    namespace, mirroring Material's own token names. Finished colors are what
-   Tailwind v4's `@theme inline` mapping (theme.v4.css), `color-mix()`, the
-   shadcn CLI and Claude Design all expect; opacity modifiers such as
+   Tailwind v4's `@theme inline` mapping (theme.v4.css), `color-mix()` and the
+   shadcn CLI expect; opacity modifiers such as
    `bg-primary/8` are applied by Tailwind through color-mix(), so no bare
    `H S% L%` triplet is needed anywhere.
 

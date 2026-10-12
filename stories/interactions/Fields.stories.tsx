@@ -15,8 +15,8 @@ import { TextField } from "@french-tech-homies/design-system/components/TextFiel
  * axe runs over the rendered result of each one as well.
  *
  * These live apart from the component stories on purpose: the component
- * stories are the visual catalog (design-sync grades every one of them as an
- * image), and a story whose point is a keystroke has nothing to show.
+ * stories are the visual catalog (each one is looked at as a picture), and
+ * a story whose point is a keystroke has nothing to show.
  * Keyboard paths are what is asserted — a control that only works with a
  * mouse is broken.
  */
