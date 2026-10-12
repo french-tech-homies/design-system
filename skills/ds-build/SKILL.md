@@ -1,6 +1,6 @@
 ---
 name: ds-build
-description: Build screens and components with the MD3 kit installed in this project. The rules for styling with it (role utilities and their pairing, the type primitives, state layers), where to read the project's real values, and what a project may change (tokens freely, and a kit file by an edit that is allowed, priced and rarely needed). Use before writing or reviewing any UI that uses the kit, and before editing a kit file.
+description: "Use when writing, changing or reviewing any UI in this project, which has a design system: the Material 3 (MD3) components copied into the ds folder under its ui folder (src/components/ui/ds). Load it before adding a screen, a table, a form or a button, before choosing a colour, type or shape class, and before editing a file in ds/. Gives the rules for the role utilities, the type primitives and state layers, where the project's real values are, and what a project may change."
 ---
 
 # ds-build: building with the kit

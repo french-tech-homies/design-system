@@ -1,6 +1,6 @@
 ---
 name: ds-theme
-description: Give this project a look of its own on the MD3 kit. Write the project's DESIGN.md from a brief ("make it look like cyberpunk", a brand, a DESIGN.md written elsewhere), generate the theme from it with the kit's generator, read the warnings, wire the entry CSS, and take a kit update without losing the theme. Use whenever colours, type, corners, elevation, motion or dark mode are to change.
+description: "Use when the look of this project's design system is to change: a colour, a font, a weight, corners, elevation, motion or dark mode, anything in DESIGN.md or the theme folder, and when the Material 3 (MD3) kit in the ds folder is updated. Writes the project's DESIGN.md from a brief, generates the theme from it, reads the warnings, wires the entry CSS, and takes a kit update without losing the theme."
 ---
 
 # ds-theme: the project's look comes from its DESIGN.md
@@ -175,6 +175,13 @@ are relative to the entry CSS; here it is `src/index.css`):
   `design-md.md`). The theme does not fetch it.
 - Tailwind scans markdown: if junk utilities appear, exclude the theme
   folder's `.md` with `@source not "../theme/DESIGN.resolved.md";`.
+- If the entry CSS scans the source folder the kit is in, exclude the kit's
+  files that are not components, each with `@source not` and the real path
+  in place of `<kit>`: `<kit>/tokens`, `<kit>/DESIGN.md`,
+  `<kit>/RELEASE.json`, `<kit>/changed.mjs`, `<kit>/LICENSE`, and the
+  `releases` folder beside them where an adapter or the preset brought one.
+  The theme files still reach the build through the imports. Leave
+  `<kit>/utils.ts` scanned: it holds the focus ring's classes.
 
 Build the project, then look at it in both schemes.
 
@@ -266,7 +273,9 @@ at; an adapter or preset installed at 0.3.0 has no record of its own, so if
 its file differs it is listed as `changed` and the check says it may be
 behind instead; and a formatter that moves more than whitespace (quotes,
 commas, parentheses) makes every file it touched `changed`, so keep `<kit>`
-out of the project's formatter. Nothing is set aside: a comment put at the top of a kit file
+and `.claude/skills/` out of the project's formatter and linter (one
+`ignores` entry in an ESLint flat config, one line each in
+`.prettierignore`). Nothing is set aside: a comment put at the top of a kit file
 (`// @ts-nocheck`) is listed like any edit. A project that has no `<kit>/changed.mjs` gets it alone, with no
 other file touched, by `npx shadcn add @ds/changed`.
 

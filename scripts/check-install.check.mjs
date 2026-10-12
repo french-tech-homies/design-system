@@ -254,6 +254,64 @@ test("a skill whose frontmatter does not parse is refused", () => {
   );
 });
 
+/* ---- the update command, and when a skill is loaded -------------------- */
+
+test("the update command is written one way, in the README and in every skill", () => {
+  const UPDATE = "npx shadcn add @ds/ds --overwrite -y";
+  // As shipped: the README and the two skills that speak of an update say it.
+  assert.ok(kit.readme.includes(UPDATE));
+  assert.ok(kit.texts[THEME_SKILL].includes(UPDATE));
+  assert.ok(kit.texts["skills/ds-build/SKILL.md"].includes(UPDATE));
+  const saying = (text) =>
+    changed((k) => {
+      k.texts[THEME_SKILL] += `\nThen run \`${text}\`.\n`;
+    });
+  // With the items a project holds, by their names in the registry: passes.
+  assert.deepEqual(
+    checkInstall(saying("npx shadcn add @ds/ds @ds/next-adapter @ds/preset-editorial --overwrite -y")),
+    [],
+  );
+  // Without `-y` the CLI asks; an item the registry does not hold; one item
+  // alone, which leaves the record at the old release; another runner.
+  refuses(
+    saying("npx shadcn add @ds/ds --overwrite"),
+    /skills\/ds-theme\/SKILL\.md:\d+: writes the update command as `npx shadcn add @ds\/ds --overwrite`/,
+  );
+  refuses(
+    saying("npx shadcn add @ds/ds @ds/nope --overwrite -y"),
+    /skills\/ds-theme\/SKILL\.md:\d+: .*names @ds\/nope, an item the registry does not hold/,
+  );
+  refuses(saying("npx shadcn add @ds/button --overwrite -y"), /writes the update command as/);
+  refuses(saying("shadcn add @ds/ds --overwrite -y"), /writes the update command as/);
+  // The README is held to it too.
+  refuses(
+    changed((k) => {
+      k.readme += "\n`npx shadcn@latest add @ds/ds --overwrite`\n";
+    }),
+    /README\.md:\d+: writes the update command as/,
+  );
+});
+
+test("a skill's description opens with when to load it, within what a listing keeps", () => {
+  for (const folder of OWN_SKILLS) {
+    assert.match(kit.texts[`skills/${folder}/SKILL.md`], /^---\nname: \S+\ndescription: "Use when /, folder);
+  }
+  const described = (description) =>
+    changed((k) => {
+      const before = k.texts[THEME_SKILL];
+      k.texts[THEME_SKILL] = before.replace(/^description: .*$/m, `description: ${description}`);
+      assert.notEqual(k.texts[THEME_SKILL], before, "the fixture changed nothing");
+    });
+  refuses(
+    described("Give this project a look of its own on the MD3 kit."),
+    /skills\/ds-theme\/SKILL\.md: the description does not open with "Use when"/,
+  );
+  refuses(
+    described(`Use when ${"the look changes, ".repeat(70)}always.`),
+    /skills\/ds-theme\/SKILL\.md: the description is \d+ characters, more than the 1024 a skill listing keeps/,
+  );
+});
+
 /* ---- Adobe's React Aria skill: named, not shipped ---------------------- */
 
 const BUILD_SKILL = "skills/ds-build/SKILL.md";

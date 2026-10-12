@@ -21,7 +21,10 @@
      names, each at the range of the kit's own package.json;
    - no skill file names anything of this repository;
    - every skill opens with a frontmatter that parses as strict YAML and
-     names the skill as its folder does, with a description;
+     names the skill as its folder does, with a description that opens with
+     when to load it ("Use when") and is no longer than a listing keeps;
+   - the update command is written one way in the README and the skills:
+     `npx shadcn add @ds/ds`, each optional item held, `--overwrite -y`;
    - no item lands a skill that is not one of the kit's own three, named
      here and not read from what skills/ holds, and Adobe's React Aria skill is named, never shipped: its
      install command is in the `ds-build` skill and once in the README,
@@ -67,6 +70,17 @@ export const OWN_SKILLS = ["ds-theme", "ds-build", "ds-spec"];
 const ARIA_SKILL = /\bnpx\s+skills\s+add\b/g;
 const ARIA_SKILL_IN = "skills/ds-build/SKILL.md";
 const ARIA_MCP = /@react-aria\/mcp|react[- ]aria[^\n]{0,40}\bMCP\b|\bMCP\b[^\n]{0,40}react[- ]aria/i;
+
+/** A `shadcn add` that overwrites, as far as its line or its code span
+    goes, and the one form it has: see rule 8. */
+const UPDATE_COMMAND = /(?:\bnpx\s+)?\bshadcn(?:@[^\s`]+)?\s+add\b[^`\n]*--overwrite[^`\n]*/g;
+const UPDATE_FORM = /^npx shadcn add @ds\/ds((?: @ds\/[a-z0-9-]+)*) --overwrite -y$/;
+
+/** What a harness's skill listing keeps of a description: the Agent Skills
+    format's limit. The description is all a session reads before it decides
+    to load the skill, so it opens with when to. */
+const DESCRIPTION_MAX = 1024;
+const DESCRIPTION_OPENS = "Use when";
 
 /** Bare file names a skill may use for a file of the project, not the kit. */
 const PROJECT_FILES = new Set([
@@ -345,6 +359,19 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
     }
     if (typeof data.description !== "string" || !data.description.trim()) {
       problems.push(`${path}: frontmatter has no description that is text`);
+      continue;
+    }
+    // The kit's own: a skill of anyone else's is refused by rule 7.
+    if (!OWN_SKILLS.includes(folder)) continue;
+    if (!data.description.startsWith(`${DESCRIPTION_OPENS} `)) {
+      problems.push(
+        `${path}: the description does not open with "${DESCRIPTION_OPENS}": it is the one thing a session reads before it decides to load the skill`,
+      );
+    }
+    if (data.description.length > DESCRIPTION_MAX) {
+      problems.push(
+        `${path}: the description is ${data.description.length} characters, more than the ${DESCRIPTION_MAX} a skill listing keeps`,
+      );
     }
   }
 
@@ -402,6 +429,37 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
     problems.push(
       `README.md: names \`npx skills add\` ${inReadme} times. It names Adobe's React Aria skill once`,
     );
+  }
+
+  // 8. The update is one command, written one way wherever a project reads
+  //    it: the whole install, then each optional item held, by its name in
+  //    the registry, then `--overwrite -y`. Without `-y` the CLI asks; one
+  //    item alone leaves the release record at the old release.
+  const commands = [
+    ["README.md", readme ?? ""],
+    ...skillFiles.filter((p) => p.endsWith(".md")).map((p) => [p, texts[p] ?? ""]),
+  ];
+  for (const [path, text] of commands) {
+    text.split("\n").forEach((line, index) => {
+      for (const m of line.matchAll(UPDATE_COMMAND)) {
+        const at = `${path}:${index + 1}`;
+        const command = m[0].trim();
+        const said = UPDATE_FORM.exec(command);
+        if (!said) {
+          problems.push(
+            `${at}: writes the update command as \`${command}\`. It is \`npx shadcn add @ds/ds --overwrite -y\`, with each optional item held named after \`@ds/ds\``,
+          );
+          continue;
+        }
+        for (const named of said[1].trim().split(/\s+/).filter(Boolean)) {
+          if (!items.has(named.slice(NS.length))) {
+            problems.push(
+              `${at}: the update command names ${named}, an item the registry does not hold`,
+            );
+          }
+        }
+      }
+    });
   }
 
   return [...new Set(problems)];
