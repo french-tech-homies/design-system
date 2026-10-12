@@ -24,8 +24,9 @@
      release holds: on `main`, and only while registry.json and RELEASE.json
      are still that release's, byte for byte. Otherwise it publishes nothing
      and says which release `main` has moved past. The release's commit is
-     the oldest on `main`'s first-parent line, back from the tip, that still
-     says the tree's version in all five places.
+     the oldest on `main`'s first-parent line that says the tree's version
+     in all five places, read back from the tip for as long as a commit
+     still says it in some place. A shallow clone is refused (exit 1).
 
    It compares against the commit before, not against what Pages serves, so
    it reads no network and says the same in a test.
@@ -118,9 +119,10 @@ const list = (paths) => paths.join(" and ");
  * @param {Record<string, string[]> | null} [run.base]  `versions` of the
  *   commit before the push, or of the pull request's base; null when there
  *   is none to read
- * @param {{ commit: string, differs: string[] } | null} [run.release]  on a
- *   hand start: the release's commit, and which of RELEASED the tree no
- *   longer holds as that commit does; null when no such commit was found
+ * @param {{ commit: string, differs: string[] } | { problem: string } | null} [run.release]
+ *   on a hand start: the release's commit, and which of RELEASED the tree no
+ *   longer holds as that commit does; null when no such commit was found,
+ *   `problem` when the history could not be read to find it
  * @returns {{ publish: boolean, reason: string, problems: string[] }}
  *   `problems` is not empty when it cannot decide: the run is then red
  */
@@ -147,9 +149,10 @@ export function decide({ event, ref, head, base = null, release = null }) {
         `Publish nothing: started by hand on ${ref}, and only \`main\` is published.`,
       );
     }
-    if (!release) {
+    if (!release || release.problem) {
       return cannot([
-        `no commit of \`main\` was found to be release ${V}: is the history whole?`,
+        release?.problem ??
+          `no commit of \`main\` was found to be release ${V}: is the history whole?`,
       ]);
     }
     if (release.differs.length) {
@@ -370,21 +373,32 @@ const at = (commit) => (path) => {
 
 const inTree = (path) => (existsSync(path) ? readFileSync(path, "utf8") : null);
 
-/** The release's commit: back from the tip along the first parents, the
-    oldest commit that still says `version` in every place. */
+/** The release's commit: back from the tip along the first parents, for as
+    long as a commit still says `version` in some place, the oldest that
+    says it in every place. Not the first stop: a torn commit between the
+    release and the tip (a bump of one place, later put back) says `version`
+    in the other places and does not end the walk, or the commit after it
+    would be taken for the release and what `main` gathered since published
+    under its number. A clone without its whole history cannot answer. */
 function releaseCommit(version) {
   let commits;
   try {
+    if (git("rev-parse", "--is-shallow-repository").trim() !== "false") {
+      return {
+        problem: `this clone is shallow: the history cannot be read back to release ${version}, so what the release holds is not known (checkout with \`fetch-depth: 0\`)`,
+      };
+    }
     commits = git("rev-list", "--first-parent", "HEAD").split("\n").filter(Boolean);
   } catch {
     return null;
   }
   let release = null;
   for (const commit of commits) {
-    if (whole(versions(at(commit))).version !== version) break;
-    release = commit;
+    const found = versions(at(commit));
+    if (!Object.values(found).some((said) => said.includes(version))) break;
+    if (whole(found).version === version) release = commit;
   }
-  return release;
+  return release && { commit: release };
 }
 
 function main(argv) {
@@ -409,13 +423,13 @@ function main(argv) {
   let release = null;
   if (event === "workflow_dispatch" && ref === "refs/heads/main") {
     const { version } = whole(head);
-    const commit = version && releaseCommit(version);
-    if (commit) {
-      release = {
-        commit,
-        differs: RELEASED.filter((path) => inTree(path) !== at(commit)(path)),
-      };
-    }
+    const found = version ? releaseCommit(version) : null;
+    release = found?.commit
+      ? {
+          commit: found.commit,
+          differs: RELEASED.filter((path) => inTree(path) !== at(found.commit)(path)),
+        }
+      : found;
   }
 
   const said = decide({ event, ref, head, base, release });

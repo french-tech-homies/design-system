@@ -237,6 +237,15 @@ test("by hand, past the release: publishes nothing and names the release `main` 
   const lost = decide({ event: "workflow_dispatch", ref: MAIN, head: found("0.3.0"), release: null });
   assert.equal(lost.publish, false);
   assert.ok(lost.problems.length > 0);
+  // The history could not be read: the same, with what the command found.
+  const shallow = decide({
+    event: "workflow_dispatch",
+    ref: MAIN,
+    head: found("0.3.0"),
+    release: { problem: "this clone is shallow" },
+  });
+  assert.equal(shallow.publish, false);
+  assert.deepEqual(shallow.problems, ["this clone is shallow"]);
 });
 
 test("any other event publishes nothing", () => {
@@ -276,17 +285,18 @@ function repository(t) {
   const output = join(root, "..", `${root.split("/").pop()}.output`);
   t.after(() => rmSync(output, { force: true }));
   /** The command, as the workflow's step runs it. */
-  const run = (...args) => {
+  const run = (...args) => runIn(root, ...args);
+  const runIn = (cwd, ...args) => {
     writeFileSync(output, "");
     const { GITHUB_STEP_SUMMARY: _, ...env } = process.env;
     const { status, stdout, stderr } = spawnSync(process.execPath, [SCRIPT, ...args], {
-      cwd: root,
+      cwd,
       encoding: "utf8",
       env: { ...env, GITHUB_OUTPUT: output },
     });
     return { status, stdout, stderr, output: readFileSync(output, "utf8") };
   };
-  return { root, git, write, commit, run };
+  return { root, git, write, commit, run, runIn };
 }
 
 test("the command reads the tree and the commit before, and writes the step's output", (t) => {
@@ -343,6 +353,61 @@ test("the command reads the tree and the commit before, and writes the step's ou
   assert.match(said.stderr, /package\.json says 0\.5\.0/);
   assert.equal(said.output, "publish=false\n");
   assert.ok(root && ordinary);
+});
+
+test("by hand, the release is not wherever the walk back stops: a torn commit in between hides none", (t) => {
+  const repo = repository(t);
+  repo.commit("before any release", tree("0.2.0"));
+  const release = repo.commit("release 0.3.0", tree("0.3.0"));
+  // A kit change after the release: the record moves, the version does not.
+  const moved = JSON.stringify({ version: "0.3.0", kit: { "a.ts": {} }, project: {} });
+  repo.commit("a kit change", { "RELEASE.json": moved });
+  // A torn commit that was merged all the same, then the bump put back.
+  repo.commit("package.json alone at 0.4.0", {
+    "package.json": tree("0.3.0", { "package.json": "0.4.0" })["package.json"],
+  });
+  const back = repo.commit("the bump put back", { "package.json": tree("0.3.0")["package.json"] });
+
+  const said = repo.run("--event", "workflow_dispatch", "--ref", MAIN);
+  assert.equal(said.status, 0, said.stderr);
+  assert.equal(said.output, "publish=false\n");
+  assert.match(
+    said.stdout,
+    new RegExp(`has moved past release 0\\.3\\.0 \\(${release.slice(0, 7)}\\).*RELEASE\\.json`),
+  );
+  assert.ok(!said.stdout.includes(back.slice(0, 7)), said.stdout);
+});
+
+test("by hand, a release completed over two pushes: the commit that completed it is the release", (t) => {
+  const repo = repository(t);
+  repo.commit("release 0.3.0", tree("0.3.0"));
+  repo.commit("package.json first", {
+    "package.json": tree("0.3.0", { "package.json": "0.4.0" })["package.json"],
+  });
+  const completed = repo.commit("and the other four", tree("0.4.0"));
+  const said = repo.run("--event", "workflow_dispatch", "--ref", MAIN);
+  assert.equal(said.status, 0, said.stderr);
+  assert.match(said.stdout, new RegExp(`^Publish 0\\.4\\.0 again: .*${completed.slice(0, 7)}`, "m"));
+  assert.equal(said.output, "publish=true\n");
+});
+
+test("by hand, in a clone without its whole history: it cannot decide", (t) => {
+  const repo = repository(t);
+  repo.commit("release 0.3.0", tree("0.3.0"));
+  repo.commit("a kit change", {
+    "RELEASE.json": JSON.stringify({ version: "0.3.0", kit: { "a.ts": {} }, project: {} }),
+  });
+  const shallow = mkdtempSync(join(tmpdir(), "ds-shallow-"));
+  t.after(() => rmSync(shallow, { recursive: true, force: true }));
+  repo.git("clone", "-q", "--depth", "1", `file://${repo.root}`, shallow);
+  const said = repo.runIn(shallow, "--event", "workflow_dispatch", "--ref", MAIN);
+  assert.equal(said.status, 1, said.stdout);
+  assert.match(said.stderr, /shallow/);
+  assert.equal(said.output, "publish=false\n");
+  // The same commit with its history: past the release, and it says so.
+  const full = repo.run("--event", "workflow_dispatch", "--ref", MAIN);
+  assert.equal(full.status, 0);
+  assert.equal(full.output, "publish=false\n");
 });
 
 test("the command, here: this tree over itself publishes nothing", () => {
