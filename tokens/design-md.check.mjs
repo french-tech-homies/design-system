@@ -724,6 +724,23 @@ test("the resolved file shows the family applied on every role, and reads back t
       ),
     ),
     designMd("scheme: light", SEED, families(["headline-small", "Fraunces"])),
+    // Two faces on one hook, each with its own fallbacks: no role but the
+    // two that name the faces wrote a family, so none is listed, twice.
+    designMd(
+      "scheme: light",
+      SEED,
+      families(["display-large", "Inter, Georgia, serif"], ["body-large", "Inter"]),
+    ),
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ["display-large", "Inter, Georgia, serif"],
+        ["body-large", "Inter"],
+        ["title-small", "Inter, Georgia, serif"],
+        ["headline-small", "Inter, Verdana, sans-serif"],
+      ),
+    ),
   ]) {
     const first = generateTheme(text, kitV4);
     const again = generateTheme(first.resolvedDesignMd, kitV4);

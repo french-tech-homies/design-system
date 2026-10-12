@@ -158,7 +158,8 @@ export const SelectEscapeCloses: Story = {
   },
 };
 
-/** Arrow keys move the slider by `step` and stop at the bounds. */
+/** Tab draws the thumb's ring; arrow keys move the slider by `step` and
+    stop at the bounds. */
 export const SliderArrowsChangeValue: Story = {
   render: () => (
     <Slider label="Table count" defaultValue={10} minValue={8} maxValue={12} />
@@ -168,8 +169,16 @@ export const SliderArrowsChangeValue: Story = {
     const thumb = canvas.getByRole("slider");
 
     await expect(thumb).toHaveValue("10");
+    // Focus goes to the hidden input; the ring is the drawn thumb's, which
+    // React Aria marks with `data-focus-visible`.
+    const drawn = canvasElement.querySelector('[data-slot="slider-thumb"]')!;
+    await expect(getComputedStyle(drawn).outlineStyle).toBe("none");
     await userEvent.tab();
     await expect(thumb).toHaveFocus();
+    const ring = getComputedStyle(drawn);
+    await expect(ring.outlineStyle).toBe("solid");
+    await expect(ring.outlineWidth).toBe("2px");
+    await expect(ring.outlineOffset).toBe("2px");
 
     await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
     await expect(thumb).toHaveValue("12"); // clamped at maxValue

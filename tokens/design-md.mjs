@@ -1108,11 +1108,13 @@ function deriveFaces(typography, names, ownFamily, warnings) {
   for (const role of Object.keys(typography)) {
     const face = faces[faceOf(role)];
     roles[role] = null;
-    if (!ownFamily.has(role)) {
-      typography[role].fontFamily = typography[face.first].fontFamily;
+    // A family written as its face's is the face's: the resolved file
+    // writes it on every role, and it must read back as none of its own.
+    const family = typography[face.first].fontFamily;
+    if (!ownFamily.has(role) || typography[role].fontFamily === family) {
+      typography[role].fontFamily = family;
       continue;
     }
-    if (role === face.first) continue;
     const own = fontHook(typography[role].fontFamily, token(role));
     const held = hooks.get(own.hook);
     if (!held) hooks.set(own.hook, own);

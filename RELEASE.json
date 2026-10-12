@@ -142,8 +142,8 @@
       "loose": "8af793d8854abfe135a5ec56892e8867eefbf9d855d5c553240dfcdb07d27df8"
     },
     "components/Slider.tsx": {
-      "exact": "4b3d64b3c61310b5fd1c5f4daa0bdae185cf10b720c421cb562e763ab31803ed",
-      "loose": "1e10b6d14f0e9d69bb39669a64b3df76d63a6f2a8987533faa0e404a62333115"
+      "exact": "97ec9ac3d861307466f2f7f421eaad28452115f16db837699198cfc59957a68d",
+      "loose": "14ba357ce65e1e766f4d29eb340b47d80f8dd1542eda4077478e1816f3ec935b"
     },
     "components/Snackbar.tsx": {
       "exact": "9dc137813948faf676c941e937ac25ca780b4fa325e318b4324be54dca46649b",
@@ -238,8 +238,8 @@
       "loose": "cb0b2f4f16e4cbf0c46c40256514b088602a8c000aeef16993d6a86aadaf545c"
     },
     "tokens/design-md.mjs": {
-      "exact": "18982cdc338da2c8af782374d7ecfa605e5ba40c2a12893f3bf7535bf76c1a3b",
-      "loose": "cc65e9c60953a448a242c5820209de0b357f78b689e62f16456be625cf0b719e"
+      "exact": "b0bade9c6879b06a21e92fc10979e5c490cc98635253a0dee431b6a58c19f578",
+      "loose": "cd9ee20c8c49c903b3de191a1facddd12f029fe0ce8cf18b4b3d0bc1fb1bfb7c"
     },
     "tokens/generate-theme.mjs": {
       "exact": "0a7f19678cee574e34fbc5cde94afc8026bc5d57dba6e99b6d41a989663f6603",
