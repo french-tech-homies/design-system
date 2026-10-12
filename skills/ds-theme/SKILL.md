@@ -1,6 +1,6 @@
 ---
 name: ds-theme
-description: Give this project a look of its own on the MD3 kit. Write the project's DESIGN.md from a brief ("make it look like cyberpunk", a brand, a DESIGN.md written elsewhere), generate the theme from it with the kit's generator, read the warnings, wire the entry CSS, and take a kit update without losing the theme. Use whenever colours, type, corners, elevation, motion or dark mode are to change.
+description: "Use when the look of this project's design system is to change: a colour, a font, a weight, corners, elevation, motion or dark mode, anything in DESIGN.md or the theme folder, and when the Material 3 (MD3) kit in the ds folder is updated. Writes the project's DESIGN.md from a brief, generates the theme from it, reads the warnings, wires the entry CSS, and takes a kit update without losing the theme."
 ---
 
 # ds-theme: the project's look comes from its DESIGN.md
@@ -107,8 +107,8 @@ at the end of `theme/DESIGN.resolved.md`. For each one, decide:
 
 - **an unknown name** (`colors.brand-pink`, `typography.h1`, `rounded.sm`):
   map it to a name the kit reads, or leave it and say it is ignored;
-- **a value with no variable** (a weight or tracking on a role that has none):
-  not applied; drop it or accept it;
+- **a value with no variable** (a tracking on a role Material gives none):
+  not applied; drop it or accept it. A weight is applied on every role;
 - **poor contrast**: a written role under 4.5:1 against its pair. Fix the
   role or write its partner. Do not leave it;
 - **the reference block was not read**: fix the heading, the `css` fence or
@@ -133,8 +133,8 @@ derives it, and the resolved file has it.
 
 ## 5. Point the entry CSS at the theme
 
-The install writes no colour into the entry CSS: the theme is whatever that
-file imports. Replace the kit's two theme imports with the project's (paths
+The whole install writes nothing into the entry CSS, at a first install or
+at an update: the theme is whatever that file imports. Replace the kit's two theme imports with the project's (paths
 are relative to the entry CSS; here it is `src/index.css`):
 
 ```css
@@ -157,15 +157,31 @@ are relative to the entry CSS; here it is `src/index.css`):
   element that carries the class: replace it. With `system`, remove the line
   altogether: Tailwind's `dark:` then follows the system setting, as the
   theme does.
-- The `:root` and `.dark` blocks the install wrote hold only references such
-  as `--background: var(--md-sys-color-background)`. Leave them. If either
-  holds a `--md-sys-color-*` value, or the file has an `@theme inline` block
-  setting `--color-primary` and the like, it is from an older install of the
-  kit and overrides the imports: delete those declarations.
+- If the project has stock shadcn components (`bg-background`, `bg-card`,
+  `border-border`), they read the theme through the bridge, a file imported
+  right after `theme.css`: `@import "<kit>/tokens/bridge-shadcn.css";`, with
+  the real path. A project with none leaves it out.
+- A `:root` or `.dark` block in the entry CSS itself comes after every import
+  and wins over it. An install of 0.3.0 or earlier wrote the bridge there
+  (references such as `--background: var(--md-sys-color-background)`, lines
+  such as `--ring: var(--ring);` inside `@theme`, four `--radius-*` lines):
+  delete them and import the bridge file instead. If either block holds a
+  `--md-sys-color-*` value, or the file has an `@theme inline` block setting
+  `--color-primary` and the like, it is from an older install still and
+  overrides the theme: delete those declarations too. The same goes for the
+  bridged names under a `@media (prefers-color-scheme: dark)` rule of the
+  project's own: the theme owns both schemes.
 - Load the font the theme names (see "Fonts go through a hook" in
   `design-md.md`). The theme does not fetch it.
 - Tailwind scans markdown: if junk utilities appear, exclude the theme
   folder's `.md` with `@source not "../theme/DESIGN.resolved.md";`.
+- If the entry CSS scans the source folder the kit is in, exclude the kit's
+  files that are not components, each with `@source not` and the real path
+  in place of `<kit>`: `<kit>/tokens`, `<kit>/DESIGN.md`,
+  `<kit>/RELEASE.json`, `<kit>/changed.mjs`, `<kit>/LICENSE`, and the
+  `releases` folder beside them where an adapter or the preset brought one.
+  The theme files still reach the build through the imports. Leave
+  `<kit>/utils.ts` scanned: it holds the focus ring's classes.
 
 Build the project, then look at it in both schemes.
 
@@ -220,35 +236,63 @@ node <kit>/changed.mjs
 
 It compares each kit file, and each skill, with the release it was installed
 from, which `<kit>/RELEASE.json` records. It writes nothing and merges
-nothing. Its exit code says which answer it gave:
+nothing. **Its last line is the update command for what this project holds:
+keep it for step 2.** Its exit code says which answer it gave:
 
-- **0**: no recorded file differs. Step 3 has nothing to put back.
-- **1**: it lists files in two groups. `changed`: the text differs, and step
-  2 loses that edit: these are the files to put back in step 3. `whitespace`:
-  the same text laid out differently, which is a formatter or an indent, and
-  also a change of spaces inside a string or a class list; step 2 puts the
-  kit's layout back. Keep the list.
+- **0**: no recorded file of what the project holds differs or is missing.
+  Step 3 has nothing to put back.
+- **1**: it lists files in three groups. `changed`: the text differs, and
+  step 2 loses that edit: these are the files to put back in step 3.
+  `whitespace`: the same text laid out differently, which is a formatter or
+  an indent, and also a change of spaces inside a string or a class list;
+  step 2 puts the kit's layout back. `missing`: a file of the whole install,
+  or of an adapter or preset the project holds, is not there; step 2 brings
+  it back, so delete it again if the project removed it on purpose. Keep the
+  list.
 - **2**: it cannot tell, and says why. There is no `<kit>/RELEASE.json`: the
   kit was installed before 0.3.0, and the update that follows brings the
   record. Or `components.json` makes the CLI rewrite the files as it installs
   them (`tsx: false`, a Tailwind prefix, `cssVariables: false`). Then the
   update is as below, and `git diff` alone says what moved.
 
-What it cannot know: a recorded file that is not there is counted, not
-listed (4 after a whole install: the adapters and the preset it does not
-bring); a file the project wrote beside the kit is not looked at; and a
-formatter that moves more than whitespace (quotes, commas, parentheses)
-makes every file it touched `changed`, so keep `<kit>` out of the project's
-formatter. Nothing is set aside: a comment put at the top of a kit file
+The whole install does not bring the three adapters (`@ds/next-adapter`,
+`@ds/react-router-adapter`, `@ds/react-hook-form-adapter`) or the Editorial
+preset (`@ds/preset-editorial`): a project asks for each by name. The check
+knows which of them the project holds, and says two more things that do not
+change the exit code:
+
+- `Not installed, and no finding`: those of which nothing is here, in one
+  line. `node <kit>/changed.mjs --missing` names every recorded file that is
+  not here, with its item and whether the project holds it.
+- `behind`: one the project holds at an earlier release than the kit's
+  other files, because an update named only `@ds/ds`. The command on the
+  check's last line takes it.
+
+What it cannot know: a file the project wrote beside the kit is not looked
+at; an adapter or preset installed at 0.3.0 has no record of its own, so if
+its file differs it is listed as `changed` and the check says it may be
+behind instead; and a formatter that moves more than whitespace (quotes,
+commas, parentheses) makes every file it touched `changed`, so keep `<kit>`
+and `.claude/skills/` out of the project's formatter and linter (one
+`ignores` entry in an ESLint flat config, one line each in
+`.prettierignore`). Nothing is set aside: a comment put at the top of a kit file
 (`// @ts-nocheck`) is listed like any edit. A project that has no `<kit>/changed.mjs` gets it alone, with no
 other file touched, by `npx shadcn add @ds/changed`.
 
 1. Commit, or stash, everything first. The working tree must be clean: the
    next step's diff is the update.
-2. Take the kit's files whole:
+2. Take the kit's files whole, with the command the check printed. For a
+   project that holds no adapter and no preset it is
 
    ```bash
    npx shadcn add @ds/ds --overwrite -y
+   ```
+
+   and for one that holds some, each is named in it, or it stays at the old
+   release:
+
+   ```bash
+   npx shadcn add @ds/ds @ds/next-adapter @ds/react-hook-form-adapter --overwrite -y
    ```
 
    Every kit file that differs is replaced. The project's `DESIGN.md`,

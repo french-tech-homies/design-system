@@ -19,18 +19,21 @@
    No item writes a palette value into a project's entry CSS. The theme
    travels as files (`tokens`) the entry CSS imports, so a project that
    generated a theme of its own from its DESIGN.md imports that one instead,
-   and no `add` can put the kit's default back over it. What `theme`, `base`
-   and `ds` still write is the shadcn bridge: references to the roles
-   (`--background: var(--md-sys-color-background)`), the same under any theme.
+   and no `add` can put the kit's default back over it. `ds`, the one install
+   and every update, writes nothing at all into that file. What `theme` and
+   `base` still write, asked for by name, is the shadcn bridge: references to
+   the roles (`--background: var(--md-sys-color-background)`), the same under
+   any theme. The bridge is also a file (`tokens/bridge-shadcn.css`), and
+   importing it is how a project that installed `ds` gets it.
 
    Kit files import each other with relative paths, which the shadcn
    transformer leaves untouched, so every file carries an explicit `target`
    that mirrors the kit tree under the consumer's ui alias (`@ui/ds/…`).
    ========================================================================== */
 
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 
-import { RECORD, digests, landedText } from "../changed.mjs";
+import { RECORD, digests, itemRecord, landedText } from "../changed.mjs";
 
 const KIT = ".";
 const NS = "@ds";
@@ -87,6 +90,8 @@ const licenseItem = {
 // told plainly that the check cannot speak for it. The record is carried by
 // `ds` alone: only the whole install replaces it, so an `add` of one item at
 // a newer release never makes it say a release the other files are not at.
+// An item `ds` does not bring carries a record of its own instead: see "the
+// release record" at the end of this script.
 const CHANGED = "changed";
 
 const changedItem = {
@@ -94,7 +99,7 @@ const changedItem = {
   type: "registry:file",
   title: "Update check",
   description:
-    "Lists the kit files a project changed since it installed them, before an update overwrites them: `node <ui>/ds/changed.mjs`. Reads the release record the whole install brings (<ui>/ds/RELEASE.json); writes nothing, merges nothing. Exit 0: none differs. 1: some do. 2: it cannot tell (no record: a copy installed before 0.3.0).",
+    "Lists the kit files a project changed since it installed them, before an update overwrites them: `node <ui>/ds/changed.mjs`. Reads the release record the whole install brings (<ui>/ds/RELEASE.json) and the record each adapter or preset brings (<ui>/ds/releases/); writes nothing, merges nothing. Names the files changed or missing, the optional items left at an earlier release, and prints the update command for what the project holds. Exit 0: none differs. 1: some do, or a file of what the project holds is missing. 2: it cannot tell (no record: a copy installed before 0.3.0).",
   files: [
     {
       path: "changed.mjs",
@@ -109,6 +114,7 @@ const changedItem = {
 /* ---- the theme, as files ---------------------------------------------- */
 
 const read = (p) => readFileSync(`${KIT}/${p}`, "utf8");
+const dirnameOf = (p) => p.slice(0, p.lastIndexOf("/"));
 
 // The kit's default theme and the DESIGN.md it is generated from, landed
 // under `<ui>/ds/` exactly as they sit here. A project imports the two
@@ -248,7 +254,10 @@ const presets = [
         target: `${UI}/tokens/preset-editorial.css`,
       },
     ],
-    registryDependencies: [`${NS}/theme`, `${NS}/${LICENSE}`],
+    // The theme files, not the `theme` item: an update names this item
+    // beside `ds`, and nothing an update names may reach an item that writes
+    // into the project's CSS (`scripts/check-install.mjs`).
+    registryDependencies: [`${NS}/${TOKENS}`, `${NS}/${LICENSE}`],
     ...stamp,
   },
 ];
@@ -788,19 +797,22 @@ const skills = [
   }),
 ];
 
-// A registry:style, not registry:item: the CLI applies `cssVars` only for the
-// item it was asked to add (theme/style types), never for a nested
-// dependency. Carrying the bridge here makes `add @ds/ds` also point an
-// existing shadcn palette at the Material roles. It is the one install: the
-// components, the theme files, the DESIGN.md generator, the three skills,
-// the update check and the release record the check reads.
+// The one install: the components, the theme files, the DESIGN.md
+// generator, the three skills, the update check and the release record the
+// check reads. It is also what every update asks for, so it carries no
+// `cssVars` and no `css`: the CLI writes those into the project's entry CSS
+// each time the item is added (seen on two installs of 0.3.0: the bridge a
+// second time, 19 self-referential lines in the project's `@theme`). The
+// bridge is `tokens/bridge-shadcn.css`, which a project with stock shadcn
+// components imports. `scripts/check-install.mjs` refuses either field here.
+// It stays a `registry:style`, the type the CLI was seen to print `docs` for.
 const everything = {
   ...item({
     name: "ds",
     type: "registry:style",
     title: "MD3 kit (everything)",
     description:
-      "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes the shadcn bridge into your CSS, never a palette value.",
+      "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes nothing into your CSS: the theme, and the shadcn bridge, are files your entry CSS imports.",
     files: [file("index.ts", "registry:lib"), file(RECORD, "registry:file")],
     deps: [
       ...components
@@ -820,15 +832,23 @@ const everything = {
     ],
   }),
   dependencies: themeItem.dependencies,
-  cssVars: themeItem.cssVars,
-  css: themeItem.css,
-  // Printed by the CLI after the install: the one thing left to do by hand.
+  // Printed by the CLI after the install, a first one or an update: which
+  // release it took, and the one thing left to do by hand.
   docs: [
-    "The kit's theme arrives as files and is not written into your CSS. Import it from your entry CSS, with every @import above any other at-rule (the path is from that file to your ui folder):",
+    `MD3 kit ${VERSION}, under <ui>/ds/ (the release is recorded in <ui>/ds/RELEASE.json). This install wrote nothing into your entry CSS.`,
+    "",
+    "A first install: import the theme from your entry CSS, with every @import above any other at-rule. The path is from that file to your ui folder: ./components/ui/ds/ from src/index.css to src/components/ui, ../app/_components/ui/ds/ from src/styles/globals.css to src/app/_components/ui.",
     "",
     '  @import "tailwindcss";',
     '  @import "./components/ui/ds/tokens/theme.css";',
     '  @import "./components/ui/ds/tokens/theme.v4.css";',
+    '  @import "tw-animate-css";',
+    "",
+    "An update, or a theme of your own already imported (theme/theme.css, theme/theme.v4.css): keep your lines as they are.",
+    "",
+    "Stock shadcn components in the project read the Material roles through one more import, written after theme.css:",
+    "",
+    '  @import "./components/ui/ds/tokens/bridge-shadcn.css";',
     "",
     "For a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead.",
   ].join("\n"),
@@ -870,33 +890,76 @@ const registry = {
 
 /* ---- the release record ----------------------------------------------- */
 
-// What `changed.mjs` reads in a project: this version, and the digests of
-// every file every item carries (of both its forms where it has two), keyed by where it lands (under the kit's
-// folder, or under the project's root). Built here, where every file and its
-// target is known, with the function the check itself uses. It does not
-// record itself.
-const record = { version: VERSION, kit: {}, project: {} };
-for (const { path, target } of registry.items.flatMap((i) => i.files ?? [])) {
-  if (path === RECORD) continue;
-  const [group, landed] = target.startsWith(`${UI}/`)
-    ? ["kit", target.slice(UI.length + 1)]
-    : target.startsWith("~/")
-      ? ["project", target.slice(2)]
-      : [];
-  if (!group) throw new Error(`${path}: a target the record cannot place, ${target}`);
-  // A source that opens with a comment has two forms in a project: the kit's
-  // own, and the one the CLI lands, from the first token on. Both are kept,
-  // so the check compares a project's text as it stands and hides no edit.
+/** A file's entry in a record: the digests of its text, and of the form the
+    CLI lands where it has a second one. A source that opens with a comment
+    has two forms in a project: the kit's own, and the one the CLI lands,
+    from the first token on. Both are kept, so the check compares a
+    project's text as it stands and hides no edit. */
+const entry = (path, landed) => {
   const text = read(path);
   const second = landedText(text, landed);
-  record[group][landed] =
-    second === null ? digests(text) : { ...digests(text), landed: digests(second) };
+  return second === null ? digests(text) : { ...digests(text), landed: digests(second) };
+};
+
+/** Where a file lands: under the kit's folder, or under the project's root. */
+const placed = ({ path, target }) => {
+  if (target.startsWith(`${UI}/`)) return ["kit", target.slice(UI.length + 1)];
+  if (target.startsWith("~/")) return ["project", target.slice(2)];
+  throw new Error(`${path}: a target the record cannot place, ${target}`);
+};
+const sorted = (object) =>
+  Object.fromEntries(Object.entries(object).sort(([a], [b]) => (a < b ? -1 : 1)));
+
+// The items the whole install does not bring, derived: every item that
+// carries a file and that `ds` does not reach (the adapters, a preset). A
+// project asks for each by name, so `RELEASE.json`, which `ds` alone brings,
+// cannot say whether a project holds one or which release its file is from.
+// Each therefore brings a record of its own, `releases/<item>.json`, landed
+// beside the kit: its version and its files' digests. `changed.mjs` reads
+// it to tell an item never installed from one whose file was deleted, and
+// to name an item an update left at an earlier release.
+const reached = new Set();
+const reach = (name) => {
+  if (reached.has(name)) return;
+  reached.add(name);
+  const found = registry.items.find((i) => i.name === name);
+  for (const d of found?.registryDependencies ?? []) reach(d.slice(NS.length + 1));
+};
+reach(everything.name);
+const optional = {};
+const RECORDS = dirnameOf(itemRecord("x"));
+rmSync(RECORDS, { recursive: true, force: true });
+mkdirSync(RECORDS);
+for (const found of registry.items) {
+  if (reached.has(found.name) || !found.files?.length) continue;
+  const own = { item: found.name, version: VERSION, kit: {} };
+  for (const f of found.files) {
+    const [group, landed] = placed(f);
+    if (group !== "kit") {
+      throw new Error(`${found.name}: ${f.path} lands outside the kit's folder, where its record cannot name it`);
+    }
+    own.kit[landed] = entry(f.path, landed);
+  }
+  own.kit = sorted(own.kit);
+  optional[found.name] = Object.keys(own.kit);
+  const path = itemRecord(found.name);
+  writeFileSync(path, JSON.stringify(own, null, 2) + "\n");
+  found.files.push({ path, type: "registry:file", target: `${UI}/${path}` });
 }
-for (const group of ["kit", "project"]) {
-  record[group] = Object.fromEntries(
-    Object.entries(record[group]).sort(([a], [b]) => (a < b ? -1 : 1)),
-  );
+
+// What `changed.mjs` reads in a project: this version, the digests of
+// every file every item carries (of both its forms where it has two), keyed
+// by where it lands (under the kit's folder, or under the project's root),
+// and the optional items with their files. Built here, where every file and
+// its target is known, with the function the check itself uses. It records
+// neither itself nor the items' own records.
+const record = { version: VERSION, kit: {}, project: {}, optional: sorted(optional) };
+for (const f of registry.items.flatMap((i) => i.files ?? [])) {
+  if (f.path === RECORD || f.path.startsWith(`${RECORDS}/`)) continue;
+  const [group, landed] = placed(f);
+  record[group][landed] = entry(f.path, landed);
 }
+for (const group of ["kit", "project"]) record[group] = sorted(record[group]);
 writeFileSync(RECORD, JSON.stringify(record, null, 2) + "\n");
 
 writeFileSync("registry.json", JSON.stringify(registry, null, 2) + "\n");

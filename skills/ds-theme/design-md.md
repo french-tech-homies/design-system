@@ -270,12 +270,12 @@ typography:
 
 ## Limits
 
-`theme.v4.css` has a weight variable only for `title-medium`, `title-small`
-and the three labels, and a tracking variable only where Material's baseline
-has tracking. A weight other than 400 or a tracking other than 0 on any other
-role is not applied, and listed: adding the variable would make `text-*`
-utilities assert a weight they do not assert today. A property outside the
-five on a known role (`fontFeature`) is not applied, and listed.
+`theme.v4.css` has a weight variable for every one of the 15 roles, so a
+`fontWeight` on any role is applied, and every `text-<role>` utility sets its
+role's weight: the type primitives write none of their own. It has a tracking
+variable only where Material's baseline has tracking: a tracking other than 0
+on any other role is not applied, and listed. A property outside the five on
+a known role (`fontFeature`) is not applied, and listed.
 
 A seeded palette is a Material-flavoured one: the tonal ramps are the Material
 look. A look that departs from it writes more roles by hand, in the written

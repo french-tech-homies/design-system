@@ -1,0 +1,10 @@
+{
+  "item": "react-router-adapter",
+  "version": "0.3.0",
+  "kit": {
+    "adapters/react-router.tsx": {
+      "exact": "b99280fdbc87e3294b73599894f8802c5ade25826cb8cbb7563650f0125d9dab",
+      "loose": "dc46065d70763a05ae86ad9a0aec8506ca407822bc2ed9cf343daceb27704949"
+    }
+  }
+}

@@ -235,7 +235,7 @@
       "name": "changed",
       "type": "registry:file",
       "title": "Update check",
-      "description": "Lists the kit files a project changed since it installed them, before an update overwrites them: `node <ui>/ds/changed.mjs`. Reads the release record the whole install brings (<ui>/ds/RELEASE.json); writes nothing, merges nothing. Exit 0: none differs. 1: some do. 2: it cannot tell (no record: a copy installed before 0.3.0).",
+      "description": "Lists the kit files a project changed since it installed them, before an update overwrites them: `node <ui>/ds/changed.mjs`. Reads the release record the whole install brings (<ui>/ds/RELEASE.json) and the record each adapter or preset brings (<ui>/ds/releases/); writes nothing, merges nothing. Names the files changed or missing, the optional items left at an earlier release, and prints the update command for what the project holds. Exit 0: none differs. 1: some do, or a file of what the project holds is missing. 2: it cannot tell (no record: a copy installed before 0.3.0).",
       "files": [
         {
           "path": "changed.mjs",
@@ -262,10 +262,15 @@
           "path": "tokens/preset-editorial.css",
           "type": "registry:file",
           "target": "@ui/ds/tokens/preset-editorial.css"
+        },
+        {
+          "path": "releases/preset-editorial.json",
+          "type": "registry:file",
+          "target": "@ui/ds/releases/preset-editorial.json"
         }
       ],
       "registryDependencies": [
-        "@ds/theme",
+        "@ds/tokens",
         "@ds/license"
       ],
       "meta": {
@@ -1563,6 +1568,11 @@
           "path": "adapters/react-hook-form.tsx",
           "type": "registry:lib",
           "target": "@ui/ds/adapters/react-hook-form.tsx"
+        },
+        {
+          "path": "releases/react-hook-form-adapter.json",
+          "type": "registry:file",
+          "target": "@ui/ds/releases/react-hook-form-adapter.json"
         }
       ],
       "meta": {
@@ -1589,6 +1599,11 @@
           "path": "adapters/next.tsx",
           "type": "registry:lib",
           "target": "@ui/ds/adapters/next.tsx"
+        },
+        {
+          "path": "releases/next-adapter.json",
+          "type": "registry:file",
+          "target": "@ui/ds/releases/next-adapter.json"
         }
       ],
       "meta": {
@@ -1614,6 +1629,11 @@
           "path": "adapters/react-router.tsx",
           "type": "registry:lib",
           "target": "@ui/ds/adapters/react-router.tsx"
+        },
+        {
+          "path": "releases/react-router-adapter.json",
+          "type": "registry:file",
+          "target": "@ui/ds/releases/react-router-adapter.json"
         }
       ],
       "meta": {
@@ -1626,7 +1646,7 @@
       "name": "ds",
       "type": "registry:style",
       "title": "MD3 kit (everything)",
-      "description": "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes the shadcn bridge into your CSS, never a palette value.",
+      "description": "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes nothing into your CSS: the theme, and the shadcn bridge, are files your entry CSS imports.",
       "registryDependencies": [
         "@ds/utils",
         "@ds/render-props",
@@ -1705,56 +1725,7 @@
       "dependencies": [
         "tw-animate-css"
       ],
-      "cssVars": {
-        "light": {
-          "background": "var(--md-sys-color-background)",
-          "foreground": "var(--md-sys-color-on-background)",
-          "card": "var(--md-sys-color-surface-container-low)",
-          "card-foreground": "var(--md-sys-color-on-surface)",
-          "popover": "var(--md-sys-color-surface-container)",
-          "popover-foreground": "var(--md-sys-color-on-surface)",
-          "primary": "var(--md-sys-color-primary)",
-          "primary-foreground": "var(--md-sys-color-on-primary)",
-          "secondary": "var(--md-sys-color-secondary)",
-          "secondary-foreground": "var(--md-sys-color-on-secondary)",
-          "muted": "var(--md-sys-color-surface-container-highest)",
-          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
-          "accent": "var(--md-sys-color-surface-container-high)",
-          "accent-foreground": "var(--md-sys-color-on-surface)",
-          "destructive": "var(--md-sys-color-error)",
-          "destructive-foreground": "var(--md-sys-color-on-error)",
-          "border": "var(--md-sys-color-outline-variant)",
-          "input": "var(--md-sys-color-outline)",
-          "ring": "var(--md-sys-color-secondary)",
-          "radius": "0.5rem"
-        },
-        "dark": {
-          "background": "var(--md-sys-color-background)",
-          "foreground": "var(--md-sys-color-on-background)",
-          "card": "var(--md-sys-color-surface-container-low)",
-          "card-foreground": "var(--md-sys-color-on-surface)",
-          "popover": "var(--md-sys-color-surface-container)",
-          "popover-foreground": "var(--md-sys-color-on-surface)",
-          "primary": "var(--md-sys-color-primary)",
-          "primary-foreground": "var(--md-sys-color-on-primary)",
-          "secondary": "var(--md-sys-color-secondary)",
-          "secondary-foreground": "var(--md-sys-color-on-secondary)",
-          "muted": "var(--md-sys-color-surface-container-highest)",
-          "muted-foreground": "var(--md-sys-color-on-surface-variant)",
-          "accent": "var(--md-sys-color-surface-container-high)",
-          "accent-foreground": "var(--md-sys-color-on-surface)",
-          "destructive": "var(--md-sys-color-error)",
-          "destructive-foreground": "var(--md-sys-color-on-error)",
-          "border": "var(--md-sys-color-outline-variant)",
-          "input": "var(--md-sys-color-outline)",
-          "ring": "var(--md-sys-color-secondary)",
-          "radius": "0.5rem"
-        }
-      },
-      "css": {
-        "@import \"tw-animate-css\"": {}
-      },
-      "docs": "The kit's theme arrives as files and is not written into your CSS. Import it from your entry CSS, with every @import above any other at-rule (the path is from that file to your ui folder):\n\n  @import \"tailwindcss\";\n  @import \"./components/ui/ds/tokens/theme.css\";\n  @import \"./components/ui/ds/tokens/theme.v4.css\";\n\nFor a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead."
+      "docs": "MD3 kit 0.3.0, under <ui>/ds/ (the release is recorded in <ui>/ds/RELEASE.json). This install wrote nothing into your entry CSS.\n\nA first install: import the theme from your entry CSS, with every @import above any other at-rule. The path is from that file to your ui folder: ./components/ui/ds/ from src/index.css to src/components/ui, ../app/_components/ui/ds/ from src/styles/globals.css to src/app/_components/ui.\n\n  @import \"tailwindcss\";\n  @import \"./components/ui/ds/tokens/theme.css\";\n  @import \"./components/ui/ds/tokens/theme.v4.css\";\n  @import \"tw-animate-css\";\n\nAn update, or a theme of your own already imported (theme/theme.css, theme/theme.v4.css): keep your lines as they are.\n\nStock shadcn components in the project read the Material roles through one more import, written after theme.css:\n\n  @import \"./components/ui/ds/tokens/bridge-shadcn.css\";\n\nFor a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead."
     },
     {
       "name": "spec-skill",

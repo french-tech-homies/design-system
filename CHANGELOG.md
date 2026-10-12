@@ -34,8 +34,131 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+What the kit's first two installs of 0.3.0 asked of it. Three entries need an
+act of a project and say **Action needed**; the others need none.
+
 ### Changed
 
+- **`@ds/ds` writes nothing into your entry CSS. Action needed if stock
+  shadcn components rely on the bridge.** Before: the item carried the shadcn
+  bridge as `cssVars`, so every install and every update rewrote the entry
+  CSS in three places (a `:root` and a `.dark` block of 20 variables at the
+  end of the file, 19 lines such as `--ring: var(--ring);` inside your
+  `@theme`, four `--radius-*` lines) and a project put the file back by hand
+  each time. Now: no variable, no `@import`, at an install or an update. The
+  bridge is the file `<ui>/ds/tokens/bridge-shadcn.css`. To do, once: delete
+  the three blocks an earlier install wrote, and, if the project has stock
+  shadcn components, import the bridge after `theme.css`:
+
+  ```css
+  @import "./components/ui/ds/tokens/theme.css";
+  @import "./components/ui/ds/tokens/bridge-shadcn.css";
+  @import "./components/ui/ds/tokens/theme.v4.css";
+  ```
+
+  A project with no stock shadcn component deletes the blocks and imports
+  nothing. `@ds/theme` and `@ds/base`, asked for by name, still write the
+  bridge. `npm run registry:check-install` refuses a registry where `ds`, or
+  anything an update names, carries or reaches `cssVars` or `css`.
+- **`@ds/preset-editorial` depends on the theme files (`@ds/tokens`), no
+  longer on `@ds/theme`.** An update names the preset beside `@ds/ds`, and
+  `@ds/theme` is an item that writes the bridge into a project's CSS. Nothing
+  to do: the preset's file is the same, and `tw-animate-css` still comes with
+  `@ds/ds`.
+- **The update is the command the check prints, with every item you hold.
+  Action needed: update with it.** `@ds/ds` does not bring the three adapters
+  or the Editorial preset, so `npx shadcn add @ds/ds --overwrite -y` alone
+  left an installed adapter at the old release, which the check then listed
+  as changed. `node <ui>/ds/changed.mjs` now ends on the command for what the
+  project holds, such as
+  `npx shadcn add @ds/ds @ds/next-adapter @ds/react-hook-form-adapter --overwrite -y`.
+  Run that one for this update too: it is what brings each adapter's record
+  (below). The README and the `ds-theme` and `ds-build` skills say the same.
+- **The update check names what is not there, and exits 1 for a file missing
+  from what you hold.** Before: "N recorded file(s) are not here, removed or
+  never installed: not listed", exit 0, and 4 after any whole install. Now:
+  - an optional item of which nothing is in your tree is said once, in one
+    line (`Not installed, and no finding: …`), and is no finding;
+  - a file of the whole install, or of an optional item you hold, that is
+    not there is listed under a new group, `missing`, and the check exits 1.
+    A script that read exit 1 as "a file was edited" now also meets a deleted
+    file; a project that deleted a kit file on purpose sees it listed, and
+    the update brings it back;
+  - an optional item you hold at another release than the whole install is
+    named under `behind`, with its version, and is not listed as `changed`
+    unless you edited it. `behind` does not change the exit code;
+  - `--missing` names every recorded file that is not there, with its item
+    and whether you hold it; an option the check does not know exits 2.
+- **`RELEASE.json` gains a key, `optional`**: the items `@ds/ds` does not
+  bring, each with its files. `version`, `kit` and `project` are as they
+  were. A `changed.mjs` of this release still answers on a record without the
+  key (a copy at 0.3.0 that adds `@ds/changed` alone): it counts the files
+  not found as before, and `--missing` names them.
+- **The type primitives draw each role's weight from the theme.** `Label`,
+  `Title`, `Body`, `Headline` and `Display` wrote a weight class beside the
+  role (`font-medium`, `font-regular`), which won over the theme's. They
+  write none now. What a screen draws without an edit of it:
+  - **under Material's weights, nothing moves**: the catalog's pictures of
+    the primitives and of `Tag` are the same, byte for byte;
+  - **where a `DESIGN.md` sets the weight of a label, `title-medium` or
+    `title-small`**, every primitive of that role, and every kit component
+    that draws text through one (`Tag`, `Button`, `Chip`, `Tabs`, the
+    navigation labels, …), now draws that weight. Before, they drew 500
+    whatever the theme said, and a role class written raw drew the theme's.
+    A project that had worked around it sees its labels change weight at the
+    update: under the Editorial preset they go from 500 to 600.
+  The active label of `BottomNavigation` and `NavigationDrawer` keeps
+  `font-bold`: it is Material's prominent weight.
+- **Every `text-<role>` class sets a weight, and a `DESIGN.md` can give any
+  role one. Action needed if you generated a theme of your own: regenerate
+  it.** `tokens/theme.v4.css` had a weight token for five roles (the labels,
+  `title-medium`, `title-small`). It has one for all fifteen now: the ten
+  others (`display-*`, `headline-*`, `body-*`, `title-large`) are 400, the
+  weight they already drew. This reverses a limit the kit had recorded on
+  purpose, so read both sides:
+  - a `fontWeight` on any role in a `DESIGN.md` is applied. Before, on those
+    ten it was not, and was listed as a warning;
+  - `text-display-large`, `text-headline-*`, `text-body-*` and
+    `text-title-large` used to set no weight, so the text inherited its
+    parent's. They now set their role's. **Text in one of those classes
+    inside a heavier parent (a `font-semibold` on a wrapper, a `<strong>`, a
+    `<th>`) used to draw the parent's weight and now draws 400.** Put the
+    weight class on the element that carries the role class (`font-semibold
+    text-body-medium`): a weight written on the same element still wins;
+  - the template is what a generated theme is written from. Until
+    `npx tsx <ui>/ds/tokens/generate-theme.mjs DESIGN.md --out theme` is run
+    again, a project's own `theme/theme.v4.css` has no token for those ten
+    roles, and a primitive of one of them, which no longer writes
+    `font-regular`, inherits its parent's weight.
+- **The three skills' descriptions open with when to load each**, in the
+  words a session has in mind: the project's design system, Material 3, the
+  `ds` folder, `DESIGN.md` and the theme. Before, they spoke of "the MD3
+  kit", and across 27 sessions in three projects no session loaded
+  `ds-build` or `ds-theme` on its own. `npm run registry:check-install`
+  holds each to opening with "Use when" and to 1024 characters. The update
+  rewrites the three `SKILL.md`; nothing to do.
+- **The install's closing message names the release it took** ("MD3 kit
+  0.3.0, under `<ui>/ds/`"), gives the four imports of a first install with
+  `tw-animate-css` among them, says an update keeps its lines, and names the
+  bridge import. Before, it said the theme "is not written into your CSS"
+  after writing the bridge there.
+- **A generated `theme.css` opens on a header that names only what a project
+  has**: the kit's generator and `DESIGN.md`. Before, it named
+  `npm run theme:resolve` and `tokens/resolved.json`, which are this
+  repository's. A theme of your own shows that one comment as a diff the
+  next time you generate it.
+- **The README says what an install and an update ask of a project** ("What
+  an install and an update ask of your project"), each with the line to
+  write: where the skills land in a monorepo and what the root's
+  instructions say, the `@source not` lines for a project that scans its
+  source folder, the ESLint and `.prettierignore` lines, the update command
+  with the adapters, how to read the release before an install, the import
+  path worked for an entry CSS two folders away, and that the install runs
+  the host's install scripts. It also says what the CLI's own dependency
+  step was seen to do to a project's `package.json` (a range that was there
+  rewritten to the latest, the kit's two `0.4.0` pins written with a caret)
+  and what to put back: that step is the registry's and no item changes it.
+  The `ds-theme` skill says the scan exclusions and the linter.
 - **Only a release publishes.** Before: every merge to `main` that passed the
   checks published the catalog and the registry, so the registry could serve
   what was under `[Unreleased]` under the number of the last release. Now:
@@ -48,6 +171,20 @@ npm run registry:check-version # what CI runs
   once `main` has moved past it. Nothing to do in a project: what
   `/r/{name}.json` serves is now always a release. See the README,
   "Publishing this repository".
+
+### Added
+
+- **A record for each item the whole install does not bring**:
+  `<ui>/ds/releases/<item>.json`, carried by `@ds/next-adapter`,
+  `@ds/react-router-adapter`, `@ds/react-hook-form-adapter` and
+  `@ds/preset-editorial`, each for itself: the item's name, its version and
+  its file's digests. It is how the update check knows that a project holds
+  the item and which release its file is from. An adapter installed at 0.3.0
+  has none until it is updated: if its file differs from the whole install's
+  release, the check lists it as `changed` and says it may be behind.
+- **`MD3/Foundations/Typography`, "Weight from the theme"**: every primitive
+  beside its raw role class, as the theme stands and under a theme that sets
+  every weight to 700, and a `Tag`. Its test reads the computed weights.
 
 ## [0.3.0] — 2026-10-11
 

@@ -46,7 +46,9 @@ What the kit is, and which components are its own, is said once: `README.md`,
 - `spec-version.json`: the m3.material.io version each component was last
   audited against, read by `npm run md3 -- check`.
 - `registry.json` and `RELEASE.json`: the generated registry index and
-  release record, committed. `r/`, the built items, is not committed.
+  release record, committed. `releases/<item>.json`: the generated record
+  each item outside the one install carries (the adapters, the preset),
+  committed. `r/`, the built items, is not committed.
 - `.claude/settings.json`: the commands an agent may run here without being
   asked.
 - `.claude/skills/`: the skills this repository's own agents load.
@@ -102,7 +104,7 @@ npm run theme:check
 npm run theme:resolve
 git diff --exit-code -- tokens/resolved.json
 npm run registry:build
-git diff --exit-code -- registry.json RELEASE.json
+git diff --exit-code -- registry.json RELEASE.json releases
 npm run registry:check-version
 npm run registry:check-install
 npm run lint
@@ -164,9 +166,14 @@ curl -s http://localhost:6006/index.json     # no answer: the port is free
   `npm run registry:check-version`, the CHANGELOG's heading, one commit.
 - **Generated files are never edited by hand**: `tokens/theme.css`,
   `tokens/theme.v4.css`, `tokens/DESIGN.resolved.md`, `tokens/resolved.json`,
-  `registry.json` and `RELEASE.json`. Edit the source (`DESIGN.md`, the kit's
+  `registry.json`, `RELEASE.json` and `releases/*.json`. Edit the source (`DESIGN.md`, the kit's
   files, `scripts/build-registry.mjs`), run the command, commit both. CI
-  refuses a stale one.
+  refuses a stale one. One exception: `tokens/theme.v4.css` is also the
+  template the generator reads, and the generator sets the value of a
+  declaration that exists and adds none. So a new declaration (a token, a
+  mapping) is added to it by hand, at the value `DESIGN.md` gives; a value is
+  never changed by hand, and `npm run theme:generate` must then leave the
+  file as it is.
 - **A skill's text is the kit's, read in any project.** It names kit files as
   `<kit>/…`, only files the install brings, and nothing of this repository.
   `npm run registry:check-install` holds all three.

@@ -22,8 +22,8 @@
       "loose": "dc46065d70763a05ae86ad9a0aec8506ca407822bc2ed9cf343daceb27704949"
     },
     "changed.mjs": {
-      "exact": "a19ced29a51aa5a010e18cf1be80f26f3d93018e93f1d14c54d1f6262b588f08",
-      "loose": "f7d191c3e7266c6e74caf5453cb6c8072f9c57368c72b1af86cfc5298d7cf2dc"
+      "exact": "e5349bde03258e8f2b6e288af3b165560a20c8ce27b4a0c1dec4ec0ff3821320",
+      "loose": "782911681dce3677f2b882600fbce98081cb3e14c37d409a34519afbebaa98a3"
     },
     "components/Avatar.tsx": {
       "exact": "f672b4d9473a458826ccf7c7d381e117d5d84ebd4416944339a38e42960cc3c9",
@@ -58,8 +58,8 @@
       "loose": "9e680d02edc1f624231af5f10db8172f3b2ee9776b5b8df3bbcc73bc103dbc81"
     },
     "components/DialogContent.tsx": {
-      "exact": "3da0fe2d296a6785a6b2ab6e8a8fcd30e98ed74803dda8d353a3a441adb427e6",
-      "loose": "de9071ae76db3d82041034523fcef40fb624622467c298912f7b2cfb2eae1d37"
+      "exact": "3bc5a4fa69aac6e00ca89c68b312bafc49788c6d7254f13633abb3b7552698ff",
+      "loose": "996eac8bec1d345c60e555f570de0e5458a253626231b9048d0f98d4dae35417"
     },
     "components/Disclosure.tsx": {
       "exact": "2f0c75cdf5c01f498b0ef84684d448a526281ddb54423e4a24c8fc2b97b0b882",
@@ -218,11 +218,11 @@
       "loose": "37a798e862549cebecab0a2eaebf381dba3b9528bfa2d9ab3ce9986e95e36812"
     },
     "primitives/Typography.tsx": {
-      "exact": "03d0da41418f8585dfc1c4a4311c9c6f88c6dff76cc1f4696783311d851b2325",
-      "loose": "13eb05a97f559c25299309a3fa8e9ef72e0b1da06e5ac0f6a7119454ae238a17",
+      "exact": "dd6f5ec1e926dcb2a9a31c9b2d03ac20fd6058bf365fea28840f4e475215c64c",
+      "loose": "f378d709d8877d64151816694f507ecba04f47b951a756bd986ead1db2a8fc6a",
       "landed": {
-        "exact": "3760af5a86f7d74cfff8ab98c7716fde6098be09dc37d7ed022ef93fc29af36b",
-        "loose": "b8a2d63c6eca5381cbac42e6d41057b4da3f6f55b832596b6ae46f183948df29"
+        "exact": "01cbde8b44553f9923747e40aa1a4706120dbc25d6b2dafee3f3b8cb4a6d80c0",
+        "loose": "390ba54365bea12e0c31c1ee0a02f4e08541a2799dd86d278d985b8fbab68a7f"
       }
     },
     "render-props.ts": {
@@ -234,12 +234,12 @@
       "loose": "fc287f9d853cd48430e6c8e746472601bae89019956c9051d4f976fcaea5617c"
     },
     "tokens/bridge-shadcn.css": {
-      "exact": "d5ceda3719cf264998c830cee5128ae10363d00ce9a3e3145dfc148a5c915e67",
-      "loose": "c3d2786a70d990ff01af819badd840276d786abba677ab416ad048102d45f0b0"
+      "exact": "24c32c157cbddbd244ddf60801faa5bacab08b6d1c1076e9a1f2c96d598256f7",
+      "loose": "cb0b2f4f16e4cbf0c46c40256514b088602a8c000aeef16993d6a86aadaf545c"
     },
     "tokens/design-md.mjs": {
-      "exact": "e223a04c522d622436134dbd816724606343cf715cc5995bac13d1cd26922c1e",
-      "loose": "8e8c4673bd01033ddb1c7e4381be47915fd4b4ba3c8d83d182acd854fd959d43"
+      "exact": "571c9efb3a827aec8629cfd11c8356cfa8eb5796d979de195b3d46e5b046ac50",
+      "loose": "1801675958d7657f1721defb8ca2ba97bc591a59ad18894626f0f652069e68c6"
     },
     "tokens/generate-theme.mjs": {
       "exact": "0a7f19678cee574e34fbc5cde94afc8026bc5d57dba6e99b6d41a989663f6603",
@@ -250,38 +250,52 @@
       "loose": "67d3eddadc7bef487917db4cae6da6bb7584649000bc2a5ab5fb0f94dbc9b645"
     },
     "tokens/theme.css": {
-      "exact": "1811440df850f2596e775bc636aafea97b224094d21e2aabbfcb7a9bf81cc1ec",
-      "loose": "d8bd4ca58065e8fdecfae92b9a474d04a1bfdf57834f5bf247c8f32a41583cf5"
+      "exact": "c4da6a14794bc7a55d4211c3cc49fe1c281faebbfa70a8a5f87315dd9ea88062",
+      "loose": "f28c034ec19a7dddb5dac0c34ccc48138a204cba6a305562d219667f8e44001f"
     },
     "tokens/theme.v4.css": {
-      "exact": "9ae2fd32601d00d6c3fb6f070e03a3548ab11e551f9e9760f554176c9fabb88a",
-      "loose": "13065394467da48b5024a81176479908e43ffa8f912886a4551c5284a43aecde"
+      "exact": "69ead637faa4d3c561a303c7c141bc62040256d918a808d27b9a5a42e2087314",
+      "loose": "555ff39f741ea21c579b3571b09f12b78b7beab8affc0e81fb66e0d3b0eb90f8"
     },
     "utils.ts": {
-      "exact": "b128d75a1286b5f208c91cfd77ad2d43408f247b01717729d4caddc8082fdc45",
-      "loose": "3cf1589cfdc7257f2a6543fad1324ab5960d353aac51021839881771d36e6356"
+      "exact": "e16f6fd9f1ba7f785349ccc04301f511e6878d384f1bd84abe8eba915430785a",
+      "loose": "e25b463542baca3dceaf3f5bc6d70d7833898e7ce8b7f3387f048744f54eccba"
     }
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "3c1645747452d129c27d7b5977ffafd173cc9f05e18747258758f75e0f153f67",
-      "loose": "e42ff3d3e7ff99d5ef835d64c504ec1c82cd87bd42563e4c151e3323d7bd295a"
+      "exact": "7032bcc0b0f5b65408f6f9895b35ed43dacbc1ebdfbb0c616b81a9c069658f68",
+      "loose": "a25d762683d9948250f6834cbff484449b58fcf37ca9e590cd0a369b2745a5a6"
     },
     ".claude/skills/ds-spec/SKILL.md": {
-      "exact": "42d5010544841c07c5c9f09a224c8dbf74008b48664134d0053887ab471b61dc",
-      "loose": "e44d958d67d8c38c9ec6d13cc68643b591bd5d34fcd0f815f68ada5fddcbd660"
+      "exact": "96df5b9d9585d4dfb4f5ef97d0baa936a5d7176111ef5247d29a04670d8fd25e",
+      "loose": "5755ca9523312b842c45a4ad36e80697235d79028c1d251c50ef7d95277348e7"
     },
     ".claude/skills/ds-spec/md3.mjs": {
       "exact": "f1f53edb4246940f0441c1c38e97bd48137ae208790692e1ed199bb783c4dbbe",
       "loose": "4d99089debfece419b5da2cb23b96638022d7e6a5ebe9048a36f6c07a9ff5097"
     },
     ".claude/skills/ds-theme/SKILL.md": {
-      "exact": "87716ad8720ae99f1ac60573cca4786314afa01dfa293e423810eb44983b0346",
-      "loose": "bb6060293c8076d561c6442abd072236c45c1942facc40e69862632d4daa98b7"
+      "exact": "167398b01d60bc8425968d7ebc79bc88fc139eb34df0877f5d1bd67276661e44",
+      "loose": "8c507b67809342d80cc61faabbd80b34ece851fc5f4eca6bd8e924feab69620a"
     },
     ".claude/skills/ds-theme/design-md.md": {
-      "exact": "2db9c6e395c6a18a5d97b10271582f06412a1f25e68935d5a23e0aeb2d7e8613",
-      "loose": "2023f01f10d691f38c695b8c555e86c61ee2baa1a159821d28688e2572f01e4b"
+      "exact": "4ae9303ebdfcd3bde0628f8df492bba32691184b1405c4662a6396f0ffccb183",
+      "loose": "a961689a16977510a67fc045a51553ba150c7827ae998ab6f8a17b50ba334132"
     }
+  },
+  "optional": {
+    "next-adapter": [
+      "adapters/next.tsx"
+    ],
+    "preset-editorial": [
+      "tokens/preset-editorial.css"
+    ],
+    "react-hook-form-adapter": [
+      "adapters/react-hook-form.tsx"
+    ],
+    "react-router-adapter": [
+      "adapters/react-router.tsx"
+    ]
   }
 }

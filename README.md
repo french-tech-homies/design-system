@@ -178,12 +178,23 @@ fetch from the kit:
 | `ds-build`: the rules for building with the kit, what a project may change, the resolved file as the reference | `.claude/skills/ds-build/` | `@ds/build-skill` |
 | `ds-spec`: the live Material 3 spec, Do/Don't and tokens | `.claude/skills/ds-spec/` | `@ds/spec-skill` |
 | The update check: lists the kit files a project changed, before an update replaces them (`node <ui>/ds/changed.mjs`, see _Taking an update_) | `<ui>/ds/changed.mjs` | `@ds/changed` |
-| The release record the check reads: this version, and two digests of every file the registry carries. Only the whole install brings it | `<ui>/ds/RELEASE.json` | `@ds/ds` itself |
+| The release record the check reads: this version, two digests of every file the registry carries, and the names of the items this install does not bring (`optional`). Only the whole install brings it | `<ui>/ds/RELEASE.json` | `@ds/ds` itself |
 | The MIT notice | `<ui>/ds/LICENSE` | `@ds/license` |
+
+Four items are not part of it and are asked for by name: `@ds/next-adapter`,
+`@ds/react-router-adapter`, `@ds/react-hook-form-adapter` and
+`@ds/preset-editorial`. Each lands its one file and a small record of its
+own, `<ui>/ds/releases/<item>.json` (its version, its file's digests), which
+is how the update check knows a project holds it.
 
 The skills are Claude Code **project** skills: in a shadcn target `~/` is the
 project root, not the person's home, so they land in the project's own
-`.claude/skills/` and are versioned with it. A skill names only files the
+`.claude/skills/` and are versioned with it. In a monorepo that is the app's
+folder, beside `components.json`: see _What an install and an update ask of
+your project_ for the line the repository's root then says. Each skill's
+description opens with when to load it, in the words a session has in mind
+(the project's design system, Material 3, the `ds` folder, `DESIGN.md`):
+it is all a session reads before it decides to. A skill names only files the
 install brings, and nothing of this repository, and opens
 with a frontmatter that parses as strict YAML;
 `npm run registry:check-install` (`scripts/check-install.mjs`)
@@ -194,21 +205,27 @@ edits a kit component, or writes one beside the kit, will also want React
 Aria's documentation at hand: Adobe publishes it as a skill of its own,
 installed with `npx skills add https://react-aria.adobe.com`.
 
-**Then import the theme. No item writes a palette value into your CSS.** The
-theme is whatever your entry CSS imports, so a fresh install is unthemed until
-these two lines are there (the CLI prints them after `add @ds/ds`):
+**Then import the theme. `add @ds/ds` writes nothing into your entry CSS**,
+at the first install or at any update: no palette value, no variable, no
+`@import`. The theme is whatever that file imports, so a fresh install is
+unthemed until these lines are there (the CLI prints them after `add @ds/ds`,
+with the release it took):
 
 ```css
 @import "tailwindcss";
 @import "./components/ui/ds/tokens/theme.css";
+@import "./components/ui/ds/tokens/bridge-shadcn.css"; /* only beside stock shadcn components */
 @import "./components/ui/ds/tokens/theme.v4.css";
+@import "tw-animate-css";
 ```
 
-What `@ds/ds`, `@ds/theme` and `@ds/base` do write into `:root` / `.dark`
-is the shadcn bridge: references such as
+The shadcn bridge is that third line: a file of references such as
 `--background: var(--md-sys-color-background)`, the same under any theme, so
-an existing shadcn palette follows the Material roles. Components pulled in
-only as _dependencies_ write nothing.
+stock shadcn components follow the Material roles. A project with none leaves
+the line out. Through 0.3.0 the install wrote the bridge into the entry CSS
+itself, at every run; see _What each item does to your CSS variables_ for
+what such a project deletes. `@ds/theme` and `@ds/base`, asked for by name,
+still write it there: with `@ds/ds` installed, the import is the better road.
 
 **For a look of your own**, open your agent in the project and ask for one
 ("make it look like cyberpunk"). The `ds-theme` skill copies the kit's
@@ -240,6 +257,24 @@ above), and the router adapters, which are not part of `@ds/ds`: add
 `@ds/next-adapter` or `@ds/react-router-adapter` explicitly, or `Button href`
 / `Chip href` / `Menu` item `href` will do full page loads.
 
+**What the CLI's dependency step does to your `package.json`.** The CLI
+installs what the items declare with your package manager's own command
+(`npm install`, and `npm install -D` for the generator's four). That command
+is the registry's and not the kit's: no field of an item changes it. Observed
+on 2026-10-12 (shadcn 4.19, npm, an install of 0.3.0 into a project that
+already had `tsx`):
+
+- **A range you already had can move.** `tsx` went from `^4.19.1` to
+  `^4.23.15`: the range is rewritten to the latest version it resolves.
+- **The kit's two pins are written with a caret.** The kit tests on
+  `@google/design.md` and `@material/material-color-utilities` at `0.4.0`
+  exactly, and the item declares them so; `package.json` receives `^0.4.0`
+  for both.
+
+After an install or an update, read `git diff package.json`, put back the
+ranges that were yours, write the two pins as `0.4.0`, and install again from
+your lockfile.
+
 **The licence comes with it.** Every item depends on `@ds/license`, a
 `registry:file` that drops the kit's MIT notice at `<ui>/ds/LICENSE`, beside
 the code it covers. `add @ds/button` delivers it just as `add @ds/ds` does,
@@ -258,6 +293,115 @@ a file that **differs** raises a per-file overwrite prompt that defaults to
 record of what it installed, so "differs" covers both a file you edited and a
 file the kit changed: it cannot tell them apart. An update is therefore
 `--overwrite` plus your own diff — see _Taking an update_.
+
+### What an install and an update ask of your project
+
+Seven things the install does not do for you, each with the line you write.
+They come from the first two projects that installed 0.3.0.
+
+**1. In a monorepo, the skills land beside `components.json`, not at the
+repository's root.** Everything the install writes is placed from the folder
+that holds `components.json`: the kit under its `ui` alias, the skills in
+its `.claude/skills/` (`apps/web/.claude/skills/ds-build/` when the app is
+`apps/web`), and that folder is where `DESIGN.md` and `theme/` go. Leave the
+skills there: it is where `RELEASE.json` records them and where the update
+check looks. A session started at the repository's root is not told of them
+until it touches a file under the app, so say it in the root's instructions
+(`CLAUDE.md`, `AGENTS.md`), with your own paths:
+
+```md
+This project has a design system: Material 3 components copied into `apps/web/src/components/ui/ds/`. Before writing or reviewing any UI, load the `ds-build` skill (`apps/web/.claude/skills/ds-build/SKILL.md`); to change a colour, the type or anything in `DESIGN.md`, `ds-theme`; for what Material 3 says of a component, `ds-spec`.
+```
+
+A project whose `components.json` is at its root needs the same line less,
+and it costs nothing there either.
+
+**2. If your Tailwind entry scans your source folder, it now scans the
+copy.** The components must be scanned: they hold the classes. The copy's
+other files hold none and can make junk utilities out of prose and data.
+Exclude them, with the path from your entry CSS to the copy (here
+`src/styles/globals.css` and `src/app/_components/ui/ds`):
+
+```css
+@source not "../app/_components/ui/ds/tokens";
+@source not "../app/_components/ui/ds/releases";
+@source not "../app/_components/ui/ds/DESIGN.md";
+@source not "../app/_components/ui/ds/RELEASE.json";
+@source not "../app/_components/ui/ds/changed.mjs";
+@source not "../app/_components/ui/ds/LICENSE";
+```
+
+They go below every `@import`. `tokens/` is excluded as a source of class
+names only: its stylesheets still reach the build through your `@import`
+lines. Do not exclude `utils.ts`: it holds `focusRing`'s classes. Its
+tailwind-merge configuration names four class groups as strings, so the scan
+emits `.rounded-t`, `.rounded-l`, `.rounded-r` and `.rounded-b` (about 300
+bytes) whether or not you use them. They are harmless.
+
+**3. Keep the copy and the skills out of your linter and your formatter.**
+An update is an overwrite followed by `git diff`, and the update check
+compares each file with the release it came from: both read only if the
+files were left as shipped. Your rules are not the kit's (under Next's
+ESLint configuration the copy gives 4 warnings; under Prettier 13 of its
+files are "not formatted"). In an ESLint flat config, one entry of the
+exported array:
+
+```js
+{ ignores: ["src/components/ui/ds/**", ".claude/skills/**"] },
+```
+
+and in `.prettierignore` (the same two lines serve oxfmt and Biome's
+ignore):
+
+```
+src/components/ui/ds/
+.claude/skills/
+```
+
+The skills folder needs both too: `ds-spec` ships a script.
+
+**4. An update names every item you hold, not `@ds/ds` alone.** The adapters
+and the Editorial preset are items of their own. Run the check first; its
+last line is the command:
+
+```bash
+node src/components/ui/ds/changed.mjs
+npx shadcn add @ds/ds @ds/next-adapter @ds/react-hook-form-adapter --overwrite -y
+```
+
+The second line is what the first prints for a project that holds those two
+adapters. See _Taking an update_.
+
+**5. The registry serves the latest release only: read which one before you
+install.** Before, from the item itself; after, from the record it brought.
+The install's closing message names it too ("MD3 kit 0.3.0, under
+`<ui>/ds/`").
+
+```bash
+curl -s https://french-tech-homies.github.io/design-system/r/ds.json | jq -r .meta.version
+jq -r .version src/components/ui/ds/RELEASE.json
+```
+
+Then read `CHANGELOG.md` from your version to that one.
+
+**6. The import path is from your entry CSS to your ui folder.** The
+install's message writes it for an entry CSS that sits beside `components/`
+(`src/index.css` and `src/components/ui`: `./components/ui/ds/…`). Worked
+for a project two folders away, `src/styles/globals.css` and
+`src/app/_components/ui`: up one folder to `src/`, then down.
+
+```css
+@import "tailwindcss";
+@import "../app/_components/ui/ds/tokens/theme.css";
+@import "../app/_components/ui/ds/tokens/theme.v4.css";
+@import "tw-animate-css";
+```
+
+**7. The install runs your project's install scripts.** The CLI adds the
+dependencies with your package manager, and that runs whatever `postinstall`
+or `prepare` your repository has, at the root of a workspace included. A
+script that needs an environment variable or a database fails the step
+(exit 1, no file written): set what it needs, then run the install again.
 
 ## Install by copying the folder
 
@@ -406,7 +550,8 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `adapters/next.tsx`            | Optional: Next router provider + `next/image` renderer. Delete if not on Next.js                                                                                                                                                                                              |
 | `adapters/react-router.tsx`    | Optional: React Router (or TanStack Router) provider so `href` links navigate client-side. Delete if not on React Router                                                                                                                                                      |
 | `changed.mjs`                  | The update check: lists the kit files a project changed since it installed them, against `RELEASE.json` — `node <ui>/ds/changed.mjs`, see _Taking an update_. Node builtins only. In the registry as `@ds/changed`                                                          |
-| `RELEASE.json`                 | Generated by `npm run registry:build`: the kit's version and two digests of every file the registry carries, by where it lands. Carried by `@ds/ds` alone, so only the whole install replaces it                                                                             |
+| `RELEASE.json`                 | Generated by `npm run registry:build`: the kit's version, two digests of every file the registry carries, by where it lands, and the items `@ds/ds` does not bring with their files (`optional`). Carried by `@ds/ds` alone, so only the whole install replaces it          |
+| `releases/<item>.json`         | Generated by `npm run registry:build`, one per item `@ds/ds` does not bring (the three adapters, the Editorial preset): its name, the version and its files' digests. Carried by that item, so the update check knows a project holds it and which release it is from          |
 | `scripts/changed.check.mjs`    | Makes the update check speak on a fixture install, and holds `RELEASE.json` to what the build computes — `npm run registry:check-install`                                                                                                                                     |
 | `LICENSE`                      | MIT — also a registry item (`@ds/license`) that every other item depends on, so a `shadcn add` copy lands with the notice at `<ui>/ds/LICENSE`                                                                                                                               |
 | `CHANGELOG.md`                 | What changed between releases, and which entries need action from a consumer who edited a kit file                                                                                                                                                                              |
@@ -417,7 +562,7 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `skills/ds-build/`            | Claude Code skill: the rules for building with the kit and what a project may change (`@ds/build-skill`)                                                                                                                                                                     |
 | `skills/ds-spec/`             | Claude Code skill + `md3.mjs`: the live Material 3 spec, Do/Don't and tokens from m3.material.io (`npm run md3`; `@ds/spec-skill`)                                                                                                                                           |
 | `scripts/build-registry.mjs`   | Generates `registry.json`: every item, from this folder                                                                                                                                                                                                                       |
-| `scripts/check-install.mjs`    | The rule that holds the one install whole: `ds` reaches the generator, every skill and every file a skill names; a script's imports are declared by its item; no skill names this repository; every skill's frontmatter parses, with its folder's name and a description; no item lands a skill that is not the kit's own — `npm run registry:check-install`                                             |
+| `scripts/check-install.mjs`    | The rule that holds the one install whole: `ds`, and anything an update names, writes nothing into a project's CSS; `ds` reaches the generator, every skill and every file a skill names; a script's imports are declared by its item; no skill names this repository; every skill's frontmatter parses, with its folder's name and a description that opens with when to load it; the update command is written one way; no item lands a skill that is not the kit's own — `npm run registry:check-install`                                             |
 | `scripts/check-components.mjs` | The rule that holds the kit's own components a closed, named group: the list in _What this kit is_ is the set of component files that say Material 3 does not describe them, and every other component file cites a page of m3.material.io; and no file under `components/` or `primitives/` names the mono face — `npm run registry:check-install` |
 | `spec-version.json`            | Site content version the components were last audited against (`npm run md3 -- check`)                                                                                                                                                                                        |
 
@@ -435,7 +580,11 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 - **Type** — `text-display-large` → `text-label-small` (15 roles), on two
   faces: `font-brand` (display / headline / title) and `font-plain` (body /
   label), both defaulting to the same `--font-inter` hook. The `Typography`
-  primitives apply them; raw `text-*` classes do not. A third face is the
+  primitives apply them; raw `text-*` classes do not. Each `text-*` class
+  carries its role's size, line height, tracking and weight
+  (`--md-sys-typescale-<role>-weight`, one for each of the 15 roles), and the
+  primitives write no weight of their own: a weight a project's DESIGN.md
+  gives a role is the weight both draw. A third face is the
   project's to reach for: `font-mono`, for an identifier, a time, an amount.
   It is the family a project's DESIGN.md names as `typography.mono.fontFamily`
   (the token `--md-sys-typescale-mono-font`), and the system's monospace when
@@ -612,7 +761,10 @@ node src/components/ui/ds/changed.mjs      # <ui>/ds/changed.mjs
 
 It compares every kit file and skill in your tree with the release you
 installed, which `<ui>/ds/RELEASE.json` records, and lists the ones that
-differ. It writes nothing and merges nothing. Walked on 2026-10-11 on a real
+differ. It knows which of the items `@ds/ds` does not bring you hold (an
+adapter, the Editorial preset) from the record each brings,
+`<ui>/ds/releases/<item>.json`, and ends on the update command that takes
+everything you hold. It writes nothing and merges nothing. Walked on 2026-10-11 on a real
 install of 0.3.0 (shadcn 4.19, a scratch project, `add @ds/ds` from a local
 copy of the registry): untouched, it lists nothing; with one line added to
 `components/Tag.tsx`, that file alone; with `// @ts-nocheck` put at the top
@@ -621,9 +773,26 @@ alone. Its exit code says which of three answers it gave:
 
 | exit | it says | what it means for the update |
 | --- | --- | --- |
-| 0 | no recorded file differs | the overwrite loses nothing of yours |
-| 1 | the files that differ, in two groups. `changed`: the text differs. `whitespace`: the same text once spaces, tabs and line breaks are taken out | the overwrite loses each `changed` edit: these are the files to put back from `git diff`. A `whitespace` file is a formatter's or an indent's doing; a change of spaces inside a string, a class list included, lands there too |
-| 2 | it cannot tell, and why | update as below and read `git diff`, as before the check existed |
+| 0 | no recorded file of what you hold differs or is missing | the overwrite loses nothing of yours |
+| 1 | the files, in three groups. `changed`: the text differs. `whitespace`: the same text once spaces, tabs and line breaks are taken out. `missing`: a file of the whole install, or of an optional item you hold, is not there | the overwrite loses each `changed` edit: these are the files to put back from `git diff`. A `whitespace` file is a formatter's or an indent's doing; a change of spaces inside a string, a class list included, lands there too. A `missing` file comes back with the update: delete it again if that was meant |
+| 2 | it cannot tell, and why: no record, a CLI that rewrites the files, an option it does not know | update as below and read `git diff`, as before the check existed |
+
+Besides the groups, and with no effect on the exit code, it says:
+
+- **`Not installed, and no finding`**, once, in one line: the optional items
+  of which nothing is in your tree. After `add @ds/ds` alone that is all
+  four.
+- **`behind`**: an optional item you hold whose own record is of another
+  release than `RELEASE.json`. An update that named only `@ds/ds` leaves an
+  adapter there. Its file is compared with its own release, so it is not
+  listed as `changed` unless you edited it.
+- **The update command** for what you hold, as its last line:
+  `npx shadcn add @ds/ds @ds/next-adapter --overwrite -y` for a project with
+  the Next adapter. Run that one, not the bare `@ds/ds`.
+
+`node <ui>/ds/changed.mjs --missing` also names every recorded file that is
+not in your tree, with the item it belongs to and whether you hold that item
+(`@ds/next-adapter, not installed`; `@ds/ds, the whole install: missing`).
 
 What it cannot know:
 
@@ -636,7 +805,8 @@ What it cannot know:
   next one on.
 - **A formatter that moves more than whitespace** (quotes, trailing commas,
   the parentheses around wrapped JSX) makes every file it touched `changed`.
-  Keep `<ui>/ds/` out of your formatter.
+  Keep `<ui>/ds/` and the skills out of your formatter and your linter: the
+  two lines are in _What an install and an update ask of your project_.
 - **A project whose CLI rewrites the files as it installs them**
   (`tsx: false`, a Tailwind `prefix` or `cssVariables: false` in
   `components.json`) gets answer 2.
@@ -648,20 +818,33 @@ What it cannot know:
   (`// @ts-nocheck`, `/* eslint-disable */`) is an edit, and is listed; so is
   a `"use client"` you add or take out, since under `rsc: false` the walked
   install left the directive on all 36 files that have it.
-- A recorded file that is not in your tree is counted, not listed: removed
-  and never installed look the same. After a whole install the count is 4,
-  the three adapters and the Editorial preset, which `@ds/ds` does not
-  bring. A file you wrote beside the kit is not in the record and is not
-  looked at.
+- **An optional item installed at 0.3.0** has no record of its own yet, so
+  its file is compared with `RELEASE.json`: after an update that named only
+  `@ds/ds` it is listed as `changed`, and the check says it may be behind,
+  not edited. The update the check prints brings its record.
+- **A record of the 0.3.0 shape** names no item (a copy at 0.3.0 that added
+  `@ds/changed` alone): a recorded file that is not in your tree is then
+  counted, not a finding, and `--missing` names it without an item.
+- A file you wrote beside the kit is not in the record and is not looked at.
 - `RELEASE.json` is replaced only by `add @ds/ds`. After an `add` of single
-  items at a newer release, the check lists the files that `add` moved.
+  components at a newer release, the check lists the files that `add` moved.
 
 Then:
 
 1. Read `CHANGELOG.md` from your version to the current one, and commit your
    work: the tree must be clean.
-2. `npx shadcn add @ds/ds --overwrite -y` (or the individual items you
-   use). Every kit file that differs is replaced. Your `DESIGN.md`, your
+2. Run the update command the check printed. `@ds/ds` alone leaves an
+   adapter or the preset at the old release, so each one you hold is named
+   in it:
+
+   ```bash
+   # no adapter, no preset
+   npx shadcn add @ds/ds --overwrite -y
+   # with two adapters
+   npx shadcn add @ds/ds @ds/next-adapter @ds/react-hook-form-adapter --overwrite -y
+   ```
+
+   Every kit file that differs is replaced. Your `DESIGN.md`, your
    `theme/` folder and your entry CSS's imports are not targets of any item.
 3. `git diff` is the update. For a file you never edited there is nothing to
    do. For a file you edited (the check listed it under `changed`), the diff
@@ -685,8 +868,13 @@ No item writes a palette value. The `--md-sys-*` variables, the `@theme
 inline` mapping and the utilities are in the theme files, and your entry CSS
 chooses which pair it imports: the kit's, or your own generated ones.
 
-- **`@ds/ds`** (a `registry:style`), **`@ds/theme`** (a `registry:theme`)
-  and **`@ds/base`** write the shadcn bridge into `:root` / `.dark`, and
+- **`@ds/ds`** writes nothing into your entry CSS, at an install or at an
+  update: it carries no CSS variable and no `@import`, and
+  `npm run registry:check-install` refuses a registry where it would. The
+  shadcn bridge is the file `<ui>/ds/tokens/bridge-shadcn.css`, which you
+  import after `theme.css` if the project has stock shadcn components.
+- **`@ds/theme`** (a `registry:theme`) and **`@ds/base`**, asked for by
+  name, write the shadcn bridge into `:root` / `.dark`, and
   `@import "tw-animate-css"`: 19 variables, each a `var(--md-sys-color-*)`
   reference, and `--radius`. Asking for one by name again rewrites those same
   references and nothing else.
@@ -695,6 +883,15 @@ chooses which pair it imports: the kit's, or your own generated ones.
   of its own (`theme/`), which no item targets.
 - **`@ds/button`, `@ds/select`, any component** only ever writes component
   files.
+
+**Coming from 0.3.0 or earlier?** `@ds/ds` wrote the bridge into the entry
+CSS at every run, in three places: a `:root` and a `.dark` block of 20
+variables each at the end of the file, 19 lines of the form
+`--ring: var(--ring);` inside your `@theme` block, and four `--radius-*`
+lines. Those blocks come after every `@import`, so they override the bridge
+file and any `--radius` of your own. Delete all three, then import
+`bridge-shadcn.css` if stock shadcn components rely on it. From this release
+on an update leaves the file alone.
 
 **Coming from an install made before the theme travelled as files?** The all-in-one item, `theme` and `base` used
 to write the 49 roles and the whole `@theme inline` mapping into the entry
@@ -858,8 +1055,8 @@ The mechanics are in _Versioning and upgrades_ above; what they mean for a
 themed app is short:
 
 - a **token** change (a new scale or utility in `tokens/theme.v4.css`) →
-  `npx shadcn add @ds/ds --overwrite -y` (or `@ds/tokens`) from a clean tree,
-  then regenerate your theme: the kit's file is the template yours is written
+  the update (`npx shadcn add @ds/ds --overwrite -y`, with each adapter or
+  preset you hold named in it) from a clean tree, then regenerate your theme: the kit's file is the template yours is written
   from, and a plain re-add would stop at its prompt and write nothing. Your `DESIGN.md` and your
   generated palette are not targets of any item, so nothing of yours is at
   risk;
@@ -867,9 +1064,8 @@ themed app is short:
   the file and you put your edit back from the diff, one file by hand.
   Because `fieldStyles` serves all five fields, that is **one** merge, not
   five — which is the whole reason the seam is one file and not thirty-five;
-- a **behaviour or accessibility** fix → `shadcn add @ds/<component>
-  --overwrite`, free for a file you never edited; for one you did, your edit
-  is put back from the diff.
+- a **behaviour or accessibility** fix → the same update, free for a file
+  you never edited; for one you did, your edit is put back from the diff.
 
 ### The theme comes from DESIGN.md
 

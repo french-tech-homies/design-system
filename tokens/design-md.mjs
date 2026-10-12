@@ -461,7 +461,9 @@ const TYPE_VARS = {
 };
 
 /** What a `text-<role>` utility gives when theme.v4.css has no variable for a
-    property: no tracking, and the inherited (regular) weight. */
+    property: no tracking, and the inherited (regular) weight. Every role has
+    a weight variable in the kit's template; a tracking variable exists only
+    where Material's baseline has tracking. */
 const UNSET = {
   letterSpacing: (value) => parseFloat(value) === 0,
   fontWeight: (value) => value === "400" || value === "normal",
@@ -1069,9 +1071,9 @@ const themeCssHead = ({
 }) => `/* =============================================================================
    MD3 color scheme — light (:root) and ${title}
    -----------------------------------------------------------------------------
-   Generated from the project's DESIGN.md by tokens/generate-theme.mjs
-   (\`npm run theme:generate\`). Never edit this file: edit DESIGN.md and
-   regenerate; \`npm run theme:resolve\` then refreshes tokens/resolved.json.
+   Generated from the project's DESIGN.md by the kit's generator
+   (generate-theme.mjs, in the kit's tokens folder). Never edit this file:
+   edit DESIGN.md and run the generator again.
 
    Every role is a finished color (\`hsl(...)\`) under the \`--md-sys-color-*\`
    namespace, mirroring Material's own token names. Finished colors are what
