@@ -110,7 +110,7 @@ const styles = tv({
     column: [
       focusRing(),
       "h-14 px-4 text-start align-middle text-label-large text-on-surface-variant",
-      "border-b border-outline-variant",
+      "border-b border-outline-variant -outline-offset-2",
     ],
     columnContent: "flex items-center gap-1",
     sortIcon:

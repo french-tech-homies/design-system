@@ -38,8 +38,9 @@ const styles = tv({
       "absolute top-1/2 -translate-y-1/2",
       "h-4 w-4 rounded-shape-full",
       "bg-primary border-2 border-surface",
-      "focus-visible:outline-hidden focus-visible:ring-2",
-      "focus-visible:ring-ring focus-visible:ring-offset-2",
+      // A ring of its own, thinner than `focusRing`'s for a 16px thumb; the
+      // gap is not painted, like the kit's.
+      "outline-none outline-2 outline-offset-2 outline-ring focus-visible:outline-solid",
       "group-data-[disabled]:bg-surface-variant",
       "group-data-[dragging]:bg-primary/90",
       "transition-colors",

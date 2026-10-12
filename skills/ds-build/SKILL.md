@@ -131,7 +131,8 @@ opacity follows the state.
 - Never Tailwind's numeric `opacity-8` for a state: it compiles to a literal
   and the theme cannot move it.
 - Focus is `focus-visible`, never plain focus. The ring is `focusRing` from
-  `<kit>/utils.ts`; extend it, do not invent another.
+  `<kit>/utils.ts`; extend it, do not invent another. It is an outline with
+  an unpainted 2px gap: never paint the gap, it shows the ground under it.
 - Disabled content is `on-surface` at 38 %, disabled containers at 12 %.
 - Variants are Tailwind's own (`hover:`, `focus-visible:`, `disabled:`) and
   the data attributes React Aria emits (`data-pressed:`, `data-selected:`,

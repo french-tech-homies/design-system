@@ -161,7 +161,7 @@ const state = {
   },
   disabledContentOpacity: 0.38,
   disabledContainerOpacity: 0.12,
-  // Focus indicator (utils.ts `focusRing`): ring width / offset in px.
+  // Focus indicator (utils.ts `focusRing`), an outline: width / offset in px.
   focusRing: { width: 3, offset: 2, colorRole: "secondary" },
 };
 

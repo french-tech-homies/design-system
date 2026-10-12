@@ -101,7 +101,9 @@ group-data-dragging/<name>:state-opacity-dragged`.
 
 Focus keys on **focus-visible**, never plain focus. The focus indicator is
 `focusRing` from `utils.ts` (3px `ring` = secondary, 2px offset); extend it,
-do not invent another.
+do not invent another. It is an outline whose gap is not painted, so it shows
+the ground the control stands on. A part that fills a box that clips (a
+table's cell) draws it inside with `-outline-offset-2`.
 
 Variants are Tailwind's own (`hover:`, `focus-visible:`, `disabled:`) plus the
 bare data-attribute variants React Aria emits (`data-pressed:`,

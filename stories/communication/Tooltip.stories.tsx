@@ -202,7 +202,7 @@ export const RichTooltipWithRows: Story = {
             role="img"
             aria-label="1,284 visits this week"
             tabIndex={0}
-            className="rounded-shape-extra-small text-title-large text-on-surface outline-hidden focus-visible:ring-3 focus-visible:ring-secondary"
+            className="rounded-shape-extra-small text-title-large text-on-surface outline-none outline-3 outline-offset-2 outline-ring focus-visible:outline-solid"
           >
             1,284
           </span>

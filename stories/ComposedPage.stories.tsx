@@ -106,7 +106,7 @@ function Figure({
           role="img"
           aria-label={figure.label}
           tabIndex={0}
-          className="rounded-shape-extra-small font-mono text-title-medium text-on-surface outline-hidden focus-visible:ring-3 focus-visible:ring-secondary"
+          className="rounded-shape-extra-small font-mono text-title-medium text-on-surface outline-none outline-3 outline-offset-2 outline-ring focus-visible:outline-solid"
         >
           {figure.value}
         </span>

@@ -39,7 +39,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const linkClass =
-  "text-primary underline decoration-primary underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-shape-extra-small cursor-pointer";
+  "text-primary underline decoration-primary underline-offset-4 outline-none outline-3 outline-offset-2 outline-ring focus-visible:outline-solid rounded-shape-extra-small cursor-pointer";
 
 const products = [
   { name: "Margherita", price: 9.5 },

@@ -126,15 +126,21 @@ export function cn(...inputs: ClassValue[]) {
 export const tv = createTV({ twMergeConfig });
 
 /** The MD3 focus indicator — a 3px `secondary` ring offset 2px (Material's
-    md.comp.focus-ring) — extended or inlined by every control. Drawn as a
-    box-shadow ring, exactly like shadcn's React Aria base, rather than an
-    `outline`: outline-color/offset transitions never settle on React Aria
-    buttons in Chromium when `transition-all` is present, and the shadow ring
-    is unaffected by `overflow-hidden`. `ring` resolves to the MD3 secondary
-    role in theme.v4.css; the offset gap is painted in `background`.
+    md.comp.focus-ring) — extended or inlined by every control. Drawn as an
+    `outline` with an offset, so the 2px gap is not painted: it shows whatever
+    ground the control stands on (the page, a card, a table, a sheet), and the
+    ring stays visible in forced-colours mode, where a box-shadow is dropped.
+    The width, the offset and the colour are constant and only the style
+    flips on focus (`none` to `solid`), so nothing interpolates under a
+    control's `transition-all`: an outline whose colour or offset is
+    transitioned never settles on React Aria buttons in Chromium. An ancestor
+    that clips (`overflow-hidden`, `overflow-clip`) cuts an outline, so a part
+    that fills such a box draws its ring inside with `-outline-offset-2`, as
+    the table's cells do. `ring` resolves to the MD3 secondary role in
+    theme.v4.css.
     `composeTailwindRenderProps` lives in ./render-props (client-only). */
 export const focusRing = baseTv({
-  base: "outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  base: "outline-none outline-3 outline-offset-2 outline-ring focus-visible:outline-solid",
 });
 
 export type { VariantProps } from "tailwind-variants";

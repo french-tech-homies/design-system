@@ -1171,7 +1171,9 @@ Material look. For an identity of its own, see the preset above.
   state layers (`group-data-focus-visible/button:state-opacity-focus`) follow
   the same rule.
 - **Focus indicator is MD3's**: a 3px `secondary` ring offset 2px
-  (`focusRing` in `utils.ts`), not shadcn's 2px primary ring.
+  (`focusRing` in `utils.ts`), not shadcn's 2px primary ring. It is an
+  outline, and its gap is not painted: on a card, a table or a sheet it shows
+  that surface, not the page's ground.
 - **`data-slot` on every root** (`button`, `card`, `chip`, `state-layer`,
   `modal`, …) plus `data-variant` / `data-size` where a variant exists — the
   shadcn convention, so consumers can target parts without reaching into
