@@ -140,6 +140,32 @@ test("scheme: dark puts written roles under .dark and derives :root", () => {
   );
 });
 
+test("each scheme block declares its colour scheme and the scroll bars' roles", () => {
+  const block = (css, opening) => {
+    const start = css.indexOf(opening);
+    assert.notEqual(start, -1, opening);
+    return css.slice(start, css.indexOf("\n}", start));
+  };
+  const bars = "scrollbar-color: var(--md-sys-color-outline) transparent;";
+  // Whichever scheme the file writes, `:root` is light and `.dark` is dark.
+  for (const scheme of ["light", "dark"]) {
+    const css = renderThemeCss(deriveTheme(designMd(`scheme: ${scheme}`, SEED)));
+    const light = block(css, ":root {");
+    const dark = block(css, ".dark {");
+    assert.match(light, /^  color-scheme: light;$/m);
+    assert.match(dark, /^  color-scheme: dark;$/m);
+    assert.ok(light.includes(bars) && dark.includes(bars));
+    assert.equal(css.match(/color-scheme: /g).length, 2);
+  }
+  // Dark by the system's setting: the declarations are in the query's block.
+  const system = renderThemeCss(
+    deriveTheme(withRoot("  --md3-dark-mode: system;")),
+  );
+  const query = block(system, "@media (prefers-color-scheme: dark) {\n  :root {");
+  assert.match(query, /^    color-scheme: dark;$/m);
+  assert.ok(query.includes(bars));
+});
+
 test("refusals name the token", () => {
   const refuses = (text, pattern) =>
     assert.throws(

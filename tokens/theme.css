@@ -28,10 +28,19 @@
    once per scheme block rather than once on `:root` so that a `.dark` on a
    *subtree* re-colors that subtree too; an app that wants a different default
    sets `color` on `<body>`, which wins over an inherited value.
+
+   Beside it, each block declares its `color-scheme` and gives scroll bars the
+   theme's roles (`scrollbar-color`: a thumb in `outline`, a lane that shows
+   the ground). So what the browser draws itself (a scroll bar, a native
+   select's list, a date field's picker) follows the theme, in light, in dark
+   and in a `.dark` subtree. Both are inherited: a project's own
+   `color-scheme` or `scrollbar-color` on `<body>` or on a scroller wins.
    ========================================================================== */
 
 :root {
   color: var(--md-sys-color-on-surface);
+  color-scheme: light;
+  scrollbar-color: var(--md-sys-color-outline) transparent;
 
   /* Accent roles */
   --md-sys-color-primary: hsl(216 19% 39%);
@@ -95,6 +104,8 @@
 
 .dark {
   color: var(--md-sys-color-on-surface);
+  color-scheme: dark;
+  scrollbar-color: var(--md-sys-color-outline) transparent;
 
   --md-sys-color-primary: hsl(216 41% 80%);
   --md-sys-color-on-primary: hsl(213 35% 20%);

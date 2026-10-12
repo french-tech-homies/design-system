@@ -238,8 +238,8 @@
       "loose": "cb0b2f4f16e4cbf0c46c40256514b088602a8c000aeef16993d6a86aadaf545c"
     },
     "tokens/design-md.mjs": {
-      "exact": "571c9efb3a827aec8629cfd11c8356cfa8eb5796d979de195b3d46e5b046ac50",
-      "loose": "1801675958d7657f1721defb8ca2ba97bc591a59ad18894626f0f652069e68c6"
+      "exact": "3ae59f4b880185a48e69108a3033bca8ba028049d5f2ccf03c7882bcb2dc54fd",
+      "loose": "7a7e242e3b7eddb7ac84361773bdd2453e01302e28586ce7ec7afda26e6bb7f3"
     },
     "tokens/generate-theme.mjs": {
       "exact": "0a7f19678cee574e34fbc5cde94afc8026bc5d57dba6e99b6d41a989663f6603",
@@ -250,8 +250,8 @@
       "loose": "67d3eddadc7bef487917db4cae6da6bb7584649000bc2a5ab5fb0f94dbc9b645"
     },
     "tokens/theme.css": {
-      "exact": "c4da6a14794bc7a55d4211c3cc49fe1c281faebbfa70a8a5f87315dd9ea88062",
-      "loose": "f28c034ec19a7dddb5dac0c34ccc48138a204cba6a305562d219667f8e44001f"
+      "exact": "0f995c42683e92fdacc2e66564812ab574c8dd79ba37cfd2f9d1ebe650d8b6dd",
+      "loose": "e3c67cd8902cbef86f23ad322bce62e13a32b354ebdc1f08b4c4b6280ffbf8ee"
     },
     "tokens/theme.v4.css": {
       "exact": "69ead637faa4d3c561a303c7c141bc62040256d918a808d27b9a5a42e2087314",

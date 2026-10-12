@@ -165,6 +165,9 @@ function readRule(
   }
 }
 
+/** Declared by every generated scheme block and not a theme variable. */
+const AMBIENT = new Set(["color", "color-scheme", "scrollbar-color"]);
+
 const isDarkQuery = (rule: CSSRule): rule is CSSMediaRule =>
   rule instanceof CSSMediaRule &&
   /^\(\s*prefers-color-scheme\s*:\s*dark\s*\)$/.test(rule.conditionText.trim());
@@ -179,8 +182,9 @@ function readColors(file: HandedFile, theme: HandedTheme) {
   const ambient = (scheme: Declarations) => (name: string) =>
     COLOR_NAME.test(name)
       ? scheme
-      : // the ambient content colour every generated scheme block declares
-        name === "color"
+      : // what every generated scheme block declares beside its roles: the
+        // ambient content colour, the scheme and the scroll bars' roles
+        AMBIENT.has(name)
         ? "silent"
         : null;
   for (const rule of parse(file.text)) {

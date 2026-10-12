@@ -1095,10 +1095,19 @@ const themeCssHead = ({
    carry its own \`text-on-<role>\` to re-color everything inside it. The
    Typography primitives therefore assert no color of their own. It is declared
    ${scoped}
+
+   Beside it, each block declares its \`color-scheme\` and gives scroll bars the
+   theme's roles (\`scrollbar-color\`: a thumb in \`outline\`, a lane that shows
+   the ground). So what the browser draws itself (a scroll bar, a native
+   select's list, a date field's picker) follows the theme, in light, in dark
+   and in a \`.dark\` subtree. Both are inherited: a project's own
+   \`color-scheme\` or \`scrollbar-color\` on \`<body>\` or on a scroller wins.
    ========================================================================== */
 `;
 
-function schemeBlock(selector, roles, titled) {
+function schemeBlock(selector, roles, scheme) {
+  // The light block is the one that titles its groups.
+  const titled = scheme === "light";
   const groups = ROLE_GROUPS.map(([title, group]) =>
     [
       ...(titled ? [`  /* ${title} */`] : []),
@@ -1107,16 +1116,21 @@ function schemeBlock(selector, roles, titled) {
       ),
     ].join("\n"),
   );
-  return `${selector} {\n  color: var(--md-sys-color-on-surface);\n\n${groups.join("\n\n")}\n}\n`;
+  return `${selector} {
+  color: var(--md-sys-color-on-surface);
+  color-scheme: ${scheme};
+  scrollbar-color: var(--md-sys-color-outline) transparent;
+
+${groups.join("\n\n")}\n}\n`;
 }
 
 /** The dark scheme under the selector the project chose: a `.dark` class, or
     `:root` inside the system's `prefers-color-scheme` query. */
 function darkBlock(theme) {
   if (theme.reference.darkMode === "class") {
-    return schemeBlock(".dark", theme.colors.dark, false);
+    return schemeBlock(".dark", theme.colors.dark, "dark");
   }
-  const block = schemeBlock(":root", theme.colors.dark, false)
+  const block = schemeBlock(":root", theme.colors.dark, "dark")
     .replace(/^(?=.)/gm, "  ")
     .trimEnd();
   return `@media (prefers-color-scheme: dark) {\n${block}\n}\n`;
@@ -1142,7 +1156,7 @@ export function renderThemeCss(theme) {
    The mono face, which \`font-mono\` gives, is ${theme.mono.family.replaceAll("*/", "* /")}, on \`${theme.mono.hook}\`${monoOwn ? "" : ", the hook it shares"}.`
     : "";
   return `${themeCssHead(DARK_SWITCH[theme.reference.darkMode])}
-${schemeBlock(":root", theme.colors.light, true)}
+${schemeBlock(":root", theme.colors.light, "light")}
 ${darkBlock(theme)}
 /* Typeface. The type scale is set in ${names}, as DESIGN.md writes it.
    ${hookNames} is the hook a host app fills with its own loaded face (Next:
