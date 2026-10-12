@@ -68,7 +68,7 @@
       },
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -135,7 +135,7 @@
       },
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -176,7 +176,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -209,7 +209,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -227,7 +227,28 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "changed",
+      "type": "registry:file",
+      "title": "Update check",
+      "description": "Lists the kit files a project changed since it installed them, before an update overwrites them: `node <ui>/ds/changed.mjs`. Reads the release record the whole install brings (<ui>/ds/RELEASE.json); writes nothing, merges nothing. Exit 0: none differs. 1: some do. 2: it cannot tell (no record: a copy installed before 0.3.0).",
+      "files": [
+        {
+          "path": "changed.mjs",
+          "type": "registry:file",
+          "target": "@ui/ds/changed.mjs"
+        }
+      ],
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -249,7 +270,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -275,7 +296,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -300,7 +321,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -321,7 +342,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -343,7 +364,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -365,7 +386,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -392,7 +413,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -400,7 +421,7 @@
       "name": "icon-button",
       "type": "registry:ui",
       "title": "Icon button",
-      "description": "Standard, filled, tonal and outlined icon buttons, optionally toggleable.",
+      "description": "Standard, filled, tonal and outlined icon buttons in Material's five sizes, optionally toggleable.",
       "dependencies": [
         "react-aria-components"
       ],
@@ -419,7 +440,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -446,7 +467,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -469,7 +490,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -477,7 +498,7 @@
       "name": "table",
       "type": "registry:ui",
       "title": "Table",
-      "description": "Data table on React Aria Table: sortable columns, optional row selection (checkbox column added), empty state — M2 data-table measurements on M3 roles.",
+      "description": "Data table on React Aria Table: sortable columns, optional row selection (checkbox column added), empty state, dense rows, cells cut to one line — M2 data-table measurements on M3 roles.",
       "dependencies": [
         "react-aria-components"
       ],
@@ -486,6 +507,7 @@
         "@ds/icons",
         "@ds/render-props",
         "@ds/checkbox",
+        "@ds/tooltip",
         "@ds/license"
       ],
       "files": [
@@ -497,7 +519,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -520,7 +542,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -543,7 +565,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -566,7 +588,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -592,7 +614,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -616,7 +638,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -642,7 +664,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -667,7 +689,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -692,7 +714,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -718,7 +740,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -741,7 +763,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -768,7 +790,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -796,7 +818,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -822,7 +844,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -848,7 +870,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -876,7 +898,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -904,7 +926,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -932,7 +954,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -955,7 +977,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -984,7 +1006,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1015,7 +1037,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1040,7 +1062,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1063,7 +1085,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1085,7 +1107,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1111,7 +1133,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1135,7 +1157,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1159,7 +1181,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1183,7 +1205,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1207,7 +1229,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1235,7 +1257,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1257,7 +1279,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1285,7 +1307,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1313,7 +1335,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1343,7 +1365,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1372,7 +1394,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1399,7 +1421,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1426,7 +1448,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1452,7 +1474,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1481,7 +1503,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1510,7 +1532,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1545,7 +1567,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1571,7 +1593,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1596,7 +1618,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1604,7 +1626,7 @@
       "name": "ds",
       "type": "registry:style",
       "title": "MD3 kit (everything)",
-      "description": "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, and the ds-theme, ds-build and ds-spec skills for Claude Code. Writes the shadcn bridge into your CSS, never a palette value.",
+      "description": "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes the shadcn bridge into your CSS, never a palette value.",
       "registryDependencies": [
         "@ds/utils",
         "@ds/render-props",
@@ -1660,6 +1682,7 @@
         "@ds/spec-skill",
         "@ds/theme-skill",
         "@ds/build-skill",
+        "@ds/changed",
         "@ds/license"
       ],
       "files": [
@@ -1667,11 +1690,16 @@
           "path": "index.ts",
           "type": "registry:lib",
           "target": "@ui/ds/index.ts"
+        },
+        {
+          "path": "RELEASE.json",
+          "type": "registry:file",
+          "target": "@ui/ds/RELEASE.json"
         }
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       },
       "dependencies": [
@@ -1750,7 +1778,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1777,7 +1805,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     },
@@ -1785,7 +1813,7 @@
       "name": "build-skill",
       "type": "registry:file",
       "title": "ds-build skill",
-      "description": "Claude Code skill: build screens with the kit. Role utilities and their pairing, the type primitives, state layers, the resolved DESIGN.md as the reference for values, and the three layers that say what a project may change.",
+      "description": "Claude Code skill: build screens with the kit. Role utilities and their pairing, the type primitives, state layers, the resolved DESIGN.md as the reference for values, and what a project may change: an edit of a kit file is allowed, priced and rarely needed.",
       "files": [
         {
           "path": "skills/ds-build/SKILL.md",
@@ -1799,7 +1827,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "license": "MIT"
       }
     }

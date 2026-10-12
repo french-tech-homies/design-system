@@ -9,7 +9,7 @@ versioned is *the source you copied*, not a runtime API. Until 1.0.0:
 - **minor** (`0.x.0`) — may include breaking changes: a renamed style-module
   slot or variant, a removed component, a changed prop. Every one is listed
   under **Changed** or **Removed** below.
-- **patch** (`0.x.y`) — additive or corrective only. A file you have not forked
+- **patch** (`0.x.y`) — additive or corrective only. A file you have not edited
   can always be re-added with `shadcn add --overwrite`.
 
 What "breaking" means per layer is defined in the README, "Retheming — the
@@ -25,7 +25,7 @@ if a bump was not followed by `npm run registry:build`.
 
 ```bash
 npm version minor --no-git-tag-version   # or patch — package.json and the lockfile
-npm run registry:build         # restamps every item with the new version
+npm run registry:build         # restamps every item with the new version, and writes RELEASE.json
 npm run registry:check-version # what CI runs
 # then add the entry below and commit everything together
 ```
@@ -34,210 +34,121 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
-### Added
-
-- **The catalog shows a project its own theme.** The page `MD3/Your theme`
-  takes what a project generated, `theme/theme.css` and `theme/theme.v4.css`
-  together or its `DESIGN.md` alone (generated in the browser by
-  `tokens/design-md.mjs`, warnings shown), and every story draws under it, in
-  light and in dark, across stories and reloads. The toolbar's **Preset** has
-  a third value for it, "Your theme (handed)"; Preset → Material shows the
-  default again and "Forget this theme" drops it. Nothing is uploaded: the
-  theme is read in the browser and kept in its `localStorage`. A handed file
-  is never inserted into the page: only custom properties under the theme's
-  own names are set, one by one, and a value naming an address is left out and
-  listed, so a file cannot make a request or restyle the catalog. Fonts are
-  not fetched, and a handed theme obeys the toolbar's Theme switch whatever
-  its dark mode. A stylesheet handed alone, a file that is not a theme and a
-  DESIGN.md the generator refuses are refused in words that say what to hand.
-  What the catalog compiles by default is unchanged, byte for byte.
-  `tokens/design-md.d.mts` types the generator for the catalog's TypeScript;
-  it is no registry file.
-- **The lift: one command writes the kit's own repository.** `npm run lift --
-  <folder>` copies every tracked file of the kit into a folder outside the
-  repository it is built in, with that repository's own root: its
-  `package.json` and lockfile, the two workflows (`checks.yml`, `pages.yml`),
-  its `CLAUDE.md`, and `LIFT.json`, the marker naming the commit the tree was
-  lifted from. It refuses a kit with uncommitted changes, and refuses its own
-  output when a word of the source repository, a retired name or a changed
-  `.design-sync` byte is in it. The lifted tree installs from its own
-  lockfile and passes every check its workflow names. `.design-sync` travels
-  byte for byte.
-- The kit's manifest now declares six packages it always used and its host's
-  lockfile provided: `eslint-plugin-react-hooks`, `@types/node`,
-  `lucide-react`, `zod`, `@hookform/resolvers` and `framer-motion` (lint,
-  typecheck and stories only; no item gains a dependency).
-
-- **The application shell: `TopAppBar`, `NavigationRail` and
-  `NavigationDrawer`** (`@md3/top-app-bar`, `@md3/navigation-rail`,
-  `@md3/navigation-drawer`) — the last two entries on the "Not included" list
-  that stood between the kit and a second project shipping a shell.
-  - **`TopAppBar`** ships the spec's four baseline types — `small` and
-    `center-aligned` at 64dp with a `title-large` title on the action row,
-    `medium` (112dp, `headline-small`) and `large` (152dp, `headline-medium`)
-    with the title on its own row — plus a leading slot, trailing actions and
-    a per-size `subtitle`. Presentational and **server-renderable**. The title
-    is a real heading (`headingLevel`, default 1). Deviations: no on-scroll
-    collapse (it needs a scroll container the kit does not own, so it is left
-    out rather than half-implemented), no M3-Expressive "flexible" bars, no
-    search bar.
-  - **`NavigationRail`** covers both spec states in one component: collapsed
-    at 96dp (80dp with `isNarrow`) with vertical items and a 56×32 pill, and
-    expanded at 220dp with horizontal items in a full-width 56dp pill. `header`
-    and `footer` take the menu button, FAB and account row the spec's
-    configurations show.
-  - **`NavigationDrawer`** ships `standard` (inline, elevation 0) and `modal`
-    (scrim, focus trap, Escape, on React Aria `ModalOverlay` + `Modal` +
-    `Dialog`), 360dp with 16dp trailing corners, 56dp full-pill indicators and
-    a **bold** active label — the spec's prominent weight, so the selection is
-    not carried by colour alone. `sections` separates groups with the kit's
-    `Divider`; `headline` and `header` are the heading and the control slot
-    above the list.
-  - All three are `<nav>` / `<header>` landmarks with `aria-current="page"`,
-    not tab sets, exactly like `BottomNavigation`. Shared deviations: no
-    badges, and no filled active icon unless an item carries `activeIcon`.
-- **`Title` accepts `component="h1"`.** The element and the type role are
-  independent — that is what `component` is for — and a top app bar's title is
-  `title-large` by the spec while being the page's own heading. Additive: the
-  union only grew.
-- **`Tabs`, `TabList`, `Tab` and `TabPanel`** (`@md3/tabs`) — Material primary
-  and secondary tabs on React Aria's `Tabs`. `primary` and `secondary` are the
-  spec's own split (one set on a screen vs the level below one), not two looks.
-  48dp rows, 64dp once a tab stacks an icon over its label; a 1dp
-  `surface-variant` divider under the row; an active indicator 3dp tall with
-  rounded top corners that hugs its label for primary, 2dp and full-width for
-  secondary. `TabList isScrollable` is the spec's answer past four tabs.
-  Deviations in the doc comment: no swipe between panels, no badge slot (the
-  kit has no badge), and vertical orientation gets React Aria's behaviour with
-  the horizontal anatomy, because MD3 has horizontal tabs only.
-- **`PreviewTrigger` and `PreviewCard`** (`@md3/preview-trigger`) — a
-  non-modal popover that opens on hover, focus **and** long press and may hold
-  interactive content, on React Aria's `PreviewTrigger`. MD3 has no page for
-  it; the surface is a Material container (`surface-container-high`,
-  `rounded-shape-medium`, `shadow-elevation-2`) rather than an invented one,
-  and the doc comment points at the rich tooltip for the simpler case.
-- **`Dialog` takes `role="alertdialog"`** (inside the existing `@md3/dialog`
-  item, not a new one). MD3 has no separate alert dialog — it is the basic
-  dialog with an alert role — so this is a `role`, not a variant. `ModalDialog`
-  turns light-dismiss off for it: a click on the scrim must not answer a
-  question that has to be answered. Escape still closes. **Additive**: the
-  default is `"dialog"` and every existing caller is unaffected.
-- **`Disclosure`, `DisclosureGroup`, `DisclosureHeader`, `DisclosureTrigger`
-  and `DisclosurePanel`** (`@md3/disclosure`) — expand/collapse on React Aria's
-  `Disclosure` / `DisclosureGroup`, so the trigger carries `aria-expanded` and
-  `aria-controls`, the panel is labelled by its trigger, Enter and Space toggle
-  and focus stays put. A bare `Disclosure` is the collapsible; a
-  `DisclosureGroup` is the accordion (single, or `allowsMultipleExpanded`).
-  Two variants: `plain` separates rows with `outline-variant` hairlines,
-  `outlined` boxes each at `rounded-shape-medium`; a group passes its variant
-  down through context so it is set once. **MD3 publishes no page for this
-  component** — M2's expansion panel was dropped in M3 and never replaced — so
-  the anatomy is assembled from MD3 parts (a 56dp list row with a state layer,
-  the divider role, the shape scale, MD3 motion tokens) and the doc comment
-  names each borrowed part rather than citing a spec that does not exist.
-- **`Divider`** (`@md3/divider`) — the 1dp `outline-variant` line, in
-  Material's own three variants (`full-width`, `inset` at 16dp leading,
-  `middle-inset` at 16dp both) and both orientations. Presentational and
-  **server-renderable**: no React Aria import, no `"use client"`. Decorative by
-  default (`role="presentation"`, hidden from assistive technology, which is
-  what the spec's accessibility page asks for); `decorative={false}` makes it a
-  `separator` for the cases where the line is the only boundary marker.
-- **`ProgressIndicator`** (`@md3/progress-indicator`) — linear and circular,
-  each determinate and indeterminate, on React Aria's `ProgressBar` so the
-  `progressbar` role and the locale-formatted `aria-valuetext` come from the
-  behaviour layer. `primary` active indicator on a `secondary-container` track
-  with the spec's 4dp gap, and the 4dp stop indicator on the determinate linear
-  bar only. `size` (24–240dp) and `thickness` are props because M3 Expressive
-  makes both configurable. Three documented deviations, all in the component's
-  doc comment: no wavy active indicator, a constant-sweep indeterminate circle
-  rather than a growing/shrinking arc, and a one-segment linear sweep. The
-  sweep is the kit's only keyframe; it ships as a `<style href precedence>`
-  inside the component so a copied file carries its own motion and React emits
-  the rule once per page. Both animations honour `prefers-reduced-motion`.
-- **`Typography` takes a `colorRole` prop** — `on-surface`,
-  `on-surface-variant`, `on-background`, the eight other `on-<role>` roles,
-  `inverse-on-surface`, and `primary` / `secondary` / `tertiary` / `error` for
-  accent text. It states a role where inheritance is not what you want (`<Body
-  colorRole="on-surface-variant">` for supporting text); `className` still wins
-  over it. Default `inherit`. Named `colorRole` rather than `color` because
-  `color` is a real (deprecated) HTML attribute, and these primitives are
-  prop-forwarding targets — a wrapper piping
-  `ComponentPropsWithoutRef<"h3">` into `<Title>` would stop typechecking.
-- **An ambient content color** in `tokens/theme.css`: `color:
-  var(--md-sys-color-on-surface)` on `:root` and on `.dark` — the one
-  declaration in that file that paints rather than defines. Declared once per
-  scheme block so a `.dark` on a *subtree* recolors that subtree. The `theme`
-  registry item carries it as a `css` rule, since `cssVars` can only express
-  `--name: value`.
-- `MD3/Foundations/Typography` gains `OnColoredContainers` (every role on every
-  colored container, nothing passing a class) and `StatedColor`.
-- **Two typefaces, as MD3 has them** — `--md-sys-typescale-brand-font` (display
-  / headline / title) and `--md-sys-typescale-plain-font` (body / label), fed to
-  the new `font-brand` / `font-plain` utilities that `Typography` applies per
-  variant. Both default to `var(--font-inter)`, so a kit that sets neither
-  renders exactly as before; a theme that wants a serif display no longer has
-  to turn the whole UI serif.
-- **State-layer opacities are tokens** —
-  `--md-sys-state-{hover,focus,pressed,dragged}-state-layer-opacity`
-  (8 / 10 / 10 / 16 %), read through `@utility state-opacity-{hover,focus,
-  pressed,dragged}`. `primitives/StateLayer.tsx` and every CSS-driven state
-  layer use them instead of Tailwind's numeric `opacity-8` / `10` / `16`, which
-  compiled to literals no theme could reach. Same numbers, same rendering — a
-  preset can now flatten or exaggerate interaction feedback.
-- **`tokens/preset-editorial.css` exercises both**: an old-style serif for the
-  headings over a humanist sans for the running text (the ambient `--font-inter`
-  is the plain face now, so inputs match the body), and a state layer at half
-  Material's hover tint with a louder press.
-- **`@md3/license`** — the MIT notice as a registry item (`registry:file`
-  targeting `<ui>/md3/LICENSE`) that **every other item depends on**, so an
-  install carries the terms beside the code it copies: `add @md3/button` writes
-  it next to the component, `add @md3/md3` and `init @md3/base` deliver it too.
-  Until now `shadcn add @md3/md3` wrote 42 source files and no licence. Every
-  generated item also declares `meta.license: "MIT"`.
-- **The one install brings the DESIGN.md tooling and the agent's skills.**
-  `npx shadcn add @md3/md3` now leaves a project holding everything an agent
-  needs to give it a look of its own, with nothing else to fetch from the
-  kit. Four new items, all dependencies of `md3`:
-  - **`@md3/tokens`** — the kit's default theme as files under `<ui>/md3/`:
-    `tokens/theme.css`, `tokens/theme.v4.css`, `tokens/bridge-shadcn.css`,
-    the complete `tokens/DESIGN.resolved.md`, and the kit's neutral
-    `DESIGN.md` they are generated from.
-  - **`@md3/design-md`** — the generator, `tokens/design-md.mjs` and
-    `tokens/generate-theme.mjs`, beside the `theme.v4.css` template it reads.
-    It declares `@material/material-color-utilities`, `yaml`, `tsx` and
-    `@google/design.md` as dev dependencies, at the kit's own ranges. A
-    project runs `npx tsx <ui>/md3/tokens/generate-theme.mjs DESIGN.md --out
-    theme`.
-  - **`@md3/theme-skill`** — the Claude Code skill `ds-theme`: write the
-    project's DESIGN.md from a brief, generate, read the warnings, lint, wire
-    the entry CSS, take a kit update. Beside it, `design-md.md`: what the kit
-    reads in a DESIGN.md, including how colour names that are not the kit's
-    are mapped by the agent onto the keys and the 49 roles.
-  - **`@md3/build-skill`** — the Claude Code skill `ds-build`: the rules for
-    building with the kit (role utilities and pairing, the type primitives,
-    state layers), the resolved file as the reference for values, and what a
-    project may change against what is forked at its own cost.
-
-  `md3` also depends on `@md3/spec-skill` now, which it did not. The three
-  skills land in the **project's** `.claude/skills/` (`~/` in a shadcn target
-  is the project root, not the person's home). The install never writes a
-  project's root `DESIGN.md` or its `theme/` folder. README → _Install from
-  the registry_.
-- **`npm run -w @pipao/md3 registry:check-install`**
-  (`scripts/check-install.mjs`, run by CI) — fails when `md3` no longer
-  reaches the generator, a skill file, or a file a skill names; when a script
-  an item carries imports a package the item does not declare, or a skill
-  names an `npx` command whose package the generator's item does not declare;
-  and when a skill file names anything of the repository the kit is built in.
-- **`generate-theme.mjs --out <dir>` creates the folder** when it is missing.
-- **`primary-key` in a DESIGN.md's `colors`.** It replaces the primary tonal
-  palette with the key's own hue and chroma in both schemes, the way
-  `secondary-key` and the others replace theirs. Without it the primary
-  palette is the seed's hue at Material's fixed chroma, whatever the seed's
-  own chroma — so a muted primary could only be written role by role, and
-  only in one scheme. `tokens/DESIGN.resolved.md` keeps the key.
+## [0.3.0] — 2026-10-11
 
 ### Changed
+
+Each of these changes what a screen draws without an edit of it. They are the
+review of `Tooltip` and `Card` against Material's four pages for each.
+
+- **`Tooltip` draws no arrow unless asked.** Material's tooltip has none.
+  Before: every tooltip drew an 8 pixel arrow pointing at its trigger. Now:
+  none, and `showArrow` draws it.
+- **A rich `Tooltip` opens below its trigger, from the trigger's start edge**
+  (`placement="bottom start"`), Material's default for a rich tooltip. Before:
+  above, centred (`"top"`). A plain tooltip stays above, centred. Pass
+  `placement` to choose.
+- **A plain `Tooltip` sits 4 pixels from its trigger**, Material's distance to
+  a trigger with a visible boundary. Before: 8. A rich tooltip stays at 8.
+  Pass `offset` to choose (8 for a trigger with no boundary, such as text).
+- **A rich `Tooltip` is drawn with Material's values.** Corner: 12dp
+  (`rounded-shape-medium`), before 4dp (`rounded-shape-extra-small`).
+  Padding: 12 top, 8 bottom, 16 left and right, before 16 all round. Headline:
+  `on-surface-variant`, before `on-surface`. Supporting text: `body-medium`
+  (14/20), before `body-small` (12/16).
+- **A plain `Tooltip` has no shadow.** Material gives it no elevation. Before:
+  `shadow-elevation-2`, which stays on the rich tooltip, where Material has it.
+- **A rich `Tooltip` draws its children after its headline and supporting
+  text.** Before: children replaced both. A plain tooltip handed children that
+  are not a string now sets them in `body-small` too (before: 14 pixels).
+- **`Card`'s corner is 12dp** (`rounded-shape-medium`), Material's
+  measurement. Before: 16dp (`rounded-shape-large`).
+- **A dragged `Card` (`isDragged`) follows Material's dragged state**: level 4
+  for an elevated card and level 3 for a filled or an outlined one, with the
+  16 % state layer. Before: level 4 for all three, scaled to 105 %, and no
+  state layer.
+- **`Card`'s parts are named `data-slot="card-content"`, `card-media`,
+  `card-header`, `card-headline`, `card-supporting-text`, `card-actions`**, and
+  `Tooltip`'s `tooltip-content`, `tooltip-headline`,
+  `tooltip-supporting-text`, `tooltip-arrow`. Before: no `data-slot` on them.
+  Type primitives inside them no longer read `data-slot="typography"`.
+
+The next are the review of `IconButton` against Material's four pages.
+
+- **A `filled` or `tonal` `IconButton` draws its container.** Material's do.
+  Before: transparent, with a `primary` or `secondary` icon, unless
+  `isContained` was passed too. Now: `primary` with an `on-primary` icon, and
+  `secondary-container` with an `on-secondary-container` icon. Pass
+  `isContained={false}` for the drawing of before.
+- **An `outlined` `IconButton`'s outline is `outline-variant`**, Material's.
+  Before: `outline`. It is 2 pixels on `large` and 3 on `xlarge`.
+- **A toggle `IconButton` takes Material's colours for each state.** Filled:
+  `surface-container` with an `on-surface-variant` icon unselected (before:
+  `primary` in both states), `primary` selected. Tonal: `secondary` with an
+  `on-secondary` icon selected (before: `secondary-container` in both
+  states). Outlined: `inverse-surface` with an `inverse-on-surface` icon and
+  no outline selected (before: unchanged from unselected). Standard: as
+  before, `primary` selected.
+- **A disabled `IconButton` is Material's**: the icon `on-surface` at 38 %,
+  and a drawn container `on-surface` at 10 %. Before: the whole button, in
+  its own colours, at 38 %.
+- **A `small` or `xsmall` `IconButton` answers over 48 by 48 pixels**,
+  Material's target, through a centred invisible area: 4 pixels beyond the
+  edge of a `small` button (the default, 40 pixels), 8 beyond an `xsmall`
+  one. Before: the drawn box. Nothing is drawn differently; a pointer just
+  outside the button now presses it, and where two targets overlap the later
+  button in the document answers. The root no longer clips its content
+  (`overflow-hidden` is gone), and an ancestor that clips cuts the target.
+- **`IconButton`'s icon sits in a `<span data-slot="icon-button-icon">`**,
+  which carries its colour. Before: the colour class was on the icon itself.
+- **`Table`'s sort arrow sits in a `<span data-slot="table-sort-icon">`**, and
+  the column's content is `data-slot="table-column-content"`. Before: no
+  `data-slot` on them.
+- **A `Cell` under a `Column` with `align` takes that alignment** when it
+  says none itself, as `Column`'s comment always said. Before: such a cell
+  stayed at the start. A cell that says `align` is unchanged.
+- **`Cell` refuses `render` in its type.** `CellProps` no longer offers React
+  Aria's `render`: `Cell` places its own element, and a caller's `render` was
+  dropped in silence. Before: accepted, and ignored. A caller that passed one
+  now fails its typecheck and loses nothing it had.
+- **`Tooltip`'s `onOpenChange` doc comment says what calls it**: the pointer
+  coming onto a standalone tooltip, leaving it, and the page scrolling under
+  it. It said Escape, which a standalone tooltip is never told of. No
+  behaviour changes.
+
+The rest are the kit's own: its names, its theme files, its generator and
+its documents.
+
+- **The kit says what it is, which components are its own, and one thing
+  about change.** Three statements, each in the one file that owns it, the
+  others pointing there. No component's behaviour or look changes.
+  - **What it is** (README, "What this kit is"): Material 3's implementation.
+    One kit per design system: another design system would be a kit of its
+    own beside this one, in the same repository and registry, with its own
+    components, tokens and spec. Nothing is built for one.
+  - **Which components are its own** (same section): those Material 3's
+    specification describes, and a closed group of ten it ships that Material
+    does not describe: `Table`, `Tag`, `Avatar`, `Disclosure`,
+    `PreviewTrigger`, `NumberField`, `PhoneField`, `ImageField`, `EmptyState`,
+    and `ColorPicker` with `ColorArea`, `ColorField`, `ColorSlider` and
+    `ColorSwatch`. A component joins or leaves the group only on the
+    repository owner's decision. A part that is neither Material's nor the
+    group's is a project's, written beside the kit. Each member's doc comment
+    now says "Material 3 does not describe this component.", and every other
+    component file cites its page of m3.material.io (twelve gained the
+    citation: `Button`, `IconButton`, `Card`, `Menu`, `Tooltip`,
+    `DialogContent`, `Modal`, `ModalDialog`, `ListItem`, `GridList`, `Slider`,
+    `SideSheet`). `scripts/check-components.mjs`, run by
+    `npm run registry:check-install`, refuses a list and files that differ and
+    a component file that says neither.
+  - **What a project may change** (the `ds-build` skill, "What a project may
+    change"): an edit of a kit file is allowed, priced and rarely needed. An
+    update overwrites every kit file that differs, and the project puts its
+    edit back by hand. This replaces two sentences that pulled apart: "the
+    code is yours to edit" in the README, and "nothing: compose, wrap" with
+    "a fork at the project's cost" in the skill. The three layers stay, as
+    what an update promises each. **Nothing to do in a project**: an update
+    brings the three skills with the new text.
 
 - **The generator writes one value per declaration.** What
   `tokens/design-md.mjs` copies from a DESIGN.md into `theme.css` and
@@ -444,8 +355,306 @@ npm run registry:check-version # what CI runs
   with the class groups above it would have turned every dialog title 500.
   Dialog titles stay at MD3's headline weight, 400.
 
+### Removed
+
+- **`theme:generate -- "<seed>"` printing a `theme.css` to stdout.** A
+  DESIGN.md holding `scheme` and `colors.seed` is the same case. The script is
+  not a registry item, so no installed copy carried it.
+
+### Added
+
+- **A project can name a mono face.** `typography.mono.fontFamily` in a
+  DESIGN.md becomes a font hook in `theme.css`, the token
+  `--md-sys-typescale-mono-font` in `theme.v4.css` and, through it, Tailwind's
+  own `font-mono`, which the project writes where it wants the face (an
+  identifier, a time, an amount). With none named the token is the system's
+  monospace stack, what `font-mono` gave before, and no screen moves. No kit
+  component uses it. With a face named, `code`, `kbd`, `samp` and `pre` follow
+  it too, through Tailwind's base styles. A project that generated a theme of
+  its own gets the token at its next `theme:generate`; until then its
+  `font-mono` is Tailwind's default, as before. A project whose entry CSS
+  already declares `--font-mono` reads what happens then in the README,
+  _Type_: inside `@theme` the declaration read last wins, outside it the
+  kit's line stands.
+- **A check lists the kit files a project changed, before an update replaces
+  them**: `node <ui>/ds/changed.mjs`, the item `@ds/changed`, which the whole
+  install brings. It reads `<ui>/ds/RELEASE.json`, the record of the release
+  a whole install was made from (new, carried by `@ds/ds` alone), lists what
+  differs as `changed` or `whitespace`, writes nothing and merges nothing.
+  Exit 0: nothing differs; 1: something is listed; 2: it cannot tell.
+  Nothing is set aside: the CLI lands a `.ts` or `.tsx` file without the
+  comment it opens with, so the record holds both forms of such a file
+  (`index.ts`, `primitives/Typography.tsx`), and a comment a project puts at
+  the top of any kit file (`// @ts-nocheck`) is listed like any edit. The
+  record is committed, `checks.yml` fails when it is not what
+  `npm run registry:build` writes, and the lifted build writes the same one. **A
+  copy installed at 0.2.0 has no record**: the check says so in plain words,
+  and that copy updates as before (overwrite, then `git diff`). It can get
+  the check alone with `npx shadcn add @ds/changed`; the record comes with
+  its first whole update. README, _Taking an update_.
+- **A composed page in the catalog, `MD3/Composed page`**: a card for the one
+  thing that waits for a person, over a dense table, drawn from the kit's own
+  exports and nothing else. It is where this release's parts are seen
+  together: `Card` at Material's corner and named by its headline, a rich
+  `Tooltip` of rows on figures that are only read, `xsmall` icon buttons in
+  40 pixel rows, columns aligned to the end, cut cells, the mono face, and
+  `classNames` on named parts (`PartsRestyled`). Its keyboard path, through
+  the card then the table, is asserted in `MD3/Interactions/Composed page`.
+- **The `ds-build` skill says what a project's own component follows**:
+  Material's pages for its measures where Material describes it, read with
+  the `ds-spec` skill, and React Aria for its behaviour. It names Adobe's own
+  React Aria skill with the command that installs it, and any page of the
+  documentation as markdown without it. The kit ships nothing of Adobe's.
+- **`Tooltip` takes corner placements**: `placement` is React Aria's own, a
+  side or a side and where along it (`"bottom start"`, `"top end"`,
+  `"right top"`). The side classes follow the side the tooltip landed on, so
+  a flipped tooltip enters from the right side.
+- **`Tooltip` takes `showArrow`, `offset` and `variant`**, and its types
+  `TooltipProps` and `TooltipTriggerProps` are exported.
+- **`Focusable` is exported** from `components/Tooltip.tsx` and the barrel,
+  for a tooltip trigger that is no button. Its one child must take focus
+  (`tabIndex={0}`) and carry a role.
+- **A rich `Tooltip` takes any content that is only read**: a headline, a
+  supporting text, then children such as rows of label and value. Nothing
+  operated: Material's rich tooltip buttons and its persistent tooltip are
+  gaps, named in the doc comment.
+- **`Card`'s root takes what places it and names it**: `component` (`div`,
+  `section`, `article`, `li`), `ref`, `id`, `role`, `style`, every `aria-*`
+  and `data-*` attribute. It refuses event handlers and `tabIndex` at the
+  type; the directly actionable card is a gap, named in the doc comment.
+- **`Tooltip`, `Card` and `CardContent` take `classNames`**, classes for their
+  named parts, keyed by the part's name. The doc comment of each lists them.
+- **`IconButton` takes `size`**, Material's five: `xsmall` (32 pixels, 20
+  pixel icon), `small` (40, 24; the default, and the size of before),
+  `medium` (56, 24), `large` (96, 32) and `xlarge` (136, 40). The root says
+  `data-size` and `data-variant`. Shapes, widths, the tooltip on hover and
+  filled as the default colour style are gaps, named in the doc comment.
+- **`Table` takes `density`**: `dense` draws 40 pixel rows under a 44 pixel
+  header. The default stays 52 under 56. The root says `data-density`.
+- **`Cell` takes `truncate`**: the text is cut to one line, and when it is
+  really cut the whole of it shows in a rich `Tooltip` while the pointer
+  rests on the cell or the keyboard is on it; it stays 1.5 seconds after the
+  pointer leaves and while the pointer is on it, one cut cell's tooltip
+  shows at a time, and Escape puts it away without clearing the selection. Give the column a width. The
+  `table` registry item now depends on `tooltip`.
+- **`Tooltip` takes `triggerRef`, `isOpen` and `onOpenChange`**, to show it
+  with no `TooltipTrigger`, against an element the caller names.
+- **`Column`, `Cell` and `IconButton` take `classNames`**: `columnContent` and
+  `sortIcon`; `cellText`; `icon`.
+- **`StateLayer` takes `className`**, and the colours `on-secondary` and
+  `inverse-on-surface`.
+- **A skill's frontmatter that does not parse is refused** by
+  `npm run registry:check-install`: every `SKILL.md` opens with a block of
+  strict YAML whose `name` is its folder and whose `description` is text.
+
+- **The catalog shows a project its own theme.** The page `MD3/Your theme`
+  takes what a project generated, `theme/theme.css` and `theme/theme.v4.css`
+  together or its `DESIGN.md` alone (generated in the browser by
+  `tokens/design-md.mjs`, warnings shown), and every story draws under it, in
+  light and in dark, across stories and reloads. The toolbar's **Preset** has
+  a third value for it, "Your theme (handed)"; Preset → Material shows the
+  default again and "Forget this theme" drops it. Nothing is uploaded: the
+  theme is read in the browser and kept in its `localStorage`. A handed file
+  is never inserted into the page: only custom properties under the theme's
+  own names are set, one by one, and a value naming an address is left out and
+  listed, so a file cannot make a request or restyle the catalog. Fonts are
+  not fetched, and a handed theme obeys the toolbar's Theme switch whatever
+  its dark mode. A stylesheet handed alone, a file that is not a theme and a
+  DESIGN.md the generator refuses are refused in words that say what to hand.
+  What the catalog compiles by default is unchanged, byte for byte.
+  `tokens/design-md.d.mts` types the generator for the catalog's TypeScript;
+  it is no registry file.
+- **The lift: one command writes the kit's own repository.** `npm run lift --
+  <folder>` copies every tracked file of the kit into a folder outside the
+  repository it is built in, with that repository's own root: its
+  `package.json` and lockfile, the two workflows (`checks.yml`, `pages.yml`),
+  its `CLAUDE.md`, and `LIFT.json`, the marker naming the commit the tree was
+  lifted from. It refuses a kit with uncommitted changes, and refuses its own
+  output when a word of the source repository, a retired name or a changed
+  `.design-sync` byte is in it. The lifted tree installs from its own
+  lockfile and passes every check its workflow names. `.design-sync` travels
+  byte for byte.
+- The kit's manifest now declares six packages it always used and its host's
+  lockfile provided: `eslint-plugin-react-hooks`, `@types/node`,
+  `lucide-react`, `zod`, `@hookform/resolvers` and `framer-motion` (lint,
+  typecheck and stories only; no item gains a dependency).
+
+- **The application shell: `TopAppBar`, `NavigationRail` and
+  `NavigationDrawer`** (`@md3/top-app-bar`, `@md3/navigation-rail`,
+  `@md3/navigation-drawer`) — the last two entries on the "Not included" list
+  that stood between the kit and a second project shipping a shell.
+  - **`TopAppBar`** ships the spec's four baseline types — `small` and
+    `center-aligned` at 64dp with a `title-large` title on the action row,
+    `medium` (112dp, `headline-small`) and `large` (152dp, `headline-medium`)
+    with the title on its own row — plus a leading slot, trailing actions and
+    a per-size `subtitle`. Presentational and **server-renderable**. The title
+    is a real heading (`headingLevel`, default 1). Deviations: no on-scroll
+    collapse (it needs a scroll container the kit does not own, so it is left
+    out rather than half-implemented), no M3-Expressive "flexible" bars, no
+    search bar.
+  - **`NavigationRail`** covers both spec states in one component: collapsed
+    at 96dp (80dp with `isNarrow`) with vertical items and a 56×32 pill, and
+    expanded at 220dp with horizontal items in a full-width 56dp pill. `header`
+    and `footer` take the menu button, FAB and account row the spec's
+    configurations show.
+  - **`NavigationDrawer`** ships `standard` (inline, elevation 0) and `modal`
+    (scrim, focus trap, Escape, on React Aria `ModalOverlay` + `Modal` +
+    `Dialog`), 360dp with 16dp trailing corners, 56dp full-pill indicators and
+    a **bold** active label — the spec's prominent weight, so the selection is
+    not carried by colour alone. `sections` separates groups with the kit's
+    `Divider`; `headline` and `header` are the heading and the control slot
+    above the list.
+  - All three are `<nav>` / `<header>` landmarks with `aria-current="page"`,
+    not tab sets, exactly like `BottomNavigation`. Shared deviations: no
+    badges, and no filled active icon unless an item carries `activeIcon`.
+- **`Title` accepts `component="h1"`.** The element and the type role are
+  independent — that is what `component` is for — and a top app bar's title is
+  `title-large` by the spec while being the page's own heading. Additive: the
+  union only grew.
+- **`Tabs`, `TabList`, `Tab` and `TabPanel`** (`@md3/tabs`) — Material primary
+  and secondary tabs on React Aria's `Tabs`. `primary` and `secondary` are the
+  spec's own split (one set on a screen vs the level below one), not two looks.
+  48dp rows, 64dp once a tab stacks an icon over its label; a 1dp
+  `surface-variant` divider under the row; an active indicator 3dp tall with
+  rounded top corners that hugs its label for primary, 2dp and full-width for
+  secondary. `TabList isScrollable` is the spec's answer past four tabs.
+  Deviations in the doc comment: no swipe between panels, no badge slot (the
+  kit has no badge), and vertical orientation gets React Aria's behaviour with
+  the horizontal anatomy, because MD3 has horizontal tabs only.
+- **`PreviewTrigger` and `PreviewCard`** (`@md3/preview-trigger`) — a
+  non-modal popover that opens on hover, focus **and** long press and may hold
+  interactive content, on React Aria's `PreviewTrigger`. MD3 has no page for
+  it; the surface is a Material container (`surface-container-high`,
+  `rounded-shape-medium`, `shadow-elevation-2`) rather than an invented one,
+  and the doc comment points at the rich tooltip for the simpler case.
+- **`Dialog` takes `role="alertdialog"`** (inside the existing `@md3/dialog`
+  item, not a new one). MD3 has no separate alert dialog — it is the basic
+  dialog with an alert role — so this is a `role`, not a variant. `ModalDialog`
+  turns light-dismiss off for it: a click on the scrim must not answer a
+  question that has to be answered. Escape still closes. **Additive**: the
+  default is `"dialog"` and every existing caller is unaffected.
+- **`Disclosure`, `DisclosureGroup`, `DisclosureHeader`, `DisclosureTrigger`
+  and `DisclosurePanel`** (`@md3/disclosure`) — expand/collapse on React Aria's
+  `Disclosure` / `DisclosureGroup`, so the trigger carries `aria-expanded` and
+  `aria-controls`, the panel is labelled by its trigger, Enter and Space toggle
+  and focus stays put. A bare `Disclosure` is the collapsible; a
+  `DisclosureGroup` is the accordion (single, or `allowsMultipleExpanded`).
+  Two variants: `plain` separates rows with `outline-variant` hairlines,
+  `outlined` boxes each at `rounded-shape-medium`; a group passes its variant
+  down through context so it is set once. **MD3 publishes no page for this
+  component** — M2's expansion panel was dropped in M3 and never replaced — so
+  the anatomy is assembled from MD3 parts (a 56dp list row with a state layer,
+  the divider role, the shape scale, MD3 motion tokens) and the doc comment
+  names each borrowed part rather than citing a spec that does not exist.
+- **`Divider`** (`@md3/divider`) — the 1dp `outline-variant` line, in
+  Material's own three variants (`full-width`, `inset` at 16dp leading,
+  `middle-inset` at 16dp both) and both orientations. Presentational and
+  **server-renderable**: no React Aria import, no `"use client"`. Decorative by
+  default (`role="presentation"`, hidden from assistive technology, which is
+  what the spec's accessibility page asks for); `decorative={false}` makes it a
+  `separator` for the cases where the line is the only boundary marker.
+- **`ProgressIndicator`** (`@md3/progress-indicator`) — linear and circular,
+  each determinate and indeterminate, on React Aria's `ProgressBar` so the
+  `progressbar` role and the locale-formatted `aria-valuetext` come from the
+  behaviour layer. `primary` active indicator on a `secondary-container` track
+  with the spec's 4dp gap, and the 4dp stop indicator on the determinate linear
+  bar only. `size` (24–240dp) and `thickness` are props because M3 Expressive
+  makes both configurable. Three documented deviations, all in the component's
+  doc comment: no wavy active indicator, a constant-sweep indeterminate circle
+  rather than a growing/shrinking arc, and a one-segment linear sweep. The
+  sweep is the kit's only keyframe; it ships as a `<style href precedence>`
+  inside the component so a copied file carries its own motion and React emits
+  the rule once per page. Both animations honour `prefers-reduced-motion`.
+- **`Typography` takes a `colorRole` prop** — `on-surface`,
+  `on-surface-variant`, `on-background`, the eight other `on-<role>` roles,
+  `inverse-on-surface`, and `primary` / `secondary` / `tertiary` / `error` for
+  accent text. It states a role where inheritance is not what you want (`<Body
+  colorRole="on-surface-variant">` for supporting text); `className` still wins
+  over it. Default `inherit`. Named `colorRole` rather than `color` because
+  `color` is a real (deprecated) HTML attribute, and these primitives are
+  prop-forwarding targets — a wrapper piping
+  `ComponentPropsWithoutRef<"h3">` into `<Title>` would stop typechecking.
+- **An ambient content color** in `tokens/theme.css`: `color:
+  var(--md-sys-color-on-surface)` on `:root` and on `.dark` — the one
+  declaration in that file that paints rather than defines. Declared once per
+  scheme block so a `.dark` on a *subtree* recolors that subtree. The `theme`
+  registry item carries it as a `css` rule, since `cssVars` can only express
+  `--name: value`.
+- `MD3/Foundations/Typography` gains `OnColoredContainers` (every role on every
+  colored container, nothing passing a class) and `StatedColor`.
+- **Two typefaces, as MD3 has them** — `--md-sys-typescale-brand-font` (display
+  / headline / title) and `--md-sys-typescale-plain-font` (body / label), fed to
+  the new `font-brand` / `font-plain` utilities that `Typography` applies per
+  variant. Both default to `var(--font-inter)`, so a kit that sets neither
+  renders exactly as before; a theme that wants a serif display no longer has
+  to turn the whole UI serif.
+- **State-layer opacities are tokens** —
+  `--md-sys-state-{hover,focus,pressed,dragged}-state-layer-opacity`
+  (8 / 10 / 10 / 16 %), read through `@utility state-opacity-{hover,focus,
+  pressed,dragged}`. `primitives/StateLayer.tsx` and every CSS-driven state
+  layer use them instead of Tailwind's numeric `opacity-8` / `10` / `16`, which
+  compiled to literals no theme could reach. Same numbers, same rendering — a
+  preset can now flatten or exaggerate interaction feedback.
+- **`tokens/preset-editorial.css` exercises both**: an old-style serif for the
+  headings over a humanist sans for the running text (the ambient `--font-inter`
+  is the plain face now, so inputs match the body), and a state layer at half
+  Material's hover tint with a louder press.
+- **`@md3/license`** — the MIT notice as a registry item (`registry:file`
+  targeting `<ui>/md3/LICENSE`) that **every other item depends on**, so an
+  install carries the terms beside the code it copies: `add @md3/button` writes
+  it next to the component, `add @md3/md3` and `init @md3/base` deliver it too.
+  Until now `shadcn add @md3/md3` wrote 42 source files and no licence. Every
+  generated item also declares `meta.license: "MIT"`.
+- **The one install brings the DESIGN.md tooling and the agent's skills.**
+  `npx shadcn add @md3/md3` now leaves a project holding everything an agent
+  needs to give it a look of its own, with nothing else to fetch from the
+  kit. Four new items, all dependencies of `md3`:
+  - **`@md3/tokens`** — the kit's default theme as files under `<ui>/md3/`:
+    `tokens/theme.css`, `tokens/theme.v4.css`, `tokens/bridge-shadcn.css`,
+    the complete `tokens/DESIGN.resolved.md`, and the kit's neutral
+    `DESIGN.md` they are generated from.
+  - **`@md3/design-md`** — the generator, `tokens/design-md.mjs` and
+    `tokens/generate-theme.mjs`, beside the `theme.v4.css` template it reads.
+    It declares `@material/material-color-utilities`, `yaml`, `tsx` and
+    `@google/design.md` as dev dependencies, at the kit's own ranges. A
+    project runs `npx tsx <ui>/md3/tokens/generate-theme.mjs DESIGN.md --out
+    theme`.
+  - **`@md3/theme-skill`** — the Claude Code skill `ds-theme`: write the
+    project's DESIGN.md from a brief, generate, read the warnings, lint, wire
+    the entry CSS, take a kit update. Beside it, `design-md.md`: what the kit
+    reads in a DESIGN.md, including how colour names that are not the kit's
+    are mapped by the agent onto the keys and the 49 roles.
+  - **`@md3/build-skill`** — the Claude Code skill `ds-build`: the rules for
+    building with the kit (role utilities and pairing, the type primitives,
+    state layers), the resolved file as the reference for values, and what a
+    project may change, with the price of an edit of a kit file.
+
+  `md3` also depends on `@md3/spec-skill` now, which it did not. The three
+  skills land in the **project's** `.claude/skills/` (`~/` in a shadcn target
+  is the project root, not the person's home). The install never writes a
+  project's root `DESIGN.md` or its `theme/` folder. README → _Install from
+  the registry_.
+- **`npm run -w @pipao/md3 registry:check-install`**
+  (`scripts/check-install.mjs`, run by CI) — fails when `md3` no longer
+  reaches the generator, a skill file, or a file a skill names; when a script
+  an item carries imports a package the item does not declare, or a skill
+  names an `npx` command whose package the generator's item does not declare;
+  and when a skill file names anything of the repository the kit is built in.
+- **`generate-theme.mjs --out <dir>` creates the folder** when it is missing.
+- **`primary-key` in a DESIGN.md's `colors`.** It replaces the primary tonal
+  palette with the key's own hue and chroma in both schemes, the way
+  `secondary-key` and the others replace theirs. Without it the primary
+  palette is the seed's hue at Material's fixed chroma, whatever the seed's
+  own chroma — so a muted primary could only be written role by role, and
+  only in one scheme. `tokens/DESIGN.resolved.md` keeps the key.
+
 ### Fixed
 
+- **`Tooltip variant="rich"` was ignored**: the variant was always inferred
+  from `headline` and `supportingText`. It is honoured when given, and
+  inferred as before when left out.
+- **A toggle `IconButton`'s `isSelected` was dropped**, so a controlled toggle
+  was not controlled. It is handed to React Aria's `ToggleButton`.
 - **Fields follow the text-fields token table in every state** — the kit was
   re-audited against m3.material.io `2026-09-23_06-10-05`, and text fields is
   the one audited page that had moved. All of it is in `field-styles.ts`, so
@@ -475,12 +684,6 @@ npm run registry:check-version # what CI runs
   prefix / suffix announcement, the single trailing slot and the absent
   separate focus indicator are recorded there as deviations from the current
   pages.
-
-### Removed
-
-- **`theme:generate -- "<seed>"` printing a `theme.css` to stdout.** A
-  DESIGN.md holding `scheme` and `colors.seed` is the same case. The script is
-  not a registry item, so no installed copy carried it.
 
 ## [0.2.0] — 2026-08-27
 
@@ -569,4 +772,5 @@ of 2026-08-26; every item served before this release is what
   `Button` / `IconButton` / `Chip` / `Menu` items.
 
 [unreleased]: https://github.com/french-tech-homies/pipao-v2/commits/main/packages/md3
+[0.3.0]: https://github.com/french-tech-homies/pipao-v2/commits/main/packages/md3
 [0.2.0]: https://github.com/french-tech-homies/pipao-v2/commits/main/packages/md3

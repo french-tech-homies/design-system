@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import Button from "@french-tech-homies/design-system/components/Button";
 import { Card, CardContent } from "@french-tech-homies/design-system/components/Card";
+import { Body, Title } from "@french-tech-homies/design-system/primitives/Typography";
 
 const meta = {
   title: "MD3/Containment/Card",
@@ -107,6 +108,48 @@ export const HighElevation: Story = {
         headline="Play relaxing songs"
         supportingText="From your Spotify library"
         actions={<Button>Get Started</Button>}
+      />
+    ),
+  },
+};
+
+/**
+ * The root takes what places a card and names it: here a `section` named by
+ * its heading, which makes it a region a screen reader can jump to.
+ */
+export const NamedSection: Story = {
+  args: {
+    variant: "outlined",
+    component: "section",
+    "aria-labelledby": "card-story-usage",
+    className: "w-80",
+    children: (
+      <>
+        <Title id="card-story-usage" component="h2" size="medium">
+          Usage this month
+        </Title>
+        <Body colorRole="on-surface-variant">
+          1,284 visits, 12 % more than last month.
+        </Body>
+      </>
+    ),
+  },
+};
+
+/** A class on a named part: `classNames`, keyed by the part's name. */
+export const WithPartClasses: Story = {
+  args: {
+    variant: "filled",
+    classNames: { content: "gap-2 p-6" },
+    children: (
+      <CardContent
+        headline="Play relaxing songs"
+        supportingText="From your library"
+        actions={<Button>Get Started</Button>}
+        classNames={{
+          headline: "text-primary",
+          actions: "justify-start",
+        }}
       />
     ),
   },

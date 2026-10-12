@@ -17,8 +17,8 @@ import { Body, Title } from "@french-tech-homies/design-system/primitives/Typogr
  *
  * **MD3 has no page for this component.** The nearest thing the system does
  * define is the *rich tooltip*; reach for `Tooltip variant="rich"` when the
- * content is a title, a paragraph and at most a link, and for this when it is
- * a list, a form, or anything the reader has to interact with. The surface is
+ * content is only read (a title, a paragraph, rows of label and value), and
+ * for this when the reader operates it: a link, a button, a form. The surface is
  * drawn as a Material container — `surface-container-high`,
  * `rounded-shape-medium`, `shadow-elevation-2` — the same one the kit's `Menu`
  * popover uses, rather than an invented one.

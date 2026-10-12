@@ -9,7 +9,11 @@ import { Menu } from "@french-tech-homies/design-system/components/Menu";
 import Modal from "@french-tech-homies/design-system/components/Modal";
 import { ModalDialog } from "@french-tech-homies/design-system/components/ModalDialog";
 import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
-import { Tooltip, TooltipTrigger } from "@french-tech-homies/design-system/components/Tooltip";
+import {
+  Focusable,
+  Tooltip,
+  TooltipTrigger,
+} from "@french-tech-homies/design-system/components/Tooltip";
 import {
   PreviewCard,
   PreviewTrigger,
@@ -235,7 +239,10 @@ export const MenuKeyboardNavigation: Story = {
   },
 };
 
-/** A tooltip appears on keyboard focus, not only on hover. */
+/**
+ * A tooltip appears on keyboard focus, not only on hover, and it is Material's
+ * by default: plain, described to its trigger, with no arrow.
+ */
 export const TooltipOnFocus: Story = {
   render: () => (
     <TooltipTrigger delay={0}>
@@ -257,10 +264,251 @@ export const TooltipOnFocus: Story = {
       await screen.findByText("Scans in the last 7 days"),
     ).toBeVisible();
 
+    const tooltip = screen.getByRole("tooltip");
+    await expect(tooltip).toHaveAttribute("data-slot", "tooltip");
+    await expect(tooltip).toHaveAttribute("data-variant", "plain");
+    await expect(trigger).toHaveAttribute("aria-describedby", tooltip.id);
+    await expect(
+      tooltip.querySelector('[data-slot="tooltip-arrow"]'),
+    ).toBeNull();
+
     await userEvent.keyboard("{Escape}");
     await waitFor(() =>
       expect(screen.queryByText("Scans in the last 7 days")).toBeNull(),
     );
+  },
+};
+
+/** `showArrow` draws the arrow Material leaves out, once. */
+export const TooltipArrowWhenAsked: Story = {
+  render: () => (
+    <TooltipTrigger delay={0}>
+      <Button>Hover me</Button>
+      <Tooltip showArrow classNames={{ arrow: "fill-primary" }}>
+        Scans in the last 7 days
+      </Tooltip>
+    </TooltipTrigger>
+  ),
+  play: async () => {
+    await userEvent.tab();
+    const tooltip = await screen.findByRole("tooltip");
+    const arrows = tooltip.querySelectorAll('[data-slot="tooltip-arrow"]');
+    await expect(arrows).toHaveLength(1);
+    await expect(arrows[0]).toHaveClass("fill-primary");
+    await userEvent.keyboard("{Escape}");
+  },
+};
+
+/**
+ * The arrow is joined to its tooltip on every side: the base of the triangle
+ * is on the tooltip's edge that faces the trigger, and its tip points 4
+ * pixels out, towards the trigger.
+ */
+export const TooltipArrowJoinsOnEverySide: Story = {
+  render: () => (
+    <div className="grid grid-cols-2 gap-x-40 gap-y-16 p-16">
+      {(["top", "bottom", "left", "right"] as const).map((side) => (
+        <TooltipTrigger key={side} isOpen>
+          <Button>{side}</Button>
+          <Tooltip placement={side} showArrow offset={8}>
+            On the {side}
+          </Tooltip>
+        </TooltipTrigger>
+      ))}
+    </div>
+  ),
+  play: async () => {
+    const tooltips = await screen.findAllByRole("tooltip");
+    await expect(tooltips).toHaveLength(4);
+
+    for (const tooltip of tooltips) {
+      // The side it landed on, and the edge of the tooltip facing the trigger.
+      const side = tooltip.getAttribute("data-placement") as
+        | "top"
+        | "bottom"
+        | "left"
+        | "right";
+      const facing = { top: "bottom", bottom: "top", left: "right", right: "left" }[side] as
+        | "top"
+        | "bottom"
+        | "left"
+        | "right";
+      const triangle = tooltip.querySelector(
+        '[data-slot="tooltip-arrow"] path',
+      )!;
+      // Read once the entering animation has ended: the gap between the
+      // tooltip's edge and the triangle's base, and how far the tip reaches.
+      const joint = () => {
+        const box = tooltip.getBoundingClientRect();
+        const arrow = triangle.getBoundingClientRect();
+        return {
+          gap: Math.round(Math.abs(arrow[side] - box[facing]) * 2) / 2,
+          reach: Math.round(Math.abs(arrow[facing] - box[facing])),
+        };
+      };
+      await waitFor(() => expect(joint()).toEqual({ gap: 0, reach: 4 }));
+    }
+  },
+};
+
+/**
+ * `variant="rich"` is honoured for a tooltip handed nothing but a string, and
+ * `variant="plain"` for one handed a supporting text: the variant asked for
+ * wins over the one the content would suggest. A part's class lands on its
+ * part.
+ */
+export const TooltipVariantAskedForIsDrawn: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      <TooltipTrigger delay={0}>
+        <Button>Rich</Button>
+        <Tooltip variant="rich" classNames={{ content: "italic" }}>
+          Scans in the last 7 days
+        </Tooltip>
+      </TooltipTrigger>
+      <TooltipTrigger delay={0}>
+        <Button>Plain</Button>
+        <Tooltip variant="plain" supportingText="Last 7 days" />
+      </TooltipTrigger>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Rich" })).toHaveFocus();
+    const rich = await screen.findByRole("tooltip");
+    await expect(rich).toHaveAttribute("data-variant", "rich");
+    await expect(rich).toHaveTextContent("Scans in the last 7 days");
+    const content = rich.querySelector('[data-slot="tooltip-content"]');
+    await expect(content).toHaveClass("italic");
+
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Plain" })).toHaveFocus();
+    await waitFor(() =>
+      expect(screen.getByRole("tooltip")).toHaveAttribute(
+        "data-variant",
+        "plain",
+      ),
+    );
+    await expect(screen.getByRole("tooltip")).toHaveTextContent("Last 7 days");
+    await userEvent.keyboard("{Escape}");
+  },
+};
+
+/**
+ * A corner placement places: `bottom start` puts the tooltip under its
+ * trigger with their start edges on one line. The trigger is wider than the
+ * tooltip, so a centred tooltip would sit well inside it.
+ */
+export const TooltipCornerPlacement: Story = {
+  render: () => (
+    // Padded: an overlay keeps 12 pixels from the window's edge, which would
+    // move a tooltip whose trigger starts at that edge.
+    <div className="p-10">
+      <TooltipTrigger delay={0}>
+        <Button className="w-64">A trigger wider than its tooltip</Button>
+        <Tooltip placement="bottom start">Start</Tooltip>
+      </TooltipTrigger>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button");
+
+    await userEvent.tab();
+    const tooltip = await screen.findByRole("tooltip");
+    await waitFor(() =>
+      expect(tooltip).toHaveAttribute("data-placement", "bottom"),
+    );
+    // Positioned a frame after it mounts: read the boxes once it has landed.
+    const edges = () => {
+      const t = trigger.getBoundingClientRect();
+      const o = tooltip.getBoundingClientRect();
+      return {
+        gap: Math.round(o.top - t.bottom),
+        start: Math.round(Math.abs(o.left - t.left)),
+      };
+    };
+    // Under the trigger, at Material's 4dp for a plain tooltip. Both are read
+    // together, once the entering slide and zoom have ended.
+    await waitFor(() => expect(edges()).toEqual({ gap: 4, start: 0 }));
+    await userEvent.keyboard("{Escape}");
+  },
+};
+
+/**
+ * A trigger that is no button opens its tooltip from the keyboard, through
+ * `Focusable`. The tooltip is rich and holds a headline over rows of label
+ * and value: it is read, not operated. It is described to its trigger, holds
+ * nothing that takes focus, and Tab passes over it to the next control.
+ */
+export const TooltipOnFocusableReadsRows: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <TooltipTrigger delay={0} closeDelay={0}>
+        <Focusable>
+          <span role="img" aria-label="1,284 visits this week" tabIndex={0}>
+            1,284
+          </span>
+        </Focusable>
+        <Tooltip variant="rich" headline="Visits this week">
+          <dl>
+            <dt>Search</dt>
+            <dd>812</dd>
+            <dt>Direct</dt>
+            <dd>301</dd>
+          </dl>
+        </Tooltip>
+      </TooltipTrigger>
+      <Button>Next</Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("img", { name: /1,284 visits/i });
+
+    await expect(screen.queryByRole("tooltip")).toBeNull();
+    await userEvent.tab();
+    await expect(trigger).toHaveFocus();
+
+    const tooltip = await screen.findByRole("tooltip");
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toHaveAttribute("data-variant", "rich");
+    await expect(trigger).toHaveAttribute("aria-describedby", tooltip.id);
+
+    // The headline, then the rows, in that order.
+    const headline = tooltip.querySelector('[data-slot="tooltip-headline"]');
+    const rows = tooltip.querySelector("dl");
+    await expect(headline).toHaveTextContent("Visits this week");
+    await expect(within(tooltip).getAllByRole("term")).toHaveLength(2);
+    await expect(within(tooltip).getAllByRole("definition")).toHaveLength(2);
+    await expect(
+      headline!.compareDocumentPosition(rows!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // Material's default for a rich tooltip: under its trigger.
+    await waitFor(() =>
+      expect(tooltip).toHaveAttribute("data-placement", "bottom"),
+    );
+
+    // Read, not operated: nothing in it takes focus, and focus stays out.
+    await expect(
+      tooltip.querySelectorAll(
+        'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      ),
+    ).toHaveLength(0);
+    await expect(tooltip.contains(document.activeElement)).toBe(false);
+
+    // Escape closes it and leaves focus on the trigger.
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
+    await expect(trigger).toHaveFocus();
+
+    // Tab goes to the control after the trigger, never into a tooltip.
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Next" })).toHaveFocus();
+    await expect(screen.queryByRole("tooltip")).toBeNull();
   },
 };
 

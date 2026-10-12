@@ -17,7 +17,13 @@
    - the item that carries a script declares what the script imports, and the
      generator's item declares the package of every `npx` command a skill
      names, each at the range of the kit's own package.json;
-   - no skill file names anything of the repository the kit is built in.
+   - no skill file names anything of the repository the kit is built in;
+   - every skill opens with a frontmatter that parses as strict YAML and
+     names the skill as its folder does, with a description;
+   - no item lands a skill that is not one of the kit's own three, named
+     here and not read from what skills/ holds, and Adobe's React Aria skill is named, never shipped: its
+     install command is in the `ds-build` skill and once in the README,
+     nowhere else an install reaches, and its MCP server nowhere at all.
 
    `checkInstall` is pure (the kit in, a list of problems out) so the rule
    checks in check-install.check.mjs can hand it a kit with one thing wrong.
@@ -27,6 +33,8 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { parse } from "yaml";
 
 const ENTRY = "ds";
 const NS = "@ds/";
@@ -42,7 +50,21 @@ const COMMANDS = {
   tsx: "tsx",
   designmd: "@google/design.md",
   shadcn: null,
+  // Adobe's React Aria skill is installed by the person who wants it, with
+  // the `skills` CLI: the kit names the command and declares nothing.
+  skills: null,
 };
+
+/** The kit's own skills, by folder. A fixed list, not what skills/ holds: a
+    skill of someone else's copied into that folder is then refused, where a
+    listing would take it for the kit's. A new skill of the kit's joins here. */
+export const OWN_SKILLS = ["ds-theme", "ds-build", "ds-spec"];
+
+/** Adobe's React Aria skill: how it is installed, where the kit may say so,
+    and the MCP server the kit names nowhere an install reaches. */
+const ARIA_SKILL = /\bnpx\s+skills\s+add\b/g;
+const ARIA_SKILL_IN = "skills/ds-build/SKILL.md";
+const ARIA_MCP = /@react-aria\/mcp|react[- ]aria[^\n]{0,40}\bMCP\b|\bMCP\b[^\n]{0,40}react[- ]aria/i;
 
 /** Bare file names a skill may use for a file of the project, not the kit. */
 const PROJECT_FILES = new Set([
@@ -93,10 +115,11 @@ const imports = (source) =>
  * @param {object} kit.pkg         the kit's package.json, parsed
  * @param {string[]} kit.skillFiles every file under skills/, kit-relative
  * @param {Record<string, string>} kit.texts kit-relative path → content, for
- *   every skill file and every `.mjs` the registry carries
+ *   every skill file and every file the registry carries
+ * @param {string} kit.readme     the kit's README.md
  * @returns {string[]} problems; empty when the install is whole
  */
-export function checkInstall({ registry, pkg, skillFiles, texts }) {
+export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
   const problems = [];
   const items = new Map(registry.items.map((i) => [i.name, i]));
 
@@ -266,6 +289,96 @@ export function checkInstall({ registry, pkg, skillFiles, texts }) {
     });
   }
 
+  // 6. A skill's frontmatter is what a harness lists it by: it parses, as
+  //    strict YAML, to the skill's own name and a description.
+  for (const path of skillFiles.filter((p) => /^skills\/[^/]+\/SKILL\.md$/.test(p))) {
+    const folder = path.split("/")[1];
+    const block = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/.exec(texts[path] ?? "");
+    if (!block) {
+      problems.push(
+        `${path}: frontmatter is missing: the file must open with a \`---\` block`,
+      );
+      continue;
+    }
+    let data;
+    try {
+      data = parse(block[1]);
+    } catch (error) {
+      problems.push(
+        `${path}: frontmatter does not parse as YAML (${String(error.message).split("\n")[0]}). Quote a value that holds ": "`,
+      );
+      continue;
+    }
+    if (data === null || typeof data !== "object" || Array.isArray(data)) {
+      problems.push(`${path}: frontmatter does not parse to a mapping`);
+      continue;
+    }
+    if (data.name !== folder) {
+      problems.push(
+        `${path}: frontmatter names the skill "${data.name}", and its folder is "${folder}"`,
+      );
+    }
+    if (typeof data.description !== "string" || !data.description.trim()) {
+      problems.push(`${path}: frontmatter has no description that is text`);
+    }
+  }
+
+  // 7. A skill the install lands is one of the kit's own, whole item by
+  //    item; Adobe's React Aria skill is named, in two places, and its MCP
+  //    server in none.
+  const own = new Set(OWN_SKILLS);
+  for (const folder of new Set(skillFiles.map((p) => p.split("/")[1]))) {
+    if (!own.has(folder)) {
+      problems.push(
+        `skills/${folder}/ is not one of the kit's own skills (${OWN_SKILLS.join(", ")}): the kit ships no skill of anyone else's. A new skill of the kit's is named in OWN_SKILLS (scripts/check-install.mjs)`,
+      );
+    }
+  }
+  for (const found of registry.items) {
+    for (const f of found.files ?? []) {
+      const lands = f.target?.startsWith(SKILLS_TARGET)
+        ? f.target.slice(SKILLS_TARGET.length).split("/")[0]
+        : null;
+      const from = f.path.startsWith("skills/") ? f.path.split("/")[1] : null;
+      for (const folder of [lands, from]) {
+        if (folder !== null && !own.has(folder)) {
+          problems.push(
+            `item "${found.name}" carries ${f.path} (${f.target}), a skill "${folder}" that is not one of the kit's own (${[...own].join(", ")}): the kit ships no skill of anyone else's`,
+          );
+        }
+      }
+    }
+  }
+  const carried = new Set([
+    ...skillFiles,
+    ...registry.items.flatMap((i) => i.files ?? []).map((f) => f.path),
+  ]);
+  for (const path of carried) {
+    const text = texts[path] ?? "";
+    if (path !== ARIA_SKILL_IN && text.match(ARIA_SKILL)) {
+      problems.push(
+        `${path}: names \`npx skills add\`. Of what an install brings, only ${ARIA_SKILL_IN} says how Adobe's React Aria skill is installed`,
+      );
+    }
+    const mcp = text.match(ARIA_MCP);
+    if (mcp) {
+      problems.push(
+        `${path}: names React Aria's MCP server ("${mcp[0]}"), which nothing an install brings may name`,
+      );
+    }
+  }
+  if (!(texts[ARIA_SKILL_IN] ?? "").match(ARIA_SKILL)) {
+    problems.push(
+      `${ARIA_SKILL_IN}: does not name \`npx skills add\`, the command that installs Adobe's React Aria skill`,
+    );
+  }
+  const inReadme = (readme ?? "").match(ARIA_SKILL)?.length ?? 0;
+  if (inReadme !== 1) {
+    problems.push(
+      `README.md: names \`npx skills add\` ${inReadme} times. It names Adobe's React Aria skill once`,
+    );
+  }
+
   return [...new Set(problems)];
 }
 
@@ -289,12 +402,17 @@ export function readKit() {
     .sort();
   const carried = registry.items
     .flatMap((i) => i.files ?? [])
-    .map((f) => f.path)
-    .filter((p) => p.endsWith(".mjs"));
+    .map((f) => f.path);
   const texts = Object.fromEntries(
     [...new Set([...skillFiles, ...carried])].map((p) => [p, read(p)]),
   );
-  return { registry, pkg: JSON.parse(read("package.json")), skillFiles, texts };
+  return {
+    registry,
+    pkg: JSON.parse(read("package.json")),
+    skillFiles,
+    texts,
+    readme: read("README.md"),
+  };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -70,7 +70,7 @@ Other scales, one utility family each:
   does not.
 - Shape: `rounded-shape-{extra-small,small,medium,large,extra-large,full}`
   (4/8/12/16/28px/pill). Components own their shape role: buttons `full`,
-  chips `small`, cards `medium`/`large`, dialogs `extra-large`.
+  chips `small`, cards `medium`, dialogs `extra-large`.
 - Elevation: `shadow-elevation-1` … `shadow-elevation-5`.
 - Motion: `duration-short-1 … duration-long-4`, `ease-standard*`,
   `ease-emphasized*`. Enter with `emphasized-decelerate`, exit with
@@ -118,12 +118,15 @@ is invited to touch only the first two:
   write only the shadcn bridge's references.
 - **style modules** — `components/<x>-styles.ts` exporting a `tv` object named
   `<x>Styles`. `components/field-styles.ts` → `fieldStyles` is the precedent
-  and the naming contract. These are the only component-level files an app is
-  invited to fork, so their **slot and variant names are API**: renaming or
+  and the naming contract. These are the only component-level files whose
+  names an update keeps for an app that edited them, so their **slot and
+  variant names are API**: renaming or
   removing one is a breaking change, changing what a slot contains is not.
 - **behaviour** — the React Aria wiring, `utils.ts`, `render-props.ts`,
-  `icons.tsx`. Never forked; an app that needs different behaviour writes its
-  own component on React Aria beside the kit.
+  `icons.tsx`. An update replaces them and promises no name in them. An app's
+  edit of one is allowed, priced and rarely needed; an app that needs
+  different behaviour is better served by its own component on React Aria
+  beside the kit.
 
 **When a `tv` becomes a style module:** either more than one component renders
 from it, or its anatomy is the product's identity rather than the component's
@@ -138,12 +141,15 @@ no hand-maintained registry items, ever.
 DESIGN.md contract), `ds-build` and `ds-spec`, landed in the project's
 `.claude/skills/` by the one install. A skill's text is the kit's, read in any
 project: it names kit files as `<kit>/…`, only files the install brings, and
-nothing of this repository. `npm run registry:check-install`
-enforces all three. This file and `README.md` are the maintainer's and are in
+nothing of this repository. Its frontmatter is strict YAML (quote a
+description that holds a colon and a space), with the folder's name as
+`name`. `npm run registry:check-install` enforces all four. This file and `README.md` are the maintainer's and are in
 no item: a rule a project's agent needs goes in a skill.
 
 The three layers, the update mechanism and what a themed app pays at update
-time: `README.md`, "Retheming — the three layers".
+time: `README.md`, "Retheming — the three layers". What a project may change,
+and its price, is one rule stated once: `skills/ds-build/SKILL.md`, "What a project may change". What the kit is, and which
+components are its own: `README.md`, "What this kit is".
 
 ## Component anatomy
 
@@ -162,6 +168,14 @@ input`, `plain | rich`). Boolean state variants are `isDisabled`,
   `chip`, `modal`, `menu-item`…), plus `data-variant` / `data-size` when the
   component has them; overlays carry `data-slot="state-layer"`. Target parts by
   slot, never by class.
+- A component whose parts a caller may need to reach takes `classNames`, an
+  object keyed by its `tv` slot names, the root left out (the root keeps
+  `className`). Each such part carries `data-slot="<component>-<part>"`
+  (`tooltip-content`, `card-headline`), and the doc comment lists the parts.
+  `Tooltip` and `Card` are the precedent. A key of `classNames` is a prop:
+  renaming one is a break, listed in the changelog. What a project may do with
+  it is the skill's to say (`skills/ds-build/SKILL.md`, "What a project may
+  change"), not this file's.
 - Class merging goes through `cn` / `composeTailwindRenderProps` so caller
   `className` overrides win over the kit's own utilities.
 - Icons: any component taking `{ size, className }` (lucide, custom SVG).
@@ -224,8 +238,15 @@ pages render straight from `resolved.json`.
 
 ## The quality bar — what a new component must ship
 
-Four things, and CI (`.github/workflows/design-system.yml`) enforces all of
-them:
+Before any of it, a new component is Material's or it is not the kit's. Its
+doc comment cites its page of m3.material.io; or the repository's owner adds
+it to the closed group in `README.md`, "What this kit is", and its doc comment
+says "Material 3 does not describe this component." `npm run
+registry:check-install` (`scripts/check-components.mjs`) refuses a component
+file that does neither, and a list and files that differ.
+
+Then four things, and CI (`.github/workflows/design-system.yml`) enforces all
+of them:
 
 1. **A story** in `stories/<Category>/<Component>.stories.tsx`, titled
    `MD3/<Category>/<Component>`, showing at least three visually distinct
@@ -257,7 +278,10 @@ renders under `tokens/preset-editorial.css`. Run one with
 
 ## Not in the kit (yet)
 
-Segmented button, search bar, date/time pickers. When
-adding one: follow the anatomy above, name variants after Material, clear the
+Segmented button, search bar, date/time pickers: Material 3 describes them.
+When adding one: follow the anatomy above, name variants after Material, cite
+its page in the doc comment, clear the
 quality bar (story, interaction test, axe under both presets), and keep
-`README.md`'s component table current.
+`README.md`'s component table current. A component Material 3 does not
+describe is not on this list: it joins the kit only through the group in
+`README.md`, "What this kit is".

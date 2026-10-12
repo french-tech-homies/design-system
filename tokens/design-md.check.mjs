@@ -1239,3 +1239,164 @@ test("a name every object has is an unknown name, never a crash", () => {
     ]);
   }
 });
+
+/* ---- the mono face ---------------------------------------------------- */
+
+const MONO_STACK =
+  'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+const MONO_TOKEN = "--md-sys-typescale-mono-font";
+
+/** A DESIGN.md whose mono face is this family (as YAML source). */
+const monoFamily = (source) =>
+  designMd(
+    "scheme: light",
+    SEED,
+    `typography:\n  mono:\n    fontFamily: ${source}`,
+  );
+
+test("a named mono face gets a hook, the token and the `font-mono` utility", () => {
+  const plain = generateTheme(seedOnly, kitV4);
+  const { themeCss, themeV4Css, warnings } = generateTheme(
+    monoFamily("Share Tech Mono"),
+    kitV4,
+  );
+  assert.deepEqual(warnings, []);
+  assert.ok(
+    themeCss.includes(
+      `  --font-share-tech-mono: "Share Tech Mono", ${MONO_STACK};\n`,
+    ),
+  );
+  assert.ok(
+    themeV4Css.includes(`  ${MONO_TOKEN}: var(--font-share-tech-mono);\n`),
+  );
+  assert.ok(themeV4Css.includes(`  --font-mono: var(${MONO_TOKEN});\n`));
+  // Nothing but the token's value moves in theme.v4.css.
+  sameShape(themeV4Css, plain.themeV4Css);
+  assert.equal(
+    themeV4Css.replace(/^ {2}--md-sys-typescale-mono-font: .*$/m, ""),
+    plain.themeV4Css.replace(/^ {2}--md-sys-typescale-mono-font: .*$/m, ""),
+  );
+  postcss.parse(themeCss);
+});
+
+test("the fallbacks a mono face writes replace the system's stack", () => {
+  const { themeCss } = generateTheme(
+    monoFamily("IBM Plex Mono, Menlo, monospace"),
+    kitV4,
+  );
+  assert.equal(
+    valueOf(themeCss, "--font-ibm-plex-mono"),
+    '"IBM Plex Mono", Menlo, monospace',
+  );
+});
+
+test("with no mono face named, the token is the system's monospace and nothing else moves", () => {
+  const { themeCss, themeV4Css, warnings, resolvedDesignMd } = generateTheme(
+    seedOnly,
+    kitV4,
+  );
+  assert.deepEqual(warnings, []);
+  assert.equal(valueOf(themeV4Css, MONO_TOKEN), MONO_STACK);
+  assert.equal(valueOf(themeV4Css, "--font-mono"), `var(${MONO_TOKEN})`);
+  assert.deepEqual(
+    [...themeCss.matchAll(/^ {2}(--font-[a-z0-9-]+):/gm)].map(([, n]) => n),
+    ["--font-roboto"],
+  );
+  assert.ok(!resolvedDesignMd.includes("mono"));
+  // Whatever the template held: a theme generated once with a face, then
+  // again without, is the plain one.
+  const named = generateTheme(monoFamily("Share Tech Mono"), kitV4).themeV4Css;
+  assert.notEqual(named, themeV4Css);
+  assert.equal(generateTheme(seedOnly, named).themeV4Css, themeV4Css);
+});
+
+test("the kit's own theme carries the system's monospace on the mono token", () => {
+  assert.equal(valueOf(kitV4, MONO_TOKEN), MONO_STACK);
+  assert.ok(!readFileSync(join(here, "theme.css"), "utf8").includes("mono"));
+});
+
+test("a mono face that cannot be a name is refused, by its token", () => {
+  const token = "typography.mono.fontFamily";
+  const kind = "a family name, with its fallbacks after commas";
+  refusal(monoFamily("12"), token, kind);
+  refusal(monoFamily("[a, b]"), token, kind);
+  refusal(monoFamily("Fixture,, monospace"), token, kind);
+  refusal(monoFamily(yaml("Fix\nture")), token, kind);
+  refusal(monoFamily(yaml("Fixture\t")), token, kind);
+  refusal(
+    designMd("scheme: light", SEED, "typography:\n  mono: Fixture"),
+    "typography.mono",
+    "a map with a `fontFamily`",
+  );
+  // The hook would be the variable the utility reads: it would read itself.
+  for (const family of ["Mono", "mono, monospace", yaml("MONO!")]) {
+    refusal(monoFamily(family), token, "a family whose font hook is not");
+    assert.throws(
+      () => generateTheme(monoFamily(family), kitV4),
+      /`--font-mono`.*full name/s,
+    );
+  }
+});
+
+test("a mono face cannot leave its declaration", () => {
+  const plain = generateTheme(monoFamily("Fixture"), kitV4);
+  for (const tail of BREAKOUTS) {
+    for (const family of [`Fixture${tail}`, `Fixture, x${tail}, monospace`]) {
+      const { themeCss, themeV4Css } = generateTheme(
+        monoFamily(yaml(family)),
+        kitV4,
+      );
+      sameShape(themeCss, plain.themeCss);
+      sameShape(themeV4Css, plain.themeV4Css);
+    }
+  }
+});
+
+test("the mono face is a family and nothing else; another unknown role is still ignored", () => {
+  const plain = generateTheme(seedOnly, kitV4);
+  const { themeCss, themeV4Css, warnings } = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  mono:\n    fontSize: 13px\n  code:\n    fontFamily: Fixture",
+    ),
+    kitV4,
+  );
+  assert.deepEqual(kinds(warnings), [
+    ["ignored", "typography.code"],
+    ["unapplied", "typography.mono.fontSize"],
+  ]);
+  assert.equal(themeCss, plain.themeCss);
+  assert.equal(themeV4Css, plain.themeV4Css);
+});
+
+test("a mono face that is also the brand face shares one hook, the brand's", () => {
+  const { themeCss, themeV4Css } = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      "typography:\n  display-large:\n    fontFamily: JetBrains Mono\n  mono:\n    fontFamily: JetBrains Mono, monospace",
+    ),
+    kitV4,
+  );
+  assert.equal(
+    valueOf(themeCss, "--font-jetbrains-mono"),
+    '"JetBrains Mono", ui-sans-serif, system-ui, sans-serif',
+  );
+  assert.equal(valueOf(themeV4Css, MONO_TOKEN), "var(--font-jetbrains-mono)");
+});
+
+test("round trip: a mono face survives the resolved DESIGN.md", () => {
+  for (const text of [
+    monoFamily("Share Tech Mono"),
+    monoFamily("IBM Plex Mono, Menlo, monospace"),
+    designMd("scheme: light", SEED, "typography:\n  mono:\n    fontSize: 13px"),
+  ]) {
+    const first = generateTheme(text, kitV4);
+    const again = generateTheme(first.resolvedDesignMd, kitV4);
+    assert.equal(again.themeCss, first.themeCss);
+    assert.equal(again.themeV4Css, first.themeV4Css);
+    assert.deepEqual(again.warnings, first.warnings);
+    assert.equal(again.resolvedDesignMd, first.resolvedDesignMd);
+  }
+});

@@ -3,11 +3,11 @@
   "source": {
     "repository": "french-tech-homies/pipao-v2",
     "path": "packages/md3",
-    "commit": "7eb9be59e312790734baeaadbb74af7bf8d4cdeb",
-    "committedAt": "2026-10-11T13:59:13-04:00"
+    "commit": "4ad6dafc7cfbf15ff32006a81bd356e7de8c9288",
+    "committedAt": "2026-10-11T23:47:58-04:00"
   },
   "kit": {
     "name": "@french-tech-homies/design-system",
-    "version": "0.2.0"
+    "version": "0.3.0"
   }
 }

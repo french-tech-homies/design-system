@@ -10,13 +10,63 @@ the terms beside it.
 
 **Two ways in, no npm package.** Either install through the shadcn CLI from the
 kit's registry (recommended — see _Install from the registry_ below), or copy
-the kit's folder into your project's source tree as `ds/`. Either way the code is
-yours to edit. All imports inside the folder are relative, so it works at any
-path under any alias.
+the kit's folder into your project's source tree as `ds/`. Either way the files
+land in your tree, where editing one is allowed, has a price at every update
+and is rarely needed (see _What this kit is_). All imports inside the folder
+are relative, so it works at any path under any alias.
 
-> Source: `french-tech-homies/design-system` · **v0.2.0**. Keep this
+> Source: `french-tech-homies/design-system` · **v0.3.0**. Keep this
 > marker — with the version — and it tells you exactly which release your copy
 > came from. See _Versioning and upgrades_.
+
+---
+
+## What this kit is
+
+**Material 3's implementation.** The kit builds what Material 3's
+specification (m3.material.io) describes, on React Aria and Tailwind, and each
+of those components cites its page of the specification in its doc comment.
+
+**One kit per design system.** This kit is Material 3's and no other's.
+Another design system would be a kit of its own beside this one, in the same
+repository and the same registry, with its own components, tokens and spec.
+There is none today, and nothing here is built for one.
+
+**Which components are its own.** Those Material 3's specification describes,
+and a closed group of ten the kit ships that Material does not describe:
+
+<!-- own-components -->
+
+- `Table`: rows and columns of data. Material 3 publishes no data table.
+- `Tag`: a small label pill that sits in a line of text.
+- `Avatar`: a person's picture or initials.
+- `Disclosure`: a heading that opens and closes a panel, alone or in a group.
+- `PreviewTrigger`: a card of any content opened by hovering or focusing its
+  trigger.
+- `NumberField`: a text field for a number, with steppers.
+- `PhoneField`: a text field for a phone number, with a country picker.
+- `ImageField`: choosing, previewing and removing one image.
+- `EmptyState`: what a list or a page shows when it has nothing to show.
+- `ColorPicker`: editing a colour, with its four parts `ColorArea`,
+  `ColorField`, `ColorSlider` and `ColorSwatch`.
+
+<!-- /own-components -->
+
+The group is named here and nowhere else, and it is closed: a component joins
+it, or leaves it, only on the repository owner's decision, by a change to this
+list. Each member's file says "Material 3 does not describe this component."
+in a doc comment. `npm run registry:check-install`
+(`scripts/check-components.mjs`) refuses a list and files that differ, and any
+component file that neither says so nor cites a page of m3.material.io.
+
+A part that is neither Material's nor the group's is a project's: it is
+written in the project, beside the kit, and does not come here.
+
+**What a project may change.** An edit of a kit file is allowed, priced and
+rarely needed: an update overwrites every kit file that differs, and the
+project puts its edit back by hand. That rule is stated once, in
+`skills/ds-build/SKILL.md`, "What a project may change", because the skill
+is what travels to a project and this file does not.
 
 ---
 
@@ -134,14 +184,22 @@ fetch from the kit:
 | `ds-theme`: write the project's DESIGN.md from a brief, generate, read the warnings, wire the entry CSS, take an update. Carries the DESIGN.md contract (`design-md.md`) | `.claude/skills/ds-theme/` | `@ds/theme-skill` |
 | `ds-build`: the rules for building with the kit, what a project may change, the resolved file as the reference | `.claude/skills/ds-build/` | `@ds/build-skill` |
 | `ds-spec`: the live Material 3 spec, Do/Don't and tokens | `.claude/skills/ds-spec/` | `@ds/spec-skill` |
+| The update check: lists the kit files a project changed, before an update replaces them (`node <ui>/ds/changed.mjs`, see _Taking an update_) | `<ui>/ds/changed.mjs` | `@ds/changed` |
+| The release record the check reads: this version, and two digests of every file the registry carries. Only the whole install brings it | `<ui>/ds/RELEASE.json` | `@ds/ds` itself |
 | The MIT notice | `<ui>/ds/LICENSE` | `@ds/license` |
 
 The skills are Claude Code **project** skills: in a shadcn target `~/` is the
 project root, not the person's home, so they land in the project's own
 `.claude/skills/` and are versioned with it. A skill names only files the
-install brings, and nothing of the repository the kit is built in;
+install brings, and nothing of the repository the kit is built in, and opens
+with a frontmatter that parses as strict YAML;
 `npm run registry:check-install` (`scripts/check-install.mjs`)
-refuses a registry or a skill that breaks either rule.
+refuses a registry or a skill that breaks any of these rules.
+
+The three skills are the kit's own, and the install brings no other. Whoever
+edits a kit component, or writes one beside the kit, will also want React
+Aria's documentation at hand: Adobe publishes it as a skill of its own,
+installed with `npx skills add https://react-aria.adobe.com`.
 
 **Then import the theme. No item writes a palette value into your CSS.** The
 theme is whatever your entry CSS imports, so a fresh install is unthemed until
@@ -197,7 +255,7 @@ carries the terms in `meta`, before anything is copied:
 
 ```bash
 curl -s https://french-tech-homies.github.io/design-system/r/button.json | jq .meta
-# → { "kit": "<owner>/<repository>", "version": "0.2.0", "license": "MIT" }
+# → { "kit": "<owner>/<repository>", "version": "0.3.0", "license": "MIT" }
 ```
 
 **Re-running `add` never silently clobbers your edits — and never silently
@@ -345,7 +403,7 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `tokens/bridge-shadcn.css`     | Optional shadcn ↔ MD3 variable layer                                                                                                                                                                                                                                          |
 | `tokens/preset-editorial.css`  | A deliberately un-Material identity, class-scoped — the worked example for _Retheming_ below                                                                                                                                                                                  |
 | `conventions.md`               | How components are written — token idiom, tv slots, state layers, data-slot, what to check before adding one                                                                                                                                                                  |
-| `components/field-styles.ts`   | The **style module** for the field container (`tv` slots), rendered by `TextField`, `NumberField`, `PhoneField`, `Select` and `ComboBox` — its `kind` variant is what lets one container serve typed, composite and trigger fields. Fork this to change field anatomy          |
+| `components/field-styles.ts`   | The **style module** for the field container (`tv` slots), rendered by `TextField`, `NumberField`, `PhoneField`, `Select` and `ComboBox` — its `kind` variant is what lets one container serve typed, composite and trigger fields. Edit this to change field anatomy          |
 | `utils.ts`                     | `twMergeConfig`, `tv`, `cn`, `focusRing` — server-safe, no React Aria import                                                                                                                                                                                                  |
 | `render-props.ts`              | `composeTailwindRenderProps` (client-only; kept out of `utils.ts` so Server Components can use `cn`)                                                                                                                                                                          |
 | `icons.tsx`                    | Icon types + the small built-in SVG set                                                                                                                                                                                                                                       |
@@ -354,8 +412,11 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, Button, IconButton, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Avatar, Table, TopAppBar, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, `color/*` |
 | `adapters/next.tsx`            | Optional: Next router provider + `next/image` renderer. Delete if not on Next.js                                                                                                                                                                                              |
 | `adapters/react-router.tsx`    | Optional: React Router (or TanStack Router) provider so `href` links navigate client-side. Delete if not on React Router                                                                                                                                                      |
+| `changed.mjs`                  | The update check: lists the kit files a project changed since it installed them, against `RELEASE.json` — `node <ui>/ds/changed.mjs`, see _Taking an update_. Node builtins only. In the registry as `@ds/changed`                                                          |
+| `RELEASE.json`                 | Generated by `npm run registry:build`: the kit's version and two digests of every file the registry carries, by where it lands. Carried by `@ds/ds` alone, so only the whole install replaces it                                                                             |
+| `scripts/changed.check.mjs`    | Makes the update check speak on a fixture install, and holds `RELEASE.json` to what the build computes — `npm run registry:check-install`                                                                                                                                     |
 | `LICENSE`                      | MIT — also a registry item (`@ds/license`) that every other item depends on, so a `shadcn add` copy lands with the notice at `<ui>/ds/LICENSE`                                                                                                                               |
-| `CHANGELOG.md`                 | What changed between releases, and which entries need action from a consumer who forked a file                                                                                                                                                                                |
+| `CHANGELOG.md`                 | What changed between releases, and which entries need action from a consumer who edited a kit file                                                                                                                                                                              |
 | `adapters/react-hook-form.tsx` | Optional: `FormTextField` / `FormNumberField` / `FormPhoneField` / `FormImageField` / `FormCheckbox` / `FormCheckboxGroup` / `FormSwitch` / `FormRadioGroup` / `FormSelect` / `FormChipGroup` / `FormComboBox` bound through `Controller`                                                           |
 | `stories/`                     | The catalog, by Material's taxonomy — plus `stories/interactions/`, the behaviour tests                                                                                                                                                                                        |
 | `vitest.config.ts`             | The two test projects (`material`, `editorial`) — see _Tests_                                                                                                                                                                                                                 |
@@ -363,7 +424,8 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `skills/ds-build/`            | Claude Code skill: the rules for building with the kit and what a project may change (`@ds/build-skill`)                                                                                                                                                                     |
 | `skills/ds-spec/`             | Claude Code skill + `md3.mjs`: the live Material 3 spec, Do/Don't and tokens from m3.material.io (`npm run md3`; `@ds/spec-skill`)                                                                                                                                           |
 | `scripts/build-registry.mjs`   | Generates `registry.json`: every item, from this folder                                                                                                                                                                                                                       |
-| `scripts/check-install.mjs`    | The rule that holds the one install whole: `ds` reaches the generator, every skill and every file a skill names; a script's imports are declared by its item; no skill names this repository — `npm run registry:check-install`                                             |
+| `scripts/check-install.mjs`    | The rule that holds the one install whole: `ds` reaches the generator, every skill and every file a skill names; a script's imports are declared by its item; no skill names this repository; every skill's frontmatter parses, with its folder's name and a description; no item lands a skill that is not the kit's own — `npm run registry:check-install`                                             |
+| `scripts/check-components.mjs` | The rule that holds the kit's own components a closed, named group: the list in _What this kit is_ is the set of component files that say Material 3 does not describe them, and every other component file cites a page of m3.material.io; and no file under `components/` or `primitives/` names the mono face — `npm run registry:check-install` |
 | `spec-version.json`            | Site content version the components were last audited against (`npm run md3 -- check`)                                                                                                                                                                                        |
 
 ### Token scales
@@ -380,7 +442,22 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 - **Type** — `text-display-large` → `text-label-small` (15 roles), on two
   faces: `font-brand` (display / headline / title) and `font-plain` (body /
   label), both defaulting to the same `--font-inter` hook. The `Typography`
-  primitives apply them; raw `text-*` classes do not.
+  primitives apply them; raw `text-*` classes do not. A third face is the
+  project's to reach for: `font-mono`, for an identifier, a time, an amount.
+  It is the family a project's DESIGN.md names as `typography.mono.fontFamily`
+  (the token `--md-sys-typescale-mono-font`), and the system's monospace when
+  it names none. No kit component uses it, and `scripts/check-components.mjs`
+  refuses one that would. **If your entry CSS already declares `--font-mono`**
+  (compiled with Tailwind 4 both ways, 2026-10-11): inside `@theme`, the
+  declaration Tailwind reads last wins. Yours written after the kit's import
+  wins, and then `font-mono`, `code`, `kbd`, `samp` and `pre` draw your face
+  and `typography.mono` in DESIGN.md moves nothing; yours written before the
+  import loses to the kit's. Keep one source: delete your line and name the
+  face in DESIGN.md, or keep your line after the import and name none.
+  Outside `@theme` (a `--font-mono` on `:root`, or the variable a font loader
+  sets on `<html>`) it moves nothing: the kit's line is `@theme inline`, so
+  the utility reads the token itself. Give such a loader's variable another
+  name and name the family in DESIGN.md.
 - **Shape** — `rounded-shape-extra-small` (4px) → `rounded-shape-extra-large`
   (28px), `rounded-shape-full`.
 - **Elevation** — `shadow-elevation-1` … `shadow-elevation-5`.
@@ -489,24 +566,30 @@ Running the tests the first time downloads a Chromium build:
 
 ## Versioning and upgrades
 
-The kit is **copy-distributed**: `shadcn add` writes files into your tree and
-they are yours. So the thing that is versioned is the source you copied, and
-the upgrade question is "what changed, and how do I re-apply my edits?".
+The kit is **copy-distributed**: `shadcn add` writes files into your tree. So
+the thing that is versioned is the source you copied, and the upgrade question
+is "what changed, and which of my edits do I put back?". An edit of a kit file
+is allowed, priced and rarely needed; the rule is
+`skills/ds-build/SKILL.md`, "What a project may change", and this section
+is the mechanism behind its price.
 
 ### Which version am I on?
 
-Three places say it, and they always agree — CI fails the build if they don't:
+Two places say it:
 
 ```bash
 # what the kit ships today
 curl -s https://french-tech-homies.github.io/design-system/r/button.json | jq .meta
-# → { "kit": "<owner>/<repository>", "version": "0.2.0", "license": "MIT" }
+# → { "kit": "<owner>/<repository>", "version": "0.3.0", "license": "MIT" }
 
-# what you copied — the marker at the top of this file
-head -15 src/components/ui/ds/README.md
+# what you copied: the release record the whole install brought
+jq .version src/components/ui/ds/RELEASE.json
 ```
 
-Every generated registry item carries `meta.version`. `CHANGELOG.md` is the
+A copy installed before 0.3.0 has no `RELEASE.json`: nothing in it says its
+version, and its first update brings the record. This README is not copied
+into a project. Every generated registry item carries `meta.version`, and CI
+fails the build if one disagrees with `package.json`. `CHANGELOG.md` is the
 list of what moved between releases, and it flags the entries that need action
 from you.
 
@@ -527,7 +610,60 @@ fresh Vite app updated from a registry copy with three kit files changed):
 So a plain re-add does **not** update a kit file you never touched: it asks.
 And with no one to answer — a script, CI, an agent — the run stops at the
 first such file having written nothing (stdin closed), or waits for ever
-(stdin open). The loop is therefore git's, not the CLI's:
+(stdin open). The loop is therefore git's, not the CLI's, and it starts with
+the kit saying which of its files you changed:
+
+```bash
+node src/components/ui/ds/changed.mjs      # <ui>/ds/changed.mjs
+```
+
+It compares every kit file and skill in your tree with the release you
+installed, which `<ui>/ds/RELEASE.json` records, and lists the ones that
+differ. It writes nothing and merges nothing. Walked on 2026-10-11 on a real
+install of 0.3.0 (shadcn 4.19, a scratch project, `add @ds/ds` from a local
+copy of the registry): untouched, it lists nothing; with one line added to
+`components/Tag.tsx`, that file alone; with `// @ts-nocheck` put at the top
+of `components/Button.tsx`, or a comment at the top of `index.ts`, that file
+alone. Its exit code says which of three answers it gave:
+
+| exit | it says | what it means for the update |
+| --- | --- | --- |
+| 0 | no recorded file differs | the overwrite loses nothing of yours |
+| 1 | the files that differ, in two groups. `changed`: the text differs. `whitespace`: the same text once spaces, tabs and line breaks are taken out | the overwrite loses each `changed` edit: these are the files to put back from `git diff`. A `whitespace` file is a formatter's or an indent's doing; a change of spaces inside a string, a class list included, lands there too |
+| 2 | it cannot tell, and why | update as below and read `git diff`, as before the check existed |
+
+What it cannot know:
+
+- **A copy installed before 0.3.0** has no record, so the check answers 2 for
+  it, in these words: "This copy of the kit was installed before 0.3.0, or
+  its record was removed, so this check cannot tell which kit files you
+  changed." Such a copy has no `changed.mjs` either:
+  `npx shadcn add @ds/changed` brings that one file and touches no other.
+  The update that follows brings the record, and the check speaks from the
+  next one on.
+- **A formatter that moves more than whitespace** (quotes, trailing commas,
+  the parentheses around wrapped JSX) makes every file it touched `changed`.
+  Keep `<ui>/ds/` out of your formatter.
+- **A project whose CLI rewrites the files as it installs them**
+  (`tsx: false`, a Tailwind `prefix` or `cssVariables: false` in
+  `components.json`) gets answer 2.
+- **Nothing is set aside.** The one thing the CLI itself does to a `.ts` or
+  `.tsx` file is recorded, not ignored: it drops the comment a file opens
+  with (`index.ts` and `primitives/Typography.tsx` land without theirs), so
+  the record holds both forms of those two files, and your file is unchanged
+  when it is either. A comment you put at the top of any kit file
+  (`// @ts-nocheck`, `/* eslint-disable */`) is an edit, and is listed; so is
+  a `"use client"` you add or take out, since under `rsc: false` the walked
+  install left the directive on all 36 files that have it.
+- A recorded file that is not in your tree is counted, not listed: removed
+  and never installed look the same. After a whole install the count is 4,
+  the three adapters and the Editorial preset, which `@ds/ds` does not
+  bring. A file you wrote beside the kit is not in the record and is not
+  looked at.
+- `RELEASE.json` is replaced only by `add @ds/ds`. After an `add` of single
+  items at a newer release, the check lists the files that `add` moved.
+
+Then:
 
 1. Read `CHANGELOG.md` from your version to the current one, and commit your
    work: the tree must be clean.
@@ -535,15 +671,16 @@ first such file having written nothing (stdin closed), or waits for ever
    use). Every kit file that differs is replaced. Your `DESIGN.md`, your
    `theme/` folder and your entry CSS's imports are not targets of any item.
 3. `git diff` is the update. For a file you never edited there is nothing to
-   do. For a file you forked, the diff shows your edit removed among the
-   kit's changes: put your edit back by hand, keeping theirs.
+   do. For a file you edited (the check listed it under `changed`), the diff
+   shows your edit removed among the kit's changes: put your edit back by
+   hand, keeping theirs.
 4. If you generated a theme of your own, regenerate it
    (`npx tsx <ui>/ds/tokens/generate-theme.mjs DESIGN.md --out theme`): the
    kit's `tokens/theme.v4.css` is the template your copy is written from.
    Lint, and read the diff of `theme/`.
 
 Answering the prompts by hand, file by file, also works at a terminal: Yes for
-a file you never edited, No for a fork you will merge later.
+a file you never edited, No for a file you edited and will merge later.
 
 Because `fieldStyles` backs all five fields, a field-anatomy change is *one*
 merge, not five. That is the point of the style-module layer — see
@@ -577,14 +714,14 @@ import the two theme files. See `CHANGELOG.md`.
 
 ```bash
 npm version minor --no-git-tag-version   # or patch; package.json is the only source of truth
-npm run registry:build         # restamps every item's meta.version
+npm run registry:build         # restamps every item's meta.version, and writes the release record
 npm run registry:check-version # what CI runs
-# add the CHANGELOG entry, commit package.json, package-lock.json and registry.json together
+# add the CHANGELOG entry, commit package.json, package-lock.json, registry.json and RELEASE.json together
 ```
 
 `.github/workflows/checks.yml` fails when a bump was not followed by
-`registry:build`, alongside the existing guards on `resolved.json` and registry
-drift.
+`registry:build`, alongside the existing guards on `resolved.json` and on a
+`registry.json` or a `RELEASE.json` that is not what the build writes.
 
 ## Copy or npm package? — the decision
 
@@ -595,16 +732,17 @@ This repository has a `package.json` only to run its own catalog, tests and
 registry build. It is `"private": true`, has no `exports` map and no build
 step, and ships `.ts`/`.tsx` source: it is not something to `npm install`.
 
-**Why copy-distribution is the right primary.** The kit's entire value
-proposition is that the code is yours: the theming contract
-(_Retheming — the three layers_ below) invites you to fork a style module,
-and MD3 anatomy is opinionated enough that a real product will want to. A
-package would make exactly that move require a fork of the package, which is
-worse than a fork of one file. Copy-distribution also means no runtime
+**Why copy-distribution is the right primary.** The files land in your tree,
+so the edit a real product sometimes needs (a style module's anatomy, see
+_Retheming — the three layers_ below: MD3 anatomy is opinionated) is an edit
+of one file, put back by hand at each update. A package would make the same
+move a fork of the whole package, which is worse. Copy-distribution also
+means no runtime
 dependency on us, no version-range solving against your React Aria, and no
 build output to keep in sync with your bundler.
 
-**When to revisit.** Publish only if a consumer should *not* be able to fork —
+**When to revisit.** Publish only if a consumer should *not* be able to edit a
+kit file —
 a design system enforced across teams, where drift is the thing you are trying
 to prevent. If that day comes, **pick one authoritative channel and say so in
 this file**; shipping both a registry and a package without naming which is
@@ -613,22 +751,27 @@ canonical guarantees two versions of the same component in one codebase.
 ## Retheming — the three layers
 
 An app on this kit must be able to look like itself, not like a Google app,
-**and** keep taking kit updates that follow the Material spec. That only works
-because the files you are invited to change and the files the kit owns are two
-disjoint sets. There are three layers, and your identity lives in the first
-two:
+**and** keep taking kit updates that follow the Material spec. That works
+because your identity lives where an update does not undo it: in files no
+update writes, and in one file whose names an update keeps. There are three
+layers, each with what an update promises it, and your identity lives in the
+first two:
 
 | layer | files | you may | a kit update |
 | --- | --- | --- | --- |
 | **tokens** | your `DESIGN.md` and the theme generated from it (`theme/theme.css`, `theme/theme.v4.css`), plus per-component escape-hatch variables (`--md3-field-notch`) | change anything, through `DESIGN.md` | never touches them. Components name roles and scales, never values, and no registry item writes a palette value or targets your theme folder. The kit's own `tokens/*` files are its default and are replaced by an update — import yours instead of editing them |
-| **style modules** | `components/<x>-styles.ts` exporting `<x>Styles`. Today one: `components/field-styles.ts` → `fieldStyles`, the field container behind `TextField`, `NumberField`, `PhoneField`, `Select` and `ComboBox` | fork the file | keeps the **slot and variant names**; what a slot contains may change |
-| **behaviour** | the React Aria wiring, `utils.ts`, `render-props.ts`, `icons.tsx` | nothing — compose, don't fork | keeps following the four m3.material.io pages for behaviour and accessibility, even where your look departs from them |
+| **style modules** | `components/<x>-styles.ts` exporting `<x>Styles`. Today one: `components/field-styles.ts` → `fieldStyles`, the field container behind `TextField`, `NumberField`, `PhoneField`, `Select` and `ComboBox` | edit the file | replaces it, keeping the **slot and variant names**; what a slot contains may change, and your edit is put back by hand |
+| **behaviour** | the React Aria wiring, `utils.ts`, `render-props.ts`, `icons.tsx` | edit a file: allowed, priced, rarely needed | replaces every file that differs and promises no name in it; keeps following the four m3.material.io pages for behaviour and accessibility, even where your look departs from them |
 
 A `tv` becomes a style module only when more than one component renders from
 it, or when its anatomy _is_ the product's identity. Everything else stays a
-local `const styles = tv({…})` — still yours to edit, but not part of the
-promised seam. What an update costs a themed app is in _What a themed app pays
-at update time_ below.
+local `const styles = tv({…})` — an edit of it is allowed like any other, but
+it is not part of the promised seam. What an update costs a themed app is in
+_What a themed app pays at update time_ below.
+
+The table is what an update promises each layer. What a project may change,
+and at what price, is one rule stated once:
+`skills/ds-build/SKILL.md`, "What a project may change".
 
 ### Every scale is a variable
 
@@ -706,12 +849,12 @@ both were literals compiled into a utility rather than variables:
 
 What a preset still cannot reach: the **disabled** alphas. `text-on-surface/38`
 and `bg-on-surface/12` are written into each component as color modifiers, not
-read from a variable, so changing them is a fork — of the component, or of
-`fieldStyles` where a field is concerned. A handful of controls that tint their
+read from a variable, so changing them is an edit of a kit file — the
+component, or `fieldStyles` where a field is concerned. A handful of controls that tint their
 own background instead of rendering an overlay (`Table` rows, the number-field
 steppers, the combo-box and phone-field trigger icons) hold their state alpha
 the same literal way; `bg-on-surface/(--md-sys-state-hover-state-layer-opacity)`
-is the form that reads the token, if you fork one of them.
+is the form that reads the token, if you edit one of them.
 
 ### What a themed app pays at update time
 
@@ -724,12 +867,13 @@ themed app is short:
   from, and a plain re-add would stop at its prompt and write nothing. Your `DESIGN.md` and your
   generated palette are not targets of any item, so nothing of yours is at
   risk;
-- an **anatomy** change to a style module you forked → the update replaces
+- an **anatomy** change to a style module you edited → the update replaces
   the file and you put your edit back from the diff, one file by hand.
   Because `fieldStyles` serves all five fields, that is **one** merge, not
   five — which is the whole reason the seam is one file and not thirty-five;
 - a **behaviour or accessibility** fix → `shadcn add @ds/<component>
-  --overwrite`, free, because you never forked it.
+  --overwrite`, free for a file you never edited; for one you did, your edit
+  is put back from the diff.
 
 ### The theme comes from DESIGN.md
 
@@ -813,6 +957,23 @@ Material look. For an identity of its own, see the preset above.
 - **Card interaction states** come from a parent `GridListItem`
   (`group/grid-list-item`). Use `Card`/`ListItem` inside `GridList` when you want
   hover/press feedback.
+- **A card is a container, and its root takes what places it and names it**:
+  the element (`component`: `div`, `section`, `article` or `li`), `ref`, `id`,
+  `role`, `style`, every `aria-*` and `data-*` attribute. It refuses every
+  event handler and `tabIndex`, at the type: Material's directly actionable
+  card, with its ripple, focus indicator and tab stop, is not built. Its parts
+  are listed in its doc comment.
+- **A tooltip is Material's: no arrow, plain above its trigger, rich below it
+  from the start edge.** `showArrow` draws the arrow, `placement` takes a side
+  or a corner (`"bottom start"`, `"top end"`), `variant` is honoured when
+  given. A trigger that is no button is wrapped in `Focusable`, exported
+  beside `Tooltip`, and must take focus itself.
+- **A rich tooltip takes any content that is only read**: a headline, a
+  supporting text, then children such as rows of label and value (a `<dl>`),
+  a short list, an icon or a figure. It takes nothing that is operated or
+  takes focus (a link, a button, a field), because a tooltip never takes
+  focus and closes when its trigger loses it. So Material's rich tooltip
+  buttons and its persistent tooltip are not built.
 - **`StateLayer` keys on `isFocusVisible`**, not `isFocused`, so a mouse click
   doesn't leave a control looking permanently highlighted. The CSS-driven
   state layers (`group-data-focus-visible/button:state-opacity-focus`) follow
@@ -828,7 +989,13 @@ Material look. For an identity of its own, see the preset above.
   `Menu` items take `href` too — there is no `asChild` / slot pattern in the
   kit. `Button color="error"` is the destructive button MD3 does not define.
 - **`Table` follows M2's data-table measurements on M3 roles** — M3 has no
-  data-table page — with React Aria's sorting and selection.
+  data-table page — with React Aria's sorting and selection: 52dp rows under
+  a 56dp header, and with `density="dense"` 40dp under 44dp, the kit's own
+  pair.
+- **`IconButton` has Material's five sizes and four colour styles, and is
+  round.** The square shape, the shape morphs, the narrow and
+  wide widths, the tooltip on hover and button groups are not built, and
+  `standard`, not Material's filled, is the default colour style.
 - **There is no separate alert dialog.** MD3's dialogs page covers one
   component in two sizes; "alert" is a *use*, not a variant. So it is
   `<Dialog role="alertdialog">` — the ARIA role, plus `ModalDialog` turning
@@ -836,9 +1003,9 @@ Material look. For an identity of its own, see the preset above.
   that has to be answered. Escape still closes.
 - **`PreviewTrigger` has no Material page either**, and neither does its
   category: a hover-opened card of arbitrary content is not in MD3. Use
-  `Tooltip variant="rich"` — which *is* in the spec — when the content is a
-  title, a paragraph and at most a link; use `PreviewTrigger` when it is a
-  list, a form or anything the reader interacts with. It opens on focus and on
+  `Tooltip variant="rich"` — which *is* in the spec — when the content is
+  only read; use `PreviewTrigger` when the reader operates it (a link, a
+  button, a form). It opens on focus and on
   long press as well as on hover, so its trigger must be focusable.
 - **`Disclosure` has no Material page.** M2 had an expansion panel; M3 dropped
   it and never replaced it, so `m3.material.io` has no accordion, disclosure or
@@ -896,11 +1063,14 @@ RAC-dependent helpers there, not in `utils.ts`.
 
 ## Not included
 
-Segmented button, search bar, date & time pickers. Add
-them as you need them — the token and styling contracts above are what make
-new components match, and `conventions.md`'s "quality bar" is what a new one
-has to clear. Until they exist, an app that needs one of them reaches for a
-headless component alongside the kit.
+Segmented button, search bar, date & time pickers: Material 3 describes them
+and the kit does not build them yet. Until it does, an app that needs one
+writes it in its own tree, beside the kit, on a headless component — the token
+and styling contracts above are what make it match. One added to the kit
+itself cites its Material page and clears `conventions.md`'s "quality bar".
+
+What Material 3 does not describe is not waiting to be included. Outside the
+closed group named in _What this kit is_, it is a project's.
 
 ## Publishing this repository
 
@@ -936,7 +1106,7 @@ curl -sI https://french-tech-homies.github.io/design-system/ | head -1
 curl -s https://french-tech-homies.github.io/design-system/r/ds.json | jq '.name, .meta'
 # → "ds" and { "kit": "<owner>/<repository>", "version": "…", "license": "MIT" }
 curl -s https://french-tech-homies.github.io/design-system/r/registry.json | jq '.items | length'
-# → 62
+# → 63
 ```
 
 **Every later time**: lift again into this clone (the command keeps `.git`

@@ -7,6 +7,8 @@ Guidance for an agent working in this repository.
 The MD3 kit: Material Design 3 components on React Aria Components and
 Tailwind CSS 4, with a `DESIGN.md` at its centre. MIT, copyright
 french-tech-homies.
+What the kit is, and which components are its own, is said once: `README.md`,
+"What this kit is".
 
 - **The registry is the only distribution.** There is no npm package:
   `package.json` is `private` and exists to run the catalog, the tests and the
@@ -39,7 +41,7 @@ the rest of this file is the whole rule.
   `stories/interactions/`, the behaviour tests. Every story is a test.
 - `skills/`: what a project's agent reads (`ds-theme`, `ds-build`,
   `ds-spec`).
-- `scripts/`: the registry build and its two rule checks.
+- `scripts/`: the registry build and its three rule checks.
 - `registry.json`: the generated registry index, committed. `r/`, the built
   items, is not committed.
 - `.design-sync/`: carried untouched from the source; not maintained here

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import React from "react";
+import { expect, within } from "storybook/test";
 
 import tokens from "@french-tech-homies/design-system/tokens/resolved.json";
 import {
@@ -105,6 +106,73 @@ export const Primitives: Story = {
       </div>
     </div>
   ),
+};
+
+const SAMPLES = [
+  ["An identifier", "run-7f3a9c2e"],
+  ["A time", "14:02:37"],
+  ["An amount", "1,284.50"],
+] as const;
+
+function FaceSamples({ face, className }: { face: string; className: string }) {
+  return (
+    <div data-testid={face} className="flex flex-col gap-1">
+      <Label size="small" component="div" colorRole="on-surface-variant">
+        {face}
+      </Label>
+      {SAMPLES.map(([name, text]) => (
+        <Body key={name} size="large" component="div" className={className}>
+          {text}
+        </Body>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The mono face is the project's: it writes `font-mono` where it wants one
+ * (an identifier, a time, an amount) and no kit component uses it. The face
+ * is named in DESIGN.md as `typography.mono.fontFamily`; with none named, as
+ * in the first row, it is the system's monospace. The second row sets the
+ * token the way a generated theme does, to a family a project named. The
+ * text keeps its type role: only the family moves.
+ */
+export const MonoFace: Story = {
+  render: () => (
+    <div className="bg-surface text-on-surface flex flex-col gap-6 p-4">
+      <div className="flex flex-wrap gap-12">
+        <FaceSamples face="font-plain" className="font-plain" />
+        <FaceSamples face="font-mono" className="font-mono" />
+      </div>
+      <div
+        className="flex flex-wrap gap-12"
+        style={
+          {
+            "--md-sys-typescale-mono-font": '"Courier New", monospace',
+          } as React.CSSProperties
+        }
+      >
+        <FaceSamples face="font-plain, a face named" className="font-plain" />
+        <FaceSamples face="font-mono, a face named" className="font-mono" />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const family = (face: string) =>
+      getComputedStyle(canvas.getByTestId(face).lastElementChild!).fontFamily;
+    const size = (face: string) =>
+      getComputedStyle(canvas.getByTestId(face).lastElementChild!).fontSize;
+
+    await expect(family("font-mono")).toMatch(/^ui-monospace,.*monospace$/);
+    await expect(family("font-mono")).not.toBe(family("font-plain"));
+    await expect(family("font-mono, a face named")).toBe(
+      '"Courier New", monospace',
+    );
+    // Naming a mono face moves nothing that did not ask for it.
+    await expect(family("font-plain, a face named")).toBe(family("font-plain"));
+    await expect(size("font-mono")).toBe(size("font-plain"));
+  },
 };
 
 /**

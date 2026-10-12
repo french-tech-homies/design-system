@@ -4,6 +4,7 @@ import type { SortDescriptor } from "react-aria-components";
 
 import Button from "@french-tech-homies/design-system/components/Button";
 import Card from "@french-tech-homies/design-system/components/Card";
+import IconButton from "@french-tech-homies/design-system/components/IconButton";
 import {
   Cell,
   Column,
@@ -14,6 +15,7 @@ import {
   TableHeader,
 } from "@french-tech-homies/design-system/components/Table";
 import { Tag } from "@french-tech-homies/design-system/components/Tag";
+import { CopyIcon } from "lucide-react";
 
 /**
  * Data table on React Aria `Table`: keyboard-navigable grid with optional
@@ -21,7 +23,9 @@ import { Tag } from "@french-tech-homies/design-system/components/Tag";
  * the measurements are M2's on M3 roles — 56dp header (label-large,
  * on-surface-variant), 52dp rows (body-medium), 16dp cell padding,
  * outline-variant dividers. Wrap in a `Card variant="outlined"` for the
- * container.
+ * container. A column's `align` is its cells' default; `density="dense"`
+ * draws 40dp rows under a 44dp header; a `Cell` with `truncate` cuts its text
+ * to one line and shows the whole of it in a tooltip.
  */
 const meta = {
   title: "MD3/Containment/Table",
@@ -62,7 +66,7 @@ export const Basic: Story = {
               <Cell>
                 <Tag>{user.role}</Tag>
               </Cell>
-              <Cell align="end">
+              <Cell>
                 <Button variant="text" size="small" color="error">
                   Remove
                 </Button>
@@ -168,14 +172,14 @@ export const WithFooter: Story = {
           {(row) => (
             <Row>
               <Cell>{row.category}</Cell>
-              <Cell align="end">€{row.amount.toFixed(2)}</Cell>
+              <Cell>€{row.amount.toFixed(2)}</Cell>
             </Row>
           )}
         </TableBody>
         <TableFooter>
           <Row id="total">
             <Cell>Total</Cell>
-            <Cell align="end">
+            <Cell>
               €{sales.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
             </Cell>
           </Row>
@@ -203,6 +207,102 @@ export const Empty: Story = {
           )}
         >
           {[]}
+        </TableBody>
+      </Table>
+    </Card>
+  ),
+};
+
+const deliveries = [
+  {
+    id: "d-4821",
+    address: "12 rue des Petits Champs, 75002 Paris",
+    note: "Leave with the caretaker on the ground floor, the bell of the second floor is out of order",
+    parcels: 3,
+  },
+  {
+    id: "d-4822",
+    address: "4 place Bellecour, 69002 Lyon",
+    note: "None",
+    parcels: 1,
+  },
+  {
+    id: "d-4823",
+    address: "27 quai des Chartrons, 33000 Bordeaux",
+    note: "Call on arrival: the gate code changes every Monday and is sent by message",
+    parcels: 12,
+  },
+];
+
+/**
+ * `density="dense"`: 40dp rows under a 44dp header. The last column holds an
+ * `xsmall` icon button, 32dp, whose target the row cuts to 48 by 40.
+ */
+export const Dense: Story = {
+  render: () => (
+    <Card variant="outlined" className="w-[640px]">
+      <Table aria-label="Deliveries" density="dense">
+        <TableHeader>
+          <Column id="id" isRowHeader>
+            Delivery
+          </Column>
+          <Column id="address">Address</Column>
+          <Column id="parcels" align="end">
+            Parcels
+          </Column>
+          <Column id="copy" align="end">
+            Copy
+          </Column>
+        </TableHeader>
+        <TableBody items={deliveries}>
+          {(row) => (
+            <Row>
+              <Cell>{row.id}</Cell>
+              <Cell>{row.address}</Cell>
+              <Cell>{row.parcels}</Cell>
+              <Cell>
+                <IconButton
+                  size="xsmall"
+                  icon={CopyIcon}
+                  aria-label={`Copy ${row.id}`}
+                />
+              </Cell>
+            </Row>
+          )}
+        </TableBody>
+      </Table>
+    </Card>
+  ),
+};
+
+/**
+ * `truncate` on the cells of a column that is given a width (`w-full` here:
+ * what the other columns leave). The second row's note fits, so it has no
+ * tooltip; hover a cut one, or arrow to it.
+ */
+export const CutCells: Story = {
+  render: () => (
+    <Card variant="outlined" className="w-[560px]">
+      <Table aria-label="Deliveries">
+        <TableHeader>
+          <Column id="id" isRowHeader>
+            Delivery
+          </Column>
+          <Column id="note" className="w-full">
+            Note
+          </Column>
+          <Column id="parcels" align="end">
+            Parcels
+          </Column>
+        </TableHeader>
+        <TableBody items={deliveries}>
+          {(row) => (
+            <Row>
+              <Cell>{row.id}</Cell>
+              <Cell truncate>{row.note}</Cell>
+              <Cell>{row.parcels}</Cell>
+            </Row>
+          )}
         </TableBody>
       </Table>
     </Card>

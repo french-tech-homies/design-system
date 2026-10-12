@@ -54,12 +54,14 @@ jobs:
             || { echo "::error::tokens/resolved.json is stale — run 'npm run theme:resolve' and commit it"; exit 1; }
 
       - name: Registry index is up to date, and the registry builds
-        # registry.json is committed and must match the kit. The built items
-        # in r/ are not committed: they are built here and published from here.
+        # registry.json and the release record (RELEASE.json, what a project's
+        # update check reads) are committed and must be what the build writes.
+        # The built items in r/ are not committed: they are built here and
+        # published from here.
         run: |
           npm run registry:build
-          git diff --exit-code -- registry.json \
-            || { echo "::error::registry.json is stale — run 'npm run registry:build' and commit it"; exit 1; }
+          git diff --exit-code -- registry.json RELEASE.json \
+            || { echo "::error::registry.json or RELEASE.json is stale — run 'npm run registry:build' and commit both"; exit 1; }
 
       - name: Registry items carry the kit version
         # package.json `version` is the only source of truth; the build stamps

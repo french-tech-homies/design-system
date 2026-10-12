@@ -146,6 +146,411 @@ export const TableSelection: Story = {
   },
 };
 
+/**
+ * A column's `align` is its cells' default, read through the selection
+ * column the table adds; a cell's own `align` wins, and a cell under a plain
+ * column stays at the start.
+ */
+export const TableColumnAlignReachesCells: Story = {
+  render: () => (
+    <Card variant="outlined" className="w-[640px]">
+      <Table aria-label="Users" selectionMode="multiple">
+        <TableHeader>
+          <Column id="name" isRowHeader>
+            Name
+          </Column>
+          <Column id="role" align="end">
+            Role
+          </Column>
+          <Column id="email" align="end">
+            Email
+          </Column>
+        </TableHeader>
+        <TableBody items={users}>
+          {(user) => (
+            <Row id={user.id}>
+              <Cell>{user.name}</Cell>
+              <Cell>{user.role}</Cell>
+              <Cell align="start">{user.email}</Cell>
+            </Row>
+          )}
+        </TableBody>
+      </Table>
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const textAlign = (text: string) =>
+      getComputedStyle(canvas.getByText(text).closest("td, th")!).textAlign;
+
+    await expect(textAlign("Owner")).toBe("end");
+    await expect(textAlign("Staff")).toBe("end");
+    await expect(textAlign("yann@example.com")).toBe("start");
+    await expect(textAlign("Yann Renaudin")).toBe("start");
+  },
+};
+
+function UsersTable(props: { label: string; density?: "default" | "dense" }) {
+  return (
+    <Card variant="outlined" className="w-[420px]">
+      <Table aria-label={props.label} density={props.density}>
+        <TableHeader>
+          <Column id="name" isRowHeader>
+            Name
+          </Column>
+          <Column id="role">Role</Column>
+        </TableHeader>
+        <TableBody items={users}>
+          {(user) => (
+            <Row id={user.id} className={user.id === 3 ? "h-12" : undefined}>
+              <Cell>{user.name}</Cell>
+              <Cell>{user.role}</Cell>
+            </Row>
+          )}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}
+
+/**
+ * A dense table draws 40px rows under a 44px header and a default one 52px
+ * under 56px; a row's own height class wins over either; the arrow keys walk
+ * a dense table as they do any other.
+ */
+export const TableDenseRows: Story = {
+  render: () => (
+    <div className="flex items-start gap-6">
+      <UsersTable label="Default users" />
+      <UsersTable label="Dense users" density="dense" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const heights = (label: string) => {
+      const table = canvas.getByRole("grid", { name: label });
+      return within(table)
+        .getAllByRole("row")
+        .map((row) => row.getBoundingClientRect().height);
+    };
+    // Within a pixel: the collapsed 1px divider is shared between two rows.
+    const near = (actual: number | undefined, expected: number) =>
+      expect(Math.abs((actual ?? 0) - expected)).toBeLessThanOrEqual(1);
+
+    const regular = heights("Default users");
+    await near(regular[0], 56);
+    await near(regular[1], 52);
+    await near(regular[2], 52);
+
+    const dense = heights("Dense users");
+    await near(dense[0], 44);
+    await near(dense[1], 40);
+    await near(dense[2], 40);
+    // The third row says `h-12` itself.
+    await near(dense[3], 48);
+    await near(regular[3], 48);
+
+    const denseTable = canvas.getByRole("grid", { name: "Dense users" });
+    await expect(denseTable).toHaveAttribute("data-density", "dense");
+    await expect(
+      canvas.getByRole("grid", { name: "Default users" }),
+    ).toHaveAttribute("data-density", "default");
+
+    // Keyboard: Tab past the first table into the dense one, then down a row.
+    const rows = within(denseTable).getAllByRole("row");
+    await userEvent.tab();
+    await userEvent.tab();
+    await waitFor(() => expect(rows[1]).toHaveFocus());
+    await userEvent.keyboard("{ArrowDown}");
+    await waitFor(() => expect(rows[2]).toHaveFocus());
+  },
+};
+
+const longNote =
+  "Leave with the caretaker on the ground floor, the bell of the second floor is out of order";
+
+/**
+ * A cut cell shows one line, and its whole text in a tooltip: when the
+ * pointer rests on it, and when the arrow keys land on it. Focus stays on the
+ * gridcell, Escape puts the tooltip away, and a text that fits has none.
+ */
+export const TableCutCellWholeText: Story = {
+  render: () => (
+    <Card variant="outlined" className="w-[320px]">
+      <Table aria-label="Deliveries">
+        <TableHeader>
+          <Column id="id" isRowHeader>
+            Delivery
+          </Column>
+          <Column id="note" className="w-full">
+            Note
+          </Column>
+        </TableHeader>
+        <TableBody>
+          <Row id="long">
+            <Cell>d-4821</Cell>
+            <Cell truncate>{longNote}</Cell>
+          </Row>
+          <Row id="short">
+            <Cell>d-4822</Cell>
+            <Cell truncate>None</Cell>
+          </Row>
+        </TableBody>
+      </Table>
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const text = canvasElement.querySelector<HTMLElement>(
+      '[data-slot="table-cell-text"]',
+    )!;
+    const cell = text.closest("td")!;
+    const [, longRow, shortRow] = canvas.getAllByRole("row");
+
+    // The two waits that have a bound, each well over the component's own
+    // timer so a busy machine does not fail them. The tooltip leaves the
+    // document 1500 ms after the pointer does (`CUT_TEXT_CLOSE_DELAY`), then
+    // its exit animation runs: 5000 ms leaves 3500. It shows 300 ms after the
+    // pointer rests (`CUT_TEXT_DELAY`): 3000 ms leaves 2700.
+    const gone = () =>
+      waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull(), {
+        timeout: 5000,
+      });
+    const shown = () => screen.findByRole("tooltip", {}, { timeout: 3000 });
+
+    // One line: the text is wider than its box, and the row kept its height.
+    await expect(text.scrollWidth).toBeGreaterThan(text.clientWidth);
+    await expect(
+      Math.abs(longRow!.getBoundingClientRect().height - 52),
+    ).toBeLessThanOrEqual(1);
+
+    // Pointer.
+    await userEvent.hover(cell);
+    const tooltip = await shown();
+    await expect(tooltip).toHaveTextContent(longNote);
+    // Left by the pointer, it stays long enough to be reached, and for as
+    // long as the pointer is on it.
+    await userEvent.unhover(cell);
+    // A fixed sleep, because it is the assertion: 600 ms after the pointer
+    // left, the tooltip is still there. It fails only if the page stalls for
+    // the 900 ms that remain of the 1500.
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    await expect(screen.getByRole("tooltip")).toBe(tooltip);
+    await userEvent.hover(tooltip);
+    await new Promise((resolve) => setTimeout(resolve, 1800));
+    await expect(screen.getByRole("tooltip")).toBe(tooltip);
+    await userEvent.unhover(tooltip);
+    await gone();
+
+    // Keyboard: into the table, then across the row to the cut cell.
+    await userEvent.tab();
+    await waitFor(() => expect(longRow).toHaveFocus());
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}");
+    await waitFor(() => expect(cell).toHaveFocus());
+    await expect(await shown()).toHaveTextContent(longNote);
+
+    await userEvent.keyboard("{Escape}");
+    await gone();
+
+    // The short text fits: no tooltip on its cell.
+    await userEvent.keyboard("{ArrowDown}");
+    const shortCell = within(shortRow!).getByText("None").closest("td")!;
+    await waitFor(() => expect(shortCell).toHaveFocus());
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await expect(screen.queryByRole("tooltip")).toBeNull();
+
+    // Ends on the cut cell, with its text showing.
+    await userEvent.keyboard("{ArrowUp}");
+    await waitFor(() => expect(cell).toHaveFocus());
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
+  },
+};
+
+const otherNote =
+  "Call on arrival: the gate code changes every Monday and is sent by message";
+
+/**
+ * One cut cell's tooltip at a time: a tooltip stays 1.5 seconds after the
+ * pointer leaves its cell, but the next cell's, once it shows, puts it away.
+ * The keyboard on one cell and the pointer on another leave one tooltip too.
+ */
+export const TableCutCellOneTooltipAtATime: Story = {
+  render: () => (
+    <Card variant="outlined" className="w-[320px]">
+      <Table aria-label="Deliveries">
+        <TableHeader>
+          <Column id="id" isRowHeader>
+            Delivery
+          </Column>
+          <Column id="note" className="w-full">
+            Note
+          </Column>
+        </TableHeader>
+        <TableBody>
+          <Row id="first">
+            <Cell>d-4821</Cell>
+            <Cell truncate>{longNote}</Cell>
+          </Row>
+          <Row id="second">
+            <Cell>d-4823</Cell>
+            <Cell truncate>{otherNote}</Cell>
+          </Row>
+        </TableBody>
+      </Table>
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const [first, second] = Array.from(
+      canvasElement.querySelectorAll('[data-slot="table-cell-text"]'),
+    ).map((text) => text.closest("td")!);
+    // Well inside the 1.5 seconds the first tooltip would otherwise stay.
+    const onlyOne = (text: string) =>
+      waitFor(
+        async () => {
+          const shown = screen.getAllByRole("tooltip");
+          await expect(shown).toHaveLength(1);
+          await expect(shown[0]).toHaveTextContent(text);
+        },
+        { timeout: 800 },
+      );
+
+    await userEvent.hover(first!);
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
+
+    await userEvent.hover(second!);
+    await screen.findByText(otherNote, { selector: '[role="tooltip"] *' });
+    await onlyOne(otherNote);
+
+    // Keyboard on the first cell while the pointer rests on the second.
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}");
+    await waitFor(() => expect(first).toHaveFocus());
+    await screen.findByText(longNote, { selector: '[role="tooltip"] *' });
+    await onlyOne(longNote);
+  },
+};
+
+/**
+ * The Escape that puts a cut cell's tooltip away is the tooltip's alone: the
+ * selected row stays selected. A second Escape, with no tooltip left, is the
+ * table's, and clears the selection.
+ */
+export const TableCutCellEscapeKeepsSelection: Story = {
+  render: () => (
+    <Card variant="outlined" className="w-[360px]">
+      <Table
+        aria-label="Deliveries"
+        selectionMode="multiple"
+        defaultSelectedKeys={["long"]}
+      >
+        <TableHeader>
+          <Column id="id" isRowHeader>
+            Delivery
+          </Column>
+          <Column id="note" className="w-full">
+            Note
+          </Column>
+        </TableHeader>
+        <TableBody>
+          <Row id="long">
+            <Cell>d-4821</Cell>
+            <Cell truncate>{longNote}</Cell>
+          </Row>
+        </TableBody>
+      </Table>
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = canvas.getAllByRole("row")[1]!;
+    const cell = canvasElement
+      .querySelector('[data-slot="table-cell-text"]')!
+      .closest("td")!;
+
+    await expect(row).toHaveAttribute("aria-selected", "true");
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
+    await waitFor(() => expect(cell).toHaveFocus());
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull(), {
+      timeout: 3000,
+    });
+    await expect(row).toHaveAttribute("aria-selected", "true");
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(row).toHaveAttribute("aria-selected", "false"));
+  },
+};
+
+/**
+ * The named parts of `Column` and `Cell` exist under their `data-slot` and
+ * take the class given through `classNames`; each root takes `className`.
+ */
+export const TablePartClasses: Story = {
+  render: () => (
+    <Card variant="outlined" className="w-[420px]">
+      <Table
+        aria-label="Users"
+        density="dense"
+        className="tracking-wide"
+        sortDescriptor={{ column: "name", direction: "ascending" }}
+      >
+        <TableHeader>
+          <Column
+            id="name"
+            isRowHeader
+            allowsSorting
+            className="uppercase"
+            classNames={{ columnContent: "gap-2", sortIcon: "text-primary" }}
+          >
+            Name
+          </Column>
+          <Column id="role" className="w-full">
+            Role
+          </Column>
+        </TableHeader>
+        <TableBody items={users}>
+          {(user) => (
+            <Row id={user.id}>
+              <Cell>{user.name}</Cell>
+              <Cell
+                truncate
+                className="italic"
+                classNames={{ cellText: "text-primary" }}
+              >
+                {user.role}
+              </Cell>
+            </Row>
+          )}
+        </TableBody>
+      </Table>
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const part = (slot: string) =>
+      canvasElement.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+
+    await expect(part("table")).toHaveClass("tracking-wide");
+    await expect(part("table")).toHaveAttribute("data-density", "dense");
+    await expect(part("table-column")).toHaveClass("uppercase");
+    await expect(part("table-column-content")).toHaveClass("gap-2");
+    await expect(part("table-column-content")).not.toHaveClass("gap-1");
+    await expect(part("table-sort-icon")).toHaveClass("text-primary");
+    await expect(part("table-cell-text")).toHaveClass("text-primary", "truncate");
+    await expect(part("table-cell-text").closest("td")).toHaveClass("italic");
+
+    // Keyboard: Tab lands on the first row, and up from it is the heading.
+    const heading = within(canvasElement).getByRole("columnheader", {
+      name: /name/i,
+    });
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowUp}");
+    await waitFor(() => expect(heading).toHaveFocus());
+  },
+};
+
 function SnackbarHarness() {
   return (
     <div className="flex h-40 flex-col items-start gap-3">

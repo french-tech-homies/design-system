@@ -1,6 +1,6 @@
 {
   "name": "@french-tech-homies/design-system",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "Material Design 3 component kit on React Aria Components + Tailwind v4, distributed as a shadcn registry (copy-in source, no npm package) with a DESIGN.md at its centre.",
@@ -19,7 +19,7 @@
     "test-storybook": "vitest run",
     "test-storybook:watch": "vitest",
     "registry:check-version": "node scripts/check-registry-version.mjs r",
-    "registry:check-install": "node --test scripts/check-install.check.mjs"
+    "registry:check-install": "node --test scripts/check-install.check.mjs scripts/check-components.check.mjs scripts/changed.check.mjs"
   },
   "peerDependencies": {
     "next": "^16.2.7",

@@ -1,13 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import React from "react";
+import React, { useRef } from "react";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
+import Button from "@french-tech-homies/design-system/components/Button";
+import { Card, CardContent } from "@french-tech-homies/design-system/components/Card";
 import {
   Disclosure,
   DisclosureGroup,
   DisclosureHeader,
   DisclosurePanel,
 } from "@french-tech-homies/design-system/components/Disclosure";
+import { Cell } from "@french-tech-homies/design-system/components/Table";
 
 /**
  * Behaviour tests for the containment surfaces. See
@@ -141,5 +144,136 @@ export const DisclosureGroupMultipleExpand: Story = {
     await userEvent.click(codes);
     await waitFor(() => expect(codes).toHaveAttribute("aria-expanded", "true"));
     await expect(hours).toHaveAttribute("aria-expanded", "true");
+  },
+};
+
+/**
+ * A card is placed and named from outside: the element, the id, the name and
+ * a `data-*` attribute reach the root, so a `section` card is a region found
+ * by its name, and a ref reaches its element.
+ */
+export const CardIsNamedAndPlaced: Story = {
+  render: function Render() {
+    const ref = useRef<HTMLElement>(null);
+    return (
+      <>
+        <Card
+          ref={ref}
+          component="section"
+          id="usage-card"
+          aria-labelledby="usage-title"
+          data-testid="usage"
+          style={{ gridColumn: "span 2" }}
+          variant="outlined"
+        >
+          <h2 id="usage-title">Usage this month</h2>
+        </Card>
+        <Button onPress={() => ref.current?.setAttribute("data-reached", "")}>
+          Reach
+        </Button>
+      </>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const region = canvas.getByRole("region", { name: "Usage this month" });
+
+    await expect(region.tagName).toBe("SECTION");
+    await expect(region).toHaveAttribute("id", "usage-card");
+    await expect(region).toHaveAttribute("data-slot", "card");
+    await expect(region).toHaveAttribute("data-variant", "outlined");
+    await expect(region).toHaveAttribute("data-testid", "usage");
+    await expect(region.style.gridColumn).toBe("span 2");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Reach" }));
+    await expect(region).toHaveAttribute("data-reached");
+  },
+};
+
+/** A class handed for a named part lands on that part, and on no other. */
+export const CardPartClassesLand: Story = {
+  render: () => (
+    <Card classNames={{ content: "gap-2", stateLayer: "bg-primary" }}>
+      <CardContent
+        media={<div className="h-10 bg-surface-dim" />}
+        headline="Serving hours"
+        supportingText="A menu is active between the times you set."
+        actions={<Button>Edit</Button>}
+        classNames={{
+          media: "h-10",
+          header: "pt-2",
+          headline: "text-primary",
+          supportingText: "italic",
+          actions: "justify-start",
+        }}
+      />
+    </Card>
+  ),
+  play: async ({ canvasElement }) => {
+    const part = (slot: string) =>
+      canvasElement.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
+
+    await expect(part("card-content")).toHaveClass("gap-2");
+    await expect(part("state-layer")).toHaveClass("bg-primary");
+    await expect(part("state-layer")).not.toHaveClass("bg-on-surface");
+    await expect(part("card-media")).toHaveClass("h-10");
+    await expect(part("card-header")).toHaveClass("pt-2");
+    await expect(part("card-headline")).toHaveClass("text-primary");
+    await expect(part("card-headline")).not.toHaveClass("text-on-surface");
+    await expect(part("card-supporting-text")).toHaveClass("italic");
+    await expect(part("card-actions")).toHaveClass("justify-start");
+    await expect(part("card-actions")).not.toHaveClass("justify-end");
+    await expect(part("card")).not.toHaveClass("gap-2");
+  },
+};
+
+// Never rendered: the type is the proof, and `npm run typecheck` reads it.
+const refusedByTheType = () => (
+  <>
+    {/* @ts-expect-error a card takes no event handler */}
+    <Card onClick={() => undefined}>Not pressed</Card>
+    {/* @ts-expect-error a card is no tab stop */}
+    <Card tabIndex={0}>Not focused</Card>
+    {/* @ts-expect-error a cell places its own element */}
+    <Cell render={() => <td />}>Not rendered</Cell>
+  </>
+);
+void refusedByTheType;
+
+/**
+ * A card is a container, not a control: Tab goes straight to the action
+ * inside it, then to the one after it, and never stops on the card. The type
+ * refuses what would make it a control, a handler and a tab stop.
+ */
+export const CardIsNotATabStop: Story = {
+  render: () => (
+    <div className="flex max-w-md flex-col gap-4">
+      <Card variant="elevated" data-testid="card">
+        <CardContent
+          headline="Serving hours"
+          supportingText="A menu is active between the times you set."
+          actions={<Button>Edit hours</Button>}
+        />
+      </Card>
+      <Button>After</Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = canvas.getByTestId("card");
+
+    await expect(card).not.toHaveAttribute("tabindex");
+    await expect(card).not.toHaveAttribute("role");
+
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Edit hours" }),
+    ).toHaveFocus();
+    await expect(card).not.toHaveFocus();
+
+    await userEvent.keyboard("{Enter}");
+    await expect(
+      canvas.getByRole("button", { name: "Edit hours" }),
+    ).toHaveFocus();
   },
 };

@@ -30,6 +30,8 @@
 
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 
+import { RECORD, digests, landedText } from "../changed.mjs";
+
 const KIT = ".";
 const NS = "@ds";
 const UI = "@ui/ds"; // resolved from the consumer's components.json aliases
@@ -73,6 +75,34 @@ const licenseItem = {
       target: `${UI}/LICENSE`,
     },
   ],
+  ...stamp,
+};
+
+/* ---- the update check -------------------------------------------------- */
+
+// `changed.mjs` lists the kit files a project changed since it installed
+// them, read against the release record (`RELEASE.json`, written at the end
+// of this script). The check is an item of its own, which `ds` depends on, so
+// a copy installed before there was a record can add this one file and be
+// told plainly that the check cannot speak for it. The record is carried by
+// `ds` alone: only the whole install replaces it, so an `add` of one item at
+// a newer release never makes it say a release the other files are not at.
+const CHANGED = "changed";
+
+const changedItem = {
+  name: CHANGED,
+  type: "registry:file",
+  title: "Update check",
+  description:
+    "Lists the kit files a project changed since it installed them, before an update overwrites them: `node <ui>/ds/changed.mjs`. Reads the release record the whole install brings (<ui>/ds/RELEASE.json); writes nothing, merges nothing. Exit 0: none differs. 1: some do. 2: it cannot tell (no record: a copy installed before 0.3.0).",
+  files: [
+    {
+      path: "changed.mjs",
+      type: "registry:file",
+      target: `${UI}/changed.mjs`,
+    },
+  ],
+  registryDependencies: [`${NS}/${LICENSE}`],
   ...stamp,
 };
 
@@ -307,7 +337,7 @@ const components = [
     name: "icon-button",
     title: "Icon button",
     description:
-      "Standard, filled, tonal and outlined icon buttons, optionally toggleable.",
+      "Standard, filled, tonal and outlined icon buttons in Material's five sizes, optionally toggleable.",
     files: [file("components/IconButton.tsx")],
     dependencies: [RAC],
     deps: ["utils", "state-layer", "icons"],
@@ -331,10 +361,10 @@ const components = [
     name: "table",
     title: "Table",
     description:
-      "Data table on React Aria Table: sortable columns, optional row selection (checkbox column added), empty state — M2 data-table measurements on M3 roles.",
+      "Data table on React Aria Table: sortable columns, optional row selection (checkbox column added), empty state, dense rows, cells cut to one line — M2 data-table measurements on M3 roles.",
     files: [file("components/Table.tsx")],
     dependencies: [RAC],
-    deps: ["utils", "icons", "render-props", "checkbox"],
+    deps: ["utils", "icons", "render-props", "checkbox", "tooltip"],
   }),
   item({
     name: "tag",
@@ -753,7 +783,7 @@ const skills = [
     folder: "ds-build",
     title: "ds-build skill",
     description:
-      "Claude Code skill: build screens with the kit. Role utilities and their pairing, the type primitives, state layers, the resolved DESIGN.md as the reference for values, and the three layers that say what a project may change.",
+      "Claude Code skill: build screens with the kit. Role utilities and their pairing, the type primitives, state layers, the resolved DESIGN.md as the reference for values, and what a project may change: an edit of a kit file is allowed, priced and rarely needed.",
     deps: [TOKENS],
   }),
 ];
@@ -762,15 +792,16 @@ const skills = [
 // item it was asked to add (theme/style types), never for a nested
 // dependency. Carrying the bridge here makes `add @ds/ds` also point an
 // existing shadcn palette at the Material roles. It is the one install: the
-// components, the theme files, the DESIGN.md generator and the three skills.
+// components, the theme files, the DESIGN.md generator, the three skills,
+// the update check and the release record the check reads.
 const everything = {
   ...item({
     name: "ds",
     type: "registry:style",
     title: "MD3 kit (everything)",
     description:
-      "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, and the ds-theme, ds-build and ds-spec skills for Claude Code. Writes the shadcn bridge into your CSS, never a palette value.",
-    files: [file("index.ts", "registry:lib")],
+      "The one install: every component and primitive with the kit's barrel index, the theme files and the kit's DESIGN.md, the DESIGN.md generator, the ds-theme, ds-build and ds-spec skills for Claude Code, and the update check with the record of this release. Writes the shadcn bridge into your CSS, never a palette value.",
+    files: [file("index.ts", "registry:lib"), file(RECORD, "registry:file")],
     deps: [
       ...components
         .filter(
@@ -785,6 +816,7 @@ const everything = {
       TOKENS,
       designMdItem.name,
       ...skills.map((s) => s.name),
+      CHANGED,
     ],
   }),
   dependencies: themeItem.dependencies,
@@ -828,12 +860,44 @@ const registry = {
     tokensItem,
     designMdItem,
     licenseItem,
+    changedItem,
     ...presets,
     ...components,
     everything,
     ...skills,
   ],
 };
+
+/* ---- the release record ----------------------------------------------- */
+
+// What `changed.mjs` reads in a project: this version, and the digests of
+// every file every item carries (of both its forms where it has two), keyed by where it lands (under the kit's
+// folder, or under the project's root). Built here, where every file and its
+// target is known, with the function the check itself uses. It does not
+// record itself.
+const record = { version: VERSION, kit: {}, project: {} };
+for (const { path, target } of registry.items.flatMap((i) => i.files ?? [])) {
+  if (path === RECORD) continue;
+  const [group, landed] = target.startsWith(`${UI}/`)
+    ? ["kit", target.slice(UI.length + 1)]
+    : target.startsWith("~/")
+      ? ["project", target.slice(2)]
+      : [];
+  if (!group) throw new Error(`${path}: a target the record cannot place, ${target}`);
+  // A source that opens with a comment has two forms in a project: the kit's
+  // own, and the one the CLI lands, from the first token on. Both are kept,
+  // so the check compares a project's text as it stands and hides no edit.
+  const text = read(path);
+  const second = landedText(text, landed);
+  record[group][landed] =
+    second === null ? digests(text) : { ...digests(text), landed: digests(second) };
+}
+for (const group of ["kit", "project"]) {
+  record[group] = Object.fromEntries(
+    Object.entries(record[group]).sort(([a], [b]) => (a < b ? -1 : 1)),
+  );
+}
+writeFileSync(RECORD, JSON.stringify(record, null, 2) + "\n");
 
 writeFileSync("registry.json", JSON.stringify(registry, null, 2) + "\n");
 console.log(
