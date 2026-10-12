@@ -17,7 +17,7 @@
    - the item that carries a script declares what the script imports, and the
      generator's item declares the package of every `npx` command a skill
      names, each at the range of the kit's own package.json;
-   - no skill file names anything of the repository the kit is built in;
+   - no skill file names anything of this repository;
    - every skill opens with a frontmatter that parses as strict YAML and
      names the skill as its folder does, with a description;
    - no item lands a skill that is not one of the kit's own three, named
@@ -77,17 +77,9 @@ const PROJECT_FILES = new Set([
   "spec-version.json",
 ]);
 
-/** Words of the repository the kit is built in. A skill is read in any
-    project, where none of them means anything. */
-const REPOSITORY_WORDS = [
-  /pipao/i,
-  /apps\/web/,
-  /packages\/[a-z0-9-]+/,
-  /docs\/wiki/,
-  /french-tech-homies/,
-  /\.agents\//,
-  /@pipao\b/,
-];
+/** Words of this repository. A skill is read in any project, where none of
+    them means anything. */
+const REPOSITORY_WORDS = [/french-tech-homies/];
 
 /** `name@range` → [name, range]; the name may be scoped. */
 const splitDependency = (d) => {

@@ -34,6 +34,21 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+### Changed
+
+- **Only a release publishes.** Before: every merge to `main` that passed the
+  checks published the catalog and the registry, so the registry could serve
+  what was under `[Unreleased]` under the number of the last release. Now:
+  every pull request and every push to `main` is still checked whole, and
+  `pages.yml` deploys only when a push moved the version in all five places a
+  release writes it (`package.json`, `package-lock.json`, every item's
+  `meta.version` in `registry.json`, `RELEASE.json`, the CHANGELOG's newest
+  heading). Any other merge publishes nothing and the previous site stays.
+  Started by hand, the workflow publishes the last release again, and nothing
+  once `main` has moved past it. Nothing to do in a project: what
+  `/r/{name}.json` serves is now always a release. See the README,
+  "Publishing this repository".
+
 ## [0.3.0] — 2026-10-11
 
 ### Changed
@@ -771,6 +786,6 @@ of 2026-08-26; every item served before this release is what
 - `Snackbar` on React Aria `Toast`, `Tag`, `Avatar`, `Table`, and `href` on
   `Button` / `IconButton` / `Chip` / `Menu` items.
 
-[unreleased]: https://github.com/french-tech-homies/pipao-v2/commits/main/packages/md3
+[unreleased]: https://github.com/french-tech-homies/design-system/commits/main
 [0.3.0]: https://github.com/french-tech-homies/pipao-v2/commits/main/packages/md3
 [0.2.0]: https://github.com/french-tech-homies/pipao-v2/commits/main/packages/md3

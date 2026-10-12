@@ -19,7 +19,8 @@
     "test-storybook": "vitest run",
     "test-storybook:watch": "vitest",
     "registry:check-version": "node scripts/check-registry-version.mjs r",
-    "registry:check-install": "node --test scripts/check-install.check.mjs scripts/check-components.check.mjs scripts/changed.check.mjs"
+    "registry:check-install": "node --test scripts/check-install.check.mjs scripts/check-components.check.mjs scripts/changed.check.mjs scripts/decide-publish.check.mjs",
+    "registry:publishes": "node scripts/decide-publish.mjs"
   },
   "peerDependencies": {
     "next": "^16.2.7",

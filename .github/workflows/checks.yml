@@ -9,17 +9,30 @@ name: Checks
 #
 # Called by pages.yml on a push to main: the site it publishes is the `_site`
 # this job assembled, after every step above it passed on the same commit.
+# Only a release publishes: the step "Does this run publish?" decides, and
+# pages.yml deploys on its word alone. See the README, "Publishing this
+# repository".
 on:
   pull_request:
   workflow_call:
+    outputs:
+      publish:
+        description: "'true' when this run publishes: only a release does (scripts/decide-publish.mjs)"
+        value: ${{ jobs.checks.outputs.publish }}
 
 jobs:
   checks:
     name: Tokens, registry & Storybook
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      publish: ${{ steps.decide.outputs.publish }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # A hand start reads the history back to the release's commit; every
+          # other run needs the one commit.
+          fetch-depth: ${{ github.event_name != 'workflow_dispatch' && 1 || 0 }}
 
       - uses: actions/setup-node@v7
         with:
@@ -74,6 +87,21 @@ jobs:
         # what it imports; and no skill names this repository, since a skill
         # is read in whatever project installed the kit.
         run: npm run registry:check-install
+
+      - name: Does this run publish? Only a release does
+        # The version is read in the five places a release writes it, in this
+        # tree and in the commit before the push (the base, on a pull
+        # request). A pull request never publishes: it is told what its merge
+        # would. A tree whose places disagree fails here.
+        id: decide
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -n "$BASE" ] && [ -n "${BASE//0/}" ]; then
+            git fetch --no-tags --depth=1 origin "$BASE" \
+              || echo "::warning::the commit before ($BASE) could not be fetched"
+          fi
+          npm run registry:publishes -- --event "$GITHUB_EVENT_NAME" --base "$BASE" --ref "$GITHUB_REF"
 
       - name: Spec drift (m3.material.io moved since the last audit?)
         continue-on-error: true

@@ -40,7 +40,7 @@ const RAC = "react-aria-components";
 
 // The kit's version, stamped into every generated item so a consumer can tell
 // which release their copy came from. package.json is the only source of
-// truth; `.github/workflows/design-system.yml` fails if a generated item
+// truth; `.github/workflows/checks.yml` fails if a generated item
 // disagrees with it. It rides in `meta` because `version` is not a field of
 // shadcn's registry-item schema, and `meta` is the schema's free-form slot —
 // which is also where the licence is declared, so the terms are readable from

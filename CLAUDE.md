@@ -20,8 +20,10 @@ What the kit is, and which components are its own, is said once: `README.md`,
 - **Served from GitHub Pages**: the Storybook catalog at the site root and the
   registry at `/r/{name}.json`, published by `.github/workflows/pages.yml`
   after `.github/workflows/checks.yml` passed on the same commit.
-- **Every merge to `main` that passes the checks publishes**, to every
-  project that installs the kit.
+- **Only a release publishes**, to every project that installs the kit: a
+  push to `main` that moves the version in every place a release writes it.
+  Any other merge is checked whole and publishes nothing. The rule is said
+  once: `README.md`, "Publishing this repository".
 
 ## Layout
 
@@ -37,7 +39,8 @@ What the kit is, and which components are its own, is said once: `README.md`,
   `stories/interactions/`, the behaviour tests. Every story is a test.
 - `skills/`: what a project's agent reads (`ds-theme`, `ds-build`,
   `ds-spec`).
-- `scripts/`: the registry build and its three rule checks.
+- `scripts/`: the registry build and its four rule checks, the publish
+  decision (`decide-publish.mjs`) among them.
 - `changed.mjs`: what a project runs before an update, to list the kit files
   it changed since it installed them.
 - `spec-version.json`: the m3.material.io version each component was last
@@ -75,6 +78,7 @@ npm run theme:resolve           # refresh tokens/resolved.json
 npm run registry:build          # registry.json and RELEASE.json, then the items into r/
 npm run registry:check-version  # every item carries package.json's version
 npm run registry:check-install  # the one install is whole
+npm run registry:publishes -- --event push --base <sha> --ref refs/heads/main  # would this push publish? Publishes nothing
 npm run build-storybook
 npx playwright install chromium # once
 npm run test-storybook          # every story, rendered, played and axe-checked, under both presets
@@ -119,29 +123,42 @@ A changed story is looked at as a picture, from a Storybook you start and
 stop yourself:
 
 ```bash
-npm run storybook -- --ci --exact-port &     # keep its pid; wait for :6006
+npm run storybook -- --ci --exact-port       # as a background command: keep what the harness gives for it
+curl -s http://localhost:6006/index.json     # answers once it is up, and holds the story ids
 npx playwright screenshot --viewport-size=640,360 \
   "--wait-for-selector=#storybook-root>*" \
   "http://localhost:6006/iframe.html?id=<story-id>&viewMode=story" <file>.png
-kill <pid>                                   # then check nothing listens on 6006
+# stop that background command, then:
+curl -s http://localhost:6006/index.json     # no answer: the port is free
 ```
 
-- `<story-id>` is the story's id in `http://localhost:6006/index.json`,
-  such as `md3-actions-button--filled`.
+- **Start it as a background command of your harness**, and keep the handle
+  the harness gives for it. Only a step that can start a background command
+  takes pictures: today that is `implement`.
+- **Stop it with the harness's own stop of that command.** At a terminal, a
+  person keeps the pid (`$!`) and types `kill <pid>`. Never stop it by a
+  name or a port pattern (`pkill`, `killall`, a `kill` of whatever listens on
+  6006): port 6006 is one per machine, and another worktree's Storybook may
+  be the one that answers.
+- `<story-id>` is the story's id in `index.json`, such as
+  `md3-actions-button--filled`.
 - The other preset is `&globals=preset:editorial`, dark is
   `&globals=theme:dark`, and both are `&globals=preset:editorial;theme:dark`.
   Playwright's `--color-scheme dark` does not switch the kit's theme.
 - `--exact-port` makes a second Storybook fail instead of answering on
-  another port: port 6006 is one per machine.
+  another port. It is the check at the next start: a start that fails says a
+  Storybook was left running, yours or another worktree's.
 - The picture goes outside the tree and is never committed.
 - It is a picture, not an interaction: a hover, a focus or an open overlay is
   seen only where a story renders it. Behaviour is the story tests'.
-- Stop the server before a heavy command runs and before you finish.
+- Stop the server before a heavy command runs and before you finish, and say
+  that the port is free.
 
 ## Rules
 
 - **A change lands as a branch and a pull request**, never as a push to
-  `main`: a merge there publishes.
+  `main`: every project that installs the kit receives what `main` holds at
+  the next release, and a push that moves the version publishes at once.
 - **No change touches the version.** A release is a change of its own:
   `npm version <minor|patch> --no-git-tag-version`, `npm run registry:build`,
   `npm run registry:check-version`, the CHANGELOG's heading, one commit.
