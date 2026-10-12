@@ -1212,6 +1212,7 @@ const DARK_SWITCH = {
     scoped: `once per scheme block rather than once on \`:root\` so that a \`.dark\` on a
    *subtree* re-colors that subtree too; an app that wants a different default
    sets \`color\` on \`<body>\`, which wins over an inherited value.`,
+    optOut: ":root, .dark",
     resolved: "Dark applies under a\n`.dark` class.",
   },
   system: {
@@ -1221,6 +1222,7 @@ const DARK_SWITCH = {
    it, and a \`.dark\` on a subtree does nothing.`,
     scoped: `once per scheme block; an app that wants a different default sets \`color\`
    on \`<body>\`, which wins over an inherited value.`,
+    optOut: ":root",
     resolved:
       "Dark applies when\nthe system asks for it (`prefers-color-scheme: dark`); no class switches it.",
   },
@@ -1230,6 +1232,7 @@ const themeCssHead = ({
   title,
   keyed,
   scoped,
+  optOut,
 }) => `/* =============================================================================
    MD3 color scheme — light (:root) and ${title}
    -----------------------------------------------------------------------------
@@ -1262,8 +1265,18 @@ const themeCssHead = ({
    theme's roles (\`scrollbar-color\`: a thumb in \`outline\`, a lane that shows
    the ground). So what the browser draws itself (a scroll bar, a native
    select's list, a date field's picker) follows the theme, in light, in dark
-   and in a \`.dark\` subtree. Both are inherited: a project's own
-   \`color-scheme\` or \`scrollbar-color\` on \`<body>\` or on a scroller wins.
+   and in a \`.dark\` subtree.
+
+   To keep what the browser drew before, write one rule in your own CSS, after
+   this file's import and outside any \`@layer\`: on \`${optOut}\`, the two
+   declarations \`color-scheme: normal\` and \`scrollbar-color: auto\`.
+
+   It goes on the root because the page's own scroll bar and canvas read the
+   root element: the same declarations on \`<body>\` reach only what is inside
+   the body. And while \`scrollbar-color\` is set, browsers that support it ignore
+   \`::-webkit-scrollbar\` rules. A project that styles its bars that way
+   writes that rule, or \`scrollbar-color: auto\` on the scrollers it
+   styles, or moves its colours to \`scrollbar-color\`.
    ========================================================================== */
 `;
 

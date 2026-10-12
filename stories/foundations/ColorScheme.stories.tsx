@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { expect, within } from "storybook/test";
 
 import { Body, Label } from "@french-tech-homies/design-system/primitives/Typography";
@@ -10,8 +10,10 @@ import { Body, Label } from "@french-tech-homies/design-system/primitives/Typogr
  * list, a date field's picker, a checkbox and a scroll bar are drawn light
  * under `:root` and dark under `.dark`, and `scrollbar-color` gives the bars
  * the theme's roles: a thumb in `outline` on a lane that shows the ground.
- * Colours only: the kit sets no width and hides no bar. A project's own
- * `color-scheme` or `scrollbar-color`, on `<body>` or on a scroller, wins.
+ * Colours only: the kit sets no width and hides no bar. A project that wants
+ * the browser's own drawing back writes one rule on the root, after the
+ * theme ("The opt-out"); the same rule on `<body>` does not reach the page's
+ * own bar ("On body alone").
  */
 const meta = {
   title: "MD3/Foundations/Color scheme",
@@ -112,5 +114,119 @@ export const NativeControlsAndScrollBars: Story = {
       );
     }
     probe.remove();
+  },
+};
+
+/**
+ * The rule a project writes to keep what the browser drew before: on the
+ * root, after the theme and outside any layer. The same text is in the
+ * generated `theme.css`'s head comment, for a theme keyed on `.dark`.
+ */
+const OPT_OUT = ":root, .dark { color-scheme: normal; scrollbar-color: auto; }";
+/** The same declarations where they do not reach the page: on `<body>`. */
+const ON_BODY = "body { color-scheme: normal; scrollbar-color: auto; }";
+
+/** What the root element computes: the page's own bar and canvas read it. */
+function RootReadOut() {
+  const [read, setRead] = useState({ colorScheme: "", scrollbarColor: "" });
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => {
+      const { colorScheme, scrollbarColor } = getComputedStyle(root);
+      setRead({ colorScheme, scrollbarColor });
+    };
+    update();
+    // The toolbar's theme and preset are classes on <html>.
+    const observer = new MutationObserver(update);
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <Body size="large" component="div" className="font-mono">
+      <div>
+        html color-scheme:{" "}
+        <span data-testid="root-color-scheme">{read.colorScheme}</span>
+      </div>
+      <div>
+        html scrollbar-color:{" "}
+        <span data-testid="root-scrollbar-color">{read.scrollbarColor}</span>
+      </div>
+    </Body>
+  );
+}
+
+/**
+ * A project that wants the browser's own drawing back writes one rule on the
+ * root, after the theme: the page's scroll bar and canvas read the root
+ * element, and so does everything that inherits from it. The read-out is what
+ * the root computes. The page is taller than the window, so its own bar is
+ * there to look at.
+ */
+export const TheOptOut: Story = {
+  name: "The opt-out",
+  render: () => (
+    <div className="bg-background flex min-h-[150vh] flex-col gap-6 p-6">
+      <style>{OPT_OUT}</style>
+      <RootReadOut />
+      <NativeParts name="The page" />
+      <div
+        data-testid="dark-box"
+        className="dark bg-background rounded-shape-medium p-6"
+      >
+        <NativeParts name="A dark subtree" />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const parts = [
+      document.documentElement,
+      canvas.getByTestId("dark-box"),
+      ...canvas.getAllByTestId("scroller"),
+    ];
+    for (const part of parts) {
+      await expect(getComputedStyle(part).colorScheme).toBe("normal");
+      await expect(getComputedStyle(part).scrollbarColor).toBe("auto");
+    }
+    await expect(canvas.getByTestId("root-color-scheme")).toHaveTextContent(
+      "normal",
+    );
+    await expect(canvas.getByTestId("root-scrollbar-color")).toHaveTextContent(
+      "auto",
+    );
+  },
+};
+
+/**
+ * The same declarations on `<body>` do not opt the page out: the root keeps
+ * the theme's values, so the page's own bar and canvas stay the theme's. Only
+ * what is inside the body, such as the box below, takes them.
+ */
+export const OnBodyAlone: Story = {
+  name: "On body alone",
+  render: () => (
+    <div className="bg-background flex min-h-[150vh] flex-col gap-6 p-6">
+      <style>{ON_BODY}</style>
+      <RootReadOut />
+      <NativeParts name="The page" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const root = document.documentElement;
+    await expect(getComputedStyle(root).colorScheme).toBe(
+      root.classList.contains("dark") ? "dark" : "light",
+    );
+    const probe = document.createElement("div");
+    probe.style.color = "var(--md-sys-color-outline)";
+    root.append(probe);
+    const outline = getComputedStyle(probe).color;
+    probe.remove();
+    await expect(getComputedStyle(root).scrollbarColor).toBe(
+      `${outline} rgba(0, 0, 0, 0)`,
+    );
+    const scroller = canvas.getByTestId("scroller");
+    await expect(getComputedStyle(scroller).colorScheme).toBe("normal");
+    await expect(getComputedStyle(scroller).scrollbarColor).toBe("auto");
   },
 };
