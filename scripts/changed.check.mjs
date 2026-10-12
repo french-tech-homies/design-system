@@ -13,6 +13,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
+  cpSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -442,6 +443,103 @@ test("RELEASE.json is what the build computes for every file the registry carrie
     record.version,
     JSON.parse(readFileSync(join(kit, "package.json"), "utf8")).version,
   );
+});
+
+/* ---- the record, as the build here writes it ---------------------------- */
+
+/** What the check expects of a file: the digests of its text, and of its
+    second form where it has one. Computed here, not read from the build. */
+const expectedOf = (text, landed) => {
+  const second = landedText(text, landed);
+  return second === null ? digests(text) : { ...digests(text), landed: digests(second) };
+};
+
+/** This repository's own registry build, run on a copy of the tree: what
+    it wrote, and what the check expects for every file the registry it
+    wrote names. The copy is removed when the test ends. */
+function built(t, change = () => {}) {
+  const copy = mkdtempSync(join(tmpdir(), "ds-build-"));
+  t.after(() => rmSync(copy, { recursive: true, force: true }));
+  const left = new Set(["node_modules", ".git", "r", "_site", "storybook-static"]);
+  cpSync(kit, copy, {
+    recursive: true,
+    filter: (from) => from === kit || !left.has(from.slice(kit.length + 1)),
+  });
+  // The build must write both: neither is taken from the copy.
+  rmSync(join(copy, RECORD));
+  rmSync(join(copy, "registry.json"));
+  change(copy);
+  const { status, stderr } = spawnSync(
+    process.execPath,
+    ["scripts/build-registry.mjs"],
+    { cwd: copy, encoding: "utf8" },
+  );
+  assert.equal(status, 0, stderr);
+  const written = JSON.parse(readFileSync(join(copy, RECORD), "utf8"));
+  const index = JSON.parse(readFileSync(join(copy, "registry.json"), "utf8"));
+  const expected = { kit: {}, project: {} };
+  for (const { path, target } of index.items.flatMap((i) => i.files ?? [])) {
+    if (path === RECORD) continue;
+    const [group, to] = target.startsWith("@ui/ds/")
+      ? ["kit", target.slice("@ui/ds/".length)]
+      : ["project", target.replace(/^~\//, "")];
+    expected[group][to] = expectedOf(readFileSync(join(copy, path), "utf8"), to);
+  }
+  return { copy, written, index, expected };
+}
+
+test("the build here writes the record the check expects, for every file the registry names", (t) => {
+  const { copy, written, index, expected } = built(t);
+  assert.deepEqual(written.kit, expected.kit);
+  assert.deepEqual(written.project, expected.project);
+  assert.deepEqual(Object.keys(written), ["version", "kit", "project"]);
+  // Every file of every item is in it, but itself.
+  const named = index.items.flatMap((i) => i.files ?? []).filter((f) => f.path !== RECORD);
+  assert.ok(named.length > 60);
+  assert.equal(
+    Object.keys(written.kit).length + Object.keys(written.project).length,
+    new Set(named.map((f) => f.target)).size,
+  );
+  // And it is the committed one, byte for byte, with the committed index.
+  for (const path of [RECORD, "registry.json"]) {
+    assert.equal(
+      readFileSync(join(copy, path), "utf8"),
+      readFileSync(join(kit, path), "utf8"),
+      path,
+    );
+  }
+  // The check itself, on an install of what the build wrote, lists nothing.
+  assert.deepEqual(
+    compare({
+      record: written,
+      read: (group, path) => {
+        const file = named.find(
+          (f) => f.target === (group === "kit" ? `@ui/ds/${path}` : `~/${path}`),
+        );
+        return readFileSync(join(copy, file.path), "utf8");
+      },
+    }),
+    { changed: [], whitespace: [], missing: 0, unread: 0, recorded: named.length },
+  );
+});
+
+test("one line changed in one kit file moves that file's digests in the record, and no other's", (t) => {
+  const { written, expected } = built(t, (copy) => {
+    const file = join(copy, "components/Tag.tsx");
+    const before = readFileSync(file, "utf8");
+    const after = before.replace("export ", "// ours\nexport ");
+    assert.notEqual(after, before, "the fixture changed nothing");
+    writeFileSync(file, after);
+  });
+  assert.deepEqual(written.kit, expected.kit);
+  const moved = Object.keys(written.kit).filter(
+    (path) => JSON.stringify(written.kit[path]) !== JSON.stringify(record.kit[path]),
+  );
+  assert.deepEqual(moved, ["components/Tag.tsx"]);
+  assert.notEqual(written.kit["components/Tag.tsx"].exact, record.kit["components/Tag.tsx"].exact);
+  assert.notEqual(written.kit["components/Tag.tsx"].loose, record.kit["components/Tag.tsx"].loose);
+  assert.deepEqual(written.project, record.project);
+  assert.equal(written.version, record.version);
 });
 
 test("the whole install alone carries the record; the check is an item of its own that it reaches", () => {

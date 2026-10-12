@@ -91,21 +91,16 @@ peer set, and nothing else.
 Use this one. It is also where the **component catalog** lives
 (`https://french-tech-homies.github.io/design-system/`).
 
-Both are published from this repository's `main` by
-`.github/workflows/pages.yml`, which builds the registry and the catalog and
-publishes them only after every check passed on the same commit. The built
-registry is not committed: `npm run registry:build` writes it to `r/`.
-
-<!-- retired-names -->
+Both are published from this repository by `.github/workflows/pages.yml`, and
+only by a release: what they serve is the last release, never what `main` has
+gathered since. See _Publishing this repository_. The built registry is not
+committed: `npm run registry:build` writes it to `r/`.
 
 ### Coming from `@md3`
 
-Through 0.2.0 the kit was built inside the pipao-v2 repository and served under
-the namespace `@md3` from two addresses,
-`https://french-tech-homies.github.io/pipao-v2/r/{name}.json` and
-`https://www.pipao.app/r/{name}.json`. **Both are retired**: nothing new is
-published there and they will stop answering. The all-in-one item was `md3`
-and the files landed under `<ui>/md3/`. To move a project over:
+Through 0.2.0 the kit was served under the namespace `@md3`, from addresses
+that are retired: nothing new is published there. The all-in-one item was
+`md3` and the files landed under `<ui>/md3/`. To move a project over:
 
 1. In `components.json` (or `package.json`), replace the `"@md3"` entry of
    `registries` with
@@ -122,8 +117,6 @@ Every other item keeps its name (`@md3/button` is `@ds/button`), and so do
 the `--md-sys-*` variables. The skills land as `ds-theme`, `ds-build` and
 `ds-spec`: a skill folder an earlier install left under another name in
 `.claude/skills/` is not updated, and can be deleted.
-
-<!-- /retired-names -->
 
 **Declare the namespace first.** It goes in `components.json` *or* in
 `package.json`; both work for `add`, and only the `package.json` form works
@@ -191,7 +184,7 @@ fetch from the kit:
 The skills are Claude Code **project** skills: in a shadcn target `~/` is the
 project root, not the person's home, so they land in the project's own
 `.claude/skills/` and are versioned with it. A skill names only files the
-install brings, and nothing of the repository the kit is built in, and opens
+install brings, and nothing of this repository, and opens
 with a frontmatter that parses as strict YAML;
 `npm run registry:check-install` (`scripts/check-install.mjs`)
 refuses a registry or a skill that breaks any of these rules.
@@ -340,7 +333,7 @@ component families.
 
 The bridge only supplies the _variables_; keep a small `@theme inline` of your
 own for the shadcn-named utilities (`--color-card: var(--card)`, …) and the
-radius scale — see this repo's `src/styles/globals.css`. One deliberate
+radius scale. One deliberate
 collision: `bg-primary` / `bg-secondary` are the MD3 roles, so shadcn's
 `variant="secondary"` renders as an MD3 filled secondary until you re-skin it.
 
@@ -471,8 +464,8 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
 ## Catalog
 
-Hosted at **`https://french-tech-homies.github.io/design-system/`**, republished
-from `main` by `.github/workflows/pages.yml`. That is the kit's
+Hosted at **`https://french-tech-homies.github.io/design-system/`**, published
+at each release by `.github/workflows/pages.yml`. That is the kit's
 documentation: every component with its variants, plus the Foundations pages
 (colour, typography, shape & elevation, motion, interaction states) rendered
 straight from `tokens/resolved.json`.
@@ -722,6 +715,9 @@ npm run registry:check-version # what CI runs
 `.github/workflows/checks.yml` fails when a bump was not followed by
 `registry:build`, alongside the existing guards on `resolved.json` and on a
 `registry.json` or a `RELEASE.json` that is not what the build writes.
+
+The merge of that one commit to `main` is what publishes: see _Publishing
+this repository_.
 
 ## Copy or npm package? — the decision
 
@@ -1074,31 +1070,47 @@ closed group named in _What this kit is_, it is a project's.
 
 ## Publishing this repository
 
-This tree is written by a command, from the kit's source in another
-repository: `LIFT.json` names the commit it was lifted from. Until that file
-is gone, a change is made at the source and lifted again, never here.
+**Only a release publishes.** The catalog and the registry are served from
+GitHub Pages, which holds one build: no address serves an older release. So
+a merge to `main` does not publish by itself, or the registry would serve
+what is under `[Unreleased]` under the number of the last release.
 
-**The first time**, in the lifted folder:
+- **Every pull request and every push to `main` is checked whole** by
+  `.github/workflows/checks.yml`: the cheap checks, the Storybook build and
+  the story tests.
+- **A push to `main` publishes only when it is a release**: the version
+  moved, in that one push, in all five places a release writes it:
+  `package.json`, `package-lock.json`, every item's `meta.version` in
+  `registry.json`, `RELEASE.json`, and the newest numbered heading of
+  `CHANGELOG.md`. The tree must say one version in all five, and the commit
+  before the push must say it in none. `.github/workflows/pages.yml` then
+  deploys the site the checks built on that commit.
+- **Any other merge publishes nothing** and the previous site stays. Its run
+  is green, with `publish` skipped.
+- **A version that moved in some of the five places only is refused**: the
+  run is red, on the pull request already. A release completed over two
+  pushes is not published by the second: it is published by hand, below.
 
-```bash
-# 1. Make it a repository and commit. LIFT.json holds the commit to name.
-git init -b main
-git add -A
-git commit -m "Lifted from $(node -p 'const l = require("./LIFT.json"); l.source.repository + "@" + l.source.commit.slice(0, 7)')"
+The decision is `scripts/decide-publish.mjs`, one step of `checks.yml`
+("Does this run publish?"). It prints its sentence in the run's summary: on
+a pull request, what the merge would publish. `npm run registry:publishes --
+--event push --base <sha> --ref refs/heads/main` says the same from a clone,
+and publishes nothing.
 
-# 2. Create the public repository and push.
-gh repo create french-tech-homies/design-system --public --source=. --remote=origin --push
+**The manual trigger** (`gh workflow run pages.yml`, or "Run workflow" on the
+Actions page) is for publishing the last release again: after a deployment
+that failed, after Pages was set up, or for a release that was completed over
+two pushes. It follows the same rule. On `main`, while `registry.json` and
+`RELEASE.json` are still what the release's commit holds, it publishes them,
+with the catalog as `main` has it. Once `main` has moved past the release it
+publishes nothing, and says which release that was: what `main` holds since
+is published by the next release. It publishes nothing from another branch.
 
-# 3. Serve Pages from GitHub Actions (or: Settings → Pages → Source = GitHub Actions).
-gh api -X POST repos/french-tech-homies/design-system/pages -f build_type=workflow
+**One setting, made once by a person**: Settings → Pages → Build and
+deployment → Source = "GitHub Actions". Until then `publish` fails at
+"Configure Pages".
 
-# 4. Publish. The run started by the push in step 2 fails at "Configure Pages"
-#    because step 3 came after it; run the workflow again.
-gh workflow run pages.yml
-gh run watch
-```
-
-**What to look at** once the run is green:
+**What to look at** once a release's run is green:
 
 ```bash
 curl -sI https://french-tech-homies.github.io/design-system/ | head -1
@@ -1106,9 +1118,5 @@ curl -sI https://french-tech-homies.github.io/design-system/ | head -1
 curl -s https://french-tech-homies.github.io/design-system/r/ds.json | jq '.name, .meta'
 # → "ds" and { "kit": "<owner>/<repository>", "version": "…", "license": "MIT" }
 curl -s https://french-tech-homies.github.io/design-system/r/registry.json | jq '.items | length'
-# → 63
+# → the number of items `npm run registry:build` printed
 ```
-
-**Every later time**: lift again into this clone (the command keeps `.git`
-and replaces everything else), read `git status` and `git diff`, then commit
-and push. `pages.yml` republishes from `main` after the checks pass.

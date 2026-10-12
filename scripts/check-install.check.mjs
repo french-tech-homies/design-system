@@ -164,12 +164,11 @@ test("a file a skill names that the install does not bring is refused", () => {
 
 test("a skill that names something of this repository is refused", () => {
   for (const [text, word] of [
-    ["Generate into `apps/web/theme`.", "apps/web"],
-    ["As pipao does it.", "pipao"],
-    ["The check is in the Pipao repo.", "Pipao"],
-    ["See `packages/md3/README.md`.", "packages/md3"],
-    ["The record is `docs/wiki/concepts/theming-layers.md`.", "docs/wiki"],
     ["Hosted by french-tech-homies.", "french-tech-homies"],
+    [
+      "The source is github.com/french-tech-homies/design-system.",
+      "french-tech-homies",
+    ],
   ]) {
     const k = changed((c) => {
       c.texts["skills/ds-build/SKILL.md"] += `\n${text}\n`;
@@ -185,9 +184,9 @@ test("a skill that names something of this repository is refused", () => {
   // The script of a skill is read too, not only its prose.
   refuses(
     changed((k) => {
-      k.texts["skills/ds-spec/md3.mjs"] += "\n// packages/md3\n";
+      k.texts["skills/ds-spec/md3.mjs"] += "\n// french-tech-homies\n";
     }),
-    /skills\/ds-spec\/md3\.mjs:\d+: "packages\/md3"/,
+    /skills\/ds-spec\/md3\.mjs:\d+: "french-tech-homies"/,
   );
 });
 

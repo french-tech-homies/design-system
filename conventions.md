@@ -218,9 +218,9 @@ The behaviour side is React Aria Components, and it moves monthly: keep
 component (check `npm view react-aria-components version` and the release
 notes at `https://react-aria.adobe.com/releases/v<major>-<minor>-0.md`).
 Read its docs as markdown — any page plus `.md`, e.g.
-`https://react-aria.adobe.com/ComboBox.md` — or through the project's
-`react-aria` skill (`.agents/skills/react-aria`, `npx skills update`) and
-MCP server (`.mcp.json`). Compose the React Aria primitives the docs show
+`https://react-aria.adobe.com/ComboBox.md` — or through this repository's
+`react-aria` skill (`.claude/skills/react-aria/`: Adobe's, never edited here,
+refreshed only by `npx skills update`). Compose the React Aria primitives the docs show
 (`ComboBox` + `ComboBoxValue` + `TagGroup`, `ToggleButtonGroup`, …) and let
 MD3 dictate anatomy, tokens and behaviour on top.
 
@@ -245,7 +245,7 @@ says "Material 3 does not describe this component." `npm run
 registry:check-install` (`scripts/check-components.mjs`) refuses a component
 file that does neither, and a list and files that differ.
 
-Then four things, and CI (`.github/workflows/design-system.yml`) enforces all
+Then four things, and CI (`.github/workflows/checks.yml`) enforces all
 of them:
 
 1. **A story** in `stories/<Category>/<Component>.stories.tsx`, titled
