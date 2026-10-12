@@ -262,10 +262,30 @@ may hold anything a font is called (spaces, digits, accents, an apostrophe)
 on one line: it is written as one CSS string, so nothing in it is read as CSS,
 and a fallback that is not plain words (`Source Sans 3`) is quoted the same
 way. A name with no Latin letter or digit, an empty name between two commas
-and a list are refused. Material has two
-faces: the family of `display-large` sets the brand face (display, headline,
-title), the family of `body-large` the plain face (body, label). A different
-family on another token of the same face is not applied, and listed.
+and a list are refused.
+
+**A family per role.** Material gives each of the 15 roles a font of its own,
+which reads one of two faces unless told otherwise, and so does the kit:
+
+- The family of `display-large` is the brand face (display, headline, title);
+  the family of `body-large` is the plain face (body, label). They are
+  `--md-sys-typescale-brand-font` and `--md-sys-typescale-plain-font`.
+- A role that writes no `fontFamily` keeps its face's. So a file that writes
+  one family on `display-large` and one on `body-large` sets all 15 roles.
+- A role that writes a family that is not its face's takes it:
+  `--md-sys-typescale-<role>-font` reads that family's hook, and the kit's
+  primitives and components draw the role in it (`font-<role>`, written
+  beside `text-<role>`). Running text in one family and the labels in
+  another is `body-large` with the first and `label-large`, `label-medium`
+  and `label-small` with the second.
+- Each family is one hook and one font to load, whatever number of roles
+  write it. The kit does not count them: four families is four fonts the
+  project loads.
+- A hook holds one stack: the first written for it, the faces before the
+  roles. The same family written later with other fallbacks is applied, and
+  its fallbacks are listed as not applied.
+- A family whose hook would be a role's or a face's own utility (`Label Large`
+  gives `--font-label-large`, `Brand` gives `--font-brand`) is refused.
 
 ## The mono face
 
@@ -324,7 +344,8 @@ warnings, when there are any. Where the kit read no rule under the project's
 `## Reference CSS`, that section is left as written and the complete rule goes
 in a generated `## Resolved reference CSS` section, which says the project's
 section is not in the theme. Comments inside the project's `:root` rule are
-not carried over. A short name the kit read (`title-md`, `rounded.sm`) is
+not carried over. Every role shows the family applied to it: its own, or
+its face's where the project wrote none. A short name the kit read (`title-md`, `rounded.sm`) is
 written under Material's. A `scheme` or a `seed` the kit assumed is not
 written into it: the resolved file says what the project's file says, and the
 assumption is listed again. It passes the same linter, and generating from it

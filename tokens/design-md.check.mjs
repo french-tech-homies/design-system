@@ -586,25 +586,182 @@ test("setting by name refuses an elevation that appears twice", () => {
 
 /* ---- slice 1's documented rules --------------------------------------- */
 
-test("a face is one family: another family on the same face is not applied, and is listed", () => {
-  const plain = generateTheme(seedOnly, kitV4);
+/* ---- a family per role ------------------------------------------------- */
+
+const ROLE_NAMES = Object.keys(TYPE_DEFAULTS);
+const roleFont = (css, role) =>
+  valueOf(css, `--md-sys-typescale-${role}-font`);
+const families = (...pairs) =>
+  `typography:\n${pairs
+    .map(([role, family]) => `  ${role}:\n    fontFamily: ${family}`)
+    .join("\n")}`;
+
+test("a role takes the family written on it, and a role with none keeps its face's", () => {
+  const labels = ["label-large", "label-medium", "label-small"];
   const mixed = generateTheme(
     designMd(
       "scheme: light",
       SEED,
-      "typography:\n  headline-small:\n    fontFamily: Space Grotesk",
+      families(
+        ["body-large", "Inter"],
+        ...labels.map((role) => [role, "Space Grotesk, Georgia, serif"]),
+      ),
     ),
     kitV4,
   );
-  assert.deepEqual(kinds(mixed.warnings), [
-    ["unapplied", "typography.headline-small.fontFamily"],
-  ]);
-  assert.equal(mixed.themeCss, plain.themeCss);
-  assert.equal(mixed.themeV4Css, plain.themeV4Css);
-  assert.ok(
-    mixed.themeV4Css.includes(
-      "  --md-sys-typescale-brand-font: var(--font-roboto);\n",
+  assert.deepEqual(mixed.warnings, []);
+  // The faces, as before: read from display-large and body-large.
+  assert.equal(
+    valueOf(mixed.themeV4Css, "--md-sys-typescale-brand-font"),
+    "var(--font-roboto)",
+  );
+  assert.equal(
+    valueOf(mixed.themeV4Css, "--md-sys-typescale-plain-font"),
+    "var(--font-inter)",
+  );
+  for (const role of ROLE_NAMES) {
+    assert.equal(
+      roleFont(mixed.themeV4Css, role),
+      labels.includes(role) ? "var(--font-space-grotesk)" : "initial",
+      role,
+    );
+  }
+  // Three roles, one family: one hook, declared once.
+  assert.equal(
+    valueOf(mixed.themeCss, "--font-space-grotesk"),
+    '"Space Grotesk", Georgia, serif',
+  );
+
+  // Taken out of the file, it leaves the theme: the role is its face's again.
+  const plain = generateTheme(
+    designMd("scheme: light", SEED, families(["body-large", "Inter"])),
+    mixed.themeV4Css,
+  );
+  for (const role of ROLE_NAMES) {
+    assert.equal(roleFont(plain.themeV4Css, role), "initial", role);
+  }
+  assert.doesNotMatch(plain.themeCss, /--font-space-grotesk/);
+});
+
+test("one family per face generates no family of a role's own, and no warning", () => {
+  const kit = generateTheme(project, kitV4);
+  const twoFaces = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ...ROLE_NAMES.map((role) => [
+          role,
+          /^(display|headline|title)/.test(role) ? "Fraunces" : "Inter",
+        ]),
+      ),
     ),
+    kitV4,
+  );
+  // A family on the two roles that name the faces says the same.
+  const twoRoles = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      families(["display-large", "Fraunces"], ["body-large", "Inter"]),
+    ),
+    kitV4,
+  );
+  for (const { themeV4Css, warnings } of [kit, twoFaces, twoRoles]) {
+    assert.deepEqual(warnings, []);
+    for (const role of ROLE_NAMES) {
+      assert.equal(roleFont(themeV4Css, role), "initial", role);
+    }
+  }
+  assert.equal(twoRoles.themeCss, twoFaces.themeCss);
+  assert.equal(twoRoles.themeV4Css, twoFaces.themeV4Css);
+  assert.equal(twoRoles.resolvedDesignMd, twoFaces.resolvedDesignMd);
+});
+
+test("a hook carries one stack: the first stands, and another's fallbacks are listed", () => {
+  const { themeCss, themeV4Css, warnings } = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ["body-large", "Inter"],
+        ["body-small", "Inter, Verdana, sans-serif"],
+        ["title-small", "Space Grotesk, Georgia, serif"],
+        ["label-small", "Space Grotesk, monospace"],
+      ),
+    ),
+    kitV4,
+  );
+  assert.deepEqual(kinds(warnings), [
+    ["unapplied", "typography.body-small.fontFamily"],
+    ["unapplied", "typography.label-small.fontFamily"],
+  ]);
+  assert.equal(
+    valueOf(themeCss, "--font-inter"),
+    '"Inter", ui-sans-serif, system-ui, sans-serif',
+  );
+  assert.equal(
+    valueOf(themeCss, "--font-space-grotesk"),
+    '"Space Grotesk", Georgia, serif',
+  );
+  // The family is applied all the same: its face's, or its own hook.
+  assert.equal(roleFont(themeV4Css, "body-small"), "initial");
+  assert.equal(roleFont(themeV4Css, "label-small"), "var(--font-space-grotesk)");
+});
+
+test("the resolved file shows the family applied on every role, and reads back the same", () => {
+  for (const text of [
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ["display-large", "Fraunces"],
+        ["body-large", "Inter"],
+        ["title-md", "Inter"],
+        ["label-small", "Space Grotesk, monospace"],
+        ["label-large", "Space Grotesk"],
+        ["mono", "JetBrains Mono"],
+      ),
+    ),
+    designMd("scheme: light", SEED, families(["headline-small", "Fraunces"])),
+  ]) {
+    const first = generateTheme(text, kitV4);
+    const again = generateTheme(first.resolvedDesignMd, kitV4);
+    assert.equal(again.themeCss, first.themeCss);
+    assert.equal(again.themeV4Css, first.themeV4Css);
+    assert.deepEqual(again.warnings, first.warnings);
+    assert.equal(again.resolvedDesignMd, first.resolvedDesignMd);
+  }
+  const { theme } = generateTheme(
+    designMd(
+      "scheme: light",
+      SEED,
+      families(
+        ["display-large", "Fraunces"],
+        ["title-md", "Inter"],
+        ["label-large", "Space Grotesk"],
+      ),
+    ),
+    kitV4,
+  );
+  const applied = (role) => theme.typography[role].fontFamily;
+  assert.equal(applied("headline-small"), "Fraunces");
+  assert.equal(applied("title-medium"), "Inter");
+  assert.equal(applied("body-small"), "Roboto");
+  assert.equal(applied("label-large"), "Space Grotesk");
+});
+
+test("a family whose hook would be a role's utility is refused", () => {
+  refusal(
+    designMd("scheme: light", SEED, families(["label-large", "Label Large"])),
+    "typography.label-large.fontFamily",
+    "a family whose font hook is not `--font-label-large`",
+  );
+  // Named as the file wrote the role.
+  refusal(
+    designMd("scheme: light", SEED, families(["title-md", "Body Small"])),
+    "typography.title-md.fontFamily",
+    "a family whose font hook is not `--font-body-small`",
   );
 });
 

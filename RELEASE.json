@@ -218,11 +218,11 @@
       "loose": "37a798e862549cebecab0a2eaebf381dba3b9528bfa2d9ab3ce9986e95e36812"
     },
     "primitives/Typography.tsx": {
-      "exact": "dd6f5ec1e926dcb2a9a31c9b2d03ac20fd6058bf365fea28840f4e475215c64c",
-      "loose": "f378d709d8877d64151816694f507ecba04f47b951a756bd986ead1db2a8fc6a",
+      "exact": "a7933224d847f3893414c0732a533370afe7029757ffce188b0e6c794cd88f58",
+      "loose": "43167a3258b15162726c66b834ac49d9f0bec688b26c4cadc7731ea9d51e17a5",
       "landed": {
-        "exact": "01cbde8b44553f9923747e40aa1a4706120dbc25d6b2dafee3f3b8cb4a6d80c0",
-        "loose": "390ba54365bea12e0c31c1ee0a02f4e08541a2799dd86d278d985b8fbab68a7f"
+        "exact": "fbd11fcf5520e53d27a9fd1e219ca518b1be5a7c8a7b972d51cd0a9ebc8c37b6",
+        "loose": "a5c52f8c8c4441a512d277b93613ac207ad66829dfa765a7af4dd314948d822c"
       }
     },
     "render-props.ts": {
@@ -238,8 +238,8 @@
       "loose": "cb0b2f4f16e4cbf0c46c40256514b088602a8c000aeef16993d6a86aadaf545c"
     },
     "tokens/design-md.mjs": {
-      "exact": "de7cf511981911b48b54b686e141f458119fcec91e6da45c373faa18c3d65067",
-      "loose": "d6c80956f7cdaf38a7d5bbc0737aae7fe9297616a49b47fb4722faa244d132e8"
+      "exact": "18982cdc338da2c8af782374d7ecfa605e5ba40c2a12893f3bf7535bf76c1a3b",
+      "loose": "cc65e9c60953a448a242c5820209de0b357f78b689e62f16456be625cf0b719e"
     },
     "tokens/generate-theme.mjs": {
       "exact": "0a7f19678cee574e34fbc5cde94afc8026bc5d57dba6e99b6d41a989663f6603",
@@ -254,12 +254,12 @@
       "loose": "e3c67cd8902cbef86f23ad322bce62e13a32b354ebdc1f08b4c4b6280ffbf8ee"
     },
     "tokens/theme.v4.css": {
-      "exact": "69ead637faa4d3c561a303c7c141bc62040256d918a808d27b9a5a42e2087314",
-      "loose": "555ff39f741ea21c579b3571b09f12b78b7beab8affc0e81fb66e0d3b0eb90f8"
+      "exact": "d9631091c5ea30f870ea140432c9f19de88d3ba50a3d53a2517ce2bdb5e604e8",
+      "loose": "39f7bc6d7a8a98488132ea9f4e35e5c1c7f494c02c6812fa15aa78ac962a8717"
     },
     "utils.ts": {
-      "exact": "4a8544fd6a78f8c95ad2823b96ff06a3d6fddc63abd4864851ecd0607b5a0feb",
-      "loose": "25d3721f96dfc792cf9d615392cd965985f371da3a8d602df9ebfdbe3f3a62fc"
+      "exact": "eda0568e5441b25b0246578deee7af08e500850e55ba04759f0cf1d4cef199f5",
+      "loose": "5e809ca610e6cb85bada53acc152e836e069bd36c02bd955127fa5f28685d294"
     }
   },
   "project": {
@@ -276,12 +276,12 @@
       "loose": "4d99089debfece419b5da2cb23b96638022d7e6a5ebe9048a36f6c07a9ff5097"
     },
     ".claude/skills/ds-theme/SKILL.md": {
-      "exact": "f40551b55fed561bbb14697b041b74a58174eabd3c79a74bfd0316faabdb9bf4",
-      "loose": "1bda3841d6977881f62e46bcca2995bd349b84d289c8ce8221c7ad98b6f10699"
+      "exact": "70e54a8ee50d0921ca1696985f479702e8c013d5b3ca84d2fbb9a4ba3284ee34",
+      "loose": "77bc6937ecf6037a2c43e362d85aa734c47a5716f11a7d322f905f06fd45eb7b"
     },
     ".claude/skills/ds-theme/design-md.md": {
-      "exact": "a29040e1bf445172f6608e86a25ea17f429fd7172a68178439c08166e7fcec74",
-      "loose": "b207053a4fdf745ac86126250eccb7ecfb3e404cd0198e2718808d75595991cb"
+      "exact": "b5c70873b7547377201243f6501c586b53ea35f08717f260c6139413d4233520",
+      "loose": "e22aae9a00efb447f964d31dc9bf5f5e386424d6d6994a7f2fa7cbf80170efc8"
     }
   },
   "optional": {

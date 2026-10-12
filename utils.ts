@@ -38,13 +38,14 @@ export const twMergeConfig = {
         "text-body-small",
       ],
       // MD3's two faces (theme.v4.css) — `font-brand` for display/headline/
-      // title, `font-plain` for body/label. Registering them as font-family,
-      // and `font-regular` as the font-weight it is, is what lets a caller's
-      // `font-regular` merge as a weight beside a primitive's face:
-      // tailwind-merge's stock config reads any unknown `font-*` as a family,
-      // so `font-brand font-regular` would otherwise collapse to
-      // `font-regular` and lose the face.
-      "font-family": [{ font: ["brand", "plain"] }],
+      // title, `font-plain` for body/label — and a family per type role,
+      // `font-<role>`, written beside `text-<role>`. Registering them as
+      // font-family, and `font-regular` as the font-weight it is, is what
+      // lets a caller's `font-regular` merge as a weight beside a
+      // primitive's family: tailwind-merge's stock config reads any unknown
+      // `font-*` as a family, so `font-brand font-regular` would otherwise
+      // collapse to `font-regular` and lose the face.
+      "font-family": [{ font: ["brand", "plain", ...typeRoles()] }],
       "font-weight": [{ font: ["regular"] }],
       // State-layer opacities (theme.v4.css `@utility state-opacity-*`). In
       // the `opacity` group so they override — and are overridden by — a plain
@@ -103,6 +104,12 @@ export const twMergeConfig = {
     },
   },
 };
+
+function typeRoles() {
+  return ["display", "headline", "title", "body", "label"].flatMap((group) =>
+    ["large", "medium", "small"].map((size) => `${group}-${size}`),
+  );
+}
 
 function shapeScale() {
   return [

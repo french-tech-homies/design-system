@@ -579,8 +579,13 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
   role) to state one. Set `color` on `<body>` to override the default.
 - **Type** — `text-display-large` → `text-label-small` (15 roles), on two
   faces: `font-brand` (display / headline / title) and `font-plain` (body /
-  label), both defaulting to the same `--font-inter` hook. The `Typography`
-  primitives apply them; raw `text-*` classes do not. Each `text-*` class
+  label), both defaulting to the same `--font-inter` hook. Each role has a
+  family of its own beside them, `font-<role>` (`font-label-large`), which
+  reads `--md-sys-typescale-<role>-font`: the family a project's DESIGN.md
+  writes on that role, and its face where it writes none. So a face
+  overridden in a preset or on a subtree still moves every role with no
+  family of its own. The `Typography` primitives write `font-<role>`; a raw
+  `text-*` class carries no family. Each `text-*` class
   carries its role's size, line height, tracking and weight
   (`--md-sys-typescale-<role>-weight`, one for each of the 15 roles), and the
   primitives write no weight of their own: a weight a project's DESIGN.md

@@ -66,10 +66,12 @@ matter and one CSS block.
   surfaces. Then write a role (`primary`, `surface`, `on-surface`, …) only
   where an exact colour matters: a written role holds in the written scheme
   only, a key holds in both.
-- **`typography`**: at least `fontFamily` on the 15 roles. The family of
-  `display-large` is the brand face (display, headline, title), the family of
-  `body-large` the plain face (body, label). No `typography` at all means
-  Roboto.
+- **`typography`**: at least `fontFamily` on `display-large` and
+  `body-large`. The first is the brand face (display, headline, title), the
+  second the plain face (body, label), and a role that writes no family keeps
+  its face's. A role that writes another family takes it (labels in a squared
+  face under running text in a reading face): each family is one more font
+  the project loads. No `typography` at all means Roboto.
 - **`rounded`**: the six corners. Sharp looks lower them all; `full` stays a
   pill unless the brief wants square buttons.
 - **`## Reference CSS`** in the body: elevation (a glow instead of a shadow, a

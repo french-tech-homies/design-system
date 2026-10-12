@@ -25,7 +25,10 @@
                   roles are the same in both schemes, so a written one applies
                   to both.
      typography   the 15 Material type roles (`display-large` … `label-small`,
-                  or with the format's short sizes, `title-md`), and `mono`: the `fontFamily` of the face the project
+                  or with the format's short sizes, `title-md`), each with the
+                  family written on it, or its face's when it writes none
+                  (`display-large` names the brand face, `body-large` the
+                  plain one), and `mono`: the `fontFamily` of the face the project
                   reaches for with `font-mono`. No kit component uses it.
      rounded      the 6 corners (`extra-small` … `full`, or the format's
                   short `xs`, `sm`, `md`, `lg`, `xl`).
@@ -934,6 +937,8 @@ function deriveTypography(front, warnings) {
   );
   /** Material's role → the key the file wrote it under (`title-md`). */
   const names = {};
+  /** The roles the file writes a family on. */
+  const ownFamily = new Set();
   for (const [role, token, key] of byMaterialName(
     written,
     "typography",
@@ -964,6 +969,7 @@ function deriveTypography(front, warnings) {
         );
       } else if (Object.hasOwn(TYPE_DEFAULTS[role], property)) {
         typography[role][property] = value;
+        ownFamily.add(role);
       } else {
         // Under Material's name, as the resolved file writes the role.
         warnings.push({
@@ -974,7 +980,7 @@ function deriveTypography(front, warnings) {
       }
     }
   }
-  return { typography, names };
+  return { typography, names, ownFamily };
 }
 
 function deriveRounded(front, warnings) {
@@ -1045,6 +1051,13 @@ function fontHook(family, token, fallback = FALLBACK_STACK) {
       `a family whose font hook is not \`${MONO_UTILITY}\`, the variable the \`font-mono\` utility reads: write the family's full name (\`JetBrains Mono\` gives \`--font-jetbrains-mono\`)`,
     );
   }
+  // The same for a role's or a face's own utility (`--font-label-large`,
+  // `--font-brand`), which theme.v4.css maps to the role's token.
+  if (Object.hasOwn(TYPE_DEFAULTS, slug) || Object.hasOwn(FACES, slug)) {
+    throw refuse(
+      `a family whose font hook is not \`--font-${slug}\`, the variable the \`font-${slug}\` utility reads`,
+    );
+  }
   return {
     hook: `--font-${slug}`,
     family: first,
@@ -1058,26 +1071,61 @@ function fontHook(family, token, fallback = FALLBACK_STACK) {
   };
 }
 
-/** One family per face: theme.v4.css has one variable for each. */
-function deriveFaces(typography, warnings) {
+/** The face of a role: `title-small` → `brand`. */
+const faceOf = (role) =>
+  Object.keys(FACES).find((face) => FACES[face].includes(role.split("-")[0]));
+
+/** A family per role, as Material's own tokens have it
+    (`md.sys.typescale.<role>.font`), each pointing at one of the two faces
+    unless the file says otherwise.
+
+    The faces are read as they always were: the brand face is the family of
+    `display-large`, the plain face the family of `body-large`. A role the
+    file writes no family on keeps its face's. A role it writes one on gets a
+    hook of its own, unless that hook is its face's already.
+
+    A hook is declared once, with one stack: the first to name it, the faces
+    before the roles, the roles in the scale's order. A later stack on the
+    same hook is listed, and the family applies all the same.
+
+    `typography` is completed in place: every role ends with the family that
+    is applied to it, which is what the resolved file shows. */
+function deriveFaces(typography, names, ownFamily, warnings) {
+  const token = (role) => `typography.${names[role] ?? role}.fontFamily`;
   const faces = {};
   for (const [face, groups] of Object.entries(FACES)) {
-    const roles = Object.keys(typography).filter((role) =>
+    const first = Object.keys(typography).find((role) =>
       groups.includes(role.split("-")[0]),
     );
-    const family = typography[roles[0]].fontFamily;
-    for (const role of roles.slice(1)) {
-      if (typography[role].fontFamily !== family) {
-        warnings.push({
-          kind: "unapplied",
-          token: `typography.${role}.fontFamily`,
-          message: `typography.${role}.fontFamily: the ${face} face is one family, taken from ${roles[0]} — not applied`,
-        });
-      }
-    }
-    faces[face] = fontHook(family, `typography.${roles[0]}.fontFamily`);
+    faces[face] = { ...fontHook(typography[first].fontFamily, token(first)), first };
   }
-  return faces;
+  /* Two faces of one family share a hook, and its stack is the plain face's:
+     as it was written before a role had a family. */
+  const hooks = new Map(Object.values(faces).map((face) => [face.hook, face]));
+
+  /** Role → the hook it reads, or null where it reads its face's. */
+  const roles = {};
+  for (const role of Object.keys(typography)) {
+    const face = faces[faceOf(role)];
+    roles[role] = null;
+    if (!ownFamily.has(role)) {
+      typography[role].fontFamily = typography[face.first].fontFamily;
+      continue;
+    }
+    if (role === face.first) continue;
+    const own = fontHook(typography[role].fontFamily, token(role));
+    const held = hooks.get(own.hook);
+    if (!held) hooks.set(own.hook, own);
+    else if (held.stack !== own.stack) {
+      warnings.push({
+        kind: "unapplied",
+        token: `typography.${role}.fontFamily`,
+        message: `typography.${role}.fontFamily: \`${own.hook}\` already carries ${held.stack} — the family is applied, the fallbacks written here are not`,
+      });
+    }
+    if (own.hook !== face.hook) roles[role] = own.hook;
+  }
+  return { faces, roles, hooks: [...hooks.values()] };
 }
 
 /** The face a project reaches for with `font-mono`: `typography.mono`'s
@@ -1114,10 +1162,18 @@ export function deriveTheme(text) {
   const warnings = [];
   deriveFront(front, warnings);
   const colors = deriveColors(front, warnings);
-  const { typography, names: typeNames } = deriveTypography(front, warnings);
+  const {
+    typography,
+    names: typeNames,
+    ownFamily,
+  } = deriveTypography(front, warnings);
   const mono = deriveMono(front, warnings);
   const rounded = deriveRounded(front, warnings);
-  const faces = deriveFaces(typography, warnings);
+  const {
+    faces,
+    roles: roleFonts,
+    hooks,
+  } = deriveFaces(typography, typeNames, ownFamily, warnings);
   const reference = deriveReference(body, warnings);
   return {
     front,
@@ -1127,6 +1183,8 @@ export function deriveTheme(text) {
     typeNames,
     rounded,
     faces,
+    roleFonts,
+    hooks,
     mono,
     reference,
     warnings,
@@ -1240,9 +1298,7 @@ function darkBlock(theme) {
 
 /** theme.css, whole: every value in it is derived. */
 export function renderThemeCss(theme) {
-  const hooks = new Map(
-    Object.values(theme.faces).map((face) => [face.hook, face]),
-  );
+  const hooks = new Map(theme.hooks.map((face) => [face.hook, face]));
   // Written in a comment: a name cannot close it.
   const names = [...hooks.values()]
     .map((face) => face.family.replaceAll("*/", "* /"))
@@ -1250,7 +1306,7 @@ export function renderThemeCss(theme) {
   const hookNames = [...hooks.keys()]
     .map((hook) => `\`${hook}\``)
     .join(" and ");
-  // A hook a face of the scale already claimed keeps that face's stack.
+  // A hook the scale already claimed keeps the scale's stack.
   const monoOwn = theme.mono && !hooks.has(theme.mono.hook);
   if (monoOwn) hooks.set(theme.mono.hook, theme.mono);
   const monoNote = theme.mono
@@ -1318,7 +1374,12 @@ export function applyThemeV4(v4Css, theme) {
   for (const [face, { hook }] of Object.entries(theme.faces)) {
     must(`md-sys-typescale-${face}-font`, `var(${hook})`);
   }
-  // Set on every run, so a face taken out of DESIGN.md leaves the theme too.
+  // Set on every run, so a family taken out of DESIGN.md leaves the theme
+  // too. `initial` is no value at all: the role's utility then reads its
+  // face, at the element that draws the text.
+  for (const [role, hook] of Object.entries(theme.roleFonts)) {
+    must(`md-sys-typescale-${role}-font`, hook ? `var(${hook})` : "initial");
+  }
   must(
     `md-sys-typescale-${MONO}-font`,
     theme.mono ? `var(${theme.mono.hook})` : MONO_STACK,

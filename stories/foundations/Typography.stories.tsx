@@ -293,6 +293,102 @@ export const WeightFromTheTheme: Story = {
   },
 };
 
+/** Every primitive at every size, by its role. */
+function FamilySamples({ name }: { name: string }) {
+  return (
+    <div data-testid={name} className="flex flex-col gap-1">
+      <Label size="small" component="div" colorRole="on-surface-variant">
+        {name}
+      </Label>
+      {(Object.keys(PRIMITIVES) as (keyof typeof PRIMITIVES)[]).map(
+        (variant) => {
+          const Primitive = PRIMITIVES[variant];
+          return SIZES.map((size) => (
+            <Primitive
+              key={size}
+              size={size}
+              component="div"
+              className="truncate"
+              data-role={`${variant}-${size}`}
+            >
+              {variant}-{size}
+            </Primitive>
+          ));
+        },
+      )}
+    </div>
+  );
+}
+
+/** A theme whose DESIGN.md writes a family on `label-large` alone. */
+const ONE_ROLE = {
+  "--md-sys-typescale-label-large-font": "Georgia, serif",
+} as React.CSSProperties;
+
+/** A subtree that overrides the plain face, as a preset does. */
+const ONE_FACE = {
+  "--md-sys-typescale-plain-font": '"Courier New", monospace',
+} as React.CSSProperties;
+
+/**
+ * A primitive draws its role in the role's family. Material gives each role
+ * a font token of its own, which reads one of the two faces unless the theme
+ * says otherwise: so does `--md-sys-typescale-<role>-font` here, through the
+ * `font-<role>` utility the primitive writes. The first group is the theme
+ * as it stands. The second gives `label-large` a family of its own, the way
+ * a theme generated from a DESIGN.md that writes one on that role does: only
+ * that role moves. The third overrides the plain face on a subtree, as a
+ * preset does: every body and label role follows, having no family of its
+ * own, and no brand role does. The last line is a caller's own `font-mono`
+ * on a primitive, which wins.
+ */
+export const FamilyFromTheTheme: Story = {
+  render: () => (
+    <div className="bg-surface text-on-surface flex flex-col gap-6 p-4">
+      <div className="grid grid-cols-3 gap-8">
+        <FamilySamples name="the theme as it stands" />
+        <div style={ONE_ROLE}>
+          <FamilySamples name="a family on label-large alone" />
+        </div>
+        <div style={ONE_FACE}>
+          <FamilySamples name="the plain face overridden on a subtree" />
+        </div>
+      </div>
+      <Body size="medium" className="font-mono font-bold" data-testid="own">
+        a caller&apos;s own font-mono and font-bold on Body
+      </Body>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const family = (group: string, role: TypeRole) =>
+      getComputedStyle(
+        canvas.getByTestId(group).querySelector(`[data-role="${role}"]`)!,
+      ).fontFamily;
+    const STANDS = "the theme as it stands";
+    const ONE = "a family on label-large alone";
+    const FACE = "the plain face overridden on a subtree";
+
+    for (const role of Object.keys(typeClass) as TypeRole[]) {
+      const isPlain = /^(body|label)/.test(role);
+      // A family on one role moves that role, and no other.
+      await expect(`${role}: ${family(ONE, role)}`).toBe(
+        `${role}: ${role === "label-large" ? "Georgia, serif" : family(STANDS, role)}`,
+      );
+      // A face overridden where the text is drawn moves every role that
+      // has no family of its own, and only the roles of that face.
+      await expect(`${role}: ${family(FACE, role)}`).toBe(
+        `${role}: ${isPlain ? '"Courier New", monospace' : family(STANDS, role)}`,
+      );
+    }
+    // A caller's own family wins, and its weight stays beside it.
+    const own = getComputedStyle(canvas.getByTestId("own"));
+    await expect(own.fontFamily).toMatch(/monospace$/);
+    await expect(own.fontFamily).not.toBe(family(STANDS, "body-medium"));
+    await expect(own.fontWeight).toBe("700");
+  },
+};
+
 /**
  * The primitives assert no content color, so a `bg-<role>` container that
  * carries its `text-on-<role>` re-colors every role inside it — nothing here
