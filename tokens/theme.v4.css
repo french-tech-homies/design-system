@@ -137,20 +137,27 @@
   --md-sys-typescale-display-large-size: 57px;
   --md-sys-typescale-display-large-line-height: 64px;
   --md-sys-typescale-display-large-tracking: -0.25px;
+  --md-sys-typescale-display-large-weight: 400;
   --md-sys-typescale-display-medium-size: 45px;
   --md-sys-typescale-display-medium-line-height: 52px;
+  --md-sys-typescale-display-medium-weight: 400;
   --md-sys-typescale-display-small-size: 36px;
   --md-sys-typescale-display-small-line-height: 44px;
+  --md-sys-typescale-display-small-weight: 400;
 
   --md-sys-typescale-headline-large-size: 32px;
   --md-sys-typescale-headline-large-line-height: 40px;
+  --md-sys-typescale-headline-large-weight: 400;
   --md-sys-typescale-headline-medium-size: 28px;
   --md-sys-typescale-headline-medium-line-height: 36px;
+  --md-sys-typescale-headline-medium-weight: 400;
   --md-sys-typescale-headline-small-size: 24px;
   --md-sys-typescale-headline-small-line-height: 32px;
+  --md-sys-typescale-headline-small-weight: 400;
 
   --md-sys-typescale-title-large-size: 22px;
   --md-sys-typescale-title-large-line-height: 28px;
+  --md-sys-typescale-title-large-weight: 400;
   --md-sys-typescale-title-medium-size: 16px;
   --md-sys-typescale-title-medium-line-height: 24px;
   --md-sys-typescale-title-medium-tracking: 0.15px;
@@ -176,12 +183,15 @@
   --md-sys-typescale-body-large-size: 16px;
   --md-sys-typescale-body-large-line-height: 24px;
   --md-sys-typescale-body-large-tracking: 0.5px;
+  --md-sys-typescale-body-large-weight: 400;
   --md-sys-typescale-body-medium-size: 14px;
   --md-sys-typescale-body-medium-line-height: 20px;
   --md-sys-typescale-body-medium-tracking: 0.25px;
+  --md-sys-typescale-body-medium-weight: 400;
   --md-sys-typescale-body-small-size: 12px;
   --md-sys-typescale-body-small-line-height: 16px;
   --md-sys-typescale-body-small-tracking: 0.4px;
+  --md-sys-typescale-body-small-weight: 400;
 
   /* ---- MD3 shape scale ----
      Values set from the `rounded` tokens of the project's DESIGN.md by
@@ -262,32 +272,39 @@
   --text-display-large--letter-spacing: var(
     --md-sys-typescale-display-large-tracking
   );
+  --text-display-large--font-weight: var(--md-sys-typescale-display-large-weight);
   --text-display-medium: var(--md-sys-typescale-display-medium-size);
   --text-display-medium--line-height: var(
     --md-sys-typescale-display-medium-line-height
   );
+  --text-display-medium--font-weight: var(--md-sys-typescale-display-medium-weight);
   --text-display-small: var(--md-sys-typescale-display-small-size);
   --text-display-small--line-height: var(
     --md-sys-typescale-display-small-line-height
   );
+  --text-display-small--font-weight: var(--md-sys-typescale-display-small-weight);
 
   --text-headline-large: var(--md-sys-typescale-headline-large-size);
   --text-headline-large--line-height: var(
     --md-sys-typescale-headline-large-line-height
   );
+  --text-headline-large--font-weight: var(--md-sys-typescale-headline-large-weight);
   --text-headline-medium: var(--md-sys-typescale-headline-medium-size);
   --text-headline-medium--line-height: var(
     --md-sys-typescale-headline-medium-line-height
   );
+  --text-headline-medium--font-weight: var(--md-sys-typescale-headline-medium-weight);
   --text-headline-small: var(--md-sys-typescale-headline-small-size);
   --text-headline-small--line-height: var(
     --md-sys-typescale-headline-small-line-height
   );
+  --text-headline-small--font-weight: var(--md-sys-typescale-headline-small-weight);
 
   --text-title-large: var(--md-sys-typescale-title-large-size);
   --text-title-large--line-height: var(
     --md-sys-typescale-title-large-line-height
   );
+  --text-title-large--font-weight: var(--md-sys-typescale-title-large-weight);
   --text-title-medium: var(--md-sys-typescale-title-medium-size);
   --text-title-medium--line-height: var(
     --md-sys-typescale-title-medium-line-height
@@ -335,6 +352,7 @@
     --md-sys-typescale-body-large-line-height
   );
   --text-body-large--letter-spacing: var(--md-sys-typescale-body-large-tracking);
+  --text-body-large--font-weight: var(--md-sys-typescale-body-large-weight);
   --text-body-medium: var(--md-sys-typescale-body-medium-size);
   --text-body-medium--line-height: var(
     --md-sys-typescale-body-medium-line-height
@@ -342,11 +360,13 @@
   --text-body-medium--letter-spacing: var(
     --md-sys-typescale-body-medium-tracking
   );
+  --text-body-medium--font-weight: var(--md-sys-typescale-body-medium-weight);
   --text-body-small: var(--md-sys-typescale-body-small-size);
   --text-body-small--line-height: var(
     --md-sys-typescale-body-small-line-height
   );
   --text-body-small--letter-spacing: var(--md-sys-typescale-body-small-tracking);
+  --text-body-small--font-weight: var(--md-sys-typescale-body-small-weight);
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;

@@ -293,21 +293,46 @@ test("written type and corner values reach their theme.v4.css declarations", () 
   }
 });
 
-test("a type value the kit has no variable for is not applied, and is listed", () => {
+test("a weight on any type role reaches the theme: every role has a weight variable", () => {
   const plain = generateTheme(seedOnly, kitV4);
   const heavy = generateTheme(
     designMd(
       "scheme: light",
       SEED,
-      "typography:\n  display-large:\n    fontWeight: 700",
+      "typography:\n  display-large:\n    fontWeight: 700\n  body-medium:\n    fontWeight: 500\n  title-large:\n    fontWeight: 600",
     ),
     kitV4,
   );
-  assert.equal(heavy.themeV4Css, plain.themeV4Css);
-  assert.deepEqual(
-    heavy.warnings.map(({ kind, token }) => [kind, token]),
-    [["unapplied", "typography.display-large.fontWeight"]],
+  assert.deepEqual(heavy.warnings, []);
+  for (const [role, weight] of [
+    ["display-large", 700],
+    ["body-medium", 500],
+    ["title-large", 600],
+  ]) {
+    assert.ok(
+      heavy.themeV4Css.includes(`  --md-sys-typescale-${role}-weight: ${weight};\n`),
+      role,
+    );
+  }
+  // With none written, each of the fifteen is Material's: 500 for the
+  // labels and the two smaller titles, 400 for the ten others, title-large
+  // among them. And each `text-<role>` utility reads its own.
+  const roles = ["display", "headline", "title", "body", "label"].flatMap((r) =>
+    ["large", "medium", "small"].map((size) => `${r}-${size}`),
   );
+  for (const role of roles) {
+    const medium = /^label-|^title-(medium|small)$/.test(role);
+    assert.ok(
+      plain.themeV4Css.includes(`  --md-sys-typescale-${role}-weight: ${medium ? 500 : 400};\n`),
+      role,
+    );
+    assert.ok(
+      plain.themeV4Css.includes(
+        `  --text-${role}--font-weight: var(--md-sys-typescale-${role}-weight);\n`,
+      ),
+      role,
+    );
+  }
 });
 
 test("a font family becomes the host's hook, on the face that carries it", () => {
@@ -778,11 +803,13 @@ test("the resolved file carries the complete reference block and how dark is swi
 });
 
 test("warnings from theme.v4.css are in the resolved file's list too", () => {
+  // A tracking where Material's baseline has none: the one type value the
+  // template still has no variable for.
   const { resolvedDesignMd, warnings } = generateTheme(
     designMd(
       "scheme: light",
       SEED,
-      "typography:\n  display-large:\n    fontWeight: 700",
+      "typography:\n  headline-large:\n    letterSpacing: 0.5px",
     ),
     kitV4,
   );

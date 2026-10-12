@@ -10,6 +10,7 @@ import {
   Label,
   Title,
 } from "@french-tech-homies/design-system/primitives/Typography";
+import { Tag } from "@french-tech-homies/design-system/components/Tag";
 
 /**
  * The 15-role Material type scale. Specs come from `tokens/resolved.json`
@@ -172,6 +173,123 @@ export const MonoFace: Story = {
     // Naming a mono face moves nothing that did not ask for it.
     await expect(family("font-plain, a face named")).toBe(family("font-plain"));
     await expect(size("font-mono")).toBe(size("font-plain"));
+  },
+};
+
+const PRIMITIVES = {
+  display: Display,
+  headline: Headline,
+  title: Title,
+  body: Body,
+  label: Label,
+} as const;
+
+const SIZES = ["large", "medium", "small"] as const;
+
+/** Every primitive at every size, a raw `text-<role>` element beside each,
+    and a kit component that draws its text through a primitive. */
+function WeightSamples({ name }: { name: string }) {
+  return (
+    <div data-testid={name} className="flex flex-col gap-2">
+      <Label size="small" component="div" colorRole="on-surface-variant">
+        {name}
+      </Label>
+      {(Object.keys(PRIMITIVES) as (keyof typeof PRIMITIVES)[]).map(
+        (variant) => {
+          const Primitive = PRIMITIVES[variant];
+          return SIZES.map((size) => {
+            const role: TypeRole = `${variant}-${size}`;
+            return (
+              <div key={role} className="flex items-baseline gap-6">
+                <Primitive
+                  size={size}
+                  component="div"
+                  data-role={role}
+                  data-drawn="primitive"
+                >
+                  {role}
+                </Primitive>
+                <span
+                  className={typeClass[role]}
+                  data-role={role}
+                  data-drawn="class"
+                >
+                  {role}
+                </span>
+              </div>
+            );
+          });
+        },
+      )}
+      <div>
+        <Tag>a tag</Tag>
+      </div>
+    </div>
+  );
+}
+
+/** A theme that gives every role a weight Material gives none of them. */
+const HEAVY = Object.fromEntries(
+  (Object.keys(typeClass) as TypeRole[]).map((role) => [
+    `--md-sys-typescale-${role}-weight`,
+    "700",
+  ]),
+) as React.CSSProperties;
+
+/**
+ * A primitive draws its role as the theme gives it, weight included: it
+ * writes no weight class, so the weight is the one its `text-<role>` utility
+ * reads from `--md-sys-typescale-<role>-weight`. The first group is the theme
+ * as it stands (Material's weights, or the preset's). The second sets every
+ * role's weight the way a theme generated from a project's DESIGN.md does,
+ * to 700. In both, a primitive and the raw class beside it draw the same
+ * weight, and so does a `Tag`, which draws its word through `Label`.
+ * Regression cover: before, the primitives wrote `font-medium` and
+ * `font-regular`, which won over the theme's weight.
+ */
+export const WeightFromTheTheme: Story = {
+  render: () => (
+    <div className="bg-surface text-on-surface flex flex-wrap gap-12 p-4">
+      <WeightSamples name="the theme as it stands" />
+      <div style={HEAVY}>
+        <WeightSamples name="a theme that sets every weight to 700" />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const weight = (group: string, role: TypeRole, drawn: string) =>
+      getComputedStyle(
+        canvas
+          .getByTestId(group)
+          .querySelector(`[data-role="${role}"][data-drawn="${drawn}"]`)!,
+      ).fontWeight;
+    const tag = (group: string) =>
+      getComputedStyle(within(canvas.getByTestId(group)).getByText("a tag"))
+        .fontWeight;
+    const STANDS = "the theme as it stands";
+    const HEAVIER = "a theme that sets every weight to 700";
+
+    for (const role of Object.keys(typeClass) as TypeRole[]) {
+      // The primitive draws what the role's own utility draws, in any theme.
+      await expect(`${role} ${weight(STANDS, role, "primitive")}`).toBe(
+        `${role} ${weight(STANDS, role, "class")}`,
+      );
+      // A weight the theme gives a role is the weight the primitive draws.
+      await expect(`${role} ${weight(HEAVIER, role, "primitive")}`).toBe(
+        `${role} 700`,
+      );
+      await expect(`${role} ${weight(HEAVIER, role, "class")}`).toBe(
+        `${role} 700`,
+      );
+    }
+    // title-large is regular from its token, in both presets: neither moves
+    // it. No compound in the primitive says so any more.
+    await expect(weight(STANDS, "title-large", "primitive")).toBe("400");
+    await expect(weight(STANDS, "body-medium", "primitive")).toBe("400");
+    // A kit component that draws its text through a primitive follows too.
+    await expect(tag(STANDS)).toBe(weight(STANDS, "label-medium", "class"));
+    await expect(tag(HEAVIER)).toBe("700");
   },
 };
 

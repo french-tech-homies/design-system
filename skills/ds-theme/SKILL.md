@@ -107,8 +107,8 @@ at the end of `theme/DESIGN.resolved.md`. For each one, decide:
 
 - **an unknown name** (`colors.brand-pink`, `typography.h1`, `rounded.sm`):
   map it to a name the kit reads, or leave it and say it is ignored;
-- **a value with no variable** (a weight or tracking on a role that has none):
-  not applied; drop it or accept it;
+- **a value with no variable** (a tracking on a role Material gives none):
+  not applied; drop it or accept it. A weight is applied on every role;
 - **poor contrast**: a written role under 4.5:1 against its pair. Fix the
   role or write its partner. Do not leave it;
 - **the reference block was not read**: fix the heading, the `css` fence or

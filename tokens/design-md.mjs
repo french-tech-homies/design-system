@@ -461,7 +461,9 @@ const TYPE_VARS = {
 };
 
 /** What a `text-<role>` utility gives when theme.v4.css has no variable for a
-    property: no tracking, and the inherited (regular) weight. */
+    property: no tracking, and the inherited (regular) weight. Every role has
+    a weight variable in the kit's template; a tracking variable exists only
+    where Material's baseline has tracking. */
 const UNSET = {
   letterSpacing: (value) => parseFloat(value) === 0,
   fontWeight: (value) => value === "400" || value === "normal",

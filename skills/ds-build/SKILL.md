@@ -103,9 +103,12 @@ file, `<kit>/tokens/bridge-shadcn.css`, where the entry CSS imports it. `bg-prim
 ## Type, shape, elevation, motion
 
 - **Type**: prefer the primitives, `<Title size="medium">`,
-  `<Body size="small">`. They carry the face and the weight. A raw
-  `text-title-medium` sets size, line height and tracking only; the faces are
-  `font-brand` (display, headline, title) and `font-plain` (body, label).
+  `<Body size="small">`. They carry the face and follow the theme's roles,
+  weight included: a role's weight set in `DESIGN.md` is the weight they
+  draw. A raw `text-title-medium` sets size, line height, tracking and
+  weight, and no face; the faces are `font-brand` (display, headline, title)
+  and `font-plain` (body, label). Write no weight class beside a role: it
+  would win over the theme's.
   `font-mono` is the project's mono face, the one its `DESIGN.md` names or
   else the system's: write it where the project wants one (an identifier, a
   time, an amount). No kit component uses it.

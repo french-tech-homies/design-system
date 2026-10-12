@@ -168,7 +168,12 @@ curl -s http://localhost:6006/index.json     # no answer: the port is free
   `tokens/theme.v4.css`, `tokens/DESIGN.resolved.md`, `tokens/resolved.json`,
   `registry.json`, `RELEASE.json` and `releases/*.json`. Edit the source (`DESIGN.md`, the kit's
   files, `scripts/build-registry.mjs`), run the command, commit both. CI
-  refuses a stale one.
+  refuses a stale one. One exception: `tokens/theme.v4.css` is also the
+  template the generator reads, and the generator sets the value of a
+  declaration that exists and adds none. So a new declaration (a token, a
+  mapping) is added to it by hand, at the value `DESIGN.md` gives; a value is
+  never changed by hand, and `npm run theme:generate` must then leave the
+  file as it is.
 - **A skill's text is the kit's, read in any project.** It names kit files as
   `<kit>/…`, only files the install brings, and nothing of this repository.
   `npm run registry:check-install` holds all three.

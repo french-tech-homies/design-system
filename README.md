@@ -580,7 +580,11 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 - **Type** — `text-display-large` → `text-label-small` (15 roles), on two
   faces: `font-brand` (display / headline / title) and `font-plain` (body /
   label), both defaulting to the same `--font-inter` hook. The `Typography`
-  primitives apply them; raw `text-*` classes do not. A third face is the
+  primitives apply them; raw `text-*` classes do not. Each `text-*` class
+  carries its role's size, line height, tracking and weight
+  (`--md-sys-typescale-<role>-weight`, one for each of the 15 roles), and the
+  primitives write no weight of their own: a weight a project's DESIGN.md
+  gives a role is the weight both draw. A third face is the
   project's to reach for: `font-mono`, for an identifier, a time, an amount.
   It is the family a project's DESIGN.md names as `typography.mono.fontFamily`
   (the token `--md-sys-typescale-mono-font`), and the system's monospace when
