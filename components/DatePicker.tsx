@@ -1209,12 +1209,16 @@ function YearGrid({
 
 /**
  * The range picker's months, one under the other in a scroll that goes both
- * ways. It opens on a window of thirteen months centred on the range's first
- * month (or the placeholder's, or today's), scrolled so that month is on
- * top, and the window grows by a year, six months each way, as the scroll
- * nears either end; the month in view stays where it was. React Aria's
- * `minValue` and `maxValue` bound the window, so it stops at them. The
- * keyboard moves past either end as React Aria moves its visible range.
+ * ways. React Aria holds a window of `RANGE_MAX_MONTHS` months, set once on
+ * open around the range's first month (or the placeholder's, or today's), and
+ * bounded by `minValue` and `maxValue`. The list shows its own slice of that
+ * window: thirteen months centred on that month, scrolled so it is on top.
+ * The slice grows by a year, six months each way from the months it shows, as
+ * the scroll nears either end, and the month in view stays where it was. It
+ * is never re-centred on the focused date: React Aria would re-centre its
+ * window on focus at every change of its visible duration, which is why the
+ * duration never changes. The slice takes in the month the keyboard moves
+ * focus to, and stops at the ends of React Aria's window.
  */
 const RANGE_MONTHS = 13;
 const RANGE_GROWTH = 12;
@@ -1231,7 +1235,6 @@ function MonthList({
   onAnchor: (date: DateValue | null) => void;
   constraints: Constraints;
 }) {
-  const [months, setMonths] = useState(RANGE_MONTHS);
   const d = datePickerStyles({ range: true, outsideMonth: "hidden" });
 
   return (
@@ -1241,7 +1244,7 @@ function MonthList({
       value={value}
       onChange={onChange}
       {...constraints}
-      visibleDuration={{ months }}
+      visibleDuration={{ months: RANGE_MAX_MONTHS }}
       pageBehavior="single"
       selectionAlignment="center"
       autoFocus
@@ -1249,34 +1252,58 @@ function MonthList({
     >
       <AnchorWatch onAnchor={onAnchor} />
       <WeekdayRow styles={d} />
-      <MonthScroll months={months} setMonths={setMonths} styles={d} />
+      <MonthScroll styles={d} />
     </RangeCalendar>
   );
 }
 
+/** A month as a count of months, so that months compare and subtract. */
+const monthIndex = (date: DateValue) => date.year * 12 + date.month - 1;
+
+/** The slice the list shows, first and last month as `monthIndex`es. */
+type Slice = { from: number; to: number };
+
 function MonthScroll({
-  months,
-  setMonths,
   styles: d,
 }: {
-  months: number;
-  setMonths: (months: number) => void;
   styles: ReturnType<typeof datePickerStyles>;
 }) {
   const state = useContext(RangeCalendarStateContext)!;
   const scrollRef = useRef<HTMLDivElement>(null);
-  // The month in view when the window grew, and how far below the top of
-  // the scroll it stood.
+  // The month in view when the slice grew, and how far below the top of the
+  // scroll it stood.
   const keep = useRef<{ month: string; top: number } | null>(null);
-  const first = state.visibleRange.start;
-  const last = first.add({ months: months - 1 });
+  const start = state.visibleRange.start;
+  const lower = Math.max(
+    monthIndex(start),
+    state.minValue ? monthIndex(state.minValue) : -Infinity,
+  );
+  const upper = Math.min(
+    monthIndex(state.visibleRange.end),
+    state.maxValue ? monthIndex(state.maxValue) : Infinity,
+  );
+  const focused = monthIndex(state.focusedDate);
+  const half = (RANGE_MONTHS - 1) / 2;
+
+  // On open, thirteen months centred on the focused one, moved inside the
+  // bounds and then cut to them.
+  const [stored, setSlice] = useState<Slice>(() => {
+    const shift =
+      Math.max(0, lower - (focused - half)) - Math.max(0, focused + half - upper);
+    return {
+      from: Math.max(lower, focused - half + shift),
+      to: Math.min(upper, focused + half + shift),
+    };
+  });
+  // The slice takes in the focused month, and stays inside React Aria's
+  // window when focus moves it.
+  const slice = {
+    from: Math.max(lower, Math.min(stored.from, focused)),
+    to: Math.min(upper, Math.max(stored.to, focused)),
+  };
+  if (slice.from !== stored.from || slice.to !== stored.to) setSlice(slice);
+
   const key = (date: DateValue) => `${date.year}-${date.month}`;
-  const atMin =
-    state.minValue != null &&
-    first.year * 12 + first.month <= state.minValue.year * 12 + state.minValue.month;
-  const atMax =
-    state.maxValue != null &&
-    last.year * 12 + last.month >= state.maxValue.year * 12 + state.maxValue.month;
 
   // On open, the focused month on top.
   useLayoutEffect(() => {
@@ -1297,7 +1324,7 @@ function MonthScroll({
     keep.current = null;
     const section = el.querySelector<HTMLElement>(`[data-month="${kept.month}"]`);
     if (section) el.scrollTop = section.offsetTop - kept.top;
-  }, [months]);
+  }, [slice.from, slice.to]);
 
   return (
     <div
@@ -1306,11 +1333,11 @@ function MonthScroll({
       className="relative min-h-0 flex-1 overflow-y-auto"
       onScroll={(e) => {
         const el = e.currentTarget;
-        const nearTop = el.scrollTop < 200 && !atMin;
+        const nearTop = el.scrollTop < 200 && slice.from > lower;
         const nearEnd =
-          el.scrollTop + el.clientHeight > el.scrollHeight - 200 && !atMax;
-        if (!(nearTop || nearEnd) || months >= RANGE_MAX_MONTHS || keep.current)
-          return;
+          el.scrollTop + el.clientHeight > el.scrollHeight - 200 &&
+          slice.to < upper;
+        if (!(nearTop || nearEnd) || keep.current) return;
         const inView = [...el.querySelectorAll<HTMLElement>("[data-month]")].find(
           (section) => section.offsetTop + section.offsetHeight > el.scrollTop,
         );
@@ -1319,16 +1346,22 @@ function MonthScroll({
             month: inView.dataset.month!,
             top: inView.offsetTop - el.scrollTop,
           };
-        setMonths(months + RANGE_GROWTH);
+        setSlice({
+          from: Math.max(lower, slice.from - RANGE_GROWTH / 2),
+          to: Math.min(upper, slice.to + RANGE_GROWTH / 2),
+        });
       }}
     >
-      {Array.from({ length: months }, (_, i) => (
-        <RangeMonth
-          key={key(first.add({ months: i }))}
-          offset={i}
-          styles={d}
-        />
-      ))}
+      {Array.from({ length: slice.to - slice.from + 1 }, (_, i) => {
+        const offset = slice.from - monthIndex(start) + i;
+        return (
+          <RangeMonth
+            key={key(start.add({ months: offset }))}
+            offset={offset}
+            styles={d}
+          />
+        );
+      })}
     </div>
   );
 }

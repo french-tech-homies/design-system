@@ -460,6 +460,96 @@ export const RangeScrollsBack: Story = {
   },
 };
 
+/** The list grows from the months it shows, not from the focused date: a
+    range picked far down, then a scroll back to the top, keeps the month in
+    view where it was. */
+export const RangeGrowsFromItsWindow: Story = {
+  render: (args) => (
+    <DateRangePicker
+      label="Stay"
+      className="w-80"
+      defaultValue={{ start: june15, end: parseDate("2026-06-19") }}
+      onChange={args.onChange}
+    />
+  ),
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /open calendar/i }));
+    const dialog = await screen.findByRole("dialog");
+    const list = dialog.querySelector<HTMLElement>(
+      "[data-slot=date-range-picker-months]",
+    )!;
+    const heading = (name: string) => within(list).getByText(name);
+
+    await waitFor(() =>
+      expect(heading("June 2026").getBoundingClientRect().top).toBeLessThan(
+        list.getBoundingClientRect().top + 40,
+      ),
+    );
+
+    // At the end, the list grows: June 2025 to June 2027.
+    list.scrollTop = list.scrollHeight;
+    list.dispatchEvent(new Event("scroll"));
+    await waitFor(() => expect(heading("June 2027")).toBeInTheDocument());
+    await expect(heading("June 2025")).toBeInTheDocument();
+
+    // A range a year on moves the focus to June 2027.
+    await userEvent.click(
+      within(list).getByRole("button", { name: /Thursday, June 10, 2027$/ }),
+    );
+    await userEvent.click(
+      within(list).getByRole("button", { name: /Saturday, June 12, 2027$/ }),
+    );
+
+    // Back at the top, the list grows from June 2025, and June 2025 stays put.
+    list.scrollTop = 0;
+    list.dispatchEvent(new Event("scroll"));
+    await waitFor(() => expect(heading("December 2024")).toBeInTheDocument());
+    await expect(
+      Math.abs(
+        heading("June 2025").getBoundingClientRect().top -
+          list.getBoundingClientRect().top,
+      ),
+    ).toBeLessThan(40);
+
+    await userEvent.click(within(dialog).getByRole("button", { name: "Save" }));
+    await expect(args.onChange).toHaveBeenCalledWith({
+      start: parseDate("2027-06-10"),
+      end: parseDate("2027-06-12"),
+    });
+  },
+};
+
+/** The keyboard past the last month shown: the list takes in the month focus
+    moves to, and keeps the months above it. */
+export const RangeKeyboardPastTheEnd: Story = {
+  render: () => (
+    <DateRangePicker
+      label="Stay"
+      className="w-80"
+      defaultValue={{ start: june15, end: parseDate("2026-06-19") }}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /open calendar/i }));
+    const dialog = await screen.findByRole("dialog");
+    const list = dialog.querySelector<HTMLElement>(
+      "[data-slot=date-range-picker-months]",
+    )!;
+    const june = within(list).getByRole("button", { name: /Monday, June 15, 2026/ });
+    await waitFor(() => expect(june).toHaveFocus());
+
+    await userEvent.keyboard("{PageDown>7/}");
+    await waitFor(() =>
+      expect(
+        within(list).getByRole("button", { name: /Friday, January 15, 2027/ }),
+      ).toHaveFocus(),
+    );
+    await expect(within(list).getByText("June 2026")).toBeInTheDocument();
+  },
+};
+
 /** A value outside min / max marks the field invalid and says why. */
 export const OutOfRange: Story = {
   render: () => (
