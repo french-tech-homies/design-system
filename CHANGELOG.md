@@ -36,6 +36,23 @@ npm run registry:check-version # what CI runs
 
 ### Added
 
+- **`Carousel` and `CarouselItem`** (`@ds/carousel`, and in `@ds/ds`),
+  Material 3's carousel in its six layouts: `multi-browse`, `uncontained`,
+  `uncontained-multi-aspect-ratio`, `hero`, `center-aligned-hero` and
+  `full-screen`. `alignment="center"` centres multi-browse and uncontained.
+  In multi-browse and the two heroes, items change width as the row
+  scrolls (large, medium, small 40–56), with Material's parallax; the
+  scroll is the browser's own, snapping to the layout. Under reduced
+  motion every item is one size, with no parallax, and the row still
+  snaps. Each item is a React Aria `Button` (`onPress`) or `Link`
+  (`href`) in a group named "3 of 8"; the carousel is a named region, never a tab stop. Tab and Left/Right move
+  between items, Up and Down leave the carousel (full-screen: move between
+  items), Space and Enter activate. The Show all button Material requires on
+  a page that scrolls vertically is yours to place, below the carousel or as
+  an arrow beside its header. Its gaps against Material's pages are named in
+  its doc comment: no pressed shape change, no mouse drag (the scroll bar,
+  the wheel and the keyboard are the mouse's paths), full-screen without
+  corners. No action needed.
 - **Loading indicator** (`components/LoadingIndicator.tsx`, registry item
   `loading-indicator`): Material 3 Expressive's loading indicator, for a wait
   of 200ms to 5s, on React Aria's `ProgressBar`, always indeterminate (a
