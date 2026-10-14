@@ -43,6 +43,12 @@ jobs:
           # other run needs the one commit.
           fetch-depth: ${{ github.event_name != 'workflow_dispatch' && 1 || 0 }}
 
+      # The image runs as root and the checkout is the runner's user's, so git
+      # refuses the tree as another's ("Not a git repository") once checkout's
+      # own temporary safe.directory is gone. The stale checks need git.
+      - name: Git reads the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - uses: actions/setup-node@v7
         with:
           # Pinned major (Node 24 = npm 12) so a new LTS cannot change npm's
