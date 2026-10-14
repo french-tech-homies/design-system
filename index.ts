@@ -162,6 +162,7 @@ export {
   LoadingIndicator,
   type LoadingIndicatorProps,
 } from "./components/LoadingIndicator";
+export { Meter, type MeterProps } from "./components/Meter";
 
 // Color picker family
 export { default as ColorPicker } from "./components/color/ColorPicker";

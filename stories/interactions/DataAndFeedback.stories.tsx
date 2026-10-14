@@ -22,6 +22,7 @@ import {
 } from "@french-tech-homies/design-system/components/Snackbar";
 import { ProgressIndicator } from "@french-tech-homies/design-system/components/ProgressIndicator";
 import { LoadingIndicator } from "@french-tech-homies/design-system/components/LoadingIndicator";
+import { Meter } from "@french-tech-homies/design-system/components/Meter";
 
 /**
  * Behaviour tests for the table and for the feedback surfaces. See
@@ -133,9 +134,7 @@ export const TableSelection: Story = {
     await userEvent.click(firstRow!);
     await waitFor(() => expect(firstRow).toBeChecked());
     await expect(
-      canvas
-        .getAllByRole("row")
-        .filter((r) => r.getAttribute("aria-selected") === "true"),
+      canvas.getAllByRole("row").filter((r) => r.getAttribute("aria-selected") === "true"),
     ).toHaveLength(1);
 
     await userEvent.click(selectAll!);
@@ -365,9 +364,7 @@ export const TableCutCellWholeText: Story = {
     // Ends on the cut cell, with its text showing.
     await userEvent.keyboard("{ArrowUp}");
     await waitFor(() => expect(cell).toHaveFocus());
-    await expect(await screen.findByRole("tooltip")).toHaveTextContent(
-      longNote,
-    );
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
   },
 };
 
@@ -420,9 +417,7 @@ export const TableCutCellOneTooltipAtATime: Story = {
       );
 
     await userEvent.hover(first!);
-    await expect(await screen.findByRole("tooltip")).toHaveTextContent(
-      longNote,
-    );
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
 
     await userEvent.hover(second!);
     await screen.findByText(otherNote, { selector: '[role="tooltip"] *' });
@@ -478,9 +473,7 @@ export const TableCutCellEscapeKeepsSelection: Story = {
     await userEvent.tab();
     await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
     await waitFor(() => expect(cell).toHaveFocus());
-    await expect(await screen.findByRole("tooltip")).toHaveTextContent(
-      longNote,
-    );
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
 
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull(), {
@@ -547,10 +540,7 @@ export const TablePartClasses: Story = {
     await expect(part("table-column-content")).toHaveClass("gap-2");
     await expect(part("table-column-content")).not.toHaveClass("gap-1");
     await expect(part("table-sort-icon")).toHaveClass("text-primary");
-    await expect(part("table-cell-text")).toHaveClass(
-      "text-primary",
-      "truncate",
-    );
+    await expect(part("table-cell-text")).toHaveClass("text-primary", "truncate");
     await expect(part("table-cell-text").closest("td")).toHaveClass("italic");
 
     // Keyboard: Tab lands on the first row, and up from it is the heading.
@@ -567,7 +557,9 @@ function SnackbarHarness() {
   return (
     <div className="flex h-40 flex-col items-start gap-3">
       <Button onPress={() => snackbar("Changes saved")}>Save</Button>
-      <Button onPress={() => snackbar("Email archived", { close: true })}>
+      <Button
+        onPress={() => snackbar("Email archived", { close: true })}
+      >
         Archive
       </Button>
       <SnackbarRegion />
@@ -584,8 +576,7 @@ export const SnackbarQueueAndDismiss: Story = {
   render: () => <SnackbarHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    for (const t of [...snackbarQueue.visibleToasts])
-      snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
 
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
     await expect(await screen.findByText("Changes saved")).toBeVisible();
@@ -597,9 +588,7 @@ export const SnackbarQueueAndDismiss: Story = {
 
     const close = await screen.findByRole("button", { name: /close/i });
     await userEvent.click(close);
-    await waitFor(() =>
-      expect(screen.queryByText("Email archived")).toBeNull(),
-    );
+    await waitFor(() => expect(screen.queryByText("Email archived")).toBeNull());
   },
 };
 
@@ -614,8 +603,7 @@ export const SnackbarAutoDismissAndPause: Story = {
   render: () => <SnackbarHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    for (const t of [...snackbarQueue.visibleToasts])
-      snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
 
     // 1. Left alone, it goes away on its own.
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
@@ -634,8 +622,7 @@ export const SnackbarAutoDismissAndPause: Story = {
     );
     await expect(toast).toBeVisible();
 
-    for (const t of [...snackbarQueue.visibleToasts])
-      snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
     await waitFor(() => expect(screen.queryByText("Changes saved")).toBeNull());
   },
 };
@@ -648,16 +635,14 @@ export const SnackbarIsPolite: Story = {
   render: () => <SnackbarHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    for (const t of [...snackbarQueue.visibleToasts])
-      snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
 
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
     const alert = await screen.findByRole("alert");
     await expect(alert).toHaveAttribute("aria-live", "polite");
     await expect(alert).toHaveTextContent("Changes saved");
 
-    for (const t of [...snackbarQueue.visibleToasts])
-      snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
     await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
   },
 };
@@ -681,7 +666,11 @@ export const ProgressIndicatorAccessibleValue: Story = {
         formatOptions={{ style: "decimal" }}
       />
       <ProgressIndicator label="Loading activity" isIndeterminate />
-      <ProgressIndicator variant="circular" label="Saving venue" value={45} />
+      <ProgressIndicator
+        variant="circular"
+        label="Saving venue"
+        value={45}
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -696,9 +685,7 @@ export const ProgressIndicatorAccessibleValue: Story = {
     await expect(upload).toHaveTextContent("62%");
 
     // A custom scale is reported on its own terms, not rescaled to a percentage.
-    const printing = canvas.getByRole("progressbar", {
-      name: "Printing codes",
-    });
+    const printing = canvas.getByRole("progressbar", { name: "Printing codes" });
     await expect(printing).toHaveAttribute("aria-valuenow", "30");
     await expect(printing).toHaveAttribute("aria-valuemax", "60");
     await expect(printing).toHaveAttribute("aria-valuetext", "30");
@@ -714,6 +701,67 @@ export const ProgressIndicatorAccessibleValue: Story = {
     const saving = canvas.getByRole("progressbar", { name: "Saving venue" });
     await expect(saving).toHaveAttribute("aria-valuenow", "45");
   },
+};
+
+/** A meter is read, not driven: it is the `meter` role, named by its label,
+    and reports its value on its own scale. */
+export const MeterAccessibleValue: Story = {
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          {
+            // React Aria writes `role="meter progressbar"`, `progressbar` the
+            // fallback for a browser without `meter`. ARIA takes the first
+            // role it knows, `meter`, which allows aria-value*; axe reads the
+            // two words as one unknown role and refuses them. The rule stays
+            // on for every other element, and this play reads the `meter`
+            // role and its values.
+            id: "aria-allowed-attr",
+            selector: '*:not([role="meter progressbar"])',
+          },
+        ],
+      },
+    },
+  },
+  render: () => (
+    <div className="bg-surface flex w-96 flex-col gap-6 p-4">
+      <Meter label="Storage used" value={62} showValue />
+      <Meter
+        label="Boards this month"
+        value={3}
+        maxValue={5}
+        formatOptions={{ style: "decimal" }}
+        valueLabel="3 of 5"
+        showValue
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const storage = canvas.getByRole("meter", { name: "Storage used" });
+    await expect(storage).toHaveAttribute("aria-valuenow", "62");
+    await expect(storage).toHaveAttribute("aria-valuemin", "0");
+    await expect(storage).toHaveAttribute("aria-valuemax", "100");
+    await expect(storage).toHaveAttribute("aria-valuetext", "62%");
+    // The visible value says the same thing as aria-valuetext.
+    await expect(storage).toHaveTextContent("62%");
+
+    // A custom scale is reported on its own terms, not rescaled to a percentage.
+    const boards = canvas.getByRole("meter", { name: "Boards this month" });
+    await expect(boards).toHaveAttribute("aria-valuenow", "3");
+    await expect(boards).toHaveAttribute("aria-valuemin", "0");
+    await expect(boards).toHaveAttribute("aria-valuemax", "5");
+    await expect(boards).toHaveAttribute("aria-valuetext", "3 of 5");
+    await expect(boards).toHaveTextContent("3 of 5");
+  },
+};
+
+/** The same, in the dark scheme. */
+export const MeterAccessibleValueDark: Story = {
+  ...MeterAccessibleValue,
+  globals: { theme: "dark" },
 };
 
 /**
