@@ -54,6 +54,13 @@ export {
   type CardContentProps,
   type ImageRenderer,
 } from "./components/Card";
+export {
+  Carousel,
+  CarouselItem,
+  type CarouselProps,
+  type CarouselItemProps,
+  type CarouselLayout,
+} from "./components/Carousel";
 export { default as ListItem, type ListItemProps } from "./components/ListItem";
 export { Tag, type TagProps } from "./components/Tag";
 export {

@@ -367,6 +367,15 @@ const components = [
     deps: ["utils", "typography"],
   }),
   item({
+    name: "carousel",
+    title: "Carousel",
+    description:
+      "Material 3 carousel in its six layouts (multi-browse, uncontained, uncontained multi-aspect ratio, hero, center-aligned hero, full-screen) on React Aria Button and Link: scroll snap, keyline sizing with parallax, reduced-motion fallback, arrow keys.",
+    files: [file("components/Carousel.tsx")],
+    dependencies: [RAC],
+    deps: ["utils"],
+  }),
+  item({
     name: "table",
     title: "Table",
     description:

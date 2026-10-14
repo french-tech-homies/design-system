@@ -1,9 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import React, { useRef } from "react";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
+import { I18nProvider } from "react-aria-components";
 
 import Button from "@french-tech-homies/design-system/components/Button";
-import { Card, CardContent } from "@french-tech-homies/design-system/components/Card";
+import {
+  Card,
+  CardContent,
+} from "@french-tech-homies/design-system/components/Card";
+import {
+  Carousel,
+  CarouselItem,
+  type CarouselProps,
+} from "@french-tech-homies/design-system/components/Carousel";
 import {
   Disclosure,
   DisclosureGroup,
@@ -26,8 +35,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const items = [
-  { id: "hours", q: "Serving hours", a: "A menu is active between the times you set." },
-  { id: "codes", q: "Printed codes", a: "Codes point at an identifier, not a name." },
+  {
+    id: "hours",
+    q: "Serving hours",
+    a: "A menu is active between the times you set.",
+  },
+  {
+    id: "codes",
+    q: "Printed codes",
+    a: "Codes point at an identifier, not a name.",
+  },
 ];
 
 function Group(props: { allowsMultipleExpanded?: boolean }) {
@@ -55,7 +72,9 @@ export const DisclosureKeyboardToggle: Story = {
     <div className="max-w-2xl">
       <Disclosure>
         <DisclosureHeader>Serving hours</DisclosureHeader>
-        <DisclosurePanel>A menu is active between the times you set.</DisclosurePanel>
+        <DisclosurePanel>
+          A menu is active between the times you set.
+        </DisclosurePanel>
       </Disclosure>
     </div>
   ),
@@ -95,7 +114,9 @@ export const DisclosureWiresTriggerToPanel: Story = {
     <div className="max-w-2xl">
       <Disclosure defaultExpanded>
         <DisclosureHeader>Serving hours</DisclosureHeader>
-        <DisclosurePanel>A menu is active between the times you set.</DisclosurePanel>
+        <DisclosurePanel>
+          A menu is active between the times you set.
+        </DisclosurePanel>
       </Disclosure>
     </div>
   ),
@@ -275,5 +296,403 @@ export const CardIsNotATabStop: Story = {
     await expect(
       canvas.getByRole("button", { name: "Edit hours" }),
     ).toHaveFocus();
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Carousel
+
+/** `count` solid items named "Item 1"…, each pressing `onPress`. */
+function carouselItems(
+  count: number,
+  props: (index: number) => {
+    isDisabled?: boolean;
+    onPress?: () => void;
+  } = () => ({}),
+) {
+  return Array.from({ length: count }, (_, i) => (
+    <CarouselItem
+      key={i}
+      onPress={noop}
+      classNames={{
+        container: "bg-primary-container text-on-primary-container",
+      }}
+      {...props(i)}
+    >
+      <span className="block p-4">Item {i + 1}</span>
+    </CarouselItem>
+  ));
+}
+
+const noop = () => undefined;
+const pressed = fn();
+const disabledPressed = fn();
+
+/** The carousel between two buttons, in a compact window's width. */
+function CarouselOnAPage(props: {
+  children: React.ReactNode;
+  layout?: "multi-browse" | "uncontained" | "hero" | "center-aligned-hero";
+}) {
+  // One of the layouts, which the type cannot pair with a label as a union.
+  const carousel = {
+    "aria-label": "Landscapes",
+    layout: props.layout ?? "uncontained",
+  } as CarouselProps;
+  return (
+    <div className="flex w-[412px] flex-col gap-2">
+      <Button>Before</Button>
+      <Carousel {...carousel}>{props.children}</Carousel>
+      <Button>Show all</Button>
+    </div>
+  );
+}
+
+const item = (canvasElement: HTMLElement, n: number) =>
+  within(canvasElement).getByRole("button", { name: `Item ${n}` });
+const slide = (el: HTMLElement) =>
+  el.closest<HTMLElement>('[data-slot="carousel-item"]')!;
+const rect = (el: Element) => el.getBoundingClientRect();
+
+/**
+ * Material's labelling: the container is a named region, never a tab stop,
+ * and each item says its place and the total.
+ */
+export const CarouselIsLabelledRegion: Story = {
+  render: () => <CarouselOnAPage>{carouselItems(6)}</CarouselOnAPage>,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const region = canvas.getByRole("region", { name: "Landscapes" });
+    await expect(region).toHaveAttribute("aria-roledescription", "carousel");
+    await expect(region).not.toHaveAttribute("tabindex");
+    for (let n = 1; n <= 6; n++)
+      await expect(
+        within(region).getByRole("group", { name: `${n} of 6` }),
+      ).toContainElement(item(canvasElement, n));
+  },
+};
+
+/**
+ * Tab lands on the first item, not the container, and Tab again moves to the
+ * next item, which scrolls to the large keyline.
+ */
+export const CarouselTabLandsOnFirstItem: Story = {
+  render: () => (
+    <CarouselOnAPage layout="multi-browse">{carouselItems(6)}</CarouselOnAPage>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Before" })).toHaveFocus();
+    await userEvent.tab();
+    await expect(item(canvasElement, 1)).toHaveFocus();
+    await userEvent.tab();
+    await expect(item(canvasElement, 2)).toHaveFocus();
+    await waitFor(() =>
+      expect(slide(item(canvasElement, 2))).toHaveAttribute(
+        "data-size",
+        "large",
+      ),
+    );
+  },
+};
+
+/** Right and Left move between items and scroll the next one in; no wrap. */
+export const CarouselArrowsMoveBetweenItems: Story = {
+  render: () => <CarouselOnAPage>{carouselItems(6)}</CarouselOnAPage>,
+  play: async ({ canvasElement }) => {
+    const scroller = canvasElement.querySelector(
+      '[data-slot="carousel-scroller"]',
+    )!;
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(item(canvasElement, 1)).toHaveFocus();
+
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(item(canvasElement, 2)).toHaveFocus();
+    await waitFor(() =>
+      expect(rect(item(canvasElement, 2)).right).toBeLessThanOrEqual(
+        rect(scroller).right,
+      ),
+    );
+    await expect(scroller.scrollLeft).toBeGreaterThan(0);
+
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(item(canvasElement, 1)).toHaveFocus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(item(canvasElement, 1)).toHaveFocus();
+  },
+};
+
+/** A disabled item is skipped by Tab and the arrows, and never pressed. */
+export const CarouselArrowsSkipDisabled: Story = {
+  beforeEach: () => {
+    disabledPressed.mockClear();
+  },
+  render: () => (
+    <CarouselOnAPage>
+      {carouselItems(4, (i) =>
+        i === 1 ? { isDisabled: true, onPress: disabledPressed } : {},
+      )}
+    </CarouselOnAPage>
+  ),
+  play: async ({ canvasElement }) => {
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(item(canvasElement, 3)).toHaveFocus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(item(canvasElement, 1)).toHaveFocus();
+    await userEvent.tab();
+    await expect(item(canvasElement, 3)).toHaveFocus();
+    await userEvent.click(item(canvasElement, 2));
+    await expect(disabledPressed).not.toHaveBeenCalled();
+  },
+};
+
+/** Up and Down leave the carousel for the element before or after it. */
+export const CarouselUpDownLeave: Story = {
+  render: () => <CarouselOnAPage>{carouselItems(6)}</CarouselOnAPage>,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(item(canvasElement, 2)).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(
+      canvas.getByRole("button", { name: "Show all" }),
+    ).toHaveFocus();
+    await userEvent.tab({ shift: true });
+    await expect(item(canvasElement, 6)).toHaveFocus();
+    await userEvent.keyboard("{ArrowUp}");
+    await expect(canvas.getByRole("button", { name: "Before" })).toHaveFocus();
+  },
+};
+
+/** Enter and Space activate the focused item; an item with `href` is a link. */
+export const CarouselEnterAndSpaceActivate: Story = {
+  beforeEach: () => {
+    pressed.mockClear();
+  },
+  render: () => (
+    <CarouselOnAPage>
+      {carouselItems(2, () => ({ onPress: pressed }))}
+      <CarouselItem href="#elsewhere">
+        <span className="block p-4">A link</span>
+      </CarouselItem>
+    </CarouselOnAPage>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await expect(pressed).toHaveBeenCalledTimes(1);
+    await userEvent.keyboard(" ");
+    await expect(pressed).toHaveBeenCalledTimes(2);
+    await expect(canvas.getByRole("link", { name: "A link" })).toHaveAttribute(
+      "href",
+      "#elsewhere",
+    );
+    await expect(
+      within(canvas.getByRole("group", { name: "3 of 3" })).getByRole("link"),
+    ).toBeInTheDocument();
+  },
+};
+
+/** Right to left, Left moves to the next item and Right to the previous. */
+export const CarouselRtlArrows: Story = {
+  render: () => (
+    <I18nProvider locale="ar-EG">
+      <div dir="rtl">
+        <CarouselOnAPage>{carouselItems(4)}</CarouselOnAPage>
+      </div>
+    </I18nProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(item(canvasElement, 1)).toHaveFocus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(item(canvasElement, 2)).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(item(canvasElement, 1)).toHaveFocus();
+  },
+};
+
+/** Full-screen scrolls vertically: Up and Down move between items, which
+    snap to the container's edge. */
+export const CarouselFullScreenVerticalArrows: Story = {
+  render: () => (
+    <div className="h-[400px] w-[300px]">
+      <Carousel aria-label="Stories" layout="full-screen">
+        {carouselItems(3)}
+      </Carousel>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const scroller = canvasElement.querySelector(
+      '[data-slot="carousel-scroller"]',
+    )!;
+    await userEvent.tab();
+    await expect(item(canvasElement, 1)).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(item(canvasElement, 2)).toHaveFocus();
+    await waitFor(() =>
+      expect(
+        Math.abs(rect(item(canvasElement, 2)).top - rect(scroller).top),
+      ).toBeLessThan(1),
+    );
+    await expect(scroller.scrollTop).toBeGreaterThan(0);
+    await userEvent.keyboard("{ArrowUp}");
+    await expect(item(canvasElement, 1)).toHaveFocus();
+    await waitFor(() => expect(scroller.scrollTop).toBe(0));
+  },
+};
+
+/** Scrolls the carousel's row to `left` and waits for the frame it draws. */
+async function scrollRow(canvasElement: HTMLElement, left: number) {
+  const scroller = canvasElement.querySelector(
+    '[data-slot="carousel-scroller"]',
+  )!;
+  scroller.scrollTo({ left, behavior: "instant" });
+  await new Promise((r) =>
+    requestAnimationFrame(() => requestAnimationFrame(r)),
+  );
+  return scroller;
+}
+
+const widthOf = (canvasElement: HTMLElement, n: number) =>
+  rect(slide(item(canvasElement, n))).width;
+const near = async (a: number, b: number, by = 1) => {
+  await expect(Math.abs(a - b)).toBeLessThanOrEqual(by);
+};
+
+/**
+ * Multi-browse at 412px: large items, then one medium strictly between, then
+ * one small (40–56), 8px apart and 16px from the edge. One snap on, the
+ * second item is large at the start; at the last snap, the last is large at
+ * the end.
+ */
+export const CarouselMultiBrowseKeylines: Story = {
+  render: () => (
+    <CarouselOnAPage layout="multi-browse">{carouselItems(8)}</CarouselOnAPage>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const region = canvas.getByRole("region");
+    const start = rect(region).left;
+    const large = widthOf(canvasElement, 1);
+    await expect(large).toBeLessThanOrEqual(200);
+    await near(rect(slide(item(canvasElement, 1))).left - start, 16);
+    let n = 2;
+    while (Math.abs(widthOf(canvasElement, n) - large) < 1) n++;
+    const medium = widthOf(canvasElement, n);
+    const small = widthOf(canvasElement, n + 1);
+    await expect(small).toBeGreaterThanOrEqual(40);
+    await expect(small).toBeLessThanOrEqual(56);
+    await expect(medium).toBeGreaterThan(small);
+    await expect(medium).toBeLessThan(large);
+    await near(
+      rect(slide(item(canvasElement, n + 1))).left -
+        rect(slide(item(canvasElement, n))).right,
+      8,
+    );
+
+    await scrollRow(canvasElement, large + 8);
+    await waitFor(() =>
+      near(rect(slide(item(canvasElement, 2))).left - start, 16),
+    );
+    await near(widthOf(canvasElement, 2), large);
+
+    const scroller = await scrollRow(canvasElement, 1e5);
+    await expect(scroller.scrollLeft).toBeGreaterThan(0);
+    await waitFor(() => near(widthOf(canvasElement, 8), large));
+    await near(
+      rect(region).right - rect(slide(item(canvasElement, 8))).right,
+      16,
+    );
+  },
+};
+
+/** Hero: one large item and a small one; at the end, the last is large and
+    the one before is small at the start. */
+export const CarouselHeroKeylines: Story = {
+  render: () => (
+    <CarouselOnAPage layout="hero">{carouselItems(5)}</CarouselOnAPage>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const start = rect(canvas.getByRole("region")).left;
+    const large = widthOf(canvasElement, 1);
+    await expect(large).toBeGreaterThan(widthOf(canvasElement, 2));
+    await expect(widthOf(canvasElement, 2)).toBeGreaterThanOrEqual(40);
+    await expect(widthOf(canvasElement, 2)).toBeLessThanOrEqual(56);
+
+    await scrollRow(canvasElement, 1e5);
+    await waitFor(() => near(widthOf(canvasElement, 5), large));
+    const small = widthOf(canvasElement, 4);
+    await expect(small).toBeGreaterThanOrEqual(40);
+    await expect(small).toBeLessThanOrEqual(56);
+    await near(rect(slide(item(canvasElement, 4))).left - start, 16);
+  },
+};
+
+/** Center-aligned hero: one snap on, the large item is centred between two
+    small ones. */
+export const CarouselCenterAlignedHeroKeylines: Story = {
+  render: () => (
+    <CarouselOnAPage layout="center-aligned-hero">
+      {carouselItems(5)}
+    </CarouselOnAPage>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const region = rect(canvas.getByRole("region"));
+    const large = widthOf(canvasElement, 1);
+    await scrollRow(canvasElement, large + 8);
+    await waitFor(() => near(widthOf(canvasElement, 2), large));
+    const centre = rect(slide(item(canvasElement, 2)));
+    await near(centre.left + centre.width / 2, region.left + region.width / 2);
+    for (const n of [1, 3]) {
+      await expect(widthOf(canvasElement, n)).toBeGreaterThanOrEqual(40);
+      await expect(widthOf(canvasElement, n)).toBeLessThanOrEqual(56);
+    }
+  },
+};
+
+/**
+ * Reduced motion: every item the same size, with no transform. The system's
+ * setting is stood in for by `matchMedia`, put back after the story.
+ */
+export const CarouselReducedMotionSameSize: Story = {
+  beforeEach: () => {
+    const real = window.matchMedia;
+    window.matchMedia = (query: string) =>
+      query === "(prefers-reduced-motion: reduce)"
+        ? ({
+            matches: true,
+            media: query,
+            onchange: null,
+            addEventListener: noop,
+            removeEventListener: noop,
+            addListener: noop,
+            removeListener: noop,
+            dispatchEvent: () => false,
+          } as MediaQueryList)
+        : real.call(window, query);
+    return () => {
+      window.matchMedia = real;
+    };
+  },
+  render: () => (
+    <CarouselOnAPage layout="multi-browse">{carouselItems(6)}</CarouselOnAPage>
+  ),
+  play: async ({ canvasElement }) => {
+    const first = widthOf(canvasElement, 1);
+    for (let n = 1; n <= 6; n++) {
+      await near(widthOf(canvasElement, n), first);
+      await expect(slide(item(canvasElement, n)).style.transform).toBe("");
+    }
   },
 };

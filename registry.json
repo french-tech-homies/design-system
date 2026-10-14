@@ -500,6 +500,31 @@
       }
     },
     {
+      "name": "carousel",
+      "type": "registry:ui",
+      "title": "Carousel",
+      "description": "Material 3 carousel in its six layouts (multi-browse, uncontained, uncontained multi-aspect ratio, hero, center-aligned hero, full-screen) on React Aria Button and Link: scroll snap, keyline sizing with parallax, reduced-motion fallback, arrow keys.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Carousel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Carousel.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "table",
       "type": "registry:ui",
       "title": "Table",
@@ -1657,6 +1682,7 @@
         "@ds/icon-button",
         "@ds/chip",
         "@ds/card",
+        "@ds/carousel",
         "@ds/table",
         "@ds/tag",
         "@ds/avatar",
