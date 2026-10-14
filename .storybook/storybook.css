@@ -10,6 +10,8 @@
    identities from the toolbar (see .storybook/preview.ts). Scoped to
    `.preset-editorial`, so importing it changes nothing on its own. */
 @import "../tokens/preset-editorial.css";
+/* Inter, from the catalog itself: see fonts.css. */
+@import "./fonts.css";
 
 @source "../components";
 @source "../primitives";

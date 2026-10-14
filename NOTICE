@@ -21,3 +21,22 @@ React Aria skill
   Taken on 2026-10-12 with `npx skills add https://react-aria.adobe.com -a
   claude-code` (skills CLI 1.7.2) and committed as that command wrote it,
   unmodified. The licence's text is in LICENSES/Apache-2.0.txt.
+
+--------------------------------------------------------------------------
+
+Inter and Michroma, the catalog's typefaces
+
+  Inter:    Copyright 2016 The Inter Project Authors
+            (https://github.com/rsms/inter)
+  Michroma: Copyright 2011 The Michroma Project Authors
+            (https://github.com/googlefonts/Michroma-font)
+  Source:   the npm packages @fontsource-variable/inter and
+            @fontsource/michroma, devDependencies pinned in package.json
+  Licence:  SIL Open Font License 1.1
+  Path:     not committed: installed into node_modules, and served by the
+            Storybook catalog (.storybook/fonts.css, and the wide-face
+            TimePicker stories) so that every screenshot baseline is drawn
+            in the same faces, offline. The built catalog on GitHub Pages
+            carries the font files unmodified.
+
+  The licence's text is in LICENSES/OFL-1.1.txt.

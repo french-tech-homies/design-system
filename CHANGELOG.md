@@ -34,6 +34,15 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+### Changed
+
+- **`playwright` is pinned to exactly `1.60.0`** (it was `^1.60.0`), a
+  devDependency of this repository only: the screenshot baselines are made in
+  the Playwright image of that version, and another Playwright would draw
+  them differently. Moving it is a change of its own, with its baselines
+  made again. Recorded because CLAUDE.md asks that a narrowed range say why
+  here. No action needed.
+
 ### Fixed
 
 - **Every component's doc comment sits on the component, so an editor's

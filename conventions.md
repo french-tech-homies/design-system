@@ -246,6 +246,7 @@ MD3 dictate anatomy, tokens and behaviour on top.
     npm run build-storybook    # what CI runs
     npm run theme:resolve      # refresh tokens/resolved.json
     npm run test-storybook   # every story, rendered + axe
+    npm run screenshots      # the same, with each story's screenshots compared (Docker)
 
 Stories live in `stories/`, grouped by Material's taxonomy —
 Foundations, Actions, Communication, Containment, Navigation, Selection. Each
@@ -263,7 +264,7 @@ and cites, beside it, the page of each thing it borrows from Material. `npm
 run registry:check-install` (`scripts/check-components.mjs`) refuses a
 component file that does neither, and a list and files that differ.
 
-Then four things, and CI (`.github/workflows/checks.yml`) enforces all
+Then five things, and CI (`.github/workflows/checks.yml`) enforces all
 of them:
 
 1. **A story** in `stories/<Category>/<Component>.stories.tsx`, titled
@@ -288,6 +289,11 @@ of them:
    `on-surface/38`, which WCAG 1.4.3 exempts as an inactive component) or that
    it is a real defect with an issue number. Never a blanket disable in
    `.storybook/preview.ts`. An unexplained suppression is worse than no check.
+5. **Its screenshots.** Every story is compared to its committed pictures,
+   light and dark under both presets (`screenshots/`). A new story, or one
+   changed on purpose, is baselined with
+   `npm run screenshots:update -- <story file>`, and the pictures are
+   committed with it. See `README.md`, "Screenshots".
 
 Both projects run from one Vitest config (`vitest.config.ts`): `material` uses
 the shipped tokens, `editorial` injects `__MD3_PRESET__` so the whole catalog

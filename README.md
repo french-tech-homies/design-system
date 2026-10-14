@@ -729,6 +729,40 @@ exempts inactive components) — `InteractionStates/Disabled` and
 
 Running the tests the first time downloads a Chromium build:
 `npx playwright install chromium`.
+
+### Screenshots — every story has a baseline
+
+```bash
+npm run screenshots                                          # compare, as CI does (Docker)
+npm run screenshots:update -- stories/actions/Button.stories.tsx  # re-baseline what changed on purpose
+```
+
+After a story has played and passed axe, its page is compared to
+`screenshots/<preset>/<story-id>.<theme>.png`, in light and in dark, under
+both presets: four committed pictures a story. A baseline cannot tell right
+from wrong, only changed from unchanged: a part repainted by accident fails
+its pull request with that story's diff, and whether a change is right stays
+a person's look in the catalog.
+
+The pictures are made and compared in one place, the Playwright image for the
+version `package.json` pins (`mcr.microsoft.com/playwright:v<version>-noble`):
+CI runs in it, and `npm run screenshots` runs the story tests in it through
+Docker, with whatever Vitest arguments follow `--`. A plain
+`npm run test-storybook` compares no pictures, since a machine's own fonts
+and rendering would make every one differ. What moves is held still: the page
+is drawn under `prefers-reduced-motion: reduce` with Playwright finishing any
+animation, a photograph from another site is drawn as one fixed image, and the
+catalog serves its typefaces itself (`.storybook/fonts.css`). A story that
+still cannot be drawn the same way twice is left out with the tag
+`no-screenshot` and its reason in `parameters.screenshot.reason`.
+
+When a comparison fails, CI keeps the expected, actual and diff images in the
+run's `screenshots` artifact and lists the stories in its summary. Without
+Docker, a picture there that was changed on purpose becomes the baseline as it
+is: `<name>-actual.png` (or `-reference.png`, for a new story) renamed to
+`screenshots/<preset>/<name>.png`. CI also fails on a picture whose story is
+gone (`scripts/check-screenshots.mjs`).
+
 ---
 
 ## Versioning and upgrades
