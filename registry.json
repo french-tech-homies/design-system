@@ -851,6 +851,35 @@
       }
     },
     {
+      "name": "bottom-sheet",
+      "type": "registry:ui",
+      "title": "Bottom sheet",
+      "description": "Standard or modal bottom sheet: surface-container-low with extra-large top corners, a drag handle that cycles partial and expanded heights by press, keyboard or drag, and the modal form on React Aria ModalOverlay + Modal + Dialog.",
+      "dependencies": [
+        "react-aria-components",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/icon-button",
+        "@ds/typography",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/BottomSheet.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/BottomSheet.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "tooltip",
       "type": "registry:ui",
       "title": "Tooltip",
@@ -1213,6 +1242,32 @@
           "path": "components/ProgressIndicator.tsx",
           "type": "registry:ui",
           "target": "@ui/ds/components/ProgressIndicator.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "loading-indicator",
+      "type": "registry:ui",
+      "title": "Loading indicator",
+      "description": "Material 3 Expressive loading indicator on React Aria ProgressBar, always indeterminate: a looping morph through seven Material shapes, default or contained, 24–240dp. Carries its own keyframes; no animation library.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/LoadingIndicator.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/LoadingIndicator.tsx"
         }
       ],
       "meta": {
@@ -1776,6 +1831,7 @@
         "@ds/modal-dialog",
         "@ds/disclosure",
         "@ds/side-sheet",
+        "@ds/bottom-sheet",
         "@ds/tooltip",
         "@ds/preview-trigger",
         "@ds/tabs",
@@ -1790,6 +1846,7 @@
         "@ds/empty-state",
         "@ds/divider",
         "@ds/progress-indicator",
+        "@ds/loading-indicator",
         "@ds/meter",
         "@ds/color-area",
         "@ds/color-field",

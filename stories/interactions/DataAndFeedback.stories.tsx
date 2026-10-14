@@ -21,6 +21,7 @@ import {
   SNACKBAR_TIMEOUT,
 } from "@french-tech-homies/design-system/components/Snackbar";
 import { ProgressIndicator } from "@french-tech-homies/design-system/components/ProgressIndicator";
+import { LoadingIndicator } from "@french-tech-homies/design-system/components/LoadingIndicator";
 import { Meter } from "@french-tech-homies/design-system/components/Meter";
 
 /**
@@ -761,6 +762,106 @@ export const MeterAccessibleValue: Story = {
 export const MeterAccessibleValueDark: Story = {
   ...MeterAccessibleValue,
   globals: { theme: "dark" },
+};
+
+/**
+ * A loading indicator is a progressbar with a name and no value, in both
+ * forms: Material forbids it ever turning determinate, so there is nothing
+ * for it to report but "working on this".
+ */
+export const LoadingIndicatorIsANamedProgressbar: Story = {
+  render: () => (
+    <div className="flex gap-6">
+      <LoadingIndicator aria-label="Loading news article" />
+      <LoadingIndicator variant="contained" aria-label="Refreshing page" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const [name, variant] of [
+      ["Loading news article", "default"],
+      ["Refreshing page", "contained"],
+    ] as const) {
+      const indicator = canvas.getByRole("progressbar", { name });
+      await expect(indicator).toHaveAttribute("data-variant", variant);
+      await expect(indicator).not.toHaveAttribute("aria-valuenow");
+      await expect(indicator).not.toHaveAttribute("aria-valuetext");
+    }
+    // Only the contained form draws its container.
+    const contained = canvas.getByRole("progressbar", {
+      name: "Refreshing page",
+    });
+    await expect(
+      contained.querySelector('[data-slot="loading-indicator-container"]'),
+    ).not.toBeNull();
+    await expect(
+      canvas
+        .getByRole("progressbar", { name: "Loading news article" })
+        .querySelector('[data-slot="loading-indicator-container"]'),
+    ).toBeNull();
+  },
+};
+
+/** It says "working", it is not a control: Tab passes over it. */
+export const LoadingIndicatorIsNotATabStop: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <Button variant="outlined">Before</Button>
+      <LoadingIndicator aria-label="Loading news article" />
+      <Button variant="outlined">After</Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Before" })).toHaveFocus();
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "After" })).toHaveFocus();
+  },
+};
+
+/**
+ * The spec's range is 24–240dp, and the active indicator keeps 38/48 of the
+ * container at every size: a size outside the range is clamped, and the
+ * indicator never leaves its share of the circle.
+ */
+export const LoadingIndicatorClampsSize: Story = {
+  render: () => (
+    <div className="flex items-end gap-6">
+      <LoadingIndicator size={10} variant="contained" aria-label="Too small" />
+      <LoadingIndicator size={400} variant="contained" aria-label="Too large" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const [name, px] of [
+      ["Too small", 24],
+      ["Too large", 240],
+    ] as const) {
+      const indicator = canvas.getByRole("progressbar", { name });
+      await expect(indicator).toHaveAttribute("data-size", String(px));
+      const svg = indicator.querySelector("svg")!;
+      await expect(svg.getBoundingClientRect().width).toBeCloseTo(px, 0);
+
+      const container = indicator.querySelector<SVGCircleElement>(
+        '[data-slot="loading-indicator-container"]',
+      )!;
+      const active = indicator.querySelector<SVGPathElement>(
+        '[data-slot="loading-indicator-active-indicator"]',
+      )!;
+      // The container circle and the shape share the viewBox's centre, its
+      // origin. The shape at rest (the path's own `d`) is scaled so its
+      // farthest point lies on the 38/48 circle: that point is the ratio.
+      const radius = container.r.baseVal.value;
+      const coords = (active.getAttribute("d") ?? "")
+        .match(/-?\d+(\.\d+)?/g)!
+        .map(Number);
+      let reach = 0;
+      for (let i = 0; i + 1 < coords.length; i += 2)
+        reach = Math.max(reach, Math.hypot(coords[i]!, coords[i + 1]!));
+      await expect(Math.abs(reach - (radius * 38) / 48)).toBeLessThan(0.5);
+    }
+  },
 };
 
 // A small inline SVG stands in for a picked image.
