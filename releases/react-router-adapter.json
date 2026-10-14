@@ -1,6 +1,6 @@
 {
   "item": "react-router-adapter",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "kit": {
     "adapters/react-router.tsx": {
       "exact": "b99280fdbc87e3294b73599894f8802c5ade25826cb8cbb7563650f0125d9dab",

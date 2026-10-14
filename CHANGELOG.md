@@ -34,6 +34,12 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-10-14
+
+A patch: two fixes and a pin of this repository's own Playwright. No entry
+breaks anything or needs an act of a project; `shadcn add --overwrite` takes
+it.
+
 ### Changed
 
 - **`playwright` is pinned to exactly `1.60.0`** (it was `^1.60.0`), a
