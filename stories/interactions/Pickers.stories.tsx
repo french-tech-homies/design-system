@@ -894,3 +894,40 @@ export const TimeWideDisplayFace: Story = {
     }
   },
 };
+
+/** The landscape layout under the wide face: the AM and PM row spans the
+    boxes above it, edge to edge, as it does at Material's sizes. */
+export const TimeWideDisplayFaceHorizontal: Story = {
+  render: () => (
+    <WideDisplayFace>
+      <TimePicker
+        label="Alarm"
+        className="w-80"
+        hourCycle={12}
+        orientation="horizontal"
+        defaultValue={new Time(7, 0)}
+      />
+    </WideDisplayFace>
+  ),
+  play: async ({ canvasElement }) => {
+    await waitFor(
+      async () =>
+        expect((await document.fonts.load("57px Michroma")).length).toBeGreaterThan(0),
+      { timeout: 10000 },
+    );
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /alarm/i }));
+    const dialog = await screen.findByRole("dialog", { name: "Select time" });
+    await document.fonts.ready;
+    const [hour, minute] = timeBoxes(dialog);
+    for (const { box, digits } of [hour!, minute!]) {
+      await expect(digits.width).toBeGreaterThan(96);
+      await expect(holds(box, digits)).toBe(true);
+    }
+    const period = within(dialog)
+      .getByRole("radiogroup", { name: "AM or PM" })
+      .getBoundingClientRect();
+    await expect(Math.abs(period.left - hour!.box.left)).toBeLessThanOrEqual(0.5);
+    await expect(Math.abs(period.right - minute!.box.right)).toBeLessThanOrEqual(0.5);
+  },
+};

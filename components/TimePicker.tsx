@@ -61,8 +61,9 @@ import { pickerDialogStyles } from "./picker-dialog-styles";
  *   keeps one width whatever the value, so the dial does not shift under
  *   a drag. Roboto and Inter fit Material's sizes, which then draw as
  *   specified. The dialog, whose width is Material's "dynamic", widens
- *   with them; past 360dp under a very wide face. The vertical period
- *   selector's 52dp is a minimum the same way.
+ *   with them; past 360dp under a very wide face. The period selector's
+ *   52dp (stacked) and 216dp (in a row) are minimums the same way; in a
+ *   row it spans the selectors above it, whatever their width.
  * - **12 or 24 hours**: the locale's, or `hourCycle`. A 24-hour picker has
  *   no period selector; its dial carries 00–11 on the outer ring and 12–23
  *   on the inner, as Material's figure draws it.
@@ -193,7 +194,7 @@ const styles = tv({
   variants: {
     orientation: {
       vertical: { period: "ml-3 h-20 min-w-13 flex-col" },
-      horizontal: { period: "mt-3 h-9.5 w-54" },
+      horizontal: { period: "mt-3 h-9.5 min-w-54" },
     },
     wide: { true: { selector: "min-w-28.5" } },
   },

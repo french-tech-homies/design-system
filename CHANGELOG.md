@@ -42,8 +42,9 @@ npm run registry:check-version # what CI runs
   minimum and grows to the widest digit pair its face draws, with 8dp each
   side, so it neither clips nor changes width as the value changes; the
   dialog widens with it. Under Roboto, Inter or the Editorial serif the
-  boxes are Material's 96 by 80dp and 96 by 72dp, as before. The vertical
-  period selector's 52dp is a minimum too. No action needed.
+  boxes are Material's 96 by 80dp and 96 by 72dp, as before. The period
+  selector's 52dp (stacked) and 216dp (in a row) are minimums too, and in a
+  row it spans the boxes above it. No action needed.
 
 ## [0.5.0] — 2026-10-14
 
