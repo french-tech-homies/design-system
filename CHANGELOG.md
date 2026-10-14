@@ -34,6 +34,8 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-10-14
+
 What the kit's first two installs of 0.3.0 asked of it. Three entries need an
 act of a project and say **Action needed**; the others need none.
 
