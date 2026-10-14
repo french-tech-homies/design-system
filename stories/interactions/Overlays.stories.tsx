@@ -9,6 +9,9 @@ import { Menu } from "@french-tech-homies/design-system/components/Menu";
 import Modal from "@french-tech-homies/design-system/components/Modal";
 import { ModalDialog } from "@french-tech-homies/design-system/components/ModalDialog";
 import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
+import BottomSheet, {
+  type BottomSheetProps,
+} from "@french-tech-homies/design-system/components/BottomSheet";
 import {
   Focusable,
   Tooltip,
@@ -620,5 +623,284 @@ export const PreviewOpensOnFocus: Story = {
       expect(screen.queryByRole("button", { name: /margherita/i })).toBeNull(),
     );
     await expect(trigger).toHaveFocus();
+  },
+};
+
+function BottomSheetHarness(props: Partial<BottomSheetProps>) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Photo actions</Button>
+      <BottomSheet
+        variant="modal"
+        title="Photo actions"
+        {...props}
+        isOpen={open}
+        onClose={() => setOpen(false)}
+      >
+        <Button variant="text" onPress={() => setOpen(false)}>
+          Share
+        </Button>
+      </BottomSheet>
+    </>
+  );
+}
+
+const bottomSheet = () =>
+  document.querySelector<HTMLElement>('[data-slot="bottom-sheet"]');
+
+/**
+ * Material's keyboard table for a bottom sheet: Tab lands on the drag handle,
+ * a button with a name, and Space or Enter toggles between the heights. The
+ * press is also the single-pointer alternative to the drag.
+ */
+export const BottomSheetHandleIsFirstAndCycles: Story = {
+  render: () => <BottomSheetHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /photo actions/i }),
+    );
+
+    const dialog = await screen.findByRole("dialog", { name: "Photo actions" });
+    await waitFor(() =>
+      expect(dialog.contains(document.activeElement)).toBe(true),
+    );
+    await expect(dialog).toHaveAttribute("data-height", "partial");
+
+    await userEvent.tab();
+    const handle = within(dialog).getByRole("button", { name: "Drag handle" });
+    await expect(handle).toHaveFocus();
+
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(dialog).toHaveAttribute("data-height", "expanded"),
+    );
+    // Expanded, the sheet offers a way out, as Material asks of a full-screen one.
+    await expect(
+      within(dialog).getByRole("button", { name: "Close" }),
+    ).toBeVisible();
+
+    await userEvent.keyboard(" ");
+    await waitFor(() =>
+      expect(dialog).toHaveAttribute("data-height", "partial"),
+    );
+    await expect(
+      within(dialog).queryByRole("button", { name: "Close" }),
+    ).toBeNull();
+
+    // A pointer press does the same.
+    await userEvent.click(handle);
+    await waitFor(() =>
+      expect(dialog).toHaveAttribute("data-height", "expanded"),
+    );
+  },
+};
+
+/** Escape and the scrim close the modal sheet, and focus returns; a sheet
+    that is not dismissable ignores the scrim. */
+export const BottomSheetEscapeAndScrimClose: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      <BottomSheetHarness />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: /photo actions/i });
+
+    await userEvent.tab();
+    await expect(trigger).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await screen.findByRole("dialog", { name: "Photo actions" });
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+
+    await userEvent.click(trigger);
+    await screen.findByRole("dialog", { name: "Photo actions" });
+    const overlay = document.querySelector<HTMLElement>(
+      '[data-slot="bottom-sheet-overlay"]',
+    );
+    await expect(overlay).not.toBeNull();
+    await userEvent.click(overlay!);
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  },
+};
+
+export const BottomSheetNotDismissableKeepsScrim: Story = {
+  render: () => <BottomSheetHarness modalProps={{ isDismissable: false }} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /photo actions/i }),
+    );
+    const dialog = await screen.findByRole("dialog", { name: "Photo actions" });
+
+    const overlay = document.querySelector<HTMLElement>(
+      '[data-slot="bottom-sheet-overlay"]',
+    );
+    await userEvent.click(overlay!);
+    await expect(
+      screen.getByRole("dialog", { name: "Photo actions" }),
+    ).toBeVisible();
+
+    // An action in the sheet still closes it.
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Share" }),
+    );
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  },
+};
+
+/** The sheet stays mounted while closed, but each opening starts again at its
+    opening height: a modal sheet reopens capped at half the screen, however
+    it was left. */
+export const BottomSheetReopensAtItsOpeningHeight: Story = {
+  render: () => <BottomSheetHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: /photo actions/i });
+    await userEvent.click(trigger);
+    let dialog = await screen.findByRole("dialog", { name: "Photo actions" });
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Drag handle" }),
+    );
+    await waitFor(() =>
+      expect(dialog).toHaveAttribute("data-height", "expanded"),
+    );
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+
+    await userEvent.click(trigger);
+    dialog = await screen.findByRole("dialog", { name: "Photo actions" });
+    await expect(dialog).toHaveAttribute("data-height", "partial");
+    await expect(
+      within(dialog).queryByRole("button", { name: "Close" }),
+    ).toBeNull();
+  },
+};
+
+/** With one height there is nothing to cycle, so the handle closes the sheet. */
+export const BottomSheetSingleHeightHandleCloses: Story = {
+  render: () => <BottomSheetHarness heights={["partial"]} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: /photo actions/i });
+    await userEvent.click(trigger);
+    const dialog = await screen.findByRole("dialog", { name: "Photo actions" });
+
+    await userEvent.tab();
+    await expect(
+      within(dialog).getByRole("button", { name: "Drag handle" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+  },
+};
+
+/** The modal sheet is a dialog named by its title, or by `aria-label` alone. */
+export const BottomSheetNamedDialog: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      <BottomSheetHarness />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /photo actions/i }),
+    );
+    const dialog = await screen.findByRole("dialog", { name: "Photo actions" });
+    await expect(dialog).toHaveAttribute("data-slot", "bottom-sheet");
+    await expect(dialog).toHaveAttribute("data-variant", "modal");
+    await expect(bottomSheet()).toBe(dialog);
+  },
+};
+
+export const BottomSheetNamedByAriaLabel: Story = {
+  render: () => (
+    <BottomSheetHarness title={undefined} aria-label="Sort files" />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /photo actions/i }),
+    );
+    await expect(
+      await screen.findByRole("dialog", { name: "Sort files" }),
+    ).toBeVisible();
+  },
+};
+
+function StandardBottomSheetHarness() {
+  const [open, setOpen] = useState(false);
+  const [presses, setPresses] = useState(0);
+  return (
+    <div className="relative h-80 w-[480px] overflow-hidden">
+      <div className="flex gap-2">
+        <Button onPress={() => setOpen((v) => !v)}>Toggle player</Button>
+        <Button variant="outlined" onPress={() => setPresses((n) => n + 1)}>
+          Next album ({presses})
+        </Button>
+      </div>
+      <BottomSheet
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        aria-label="Now playing"
+      >
+        <Button variant="text">Pause</Button>
+      </BottomSheet>
+    </div>
+  );
+}
+
+/**
+ * A standard sheet is not modal: open, the page behind stays reachable by
+ * Tab and pressable. Closed, it is still mounted (it slides), so nothing in
+ * it may be reachable.
+ */
+export const BottomSheetStandardIsNotModal: Story = {
+  render: () => <StandardBottomSheetHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toggle = canvas.getByRole("button", { name: /toggle player/i });
+    const next = canvas.getByRole("button", { name: /next album/i });
+
+    // Closed: inert, so Tab goes past it and finds nothing inside.
+    await expect(bottomSheet()).toHaveAttribute("inert");
+    await expect(
+      canvas.queryByRole("button", { name: "Drag handle" }),
+    ).toBeNull();
+    await userEvent.tab();
+    await expect(toggle).toHaveFocus();
+    await userEvent.tab();
+    await expect(next).toHaveFocus();
+    await userEvent.tab();
+    await expect(bottomSheet()!.contains(document.activeElement)).toBe(false);
+
+    // Open: the page behind is still usable, and the sheet joins the order.
+    await userEvent.click(toggle);
+    await waitFor(() => expect(bottomSheet()).not.toHaveAttribute("inert"));
+    await expect(canvas.queryByRole("dialog")).toBeNull();
+    await userEvent.click(next);
+    await expect(next).toHaveTextContent("Next album (1)");
+
+    next.focus();
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Drag handle" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(bottomSheet()).toHaveAttribute("data-height", "expanded"),
+    );
+    // Expanded, a standard sheet offers a collapse button rather than a close.
+    await userEvent.click(canvas.getByRole("button", { name: "Collapse" }));
+    await waitFor(() =>
+      expect(bottomSheet()).toHaveAttribute("data-height", "partial"),
+    );
   },
 };

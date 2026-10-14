@@ -554,7 +554,7 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `icons.tsx`                    | Icon types + the small built-in SVG set                                                                                                                                                                                                                                       |
 | `primitives/Typography.tsx`    | `Display` / `Headline` / `Title` / `Body` / `Label`                                                                                                                                                                                                                           |
 | `primitives/StateLayer.tsx`    | MD3 interaction state overlay                                                                                                                                                                                                                                                 |
-| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, Button, IconButton, ButtonGroup, SegmentedButton, SplitButton, FabMenu, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Avatar, Table, TopAppBar, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, Meter, `color/*` |
+| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, Button, IconButton, ButtonGroup, SegmentedButton, SplitButton, FabMenu, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, BottomSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Avatar, Table, TopAppBar, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, LoadingIndicator, Meter, `color/*`|
 | `adapters/next.tsx`            | Optional: Next router provider + `next/image` renderer. Delete if not on Next.js                                                                                                                                                                                              |
 | `adapters/react-router.tsx`    | Optional: React Router (or TanStack Router) provider so `href` links navigate client-side. Delete if not on React Router                                                                                                                                                      |
 | `changed.mjs`                  | The update check: lists the kit files a project changed since it installed them, against `RELEASE.json` — `node <ui>/ds/changed.mjs`, see _Taking an update_. Node builtins only. In the registry as `@ds/changed`                                                          |
@@ -1193,11 +1193,14 @@ Which plans have design systems, and where one is made, is on the same page.
 
 - **No ripple.** MD3's press ripple is approximated by the state-layer opacity
   alone. Deliberate: it keeps every control free of JS animation.
-- **No animation library.** Modal, ModalDialog and the modal SideSheet animate
-  through React Aria's `data-entering` / `data-exiting` states plus
-  `tw-animate-css`; the standard SideSheet collapses via a
-  `grid-template-columns: 1fr → 0fr` transition. Render them unconditionally and
-  drive with `isOpen` — React Aria keeps the element mounted through the exit.
+- **No animation library.** Modal, ModalDialog, the modal SideSheet and the
+  modal BottomSheet animate through React Aria's `data-entering` /
+  `data-exiting` states plus `tw-animate-css`; the standard SideSheet
+  collapses via a `grid-template-columns: 1fr → 0fr` transition, and the
+  standard BottomSheet slides on a `transform` transition. Render them
+  unconditionally and drive with `isOpen` — React Aria keeps the element
+  mounted through the exit. ProgressIndicator and LoadingIndicator carry their
+  keyframes in a `<style>` of their own.
 - **Snackbars are a global queue, not a hook.** `snackbar(text, options)`
   works from any module (a mutation callback, a store); `<SnackbarRegion />`
   renders once per layout. One snackbar at a time, the newest replacing the

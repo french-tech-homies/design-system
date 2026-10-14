@@ -103,6 +103,11 @@ export {
   type SideSheetProps,
 } from "./components/SideSheet";
 export {
+  default as BottomSheet,
+  type BottomSheetProps,
+  type BottomSheetHeight,
+} from "./components/BottomSheet";
+export {
   Tooltip,
   TooltipTrigger,
   Focusable,
@@ -171,6 +176,10 @@ export {
   ProgressIndicator,
   type ProgressIndicatorProps,
 } from "./components/ProgressIndicator";
+export {
+  LoadingIndicator,
+  type LoadingIndicatorProps,
+} from "./components/LoadingIndicator";
 export { Meter, type MeterProps } from "./components/Meter";
 
 // Color picker family
