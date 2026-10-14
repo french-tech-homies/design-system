@@ -47,7 +47,7 @@ test("the shipped kit: every exported component carries its doc comment", () => 
   assert.deepEqual(checkDocs(shipped), []);
 });
 
-test("the rule holds each component file's main export and the named few", () => {
+test("the rule holds every component of components/ and primitives/, and the named few", () => {
   const held = new Set(shipped.filter(heldToRule).map((e) => e.name));
   for (const name of [
     "Badge",
@@ -60,10 +60,17 @@ test("the rule holds each component file's main export and the named few", () =>
     "StateLayer",
     "Button",
     "ColorPicker",
+    "ChipGroup",
+    "CheckboxGroup",
+    "SearchBar",
+    "SearchView",
+    "Focusable",
+    "Display",
     ...ALSO,
+    ...PENDING,
   ])
     assert.ok(held.has(name), `the rule holds ${name}`);
-  for (const name of ["CheckboxGroup", "BADGE_MAX", "cn", "Display"])
+  for (const name of ["BADGE_MAX", "badgeAccessibleText", "cn", "CheckIcon"])
     assert.ok(!held.has(name), `the rule does not hold ${name}`);
 });
 
@@ -95,6 +102,24 @@ test("a component with no doc comment at all is refused", () => {
   refuses(path, swap(text, docOf(path, text), ""), "Divider");
 });
 
+test("a sub-component's comment left on a const above it is refused", () => {
+  // ChipGroup's comment, moved onto a const between it and the function.
+  const path = "components/Chip.tsx";
+  const text = read(path);
+  const at = text.indexOf("export function ChipGroup(");
+  const doc = /\/\*\*(?:(?!\*\/)[\s\S])*\*\/\n$/.exec(text.slice(0, at))?.[0];
+  assert.ok(doc, `${path} carries ChipGroup's doc comment`);
+  refuses(
+    path,
+    swap(
+      text,
+      `${doc}export function ChipGroup(`,
+      `${doc}const chipGroupFixture = 0;\nexport function ChipGroup(`,
+    ),
+    "ChipGroup",
+  );
+});
+
 test("a re-export with its comment on the export line is refused", () => {
   // `/** … */ export { Focusable };` reaches neither the hover nor the types.
   const path = "components/Tooltip.tsx";
@@ -111,8 +136,8 @@ test("a re-export with its comment on the export line is refused", () => {
 });
 
 test("a pending export that gains its doc comment must leave the list", () => {
-  const [name] = PENDING;
-  assert.ok(name, "the list names an export still to be written");
+  const name = "Dialog";
+  assert.ok(PENDING.includes(name), `the list names ${name}, still to be written`);
   const path = shipped.find((e) => e.name === name)?.file;
   assert.ok(path, `${INDEX} exports ${name}`);
   const problems = checkDocs(

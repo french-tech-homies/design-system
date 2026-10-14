@@ -12,13 +12,14 @@
    exports with the TypeScript checker, as an editor does, and requires a doc
    comment on:
 
-   - every component file's main export: the value `index.ts` exports from
-     a file under components/ or primitives/ whose name is the file's
-     (`components/Checkbox.tsx` → `Checkbox`);
-   - the exports named in `ALSO`, whose comment the kit already holds though
-     no file is named after them.
+   - every component `index.ts` exports from a file under components/ or
+     primitives/: a value whose name is PascalCase (`Checkbox`,
+     `CheckboxGroup`, `StateLayer`; not `badgeAccessibleText` or
+     `BADGE_MAX`);
+   - the exports named in `ALSO`, from elsewhere in the kit, whose comment
+     the kit already holds.
 
-   `PENDING` names the main exports that have no doc comment yet, anywhere,
+   `PENDING` names the components that have no doc comment yet, anywhere,
    to move: theirs is still to be written. One that gains a comment is
    refused until it leaves the list, so the list only shrinks.
 
@@ -28,18 +29,41 @@
    are the script's own.
    ========================================================================== */
 
-import { dirname, join, posix, relative } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 export const INDEX = "index.ts";
 export const FOLDERS = ["components", "primitives"];
 
-/** Exports held to the rule though no file bears their name. */
-export const ALSO = ["SearchBar", "SearchView", "Focusable", "GlobeIcon"];
+/** Exports from outside components/ and primitives/ held to the rule. */
+export const ALSO = ["GlobeIcon"];
 
-/** Main exports with no doc comment written yet: the rule's known gaps. */
-export const PENDING = ["Dialog"];
+/** Components with no doc comment written yet: the rule's known gaps. */
+export const PENDING = [
+  "Body",
+  "CardContent",
+  "Cell",
+  "CheckboxGroup",
+  "Column",
+  "DateRangePicker",
+  "Dialog",
+  "DisclosureGroup",
+  "DisclosurePanel",
+  "Display",
+  "GridListItem",
+  "Headline",
+  "Label",
+  "RadioGroup",
+  "Row",
+  "Tab",
+  "TabList",
+  "TabPanel",
+  "TableBody",
+  "TableHeader",
+  "Title",
+  "TooltipTrigger",
+];
 
 const KIT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -81,7 +105,13 @@ export function readExports({ kit = KIT, replace = {} } = {}) {
           ? checker.getAliasedSymbol(symbol)
           : symbol;
       if (!(target.flags & ts.SymbolFlags.Value)) return undefined;
-      const declared = target.declarations?.[0]?.getSourceFile().fileName;
+      // The kit file index.ts takes it from, which is where a re-export of
+      // React Aria's (`Focusable`) has to carry its comment too.
+      const from =
+        symbol.flags & ts.SymbolFlags.Alias
+          ? checker.getImmediateAliasedSymbol(symbol)
+          : symbol;
+      const declared = from?.declarations?.[0]?.getSourceFile().fileName;
       return {
         name: symbol.name,
         file: declared
@@ -99,10 +129,7 @@ export function readExports({ kit = KIT, replace = {} } = {}) {
 export function heldToRule({ name, file }) {
   if (ALSO.includes(name)) return true;
   const [folder] = file.split("/");
-  return (
-    FOLDERS.includes(folder) &&
-    posix.basename(file).replace(/\.tsx?$/, "") === name
-  );
+  return FOLDERS.includes(folder) && /^[A-Z][a-z]/.test(name);
 }
 
 /**
@@ -112,7 +139,7 @@ export function heldToRule({ name, file }) {
 export function checkDocs(exports) {
   const problems = [];
   const names = new Set(exports.map((e) => e.name));
-  for (const name of ALSO)
+  for (const name of [...ALSO, ...PENDING])
     if (!names.has(name)) problems.push(`${INDEX} does not export ${name}`);
   for (const e of exports.filter(heldToRule).sort((a, b) =>
     a.name.localeCompare(b.name),
