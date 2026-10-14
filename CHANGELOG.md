@@ -89,16 +89,19 @@ npm run registry:check-version # what CI runs
   `xsmall` and `small` answer over a 48px tall target. The label is in
   `classNames.label` (`button-label`), the icon in `classNames.icon`
   (`button-icon`).
-- **The theme has a seventh corner, `large-increased` (20px).** Connected
-  button groups and split buttons draw it, as `rounded-shape-large-increased`.
-  A DESIGN.md writes it as `rounded.large-increased` (it has no short name).
-  A DESIGN.md that writes `rounded.large` and not `large-increased` gets its
-  `large` value for it, so a square theme stays square with no edit; one that
-  writes neither gets Material's 20px. A project that writes its theme CSS by
-  hand rather than generating it falls back to 20px until it declares
-  `--md-sys-shape-corner-large-increased`; the Editorial preset declares it
-  at 4px. Regenerate your theme (`npm run theme:generate` or the
-  `ds-theme` skill's generator) to have the new declaration.
+- **The theme has a seventh corner, `large-increased` (20px). Action needed
+  if your theme is generated into a folder of your own: generate it again.**
+  Connected button groups and split buttons draw it, as
+  `rounded-shape-large-increased`. A DESIGN.md writes it as
+  `rounded.large-increased` (it has no short name). A DESIGN.md that writes
+  `rounded.large` and not `large-increased` gets its `large` value for it,
+  so a square theme stays square without a new line; one that writes
+  neither gets Material's 20px. No update reaches your theme folder: until
+  you run the generator again
+  (`npx tsx <ui>/ds/tokens/generate-theme.mjs DESIGN.md --out theme`), it
+  declares neither `--md-sys-shape-corner-large-increased` nor its utility,
+  and those inner corners draw full. A theme written by hand declares the
+  variable itself; the Editorial preset declares it at 4px.
 - **`IconButton` sits in a `ButtonGroup`**: it takes the group's size where
   it sets none, its connected corners, and its pressed width.
 - **`Menu` takes `offset`**, the space between its trigger and the menu,
