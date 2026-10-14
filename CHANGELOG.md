@@ -34,31 +34,14 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
-### Added
-
-- **Every story is compared to a committed screenshot before it can merge.**
-  The story tests compare each story, after its `play` and axe, to
-  `screenshots/<preset>/<story-id>.<theme>.png`: light and dark, under both
-  presets, four pictures a story, made and compared in the Playwright image
-  for the pinned version (`npm run screenshots`, `npm run
-  screenshots:update -- <story file>`, through Docker; CI runs in the same
-  image). A part repainted by accident fails its pull request, which keeps
-  the expected, actual and diff images. How this repository is checked, not
-  what a project receives: no action needed.
-- **The catalog serves its own typefaces.** Inter (`@fontsource-variable/inter`)
-  and, for the wide-face `TimePicker` stories, Michroma
-  (`@fontsource/michroma`) are devDependencies the catalog loads itself
-  instead of fetching from Google Fonts, so every picture is drawn in the
-  same faces; credited in `NOTICE`. The kit's files never import them, and
-  its `--font-inter` hook is unchanged. No action needed.
-
 ### Changed
 
 - **`playwright` is pinned to exactly `1.60.0`** (it was `^1.60.0`), a
   devDependency of this repository only: the screenshot baselines are made in
   the Playwright image of that version, and another Playwright would draw
   them differently. Moving it is a change of its own, with its baselines
-  made again. No action needed.
+  made again. Recorded because CLAUDE.md asks that a narrowed range say why
+  here. No action needed.
 
 ### Fixed
 
