@@ -37,6 +37,9 @@ What the kit is, and which components are its own, is said once: `README.md`,
   theme.
 - `stories/`: the catalog, titled `MD3/<Category>/<Component>`, and
   `stories/interactions/`, the behaviour tests. Every story is a test.
+- `screenshots/`: every story's committed baseline,
+  `<preset>/<story-id>.<theme>.png`, four a story, compared by the story
+  tests inside the Playwright image (`.storybook/screenshot.setup.ts`).
 - `skills/`: what a project's agent reads (`ds-theme`, `ds-build`,
   `ds-spec`).
 - `scripts/`: the registry build and its four rule checks, the publish
@@ -90,6 +93,8 @@ npm run registry:publishes -- --event push --base <sha> --ref refs/heads/main  #
 npm run build-storybook
 npx playwright install chromium # once
 npm run test-storybook          # every story, rendered, played and axe-checked, under both presets
+npm run screenshots             # the same in the CI's Playwright image (Docker), each story's screenshots compared
+npm run screenshots:update -- <story file>   # re-baseline what changed on purpose, in that image
 npm run md3 -- page <component> guidelines   # the live Material 3 spec
 npx playwright screenshot <url> <file>       # the fallback picture of one story (see "Seeing a story")
 ```
@@ -123,7 +128,9 @@ that leaves a difference means its output was not committed.
 
 `npm run build-storybook` and `npm run test-storybook` are the heavy checks.
 `.github/workflows/checks.yml` runs both, after the cheap ones, on every pull
-request. Run one locally only where a change needs it to be trusted: one at a
+request, inside the Playwright image, with each story's screenshots compared
+to `screenshots/`. `npm run screenshots` is the same comparison locally, in
+the same image through Docker, and as heavy. Run one locally only where a change needs it to be trusted: one at a
 time, in the foreground, never beside a running Storybook: run
 `npm run storybook:stop` first.
 
@@ -162,6 +169,12 @@ npm run storybook:stop       # says the port is free
   filename: without one it lands in the server's output directory, outside
   the tree; with one it is written into the worktree. A picture is never
   written into the tree.
+- **A change that repaints a story on purpose re-baselines it**:
+  `npm run screenshots:update -- <story file>` (or `--project`, `-t`), the
+  pictures committed with the change, and the closeout names them. Look at
+  the new pictures before committing: a baseline holds whatever it is given.
+  Without Docker, the CI's `screenshots` artifact holds each changed
+  picture (README, "Screenshots").
 - **Stop.** `npm run storybook:stop` stops the process group its own record
   names, waits until the port is free and says so. Never stop a Storybook
   any other way: not by a name or a port pattern (`pkill`, `killall`, a

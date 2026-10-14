@@ -24,7 +24,16 @@ jobs:
   checks:
     name: Tokens, registry & Storybook
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # The screenshots add about eight minutes to the story tests: see
+    # vitest.config.ts and .storybook/screenshot.setup.ts.
+    timeout-minutes: 35
+    # Every step runs in the Playwright image for the version package.json
+    # pins: the Chromium and the fonts the screenshot baselines were made with
+    # (`npm run screenshots:update` makes them in this same image).
+    # `npm run storybook:check` holds this tag to the pin.
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+      options: --ipc=host --init
     outputs:
       publish: ${{ steps.decide.outputs.publish }}
     steps:
@@ -119,16 +128,35 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook -- --quiet
 
+      - name: Every story's screenshots are committed, and none outlives its story
+        run: node scripts/check-screenshots.mjs storybook-static/index.json
+
       # The quality net. Every story is a test: it renders, its `play`
       # function runs if it has one, and axe checks the result — once under
       # the shipped Material tokens and once under the Editorial preset,
       # because a component that is only accessible under one palette is not
-      # accessible. The bar for a new component is in conventions.md.
-      - name: Install Chromium for the interaction tests
-        run: npx playwright install --with-deps chromium
-
-      - name: Interaction tests and axe over the catalog
+      # accessible. Then its page is compared, in light and in dark, to its
+      # baseline in screenshots/. The image already holds Chromium. The bar
+      # for a new component is in conventions.md.
+      - name: Interaction tests, axe and screenshots over the catalog
+        env:
+          MD3_SCREENSHOTS: "1"
         run: npm run test-storybook
+
+      # A failed comparison's expected, actual and diff images, kept with the
+      # run and listed in its summary, for the reviewer and the owner.
+      - name: Gather the screenshots that changed
+        if: failure()
+        run: node scripts/screenshots-report.mjs
+
+      - name: Keep the screenshots that changed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: .vitest-attachments/screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Assemble the site
         # Storybook builds with relative asset paths, so it serves correctly

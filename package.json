@@ -10,7 +10,7 @@
     "storybook": "storybook dev -p 6006",
     "storybook:serve": "node scripts/storybook-serve.mjs serve",
     "storybook:stop": "node scripts/storybook-serve.mjs stop",
-    "storybook:check": "node --test --test-timeout=60000 scripts/storybook-serve.check.mjs",
+    "storybook:check": "node --test --test-timeout=60000 scripts/storybook-serve.check.mjs scripts/screenshots.check.mjs",
     "build-storybook": "storybook build",
     "theme:generate": "tsx tokens/generate-theme.mjs DESIGN.md",
     "theme:check": "tsx --test tokens/design-md.check.mjs",
