@@ -53,6 +53,10 @@
       "exact": "91f305b861239d5f14db72066b2f54e5bed06115ab512b730f0a8a976b0154c6",
       "loose": "4aaf9f4a199060a1c012bb28826a23522ec902d3c1ccbe066c61cf582bfdbfae"
     },
+    "components/Carousel.tsx": {
+      "exact": "7578f52f8091a3b5fbbf59beaa353bedb24876d5c4a5adff07d29788a4642c23",
+      "loose": "e265ca2edcc0bc2d1963add138fb567a2dd8384c685774c6a4a2b805da6da2f5"
+    },
     "components/Checkbox.tsx": {
       "exact": "19f5ae25c5000f5c6ced78744da05536b0b41bd87f8bd71cb1e2595254728c24",
       "loose": "5fe0a3799956d174cb3e68d911db4cc626cd1f1e036f0759024979f91eafc1cb"
@@ -262,11 +266,11 @@
       "loose": "d45a560ebb867c95739b1fb3d8386ef92943204fc160e97176cc4e8b391cc2b9"
     },
     "index.ts": {
-      "exact": "52843bf2c2b027c3333910ee2423a683271d453335e8d93595d516313f81573e",
-      "loose": "9dc595d173e28277f02b701a2ca78825b537f6236e3bea427deb7c6ddbc7c47c",
+      "exact": "59ef0e2899766890fe9aac8cdd34b876b073dd51a2249dc3c6596841d4d5f5b7",
+      "loose": "c38caaf09c745480928eeaadf3a330e38dbe84185e1a37dac13bacdb016f5ec8",
       "landed": {
-        "exact": "894b87588cd9ff01b5a6c17416b7b6546fc867a7efcb71079b8bd6f1688274ba",
-        "loose": "2227f665414e22b8d94f70521cde797f6d4684223b70113969c40a60d64f80e0"
+        "exact": "f2170fabff380f5020e335d68ebc869da817a856a5880799322098922118a9a4",
+        "loose": "0a14a7acf7f273531a23458afd10bd7682f38f9323c240533a3182259e484611"
       }
     },
     "primitives/StateLayer.tsx": {
@@ -320,8 +324,8 @@
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "5ff3d0c44650bc4f1be0b2ba3ab5c4a200211a75f01db093cab4a50e53fd3fe1",
-      "loose": "f50827e21975c65cd4fccf912c5ef7754f3007da909034b1c4aeaab103194abc"
+      "exact": "aad7972b2e9ffdd1257d6a9c3f4488d0bf43ba3350456013ae9482cb6ef7f2af",
+      "loose": "a96894ed967f7824e2891eb5435618bdbeac63ba774f760dae9aad6299e2de4e"
     },
     ".claude/skills/ds-spec/SKILL.md": {
       "exact": "96df5b9d9585d4dfb4f5ef97d0baa936a5d7176111ef5247d29a04670d8fd25e",

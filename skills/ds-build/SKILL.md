@@ -173,7 +173,8 @@ One rule: **an edit of a kit file is allowed, priced and rarely needed.**
 - **Rarely needed.** First try, in order: a token in `DESIGN.md` (the
   `ds-theme` skill), a `className` on the component, a class on one of its
   named parts through `classNames` (on a component whose doc comment lists
-  its parts: `Tooltip`, `Card`, `Table`'s `Column` and `Cell`, `IconButton`;
+  its parts: `Tooltip`, `Card`, `Carousel` and `CarouselItem`, `Table`'s
+  `Column` and `Cell`, `IconButton`;
   a part's name is a prop, and a release that renames one lists it as a
   break), a wrapper component in the project, a new component beside the
   kit. Edit a kit file last, and write
