@@ -43,9 +43,9 @@ npm run registry:check-version # what CI runs
   In multi-browse and the two heroes, items change width as the row
   scrolls (large, medium, small 40–56), with Material's parallax; the
   scroll is the browser's own, snapping to the layout. Under reduced
-  motion every item is one size, with no parallax, and the row still snaps. Each item is a React Aria
-  `Button` (`onPress`) or `Link` (`href`) in a group named "3 of 8"; the
-  carousel is a named region, never a tab stop. Tab and Left/Right move
+  motion every item is one size, with no parallax, and the row still
+  snaps. Each item is a React Aria `Button` (`onPress`) or `Link`
+  (`href`) in a group named "3 of 8"; the carousel is a named region, never a tab stop. Tab and Left/Right move
   between items, Up and Down leave the carousel (full-screen: move between
   items), Space and Enter activate. The Show all button Material requires on
   a page that scrolls vertically is yours to place, below the carousel or as
@@ -53,6 +53,40 @@ npm run registry:check-version # what CI runs
   its doc comment: no pressed shape change, no mouse drag (the scroll bar,
   the wheel and the keyboard are the mouse's paths), full-screen without
   corners. No action needed.
+- **Loading indicator** (`components/LoadingIndicator.tsx`, registry item
+  `loading-indicator`): Material 3 Expressive's loading indicator, for a wait
+  of 200ms to 5s, on React Aria's `ProgressBar`, always indeterminate (a
+  `progressbar` with a name and no value; there is no `value` prop, since
+  Material says it never becomes determinate). `variant="default"` draws the
+  active indicator in `primary`; `variant="contained"` puts it in
+  `on-primary-container` on a `primary-container` circle. 48dp by default,
+  `size` clamped to 24–240dp, the 38/48 ratio held. The active indicator
+  morphs through the seven shapes of Compose's loading indicator, drawn by
+  the kit's own code from the parameters Compose's `MaterialShapes` publishes,
+  in keyframes the file carries itself. Deviations, recorded in its doc
+  comment: the curves are the kit's, close to Compose's; the morph eases
+  where Compose springs; where a browser cannot animate CSS `d` (WebKit,
+  today) the first shape turns without morphing; no pull-to-refresh, which
+  Material gives Compose alone. Under reduced motion it stands still.
+  `ProgressIndicator` is unchanged. No action needed.
+- **Bottom sheet** (`components/BottomSheet.tsx`, registry item
+  `bottom-sheet`): Material's standard and modal bottom sheets on
+  `surface-container-low`, extra-large top corners, elevation 1, full width
+  up to 640dp and Material's margins above a 640dp window. The modal sheet is
+  a React Aria `ModalOverlay` + `Modal` + `Dialog` over a scrim: named by its
+  `title` or `aria-label`, closed by Escape, the scrim (unless
+  `modalProps.isDismissable` is false), an action, or a drag down; focus goes
+  in and comes back. The standard sheet sits `absolute` at the bottom of the
+  caller's container and leaves the page usable; closed, it is `inert`. The
+  optional drag handle is a named button, the first tab stop: a press, Space
+  or Enter cycles the preset heights (`partial`, capped at half the screen;
+  `expanded`, up to the top margin), or closes a sheet with one height, and a
+  drag moves the sheet between them. Expanded, a modal sheet shows a close
+  button and a standard one a collapse button. Deviations, recorded in its
+  doc comment: the modal sheet is a named dialog, where Material labels only
+  the handle; no `minimized` state, which Material names in a token and
+  describes nowhere; no predictive back, an Android gesture. `SideSheet` is
+  unchanged. No action needed.
 - **`Meter`** (`@ds/meter`, and in `@ds/ds`): a quantity within a known
   range, such as a quota, a disk's use or a score, on React Aria's `Meter`.
   It is the `meter` role, with `value`, `minValue`, `maxValue`,
