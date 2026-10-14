@@ -95,16 +95,36 @@ export const MultiBrowse: Story = {
   args: { ...labelled, layout: "multi-browse" },
 };
 
+/**
+ * Scrolls the row `snaps` snaps on, where a centred carousel is centred:
+ * at rest its first item is large at the start.
+ */
+const scrolledOn =
+  (snaps: number) =>
+  async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+    const scroller = canvasElement.querySelector(
+      '[data-slot="carousel-scroller"]',
+    )!;
+    const first = canvasElement.querySelector('[data-slot="carousel-item"]')!;
+    const step = first.getBoundingClientRect().width + 8;
+    scroller.scrollTo({ left: snaps * step, behavior: "instant" });
+    await new Promise((r) => setTimeout(r, 100));
+  };
+
+/** `[S, M, L, M, S]`, drawn at its third item. */
 export const MultiBrowseCentered: Story = {
   args: { ...labelled, layout: "multi-browse", alignment: "center" },
+  play: scrolledOn(2),
 };
 
 export const Hero: Story = {
   args: { ...labelled, layout: "hero" },
 };
 
+/** `[S, L, S]`, drawn at its second item. */
 export const CenterAlignedHero: Story = {
   args: { ...labelled, layout: "center-aligned-hero" },
+  play: scrolledOn(1),
 };
 
 export const Uncontained: Story = {

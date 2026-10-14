@@ -638,8 +638,9 @@ export const CarouselHeroKeylines: Story = {
   },
 };
 
-/** Center-aligned hero: one snap on, the large item is centred between two
-    small ones. */
+/** Center-aligned hero: at rest the first item is large at the start and
+    the row full; one snap on, the large item is centred between two small
+    ones. */
 export const CarouselCenterAlignedHeroKeylines: Story = {
   render: () => (
     <CarouselOnAPage layout="center-aligned-hero">
@@ -650,6 +651,12 @@ export const CarouselCenterAlignedHeroKeylines: Story = {
     const canvas = within(canvasElement);
     const region = rect(canvas.getByRole("region"));
     const large = widthOf(canvasElement, 1);
+    // At rest the row is full: the first item large at the start, no
+    // empty keyline before it.
+    await near(rect(slide(item(canvasElement, 1))).left - region.left, 16);
+    await expect(widthOf(canvasElement, 2)).toBeLessThanOrEqual(56);
+    await near(region.right - rect(slide(item(canvasElement, 3))).right, 16);
+
     await scrollRow(canvasElement, large + 8);
     await waitFor(() => near(widthOf(canvasElement, 2), large));
     const centre = rect(slide(item(canvasElement, 2)));
@@ -658,6 +665,38 @@ export const CarouselCenterAlignedHeroKeylines: Story = {
       await expect(widthOf(canvasElement, n)).toBeGreaterThanOrEqual(40);
       await expect(widthOf(canvasElement, n)).toBeLessThanOrEqual(56);
     }
+  },
+};
+
+/**
+ * Centred multi-browse: two snaps on, the large item is centred with a
+ * medium and a small item on each side, mirrored.
+ */
+export const CarouselMultiBrowseCenteredKeylines: Story = {
+  render: () => (
+    <div className="w-[412px]">
+      <Carousel
+        aria-label="Landscapes"
+        layout="multi-browse"
+        alignment="center"
+      >
+        {carouselItems(8)}
+      </Carousel>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const region = rect(within(canvasElement).getByRole("region"));
+    const large = widthOf(canvasElement, 1);
+    await scrollRow(canvasElement, 2 * (large + 8));
+    await waitFor(() => near(widthOf(canvasElement, 3), large));
+    const centre = rect(slide(item(canvasElement, 3)));
+    await near(centre.left + centre.width / 2, region.left + region.width / 2);
+    await near(widthOf(canvasElement, 2), widthOf(canvasElement, 4));
+    await near(widthOf(canvasElement, 1), widthOf(canvasElement, 5));
+    await expect(widthOf(canvasElement, 1)).toBeGreaterThanOrEqual(40);
+    await expect(widthOf(canvasElement, 1)).toBeLessThanOrEqual(56);
+    await expect(widthOf(canvasElement, 2)).toBeLessThan(large);
+    await near(rect(slide(item(canvasElement, 1))).left - region.left, 16);
   },
 };
 

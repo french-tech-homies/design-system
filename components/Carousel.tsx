@@ -152,7 +152,11 @@ export function arrange(
       const hi = (rest - sides * 2 * SMALL_MIN) / k;
       const large = Math.min(hi, preferred);
       if (large < lo || large < SMALL_MIN) continue;
-      if (!best || large > best.large + 0.5 || Math.abs(large - best.large) <= 0.5)
+      if (
+        !best ||
+        large > best.large + 0.5 ||
+        Math.abs(large - best.large) <= 0.5
+      )
         best = { k, large };
     }
     if (!best) return { large: content, medium: 0, small: 0, slots: ["large"] };
@@ -197,38 +201,48 @@ export type SnapState = { slots: Size[]; first: number };
 
 /**
  * Every snap of a row of `count` items, one per item that reaches a large
- * keyline: `count - k + 1` of them.
+ * keyline: `count - k + 1` of them, the `j`th with item `j` first in the
+ * large ones.
  *
- * Start-aligned, the row moves one item per snap while enough items follow
- * the large ones. Then the trailing keylines move to the front one at a
- * time, so the last items end large: `[L, M, S]` → `[S, L, M]` → `[S, M, L]`,
- * hero `[L, S]` → `[S, L]`. Centred, the large keylines stay in the middle
- * and the side that has no item left is empty.
+ * Between the ends the arrangement stands as it is, and the row moves one
+ * item per snap. Near an end, a keyline on the side that has no item left
+ * moves to the other side, among the keylines there by size, so the row
+ * stays full and its first and last items reach a large keyline:
+ * start-aligned `[L, M, S]` → `[S, L, M]` → `[S, M, L]`, hero `[L, S]` →
+ * `[S, L]`; centred `[L, M, M, S, S]` → `[M, L, M, S, S]` → `[S, M, L, M, S]`
+ * and on to the mirror at the end.
  */
 export function snapStates(
   count: number,
   arrangement: Arrangement,
-  centered: boolean,
 ): SnapState[] {
   const { slots } = arrangement;
-  const m = slots.length;
+  const h = slots.indexOf("large");
   const k = slots.filter((s) => s === "large").length;
-  if (centered) {
-    const lead = slots.indexOf("large");
-    return Array.from({ length: Math.max(1, count - k + 1) }, (_, j) => ({
-      slots,
-      first: j - lead,
-    }));
-  }
-  if (count < m) return [{ slots, first: 0 }];
-  const states: SnapState[] = [];
-  for (let j = 0; j <= count - m; j++) states.push({ slots, first: j });
-  for (let r = 1; r <= m - k; r++)
-    states.push({
-      slots: [...slots.slice(m - r).reverse(), ...slots.slice(0, m - r)],
-      first: count - m,
-    });
-  return states;
+  const lead = slots.slice(0, h);
+  const trail = slots.slice(h + k);
+  const rank: Record<Size, number> = { small: 0, medium: 1, large: 2 };
+  const ascending = (a: Size, b: Size) => rank[a] - rank[b];
+  return Array.from({ length: Math.max(1, count - k + 1) }, (_, j) => {
+    // The items there are before and after the large ones, at most the
+    // keylines on that side; the outermost keylines go first.
+    const before = Math.min(lead.length, j);
+    const after = Math.min(trail.length, Math.max(0, count - k - j));
+    const newLead = [
+      ...trail.slice(after),
+      ...lead.slice(lead.length - before),
+    ].sort(ascending);
+    const newTrail = [
+      ...trail.slice(0, after),
+      ...lead.slice(0, lead.length - before),
+    ]
+      .sort(ascending)
+      .reverse();
+    return {
+      slots: [...newLead, ...slots.slice(h, h + k), ...newTrail],
+      first: j - newLead.length,
+    };
+  });
 }
 
 /** Where item `index` stands at a snap, from the container's inline start. */
@@ -278,7 +292,9 @@ const TABBABLE =
 
 /** The tabbable element just before (`forward` false) or after the root. */
 function neighbour(root: HTMLElement, forward: boolean) {
-  const all = Array.from(document.querySelectorAll<HTMLElement>(TABBABLE)).filter(
+  const all = Array.from(
+    document.querySelectorAll<HTMLElement>(TABBABLE),
+  ).filter(
     (el) =>
       !root.contains(el) &&
       !el.contains(root) &&
@@ -415,8 +431,12 @@ export type CarouselProps = Omit<
  * `h-56` on the root; full-screen fills its parent), the large width's
  * default (200px), the small item at 56 in the heroes, and multi-browse's
  * pick of the large width closest to `itemWidth` before the most large
- * items. How the keylines move near the end of the row is the kit's reading
- * of Material's videos: the pages give no formula.
+ * items. How the keylines move near the ends of the row is the kit's
+ * reading of Material's videos, as the pages give no formula: a keyline on
+ * the side with no item left moves to the other side, so the row stays full
+ * and its first and last items reach a large keyline. A centred carousel
+ * therefore starts with its first item large at the start, and centres
+ * from the item whose neighbours fill both sides.
  *
  * Deviations, by name:
  * - **Pressed shape**: Material changes a tapped item's shape slightly.
@@ -430,8 +450,6 @@ export type CarouselProps = Omit<
  *   leading padding only), so the last item's focus ring is not cut.
  * - **Disabled with outline**: the whole item at 38 %, its outline with
  *   it, where Material fades the outline to 12 %.
- * - **Centred heroes at the ends**: the first and last snaps leave the empty
- *   side's small keyline blank, so the large item stays centred.
  *
  * Spec: https://m3.material.io/components/carousel/{overview,specs,guidelines,accessibility}
  */
@@ -456,11 +474,16 @@ export function Carousel(props: CarouselProps) {
   const items = React.useRef<(HTMLElement | null)[]>([]);
   const frameRequest = React.useRef(0);
 
-  const list = React.useMemo(() => React.Children.toArray(children), [children]);
+  const list = React.useMemo(
+    () => React.Children.toArray(children),
+    [children],
+  );
   const count = list.length;
   const centered = alignment === "center" || layout === "center-aligned-hero";
   const keylineLayout =
-    layout === "multi-browse" || layout === "hero" || layout === "center-aligned-hero";
+    layout === "multi-browse" ||
+    layout === "hero" ||
+    layout === "center-aligned-hero";
 
   // The row's width and direction, measured in the browser.
   const [geometry, setGeometry] = React.useState<{
@@ -497,11 +520,12 @@ export function Carousel(props: CarouselProps) {
     [keylineLayout, geometry, itemWidth, layout, centered],
   );
   const states = React.useMemo(
-    () => (arrangement ? snapStates(count, arrangement, centered) : []),
-    [arrangement, count, centered],
+    () => (arrangement ? snapStates(count, arrangement) : []),
+    [arrangement, count],
   );
   const keyline = !!arrangement && !reduced && geometry!.width > 0;
-  const mode = layout === "full-screen" ? "column" : keyline ? "keyline" : "row";
+  const mode =
+    layout === "full-screen" ? "column" : keyline ? "keyline" : "row";
   const step = arrangement ? arrangement.large + GAP : 1;
 
   /** Writes every item's place and width for the scroll position. */
@@ -516,7 +540,12 @@ export function Carousel(props: CarouselProps) {
     items.current.forEach((item, i) => {
       if (!item) return;
       const a = place(states[j]!, i, arrangement, geometry.width);
-      const b = place(states[Math.min(j + 1, last)]!, i, arrangement, geometry.width);
+      const b = place(
+        states[Math.min(j + 1, last)]!,
+        i,
+        arrangement,
+        geometry.width,
+      );
       const x = a.x + (b.x - a.x) * f;
       const w = a.w + (b.w - a.w) * f;
       item.style.transform = `translateX(${sign * x}px)`;
@@ -561,7 +590,8 @@ export function Carousel(props: CarouselProps) {
         let target = -1;
         states.forEach((state, s) => {
           if (state.slots[index - state.first] !== "large") return;
-          if (target < 0 || Math.abs(s - now) < Math.abs(target - now)) target = s;
+          if (target < 0 || Math.abs(s - now) < Math.abs(target - now))
+            target = s;
         });
         if (target >= 0)
           scroller.scrollTo({ left: (rtl ? -1 : 1) * target * step, behavior });
@@ -570,7 +600,10 @@ export function Carousel(props: CarouselProps) {
       const a = item.getBoundingClientRect();
       const b = scroller.getBoundingClientRect();
       if (layout === "full-screen") {
-        scroller.scrollTo({ top: scroller.scrollTop + a.top - b.top, behavior });
+        scroller.scrollTo({
+          top: scroller.scrollTop + a.top - b.top,
+          behavior,
+        });
         return;
       }
       const delta = centered
@@ -588,10 +621,14 @@ export function Carousel(props: CarouselProps) {
     if (e.defaultPrevented) return;
     const root = e.currentTarget;
     const all = Array.from(
-      root.querySelectorAll<HTMLElement>('[data-slot="carousel-item-container"]'),
+      root.querySelectorAll<HTMLElement>(
+        '[data-slot="carousel-item-container"]',
+      ),
     );
     const at = all.indexOf(
-      (e.target as Element).closest<HTMLElement>('[data-slot="carousel-item-container"]')!,
+      (e.target as Element).closest<HTMLElement>(
+        '[data-slot="carousel-item-container"]',
+      )!,
     );
     if (at < 0) return;
     const vertical = layout === "full-screen";
@@ -671,7 +708,9 @@ export function Carousel(props: CarouselProps) {
         {
           ...style,
           "--carousel-item-width": fallbackWidth,
-          "--carousel-large": arrangement ? `${arrangement.large}px` : undefined,
+          "--carousel-large": arrangement
+            ? `${arrangement.large}px`
+            : undefined,
         } as React.CSSProperties
       }
       onKeyDown={handleKeyDown}
@@ -689,7 +728,9 @@ export function Carousel(props: CarouselProps) {
                 <div
                   key={i}
                   className={s.spacer()}
-                  style={{ width: i === states.length - 1 ? geometry.width : step }}
+                  style={{
+                    width: i === states.length - 1 ? geometry.width : step,
+                  }}
                 />
               ))}
             </div>
@@ -701,7 +742,11 @@ export function Carousel(props: CarouselProps) {
             <CarouselContext.Provider value={context}>
               {list.map((child, index) => (
                 <ItemIndexContext.Provider
-                  key={React.isValidElement(child) && child.key != null ? child.key : index}
+                  key={
+                    React.isValidElement(child) && child.key != null
+                      ? child.key
+                      : index
+                  }
                   value={index}
                 >
                   {child}
@@ -736,10 +781,10 @@ type CarouselItemBaseProps = {
 
 export type CarouselItemProps = CarouselItemBaseProps &
   (
-    | ({ href?: never; onPress: NonNullable<AriaButtonProps["onPress"]> } & Pick<
-        AriaButtonProps,
-        "onPressStart" | "onPressEnd" | "id"
-      >)
+    | ({
+        href?: never;
+        onPress: NonNullable<AriaButtonProps["onPress"]>;
+      } & Pick<AriaButtonProps, "onPressStart" | "onPressEnd" | "id">)
     | ({ onPress?: never; href: string } & Pick<
         AriaLinkProps,
         "target" | "rel" | "routerOptions" | "download" | "id"
