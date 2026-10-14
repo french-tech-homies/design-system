@@ -126,10 +126,8 @@ jobs:
         run: npm run lint && npm run typecheck
 
       - name: Build Storybook
+        id: build
         run: npm run build-storybook -- --quiet
-
-      - name: Every story's screenshots are committed, and none outlives its story
-        run: node scripts/check-screenshots.mjs storybook-static/index.json
 
       # The quality net. Every story is a test: it renders, its `play`
       # function runs if it has one, and axe checks the result — once under
@@ -142,6 +140,13 @@ jobs:
         env:
           MD3_SCREENSHOTS: "1"
         run: npm run test-storybook
+
+      # After the story tests, and whatever they said: a new story with no
+      # baseline is drawn by them (its `-reference.png`, kept below), so a
+      # session without Docker has its pictures to commit.
+      - name: Every story's screenshots are committed, and none outlives its story
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: node scripts/check-screenshots.mjs storybook-static/index.json
 
       # A failed comparison's expected, actual and diff images, kept with the
       # run and listed in its summary, for the reviewer and the owner.

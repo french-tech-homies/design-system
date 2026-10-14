@@ -761,6 +761,7 @@ Docker, a picture there that was changed on purpose becomes the baseline as it
 is: `<name>-actual.png` (or `-reference.png`, for a new story) renamed to
 `screenshots/<preset>/<name>.png`. CI also fails on a picture whose story is
 gone (`scripts/check-screenshots.mjs`).
+
 ---
 
 ## Versioning and upgrades

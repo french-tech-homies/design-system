@@ -61,6 +61,34 @@ const holdTheNetwork: BrowserCommand<[]> = async ({ page, context }) => {
   );
 };
 
+/**
+ * The kit's quality net: every story is a test.
+ *
+ * `storybookTest` turns each story in `stories/` into a Vitest test — it
+ * renders the story and, where the story has one, runs its `play` function.
+ * `@storybook/addon-a11y` is configured in `.storybook/preview.ts` with
+ * `test: "error"`, so axe runs against every rendered story too and a
+ * violation fails the run.
+ *
+ * It runs in a real Chromium through Playwright rather than jsdom, for two
+ * reasons that matter here: React Aria's overlays, focus management and
+ * pointer handling need a real browser to behave like the product, and axe
+ * cannot check colour contrast without layout.
+ *
+ *     npm run test-storybook
+ *     npm run test-storybook -- --project=material
+ *     npm run test-storybook -- --project=editorial
+ *
+ * The plain command runs the whole catalog under both identities; `--project`
+ * runs one at a time, which halves the resident cost (6 Chromium processes
+ * rather than 12) but not the wall clock — the two identities already run
+ * side by side. See `fileParallelism` below for what the full run costs.
+ *
+ * Inside the Playwright image (`MD3_SCREENSHOTS`, set by the CI and by
+ * `npm run screenshots`), each story's page is also compared to its
+ * baselines in `screenshots/`: see `screenshots()` above and
+ * `.storybook/screenshot.setup.ts`.
+ */
 export default defineConfig({
   plugins: [
     storybookTest({ configDir: path.join(dirname, ".storybook") }),
