@@ -7,6 +7,7 @@ import {
   Link as AriaLink,
 } from "react-aria-components";
 
+import { Badge, badgeAccessibleText, type BadgeValue } from "./Badge";
 import { type IconComponent } from "../icons";
 import StateLayer from "../primitives/StateLayer";
 import { Label } from "../primitives/Typography";
@@ -25,9 +26,11 @@ const styles = tv({
       "flex h-full w-full flex-col items-center justify-center gap-1 px-1",
     ],
     // The active indicator: 64×32, pill-shaped, and the box the state layer
-    // is painted in.
+    // is painted in. It does not clip, so a badge may reach past its edge.
     indicator:
-      "relative flex h-8 w-16 shrink-0 items-center justify-center overflow-hidden rounded-shape-full transition-colors duration-short-4",
+      "relative flex h-8 w-16 shrink-0 items-center justify-center rounded-shape-full transition-colors duration-short-4",
+    // The icon's 24dp box, which a badge is anchored on.
+    iconBox: "relative flex",
     icon: "transition-colors duration-short-4",
     // Never truncated: at large text sizes the label wraps and the bar grows.
     label: "w-full text-center transition-colors duration-short-4",
@@ -71,7 +74,34 @@ export type NavigationItem = {
    * ("Library" → "Music library"). Defaults to the visible label.
    */
   ariaLabel?: string;
+  /**
+   * A badge on the icon: a count (`3`, shown as "999+" above 999), a short
+   * status, or `true` for the small dot. 0 draws nothing. It is read after
+   * the destination's name: "Inbox, 3", "Inbox, New notification".
+   */
+  badge?: BadgeValue;
+  /** What the badge says to a screen reader, when the count alone is not
+      enough ("3 unread"). */
+  badgeLabel?: string;
 };
+
+/**
+ * The accessible name a destination takes from its badge: `aria-label` joined
+ * to the badge's words where the item has one, else a visually hidden
+ * ", <words>" after the visible label. Shared by the bar, the rail and the
+ * drawer.
+ */
+export function destinationBadgeName(item: NavigationItem) {
+  const text = badgeAccessibleText(item.badge, item.badgeLabel);
+  if (text === undefined)
+    return { ariaLabel: item.ariaLabel, hiddenText: null };
+  if (item.ariaLabel !== undefined)
+    return { ariaLabel: `${item.ariaLabel}, ${text}`, hiddenText: null };
+  return {
+    ariaLabel: undefined,
+    hiddenText: <span className="sr-only">{`, ${text}`}</span>,
+  };
+}
 
 export type BottomNavigationProps = Omit<
   React.ComponentPropsWithoutRef<"nav">,
@@ -108,8 +138,9 @@ export type BottomNavigationProps = Omit<
  * - Active destinations do not switch to a filled icon unless the item carries
  *   an `activeIcon`: the kit has no icon library of its own to pull the filled
  *   member from.
- * - No badges. `md.comp.navigation-bar.*badge*` is deprecated in the token set
- *   and the kit has no Badge component yet.
+ *
+ * A destination's `badge` is the kit's `Badge`, anchored on its icon, and is
+ * read after its name (Material's badges page, accessibility).
  */
 export function BottomNavigation({
   items,
@@ -166,8 +197,9 @@ function Destination({
   isActive: boolean;
   onSelect: () => void;
 }) {
-  const { destination, indicator, icon, label } = styles();
+  const { destination, indicator, iconBox, icon, label } = styles();
   const Icon = (isActive && item.activeIcon) || item.icon;
+  const name = destinationBadgeName(item);
 
   const content = ({
     isHovered,
@@ -183,11 +215,18 @@ function Destination({
           isHovered={isHovered}
           isPressed={isPressed}
           isFocusVisible={isFocusVisible}
+          className="rounded-[inherit]"
         />
-        <Icon size={24} className={icon({ isActive })} />
+        <span className={iconBox()}>
+          <Icon size={24} className={icon({ isActive })} />
+          {item.badge !== undefined ? (
+            <Badge value={item.badge} anchored />
+          ) : null}
+        </span>
       </span>
       <Label component="span" size="medium" className={label({ isActive })}>
         {item.label}
+        {name.hiddenText}
       </Label>
     </>
   );
@@ -201,7 +240,7 @@ function Destination({
         data-active={isActive || undefined}
         href={item.href}
         aria-current={isActive ? "page" : undefined}
-        aria-label={item.ariaLabel}
+        aria-label={name.ariaLabel}
         onPress={onSelect}
         className={destination()}
       >
@@ -215,7 +254,7 @@ function Destination({
       data-slot="bottom-navigation-item"
       data-active={isActive || undefined}
       aria-current={isActive ? "page" : undefined}
-      aria-label={item.ariaLabel}
+      aria-label={name.ariaLabel}
       onPress={onSelect}
       className={destination()}
     >

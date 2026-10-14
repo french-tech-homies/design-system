@@ -29,9 +29,13 @@
       "exact": "f672b4d9473a458826ccf7c7d381e117d5d84ebd4416944339a38e42960cc3c9",
       "loose": "4c864c3bc5bbc2338d731d3157465452c4b93ff2f12ff2322d49b21b13105a54"
     },
+    "components/Badge.tsx": {
+      "exact": "0da1aec3e34033d513845b0b527ed74e652e72dec8f1321b648052a77533d3f6",
+      "loose": "4fa9e4a715131f9226f82d6a74690d10e2781c468dae880e984ac49d56c4c5df"
+    },
     "components/BottomNavigation.tsx": {
-      "exact": "07b194ebaed19e70ea0c05c27e8769cd9ad5e7629a6d0d3f8a3acb7ff1685144",
-      "loose": "a7c49fbad818e5a01fee0a1d040ea20358460d16db6ea1f337d0ed764edea7e1"
+      "exact": "cc59c8b46c8dd8a55eae7eaaf30605f61887e9d055c62912c6156e780b96db4b",
+      "loose": "88e32c85eaf30bb17c64faa53d004a894f0b199f7d56f96b2fc21cd84a51d33e"
     },
     "components/Button.tsx": {
       "exact": "2a62ed8e6fd36f567555b0d11a078385022b4b35f218d058a7746316e1c82b02",
@@ -78,8 +82,8 @@
       "loose": "994f8e94e3b7b23a64cf5ba42507caac2f1e9fe8f7bc4993f561ac74a81b1d4e"
     },
     "components/IconButton.tsx": {
-      "exact": "a6322320b9c6221a95e5ee8f7b92146d7bad3692f623357feb8d59abc43e1634",
-      "loose": "8bc2a6ce47383084ecbd233c7b398adde7f6ff8540f7a47c930d5bfd6eb5bb4e"
+      "exact": "5567e07f2edf83f32f8fb8c9467a446f4561d8465bd12855e6deeeddf5eb8396",
+      "loose": "e278b326e78f6979261cd3ad6dd9323c684cb0413b694123d3ae923f63621ebc"
     },
     "components/ImageField.tsx": {
       "exact": "6dc9628d6708510ef5741ed6fa703d77232432a8a16289cd84a0aba11a431b34",
@@ -106,12 +110,12 @@
       "loose": "bd5e68c1dedcbd119532e8fefa92b1d067bc4d8ff1ecf371c16ac9289ad1cc06"
     },
     "components/NavigationDrawer.tsx": {
-      "exact": "2b288f8a3b2da90ac33507a868096c25c74ddf0b8a4f729c6997381adcdf839e",
-      "loose": "1c52918a8bfc7c275ecbbd749598b7361bea49424798b587656875895060d7a5"
+      "exact": "1ef86e64d5675d022fcc70ff7da762bba66abd8b3a1872b894a9b0d2a8480388",
+      "loose": "d5783c6b0a9527e207026afa0bb5b4f243f66bf2f94458ddd63208d9a7a79f29"
     },
     "components/NavigationRail.tsx": {
-      "exact": "aedce18e62efc6205c11dda5855905d3f0e843d861da7b81b2902a589547f084",
-      "loose": "9cba80b3c5afd22e9a797ee77c74a0911c14f882451a6a23d9e891418e755899"
+      "exact": "abf916a0c03b5f887eec326d956e734f8fec2ddf6416cc8b749a87d5f41a308c",
+      "loose": "e7d06eab5aeb6f27075a168bd07246612dae8ee552979c9d276df30a702cf717"
     },
     "components/NumberField.tsx": {
       "exact": "78d4ed8fc30b1eb64262cf5684e38351d5cd4ceb1ffe683f67189886c1e93b19",
@@ -132,6 +136,10 @@
     "components/Radio.tsx": {
       "exact": "bb968a1e3eca362295bb1c75e3d9bf0367f8507949f5645eaf927c9a5481e534",
       "loose": "0ee42af4b8a4f2e01f05ef1cbb3b5e945a309fc8a7f90a4545273d3e2f579d03"
+    },
+    "components/Search.tsx": {
+      "exact": "5abb7f363feca1174fb089406b61d160109b55859085a00c50eb7b3678a3b776",
+      "loose": "6f0f71b67580e71cb9ec7cdba9008d117054b7116476be5a42cc8aa9fb1d3c2f"
     },
     "components/Select.tsx": {
       "exact": "44115ff11c3a8e44f88e1bfb2657975570d694d575bdba085ed2a0ff7e3fa9d9",
@@ -158,24 +166,28 @@
       "loose": "c6f6d6ccb12943815ed8b73b671136267d13f52908c09fe72f1b1ff9864fa0fb"
     },
     "components/Tabs.tsx": {
-      "exact": "32446b5210dcd9767d35dbb2cffda81f723a044c265d55c841c908abbdca12a7",
-      "loose": "d5a2989578d6faac4c80f1b45fb1401a0d23e395581a42b650cb481f2b5ff7fa"
+      "exact": "627148acf277d3775cb31bb55fe2bad4a16345c0b208acc1c258cc0223b6f73a",
+      "loose": "5e7e420f66fb752ce4d9e6b75f7c176ca7caa100aac38009ed1d524d32fb61ad"
     },
     "components/Tag.tsx": {
-      "exact": "6bdaaa49cecc55118ec275603cce693581ef0117ecc690835cb41b9f2d2607fb",
-      "loose": "56d3067209aa163e4f154a846f49206e845e26512d29bec1a15a8b84c3d73cc5"
+      "exact": "b66f47a4644bd964791d7353ca87edd3b0516759b2a55c43a52caf9264655173",
+      "loose": "0bf367f8e24c9f68ed70174c37b55cb6eb2dcbeb240d7ee86bf07da3943f39a6"
     },
     "components/TextField.tsx": {
       "exact": "b17222ef688a65605f90ddfb59ef6b37a215ef80d793cffc9582d96a0b63a224",
       "loose": "62eec8a6e70c97d695ce0a6cc3e53b51a86d4480730146cca6ae71fe3808d1e5"
+    },
+    "components/Toolbar.tsx": {
+      "exact": "2265ae8436ce64de6cf49e668134dd07f92aef00686aca82f74f18e168a9edb9",
+      "loose": "8cf07bec385f7331c4caba970544fa771a9cecc94a6ba387e4700b89ad08c717"
     },
     "components/Tooltip.tsx": {
       "exact": "798dd5a93037a87bc993cc448e01ccb3c22c59ce96fbda45e52212e7dac5f9f8",
       "loose": "3dc043a82ab0715febc001e9f598e2d372a49fb9b3ccf7a73ba4c1e818ab3c21"
     },
     "components/TopAppBar.tsx": {
-      "exact": "fadb105e1ff1c6427d31fcd0e4932add1e496379cc794d37c4fcbdc6c92dbf77",
-      "loose": "5a03b7d60fa963d962622dd0b0c372f006dc060734c8d9d5560cc13fbebd217b"
+      "exact": "e4ac6df1149e69e018e40852ed3dcbc210fc8b91f8d1065a813b95c8c22dc034",
+      "loose": "7861b01aff96a838ce94078efe0e5157d2bfaa9b1fe4c4cd5874488398144cc9"
     },
     "components/color/ColorArea.tsx": {
       "exact": "6302d35513b8163836e1b24088be8acb7aa2f81eaa64df61e118ae03f5dfe253",
@@ -202,15 +214,15 @@
       "loose": "239a57fa4648928f9ba07df1732e71643cce82b69f5799eddfdc5439f3c4f49c"
     },
     "icons.tsx": {
-      "exact": "b6be4e5905ad30e97d8e3dcd410f7a206c75815b5ba48f0fa2ed52f2490a25d6",
-      "loose": "33831e5247b975333ca204c36bbab7c7abceb4e60cfa267cbecb0708fbd32c7d"
+      "exact": "eee04f7dcb8f51b8d426858e525433ad8f4115470424ca1c408c31b6158c55bd",
+      "loose": "5d517687b747686b5744ba8de1b04daad2ad9bdb726172c1eaf1efbc7e6b1b56"
     },
     "index.ts": {
-      "exact": "4b9b7c2653e5a11d2aa2fe493344509f79053faca52cb22911f92f61c92b2d5f",
-      "loose": "0b3c54722afa85e478f6700a35fac74daa3a2646e5ea8359e770108e8d31908d",
+      "exact": "ebd39b8958bb9b02ae5990fe47ae43343dd43f297cfc6c640b201aa18eca811f",
+      "loose": "5c318bdc1b89715e5eb4f4787853d4971a431febafd24f6cacc989aa2d5b754f",
       "landed": {
-        "exact": "bc95c312b646b3f713a394fa28a3ec029dc1a0c3733d3339686cb42dab07f17c",
-        "loose": "7d03a6019ac182a33771c6bbd091f51f9423b44b02099d1a5b134be3d6a613da"
+        "exact": "e664742a1d21f55a59e58f84d27eefcab8bee8069d6a30029162f575294d3e46",
+        "loose": "f2e778e6d4102a936bbbd332a0ff72cd059eeffafd3840c11a813accf6ff0bee"
       }
     },
     "primitives/StateLayer.tsx": {
