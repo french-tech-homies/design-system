@@ -1,6 +1,6 @@
 {
   "name": "@french-tech-homies/design-system",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "description": "Material Design 3 component kit on React Aria Components + Tailwind v4, distributed as a shadcn registry (copy-in source, no npm package) with a DESIGN.md at its centre.",

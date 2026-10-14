@@ -34,7 +34,117 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-10-14
+
+Three entries need an act of a project and say **Action needed**, and they
+come first under Changed: `Button`'s five sizes (rename each `size` you set),
+outlined buttons in Material's colours (if you matched them elsewhere), and
+the theme's seventh corner `large-increased` (generate a theme folder of your
+own again). The others need none.
+
+### Changed
+
+- **Breaking: `Button`'s sizes are Material's five, and the old names draw
+  other heights. Action needed: rename each `size` you set on a `Button`.**
+  Before: `small` 32px, `medium` 40px (the default), `large` 48px. Now:
+  `xsmall` 32, `small` 40 (the default), `medium` 56, `large` 96, `xlarge`
+  136, each with Material's padding, icon size and label role
+  (`title-medium` from `medium`, `headline-small` at `large`,
+  `headline-large` at `xlarge`). To keep a height: `size="small"` becomes
+  `size="xsmall"`; `size="medium"` becomes `size="small"`, or no size;
+  `size="large"` (48px) has no Material size: `small` (40) or `medium` (56).
+  TypeScript does not catch it: `small`, `medium` and `large` are still
+  names. A FAB keeps its `small`, `medium` (the default) and `large`. A
+  `Button` no longer depends on the `typography` item; the `button` item now
+  brings `button-group`.
+
+- **Outlined buttons are drawn in Material's colours. Action needed if you
+  matched them elsewhere.** Before: a `border-outline` outline round
+  `primary` content. Now: `outline-variant` round `on-surface-variant`, as
+  `md.comp.button.outlined.*` gives it. `color="error"` keeps its error
+  outline and content.
+
+- **The theme has a seventh corner, `large-increased` (20px). Action needed
+  if your theme is generated into a folder of your own: generate it again.**
+  Connected button groups and split buttons draw it, as
+  `rounded-shape-large-increased`. A DESIGN.md writes it as
+  `rounded.large-increased` (it has no short name). A DESIGN.md that writes
+  `rounded.large` and not `large-increased` gets its `large` value for it,
+  so a square theme stays square without a new line; one that writes
+  neither gets Material's 20px. No update reaches your theme folder: until
+  you run the generator again
+  (`npx tsx <ui>/ds/tokens/generate-theme.mjs DESIGN.md --out theme`), it
+  declares neither `--md-sys-shape-corner-large-increased` nor its utility,
+  and those inner corners draw full. A theme written by hand declares the
+  variable itself; the Editorial preset declares it at 4px.
+
+- **The kit's own components join on need.** Before: a closed group of ten,
+  changed only on the repository owner's decision. Now: a React Aria
+  component Material 3 does not describe joins the group when a project
+  needs it, by a change that names that project and its need. It is
+  Material-derived (Material's foundations, the anatomy of the nearest
+  Material component), its doc comment cites each borrowing's page beside
+  "Material 3 does not describe this component.", and it is reviewed
+  against them. The README's _What this kit is_ and the `ds-build` skill say
+  it. What neither Material nor React Aria describes stays a project's. No
+  action needed.
+
+- **`Button` takes `shape`, `isToggle` and Material's corners and disabled
+  look.** `shape="square"` beside the default round; a pressed button's
+  corners tighten, and a selected toggle turns square, or round from square.
+  `isToggle` with `isSelected` or `defaultSelected` is a React Aria
+  `ToggleButton` in Material's toggle colours (a text button does not
+  toggle). An `icon` with no children draws the icon alone. Disabled, the
+  content is `on-surface` at 38 % and a drawn container `on-surface` at 10 %
+  (an outline at 12 %), where the whole button was faded to 38 %. Filled and
+  tonal buttons rise to elevation 1 on hover, an elevated one to 2.
+  `xsmall` and `small` answer over a 48px tall target. The label is in
+  `classNames.label` (`button-label`), the icon in `classNames.icon`
+  (`button-icon`).
+
+- **`IconButton` sits in a `ButtonGroup`**: it takes the group's size where
+  it sets none, its connected corners, and its pressed width.
+
+- **`Menu` takes `offset`**, the space between its trigger and the menu,
+  in pixels. Left out, React Aria's default, as before.
+
+<!-- The Bars and navigation batch: Badges, Toolbars, Search. -->
+
+- **`BottomNavigation`, `NavigationRail` and `NavigationDrawer`: a
+  destination takes a `badge`** (a count, a short status, or `true` for the
+  dot) and a `badgeLabel`, on `NavigationItem`. The bar and the rail draw
+  the `Badge` on the icon; the expanded rail draws a count after the label;
+  the drawer shows it as its own trailing label text, as Material's drawer
+  anatomy does. The badge's words follow the destination's name ("Inbox,
+  3"), joined to `ariaLabel` where the item has one. The "no badges"
+  deviation is gone from all three. The bar's and the rail's active
+  indicator no longer clip what is in them (the state layer takes the
+  pill's rounding itself), so a badge may reach past the pill. Nothing to
+  do; an item without `badge` draws as before.
+- **`NavigationDrawer`'s labels are start-aligned.** They were centred in a
+  destination drawn as a `<button>` (a button centres its text), which a
+  trailing badge made plain; Material draws them start-aligned. Nothing to
+  do.
+- **`Tab` takes a `badge` and a `badgeLabel`**: on the icon of a stacked
+  tab, after the label of an inline-icon or text tab, and read after the
+  tab's name. The "no badge slot" deviation is gone. Nothing to do.
+- **`IconButton` takes a `badge` and a `badgeLabel`**: the `Badge` on its
+  icon, its words joined to `aria-label` ("Notifications, 3"). Nothing to
+  do.
+- **`TopAppBar` takes a `search`**, Material's search app bar: a
+  `SearchView` or `SearchBar` in the title's place, 8dp from its
+  neighbours, drawn on `surface-container` with no shadow; the title stays
+  as a visually hidden heading, and the bar is one 64dp row whatever its
+  `variant`. The "no search app bar" deviation is gone. Its doc comment
+  says a screen that wants its actions as a toolbar passes a `Toolbar` into
+  `actions`. Nothing to do.
+- **The registry items `bottom-navigation`, `tabs` and `icon-button` now
+  depend on `badge`**, which `shadcn add` brings with them.
+
+<!-- /The Bars and navigation batch. -->
+
 ### Added
+
 
 - **`Carousel` and `CarouselItem`** (`@ds/carousel`, and in `@ds/ds`),
   Material 3's carousel in its six layouts: `multi-browse`, `uncontained`,
@@ -194,101 +304,6 @@ npm run registry:check-version # what CI runs
   empties the field, then closes the view, and the focus returns to the bar.
 - **`SearchIcon` and `ArrowBackIcon`** in `icons.tsx`, for the search bar
   and the search view's back button.
-
-<!-- /The Bars and navigation batch. -->
-
-### Changed
-
-- **The kit's own components join on need.** Before: a closed group of ten,
-  changed only on the repository owner's decision. Now: a React Aria
-  component Material 3 does not describe joins the group when a project
-  needs it, by a change that names that project and its need. It is
-  Material-derived (Material's foundations, the anatomy of the nearest
-  Material component), its doc comment cites each borrowing's page beside
-  "Material 3 does not describe this component.", and it is reviewed
-  against them. The README's _What this kit is_ and the `ds-build` skill say
-  it. What neither Material nor React Aria describes stays a project's. No
-  action needed.
-- **Breaking: `Button`'s sizes are Material's five, and the old names draw
-  other heights. Action needed: rename each `size` you set on a `Button`.**
-  Before: `small` 32px, `medium` 40px (the default), `large` 48px. Now:
-  `xsmall` 32, `small` 40 (the default), `medium` 56, `large` 96, `xlarge`
-  136, each with Material's padding, icon size and label role
-  (`title-medium` from `medium`, `headline-small` at `large`,
-  `headline-large` at `xlarge`). To keep a height: `size="small"` becomes
-  `size="xsmall"`; `size="medium"` becomes `size="small"`, or no size;
-  `size="large"` (48px) has no Material size: `small` (40) or `medium` (56).
-  TypeScript does not catch it: `small`, `medium` and `large` are still
-  names. A FAB keeps its `small`, `medium` (the default) and `large`. A
-  `Button` no longer depends on the `typography` item; the `button` item now
-  brings `button-group`.
-- **Outlined buttons are drawn in Material's colours. Action needed if you
-  matched them elsewhere.** Before: a `border-outline` outline round
-  `primary` content. Now: `outline-variant` round `on-surface-variant`, as
-  `md.comp.button.outlined.*` gives it. `color="error"` keeps its error
-  outline and content.
-- **`Button` takes `shape`, `isToggle` and Material's corners and disabled
-  look.** `shape="square"` beside the default round; a pressed button's
-  corners tighten, and a selected toggle turns square, or round from square.
-  `isToggle` with `isSelected` or `defaultSelected` is a React Aria
-  `ToggleButton` in Material's toggle colours (a text button does not
-  toggle). An `icon` with no children draws the icon alone. Disabled, the
-  content is `on-surface` at 38 % and a drawn container `on-surface` at 10 %
-  (an outline at 12 %), where the whole button was faded to 38 %. Filled and
-  tonal buttons rise to elevation 1 on hover, an elevated one to 2.
-  `xsmall` and `small` answer over a 48px tall target. The label is in
-  `classNames.label` (`button-label`), the icon in `classNames.icon`
-  (`button-icon`).
-- **The theme has a seventh corner, `large-increased` (20px). Action needed
-  if your theme is generated into a folder of your own: generate it again.**
-  Connected button groups and split buttons draw it, as
-  `rounded-shape-large-increased`. A DESIGN.md writes it as
-  `rounded.large-increased` (it has no short name). A DESIGN.md that writes
-  `rounded.large` and not `large-increased` gets its `large` value for it,
-  so a square theme stays square without a new line; one that writes
-  neither gets Material's 20px. No update reaches your theme folder: until
-  you run the generator again
-  (`npx tsx <ui>/ds/tokens/generate-theme.mjs DESIGN.md --out theme`), it
-  declares neither `--md-sys-shape-corner-large-increased` nor its utility,
-  and those inner corners draw full. A theme written by hand declares the
-  variable itself; the Editorial preset declares it at 4px.
-- **`IconButton` sits in a `ButtonGroup`**: it takes the group's size where
-  it sets none, its connected corners, and its pressed width.
-- **`Menu` takes `offset`**, the space between its trigger and the menu,
-  in pixels. Left out, React Aria's default, as before.
-
-<!-- The Bars and navigation batch: Badges, Toolbars, Search. -->
-
-- **`BottomNavigation`, `NavigationRail` and `NavigationDrawer`: a
-  destination takes a `badge`** (a count, a short status, or `true` for the
-  dot) and a `badgeLabel`, on `NavigationItem`. The bar and the rail draw
-  the `Badge` on the icon; the expanded rail draws a count after the label;
-  the drawer shows it as its own trailing label text, as Material's drawer
-  anatomy does. The badge's words follow the destination's name ("Inbox,
-  3"), joined to `ariaLabel` where the item has one. The "no badges"
-  deviation is gone from all three. The bar's and the rail's active
-  indicator no longer clip what is in them (the state layer takes the
-  pill's rounding itself), so a badge may reach past the pill. Nothing to
-  do; an item without `badge` draws as before.
-- **`NavigationDrawer`'s labels are start-aligned.** They were centred in a
-  destination drawn as a `<button>` (a button centres its text), which a
-  trailing badge made plain; Material draws them start-aligned. Nothing to
-  do.
-- **`Tab` takes a `badge` and a `badgeLabel`**: on the icon of a stacked
-  tab, after the label of an inline-icon or text tab, and read after the
-  tab's name. The "no badge slot" deviation is gone. Nothing to do.
-- **`IconButton` takes a `badge` and a `badgeLabel`**: the `Badge` on its
-  icon, its words joined to `aria-label` ("Notifications, 3"). Nothing to
-  do.
-- **`TopAppBar` takes a `search`**, Material's search app bar: a
-  `SearchView` or `SearchBar` in the title's place, 8dp from its
-  neighbours, drawn on `surface-container` with no shadow; the title stays
-  as a visually hidden heading, and the bar is one 64dp row whatever its
-  `variant`. The "no search app bar" deviation is gone. Its doc comment
-  says a screen that wants its actions as a toolbar passes a `Toolbar` into
-  `actions`. Nothing to do.
-- **The registry items `bottom-navigation`, `tabs` and `icon-button` now
-  depend on `badge`**, which `shadcn add` brings with them.
 
 <!-- /The Bars and navigation batch. -->
 
