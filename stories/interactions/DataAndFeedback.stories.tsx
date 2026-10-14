@@ -705,8 +705,26 @@ export const ProgressIndicatorAccessibleValue: Story = {
 /** A meter is read, not driven: it is the `meter` role, named by its label,
     and reports its value on its own scale. */
 export const MeterAccessibleValue: Story = {
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          {
+            // React Aria writes `role="meter progressbar"`, `progressbar` the
+            // fallback for a browser without `meter`. ARIA takes the first
+            // role it knows, `meter`, which allows aria-value*; axe reads the
+            // two words as one unknown role and refuses them. The rule stays
+            // on for every other element, and this play reads the `meter`
+            // role and its values.
+            id: "aria-allowed-attr",
+            selector: '*:not([role="meter progressbar"])',
+          },
+        ],
+      },
+    },
+  },
   render: () => (
-    <div className="flex w-96 flex-col gap-6">
+    <div className="bg-surface flex w-96 flex-col gap-6 p-4">
       <Meter label="Storage used" value={62} showValue />
       <Meter
         label="Boards this month"

@@ -19,7 +19,25 @@ import { Meter } from "@french-tech-homies/design-system/components/Meter";
 const meta = {
   title: "MD3/Communication/Meter",
   component: Meter,
-  parameters: { layout: "padded" },
+  parameters: {
+    layout: "padded",
+    a11y: {
+      config: {
+        rules: [
+          {
+            // React Aria writes `role="meter progressbar"`, `progressbar` the
+            // fallback for a browser without `meter`. ARIA takes the first
+            // role it knows, `meter`, which allows aria-value*; axe reads the
+            // two words as one unknown role and refuses them. The rule stays
+            // on for every other element, and the stories' tests read the
+            // `meter` role and its values.
+            id: "aria-allowed-attr",
+            selector: '*:not([role="meter progressbar"])',
+          },
+        ],
+      },
+    },
+  },
   tags: ["autodocs"],
   argTypes: {
     color: {
@@ -108,5 +126,5 @@ export const RightToLeft: Story = {
 /** The four colours in the dark scheme. */
 export const Dark: Story = {
   globals: { theme: "dark" },
-  render: colors,
+  render: () => <div className="bg-surface p-4">{colors()}</div>,
 };
