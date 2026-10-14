@@ -1,6 +1,6 @@
 {
   "item": "next-adapter",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "kit": {
     "adapters/next.tsx": {
       "exact": "0a22a25cde40f8dd123fbe88398947e0b8dd61eddcabd48be122ad5c010ff43c",

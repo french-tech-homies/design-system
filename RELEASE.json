@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "kit": {
     "DESIGN.md": {
       "exact": "b69a94a40d70a369e1ea253ebb6620c9ce7d1fd1e83581ec68fcccd23c588257",
@@ -154,8 +154,8 @@
       "loose": "83aafd789252da74bcc09d753ae596abd97d7211427993a2476afd0fdfd0b80c"
     },
     "components/Table.tsx": {
-      "exact": "4dc300b83812bf963ba9c8819be5349344b78c08052fbb9d09a6ecd50b86e843",
-      "loose": "6ba0db20691230930a038869a10da37dd2c3e08acaa75ad418eab9862493e856"
+      "exact": "1ef28e750e30e98ea4bb39d9f629e52b28721d486f1bb23c255ec39b35e8b495",
+      "loose": "c6f6d6ccb12943815ed8b73b671136267d13f52908c09fe72f1b1ff9864fa0fb"
     },
     "components/Tabs.tsx": {
       "exact": "32446b5210dcd9767d35dbb2cffda81f723a044c265d55c841c908abbdca12a7",
