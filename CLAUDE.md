@@ -156,9 +156,12 @@ npm run storybook:stop       # says the port is free
 - **Work it as a person would**: click, type, Tab and the arrow keys, hover,
   open and close what opens. Hold what it does against what Material's page
   asks (`npm run md3 -- page <component> …`).
+- **Wait for the story** before judging it (`browser_wait_for` its text):
+  the first load of a story compiles, and shows a spinner meanwhile.
 - **A picture is for your own eyes.** `browser_take_screenshot` is given no
-  filename: it lands in the server's output directory, outside the tree. A
-  picture is never written into the tree.
+  filename: without one it lands in the server's output directory, outside
+  the tree; with one it is written into the worktree. A picture is never
+  written into the tree.
 - **Stop.** `npm run storybook:stop` stops the process group its own record
   names, waits until the port is free and says so. Never stop a Storybook
   any other way: not by a name or a port pattern (`pkill`, `killall`, a
