@@ -24,7 +24,7 @@ import {
 } from "react-aria-components";
 
 import { KeyboardIcon, ScheduleIcon } from "../icons";
-import { focusRing, tv } from "../utils";
+import { cn, focusRing, tv } from "../utils";
 import { Button } from "./Button";
 import { fieldStyles, type FieldVariantProps } from "./field-styles";
 import IconButton from "./IconButton";
@@ -54,6 +54,16 @@ import { pickerDialogStyles } from "./picker-dialog-styles";
  * - **Layout**: `orientation="vertical"` (the default) stacks the dial
  *   under the selectors; `horizontal` sets it beside them, as Material's
  *   landscape layout does.
+ * - **Any display face**: Material sizes the hour and minute boxes for
+ *   Roboto. Here each box's width is a minimum, and the box grows to the
+ *   widest of "00" to "99" in its face, plus 8dp each side (`DigitSizers`):
+ *   a wide face, such as Michroma, shows both digits whole, and the box
+ *   keeps one width whatever the value, so the dial does not shift under
+ *   a drag. Roboto and Inter fit Material's sizes, which then draw as
+ *   specified. The dialog, whose width is Material's "dynamic", widens
+ *   with them; past 360dp under a very wide face. The period selector's
+ *   52dp (stacked) and 216dp (in a row) are minimums the same way; in a
+ *   row it spans the selectors above it, whatever their width.
  * - **12 or 24 hours**: the locale's, or `hourCycle`. A 24-hour picker has
  *   no period selector; its dial carries 00–11 on the outer ring and 12–23
  *   on the inner, as Material's figure draws it.
@@ -139,7 +149,7 @@ const styles = tv({
     selectors: "flex items-center",
     selector: [
       focusRing(),
-      "group/tps relative flex h-20 w-24 cursor-default items-center justify-center overflow-hidden rounded-shape-small",
+      "group/tps relative flex h-20 min-w-24 cursor-default items-center justify-center overflow-hidden rounded-shape-small px-2",
       "bg-surface-container-highest text-display-large font-display-large text-on-surface",
       "data-selected:bg-primary-container data-selected:text-on-primary-container",
     ],
@@ -152,7 +162,7 @@ const styles = tv({
     period:
       "flex shrink-0 overflow-hidden rounded-shape-small border border-outline",
     periodItem: [
-      "group/tps relative flex flex-1 cursor-default items-center justify-center text-title-medium font-title-medium text-on-surface-variant outline-none",
+      "group/tps relative flex flex-1 cursor-default items-center justify-center px-1 text-title-medium font-title-medium text-on-surface-variant outline-none",
       "data-selected:bg-tertiary-container data-selected:text-on-tertiary-container",
       "outline-3 -outline-offset-3 outline-ring data-focus-visible:outline-solid",
     ],
@@ -169,22 +179,24 @@ const styles = tv({
     center:
       "pointer-events-none absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-shape-full bg-primary",
     inputBox: [
-      "flex h-18 w-24 items-center justify-center rounded-shape-small bg-surface-container-highest text-display-medium font-display-medium text-on-surface caret-transparent outline-none tabular-nums",
+      "flex h-18 min-w-24 items-center justify-center rounded-shape-small px-2 bg-surface-container-highest text-display-medium font-display-medium text-on-surface caret-transparent outline-none tabular-nums",
       // A segment holds only text, so its hover layer is a flat gradient
       // over its container rather than an element of its own.
       "data-hovered:bg-linear-to-r data-hovered:from-on-surface/(--md-sys-state-hover-state-layer-opacity) data-hovered:to-on-surface/(--md-sys-state-hover-state-layer-opacity)",
       "data-focused:bg-primary-container data-focused:text-on-primary-container data-focused:outline-2 data-focused:outline-solid data-focused:-outline-offset-2 data-focused:outline-primary",
       "data-placeholder:text-on-surface-variant",
     ],
+    /** The digits' cell, as wide as the widest pair the font draws. */
+    digits: "relative grid justify-items-center *:col-start-1 *:row-start-1",
     inputLabel:
       "pt-1.5 text-body-small font-body-small text-on-surface-variant",
   },
   variants: {
     orientation: {
-      vertical: { period: "ml-3 h-20 w-13 flex-col" },
-      horizontal: { period: "mt-3 h-9.5 w-54" },
+      vertical: { period: "ml-3 h-20 min-w-13 flex-col" },
+      horizontal: { period: "mt-3 h-9.5 min-w-54" },
     },
-    wide: { true: { selector: "w-28.5" } },
+    wide: { true: { selector: "min-w-28.5" } },
   },
 });
 
@@ -383,8 +395,11 @@ function TimeDialog({
                 className={t.selector()}
               >
                 <span className={t.stateLayer()} />
-                <span className="relative">
-                  {pad(displayHour(draft.hour, hourCycle))}
+                <span className={t.digits()}>
+                  <DigitSizers />
+                  <span data-slot="time-picker-digits">
+                    {pad(displayHour(draft.hour, hourCycle))}
+                  </span>
                 </span>
               </ToggleButton>
               <span aria-hidden="true" className={t.separator()}>
@@ -398,7 +413,10 @@ function TimeDialog({
                 className={t.selector()}
               >
                 <span className={t.stateLayer()} />
-                <span className="relative">{pad(draft.minute)}</span>
+                <span className={t.digits()}>
+                  <DigitSizers />
+                  <span data-slot="time-picker-digits">{pad(draft.minute)}</span>
+                </span>
               </ToggleButton>
             </div>
             {period}
@@ -430,7 +448,10 @@ function TimeDialog({
               {(segment) =>
                 segment.type === "hour" || segment.type === "minute" ? (
                   <span className="flex flex-col">
-                    <DateSegment segment={segment} className={t.inputBox()} />
+                    <span className={t.digits({ class: "justify-items-stretch" })}>
+                      <DigitSizers className="px-2 text-display-medium font-display-medium tabular-nums" />
+                      <DateSegment segment={segment} className={t.inputBox()} />
+                    </span>
                     <span aria-hidden="true" className={t.inputLabel()}>
                       {segment.type === "hour" ? labels.hour : labels.minute}
                     </span>
@@ -508,6 +529,17 @@ function PeriodSelector({
       ))}
     </RadioGroup>
   );
+}
+
+/** Ten invisible pairs, "00" to "99", in the cell of the digits they
+    size: the cell is as wide as the widest pair, so a box holds any value
+    whole under any face and keeps its width as the value changes. */
+function DigitSizers({ className }: { className?: string }) {
+  return Array.from({ length: 10 }, (_, d) => (
+    <span key={d} aria-hidden="true" className={cn("invisible", className)}>
+      {`${d}${d}`}
+    </span>
+  ));
 }
 
 /* ---- the dial ----------------------------------------------------------- */
