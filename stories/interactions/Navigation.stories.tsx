@@ -469,6 +469,51 @@ export const BadgeJoinsTheDestinationName: Story = {
   },
 };
 
+/** A badge sits on the icon's top trailing corner: on its right in a
+    left-to-right page, on its left in a right-to-left one, the dot and the
+    count alike, as Material's badge guidelines ask. */
+export const BadgeMirrorsRightToLeft: Story = {
+  render: () => (
+    <div className="flex flex-col gap-6">
+      {(["ltr", "rtl"] as const).map((dir) => (
+        <div key={dir} dir={dir} data-dir={dir}>
+          <BottomNavigation
+            items={badged.slice(0, 4)}
+            aria-label={`Bar, ${dir}`}
+          />
+        </div>
+      ))}
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    for (const dir of ["ltr", "rtl"]) {
+      const page = canvasElement.querySelector(`[data-dir="${dir}"]`)!;
+      const badges = page.querySelectorAll<HTMLElement>('[data-slot="badge"]');
+      // The dot, a count, a labelled count and "999+".
+      await expect(badges.length).toBe(4);
+      for (const badge of badges) {
+        const icon = badge.parentElement!.querySelector("svg")!;
+        const b = badge.getBoundingClientRect();
+        const i = icon.getBoundingClientRect();
+        const iconCentre = i.left + i.width / 2;
+        // In the icon's trailing half (a large badge starts 12dp in from
+        // the trailing edge: the centre of a 24dp icon), reaching its
+        // trailing edge or past it.
+        if (dir === "ltr") {
+          await expect(b.left).toBeGreaterThanOrEqual(iconCentre);
+          await expect(b.right).toBeGreaterThanOrEqual(i.right);
+        } else {
+          await expect(b.right).toBeLessThanOrEqual(iconCentre);
+          await expect(b.left).toBeLessThanOrEqual(i.left);
+        }
+      }
+    }
+    // The count still reads left to right in the right-to-left page.
+    const rtl = canvasElement.querySelector('[data-dir="rtl"]')!;
+    await expect(within(rtl as HTMLElement).getByText("999+")).toBeVisible();
+  },
+};
+
 /** The drawer's badge is its trailing label text, not the red badge, and is
     read once, after the name. A `true` badge shows its `badgeLabel`. */
 export const DrawerBadgeIsTrailingText: Story = {

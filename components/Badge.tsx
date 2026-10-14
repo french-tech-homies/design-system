@@ -130,12 +130,13 @@ export function Badge({
       data-slot="badge"
       data-size={size}
       aria-hidden="true"
-      // A count reads left to right in any page: "999+", never "+999".
-      dir={text === undefined ? undefined : "ltr"}
       {...rest}
       className={styles({ size, anchored, className })}
     >
-      {text}
+      {/* A count reads left to right in any page ("999+", never "+999"),
+          so the text alone is isolated as such: the box keeps the page's
+          direction, which is what moves it to the other corner. */}
+      {text === undefined ? null : <bdi dir="ltr">{text}</bdi>}
     </span>
   );
 }
