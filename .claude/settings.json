@@ -13,17 +13,23 @@
       "Bash(npm run typecheck)",
       "Bash(npm run md3 *)",
       "Bash(node .claude/skills/ds-spec/md3.mjs *)",
+      "Bash(npm run storybook:serve)",
+      "Bash(npm run storybook:stop)",
+      "Bash(npm run storybook:check)",
       "Bash(npm run storybook *)",
       "Bash(npx playwright install chromium)",
       "Bash(npx playwright screenshot *)",
-      "Bash(curl -s http://localhost:6006/index.json)",
       "Bash(git status)",
       "Bash(git status *)",
-      "Bash(git diff *)"
+      "Bash(git diff *)",
+      "mcp__playwright"
     ],
     "deny": [
       "Edit(/.claude/skills/react-aria/**)",
       "Edit(/skills-lock.json)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }

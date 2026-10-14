@@ -40,7 +40,8 @@ What the kit is, and which components are its own, is said once: `README.md`,
 - `skills/`: what a project's agent reads (`ds-theme`, `ds-build`,
   `ds-spec`).
 - `scripts/`: the registry build and its four rule checks, the publish
-  decision (`decide-publish.mjs`) among them.
+  decision (`decide-publish.mjs`) among them, and a worktree's own Storybook
+  (`storybook-serve.mjs`).
 - `changed.mjs`: what a project runs before an update, to list the kit files
   it changed since it installed them.
 - `spec-version.json`: the m3.material.io version each component was last
@@ -51,6 +52,10 @@ What the kit is, and which components are its own, is said once: `README.md`,
   committed. `r/`, the built items, is not committed.
 - `.claude/settings.json`: the commands an agent may run here without being
   asked.
+- `.mcp.json`: the browser a session works the catalog with: Playwright's
+  MCP server, `playwright`, run from `node_modules` (`@playwright/mcp`,
+  pinned), headless Chromium. Its `${TMPDIR:-/tmp}` is expanded by Claude
+  Code.
 - `.claude/skills/`: the skills this repository's own agents load.
   `ds-spec` is a link to `skills/ds-spec`, never a copy. `react-aria` is
   Adobe's, with its record in `skills-lock.json`.
@@ -69,7 +74,9 @@ action from a consumer flagged.
 
 ```bash
 npm ci                          # install, from the lockfile
-npm run storybook               # the catalog, on :6006
+npm run storybook               # a person's own catalog, on :6006
+npm run storybook:serve         # this worktree's catalog, on a port of its own: prints its address
+npm run storybook:stop          # stops the one this worktree served
 npm run lint && npm run typecheck
 npm run theme:generate          # DESIGN.md → tokens/theme.css, theme.v4.css, DESIGN.resolved.md
 npm run design:lint             # the format's linter on both DESIGN.md files
@@ -78,12 +85,13 @@ npm run theme:resolve           # refresh tokens/resolved.json
 npm run registry:build          # registry.json and RELEASE.json, then the items into r/
 npm run registry:check-version  # every item carries package.json's version
 npm run registry:check-install  # the one install is whole
+npm run storybook:check         # serve and stop keep to their worktree; the browser server answers
 npm run registry:publishes -- --event push --base <sha> --ref refs/heads/main  # would this push publish? Publishes nothing
 npm run build-storybook
 npx playwright install chromium # once
 npm run test-storybook          # every story, rendered, played and axe-checked, under both presets
 npm run md3 -- page <component> guidelines   # the live Material 3 spec
-npx playwright screenshot <url> <file>       # a picture of one story (see "Seeing a story")
+npx playwright screenshot <url> <file>       # the fallback picture of one story (see "Seeing a story")
 ```
 
 `build-storybook` and `test-storybook` each take several GB of memory. Run
@@ -105,6 +113,7 @@ npm run registry:build
 git diff --exit-code -- registry.json RELEASE.json releases
 npm run registry:check-version
 npm run registry:check-install
+npm run storybook:check
 npm run lint
 npm run typecheck
 ```
@@ -115,44 +124,57 @@ that leaves a difference means its output was not committed.
 `npm run build-storybook` and `npm run test-storybook` are the heavy checks.
 `.github/workflows/checks.yml` runs both, after the cheap ones, on every pull
 request. Run one locally only where a change needs it to be trusted: one at a
-time, in the foreground, never beside a running Storybook.
+time, in the foreground, never beside a running Storybook: run
+`npm run storybook:stop` first.
 
 ## Seeing a story
 
-A changed story is looked at as a picture, from a Storybook you start and
-stop yourself:
+A change to a component or a story is checked in this worktree's own
+Storybook, worked in a browser as a person would:
 
 ```bash
-npm run storybook -- --ci --exact-port       # as a background command: keep what the harness gives for it
-curl -s http://localhost:6006/index.json     # answers once it is up, and holds the story ids
-npx playwright screenshot --viewport-size=640,360 \
-  "--wait-for-selector=#storybook-root>*" \
-  "http://localhost:6006/iframe.html?id=<story-id>&viewMode=story" <file>.png
-# stop that background command, then:
-curl -s http://localhost:6006/index.json     # no answer: the port is free
+npm run storybook:serve      # prints this worktree's address, such as http://localhost:41234/
+# <address>index.json holds the story ids
+# work each story the change touches with the `playwright` browser's tools
+npm run storybook:stop       # says the port is free
 ```
 
-- **Start it as a background command of your harness**, and keep the handle
-  the harness gives for it. Only a step that can start a background command
-  takes pictures: today that is `implement`.
-- **Stop it with the harness's own stop of that command.** At a terminal, a
-  person keeps the pid (`$!`) and types `kill <pid>`. Never stop it by a
-  name or a port pattern (`pkill`, `killall`, a `kill` of whatever listens on
-  6006): port 6006 is one per machine, and another worktree's Storybook may
-  be the one that answers.
-- `<story-id>` is the story's id in `index.json`, such as
+- **Serve.** `npm run storybook:serve` starts `storybook dev` on a port the
+  system gives as free, detached, so any step, or a person, serves and goes
+  on. Run again, it prints the same address and starts nothing. Two
+  worktrees serve at once, each on its own port.
+- **Open each story the change touches**, with the `playwright` browser
+  (`.mcp.json`): the story's page in the Storybook UI,
+  `<address>?path=/story/<story-id>`, or the story alone,
+  `<address>iframe.html?id=<story-id>&viewMode=story`. `<story-id>` is the
+  story's id in `<address>index.json`, such as
   `md3-actions-button--filled`.
-- The other preset is `&globals=preset:editorial`, dark is
-  `&globals=theme:dark`, and both are `&globals=preset:editorial;theme:dark`.
-  Playwright's `--color-scheme dark` does not switch the kit's theme.
-- `--exact-port` makes a second Storybook fail instead of answering on
-  another port. It is the check at the next start: a start that fails says a
-  Storybook was left running, yours or another worktree's.
-- The picture goes outside the tree and is never committed.
-- It is a picture, not an interaction: a hover, a focus or an open overlay is
-  seen only where a story renders it. Behaviour is the story tests'.
-- Stop the server before a heavy command runs and before you finish, and say
-  that the port is free.
+- **Both presets, light and dark.** The other preset is
+  `&globals=preset:editorial`, dark is `&globals=theme:dark`, and both are
+  `&globals=preset:editorial;theme:dark`. A browser's own dark scheme does not
+  switch the kit's theme.
+- **Work it as a person would**: click, type, Tab and the arrow keys, hover,
+  open and close what opens. Hold what it does against what Material's page
+  asks (`npm run md3 -- page <component> …`).
+- **A picture is for your own eyes.** `browser_take_screenshot` is given no
+  filename: it lands in the server's output directory, outside the tree. A
+  picture is never written into the tree.
+- **Stop.** `npm run storybook:stop` stops the process group its own record
+  names, waits until the port is free and says so. Never stop a Storybook
+  any other way: not by a name or a port pattern (`pkill`, `killall`, a
+  `kill` of whatever listens on a port), since another worktree's may be the
+  one that answers. Stop before a heavy command runs and before you finish,
+  and say that the port is free.
+- **The record** is `.storybook-serve.json`, and the server's output
+  `.storybook-serve.log`, both at the root and ignored by git. A record whose
+  process is gone, or whose pid another process now holds, is cleared
+  without a signal.
+- **Where no browser tool is at hand**, a still picture is the fallback:
+  `npx playwright screenshot --viewport-size=640,360
+  "--wait-for-selector=#storybook-root>*"
+  "<address>iframe.html?id=<story-id>&viewMode=story" <file>.png`, the file
+  outside the tree. It shows a hover, a focus or an open overlay only where a
+  story renders it.
 
 ## Rules
 

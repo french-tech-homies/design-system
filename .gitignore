@@ -1,5 +1,7 @@
 # storybook
 *storybook.log
+/.storybook-serve.json
+/.storybook-serve.log
 /storybook-static/
 # dependencies, the built registry and the assembled site (never committed)
 node_modules/
