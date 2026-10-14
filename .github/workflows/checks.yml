@@ -94,6 +94,11 @@ jobs:
         # listing its tools. No browser and no real Storybook start here.
         run: npm run storybook:check
 
+      - name: Every exported component carries its doc comment
+        # On the exported declaration, where an editor's hover and the types
+        # a project generates read it, not on the styles above it.
+        run: npm run docs:check
+
       - name: Does this run publish? Only a release does
         # The version is read in the five places a release writes it, in this
         # tree and in the commit before the push (the base, on a pull
