@@ -18,7 +18,10 @@
     "navigation-drawer": "2026-08-28",
     "tooltips": "2026-10-11",
     "cards": "2026-10-11",
-    "icon-buttons": "2026-10-11"
+    "icon-buttons": "2026-10-11",
+    "badges": "2026-10-14",
+    "toolbars": "2026-10-14",
+    "search": "2026-10-14"
   },
   "note": "Site content version the kit's components were last reviewed against. `npm run md3 -- check` reports drift; re-audit and bump when it moves (conventions.md, \"Spec review\"). `carbonVersion` is the last version the *whole* list was covered against: each component either read in full that day, which is the date beside it, or shown unchanged by the site's own dates — its page `updated` date and its token table's revision both strictly earlier than the date beside it — in which case it keeps that date. A date is bumped only for what was really read. The components Material 3 does not describe are deliberately absent: an audit entry pointing at a page that does not exist is a false citation. They are the group named in README.md, \"What this kit is\", and each says so in its doc comment instead."
 }

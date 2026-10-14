@@ -86,7 +86,8 @@ const styles = tv({
       "relative flex h-14 w-full items-center gap-3 overflow-hidden rounded-shape-full px-4",
     ],
     icon: "shrink-0 transition-colors duration-short-4",
-    label: "min-w-0 flex-1 truncate transition-colors duration-short-4",
+    // Start-aligned, as the spec draws it: a `<button>` centres its text.
+    label: "min-w-0 flex-1 truncate text-start transition-colors duration-short-4",
     // The badge label text (anatomy element 5).
     trailing: "shrink-0 transition-colors duration-short-4",
   },

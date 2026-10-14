@@ -130,6 +130,8 @@ export function Badge({
       data-slot="badge"
       data-size={size}
       aria-hidden="true"
+      // A count reads left to right in any page: "999+", never "+999".
+      dir={text === undefined ? undefined : "ltr"}
       {...rest}
       className={styles({ size, anchored, className })}
     >

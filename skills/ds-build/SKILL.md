@@ -150,8 +150,8 @@ opacity follows the state.
 - Every kit root carries `data-slot="<component>"`. Target a part by its slot,
   never by a class name.
 - Anything backed by React Aria is a client component. `Card`, `ListItem`,
-  `MenuItem`, `Tag`, `Divider`, `TopAppBar`, `EmptyState`, `DialogContent` and
-  the type primitives render on the server.
+  `MenuItem`, `Tag`, `Badge`, `Divider`, `TopAppBar`, `EmptyState`,
+  `DialogContent` and the type primitives render on the server.
 - Icons are any component taking `{ size, className }`. The kit ships no icon
   library.
 

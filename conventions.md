@@ -290,7 +290,7 @@ renders under `tokens/preset-editorial.css`. Run one with
 
 ## Not in the kit (yet)
 
-Segmented button, search bar, date/time pickers: Material 3 describes them.
+Segmented button, date/time pickers: Material 3 describes them.
 When adding one: follow the anatomy above, name variants after Material, cite
 its page in the doc comment, clear the
 quality bar (story, interaction test, axe under both presets), and keep
