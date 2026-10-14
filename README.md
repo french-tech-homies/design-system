@@ -606,7 +606,8 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
   the utility reads the token itself. Give such a loader's variable another
   name and name the family in DESIGN.md.
 - **Shape** — `rounded-shape-extra-small` (4px) → `rounded-shape-extra-large`
-  (28px), `rounded-shape-full`.
+  (28px), `rounded-shape-full`; between `large` (16px) and `extra-large`,
+  `rounded-shape-large-increased` (20px).
 - **Elevation** — `shadow-elevation-1` … `shadow-elevation-5`.
 - **Motion** — `duration-short-1` … `duration-long-4`, `ease-standard*`,
   `ease-emphasized*`.

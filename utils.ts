@@ -117,6 +117,7 @@ function shapeScale() {
     "shape-small",
     "shape-medium",
     "shape-large",
+    "shape-large-increased",
     "shape-extra-large",
     "shape-full",
   ];

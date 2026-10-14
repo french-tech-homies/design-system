@@ -78,8 +78,8 @@ Other scales, one utility family each:
   written weight Material asks for is the prominent weight of an active
   navigation label (`font-bold` in `BottomNavigation` and
   `NavigationDrawer`).
-- Shape: `rounded-shape-{extra-small,small,medium,large,extra-large,full}`
-  (4/8/12/16/28px/pill). Components own their shape role: buttons `full`,
+- Shape: `rounded-shape-{extra-small,small,medium,large,large-increased,extra-large,full}`
+  (4/8/12/16/20/28px/pill). Components own their shape role: buttons `full`,
   chips `small`, cards `medium`, dialogs `extra-large`.
 - Elevation: `shadow-elevation-1` … `shadow-elevation-5`.
 - Motion: `duration-short-1 … duration-long-4`, `ease-standard*`,

@@ -116,6 +116,7 @@
   --md-sys-shape-corner-small: 2px;
   --md-sys-shape-corner-medium: 2px;
   --md-sys-shape-corner-large: 4px;
+  --md-sys-shape-corner-large-increased: 4px;
   --md-sys-shape-corner-extra-large: 4px;
   /* `full` is what makes buttons, FABs and chips read as Material. */
   --md-sys-shape-corner-full: 2px;
