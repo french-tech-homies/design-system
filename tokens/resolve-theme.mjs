@@ -104,6 +104,7 @@ for (const step of [
   "small",
   "medium",
   "large",
+  "large-increased",
   "extra-large",
   "full",
 ]) {

@@ -23,6 +23,7 @@ const shapeClass: Record<ShapeStep, string> = {
   small: "rounded-shape-small",
   medium: "rounded-shape-medium",
   large: "rounded-shape-large",
+  "large-increased": "rounded-shape-large-increased",
   "extra-large": "rounded-shape-extra-large",
   full: "rounded-shape-full",
 };
@@ -32,6 +33,7 @@ const shapeUse: Record<ShapeStep, string> = {
   small: "chips, snackbars",
   medium: "cards, filled buttons in lists",
   large: "cards (elevated), side sheets, extended FAB",
+  "large-increased": "connected button groups, split buttons",
   "extra-large": "dialogs, bottom sheets, large FAB",
   full: "buttons, icon buttons, sliders",
 };

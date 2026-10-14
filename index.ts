@@ -45,6 +45,24 @@ export {
 export { default as Button, type ButtonProps } from "./components/Button";
 export { default as IconButton } from "./components/IconButton";
 export {
+  ButtonGroup,
+  ButtonGroupContext,
+  type ButtonGroupProps,
+  type ButtonSize,
+} from "./components/ButtonGroup";
+export {
+  SegmentedButton,
+  Segment,
+  type SegmentedButtonProps,
+  type SegmentProps,
+} from "./components/SegmentedButton";
+export { SplitButton, type SplitButtonProps } from "./components/SplitButton";
+export {
+  FabMenu,
+  type FabMenuProps,
+  type FabMenuItem,
+} from "./components/FabMenu";
+export {
   default as Chip,
   ChipGroup,
   type ChipGroupProps,

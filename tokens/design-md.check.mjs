@@ -479,7 +479,45 @@ test("a file with only a seed gets every role, Material's type scale and corners
   assert.deepEqual(theme.typography, TYPE_DEFAULTS);
   assert.equal(Object.keys(theme.typography).length, 15);
   assert.deepEqual(theme.rounded, CORNER_DEFAULTS);
-  assert.equal(Object.keys(theme.rounded).length, 6);
+  assert.equal(Object.keys(theme.rounded).length, 7);
+  assert.equal(theme.rounded["large-increased"], "20px");
+});
+
+test("`rounded.large-increased` is a Material corner, and reaches its declaration", () => {
+  const { theme, themeV4Css, warnings } = generateTheme(
+    designMd("scheme: light", SEED, "rounded:\n  large-increased: 0"),
+    kitV4,
+  );
+  assert.deepEqual(kinds(warnings), []);
+  assert.equal(String(theme.rounded["large-increased"]), "0");
+  assert.equal(
+    valueOf(themeV4Css, "--md-sys-shape-corner-large-increased"),
+    "0",
+  );
+});
+
+test("a file that writes `rounded.large` and not `large-increased` gets its `large` for it", () => {
+  const square = generateTheme(
+    designMd("scheme: light", SEED, "rounded:\n  large: 0"),
+    kitV4,
+  );
+  assert.equal(String(square.theme.rounded["large-increased"]), "0");
+  assert.equal(
+    valueOf(square.themeV4Css, "--md-sys-shape-corner-large-increased"),
+    "0",
+  );
+  // A file that writes other corners, but not `large`, keeps Material's 20px.
+  const other = generateTheme(
+    designMd("scheme: light", SEED, "rounded:\n  small: 6px"),
+    kitV4,
+  );
+  assert.equal(other.theme.rounded["large-increased"], "20px");
+  // Under the short name too.
+  const short = generateTheme(
+    designMd("scheme: light", SEED, "rounded:\n  lg: 2px"),
+    kitV4,
+  );
+  assert.equal(short.theme.rounded["large-increased"], "2px");
 });
 
 test("written type and corner values reach their theme.v4.css declarations", () => {
