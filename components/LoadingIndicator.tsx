@@ -94,7 +94,7 @@ import { tv } from "../utils";
  */
 const styles = tv({
   slots: {
-    base: "inline-flex shrink-0 items-center justify-center",
+    base: "inline-flex shrink-0 items-center justify-center align-middle",
     svg: "md3-loading-indicator-spin block overflow-visible",
     container: "fill-primary-container",
     activeIndicator: "md3-loading-indicator-morph fill-primary",
@@ -374,7 +374,8 @@ ${[...PATHS, PATHS[0]!]
 }
 .md3-loading-indicator-morph {
   transform-box: view-box;
-  transform-origin: center;
+  /* The viewBox is centred on 0, so its origin is the shape's centre. */
+  transform-origin: 0 0;
   animation: md3-loading-indicator-morph calc(${PATHS.length} * ${STEP})
     var(--md-sys-motion-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)) infinite;
 }

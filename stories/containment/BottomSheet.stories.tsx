@@ -39,7 +39,7 @@ const actions = [
 
 function ActionList() {
   return (
-    <ul className="-mx-6">
+    <ul className="-mx-4">
       {actions.map((a) => (
         <li key={a.headline}>
           <ListItem headline={a.headline} supportingText={a.supportingText} />
@@ -52,7 +52,7 @@ function ActionList() {
 /** A page behind the sheet, so the pictures show what a sheet sits over. */
 function Page({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="bg-surface flex flex-col gap-4 p-6">
+    <div className="bg-surface flex min-h-full flex-col gap-4 p-6">
       <Headline component="h1">Albums</Headline>
       <div className="grid grid-cols-3 gap-3">
         {Array.from({ length: 6 }, (_, i) => (
