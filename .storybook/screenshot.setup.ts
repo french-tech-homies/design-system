@@ -72,22 +72,33 @@ afterEach(async (context) => {
   const html = document.documentElement;
   const theme = html.classList.contains("dark") ? "dark" : "light";
   await commands.reducedMotion(true);
+  // Both themes are compared before the test fails, so a pull request shows
+  // every picture that changed, not the first.
+  const changed: unknown[] = [];
   try {
     for (const next of THEMES) {
       html.classList.remove(...THEMES);
       html.classList.add(next);
       await document.fonts.ready;
       await nextFrame();
-      await expect
-        .element(page.elementLocator(document.body))
-        .toMatchScreenshot(`${story.id.replaceAll("--", "__")}/${next}`, {
-          screenshotOptions: { animations: "disabled", caret: "hide", scale: "css" },
-        });
+      try {
+        await expect
+          .element(page.elementLocator(document.body))
+          .toMatchScreenshot(`${story.id.replaceAll("--", "__")}/${next}`, {
+            screenshotOptions: { animations: "disabled", caret: "hide", scale: "css" },
+          });
+      } catch (error) {
+        changed.push(error);
+      }
     }
   } finally {
     html.classList.remove(...THEMES);
     html.classList.add(theme);
     await commands.reducedMotion(false);
+  }
+  if (changed.length === 1) throw changed[0];
+  if (changed.length) {
+    throw new Error(changed.map((e) => (e instanceof Error ? e.message : String(e))).join("\n\n"));
   }
 });
 
