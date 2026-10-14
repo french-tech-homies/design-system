@@ -54,9 +54,38 @@ const TAG = "components/Tag.tsx";
 const GRID_LIST = "components/GridList.tsx";
 const SWATCH = "components/color/ColorSwatch.tsx";
 const NUMBER_FIELD = "components/NumberField.tsx";
+const METER = "components/Meter.tsx";
 
 test("the shipped kit: every component is Material's or one of the named group", () => {
   assert.deepEqual(checkComponents(kit), []);
+});
+
+test("Meter is one of the named group, and says so", () => {
+  assert.ok(kit.components[METER], `the kit ships ${METER}`);
+  const list = kit.readme.slice(kit.readme.indexOf(OPEN), kit.readme.indexOf(CLOSE));
+  assert.ok(list.includes("`Meter`"), "the README's list names Meter");
+  assert.ok(
+    kit.components[METER].replace(/\s*\n\s*\*?\s*/g, " ").includes(SENTENCE),
+    `${METER} says "${SENTENCE}"`,
+  );
+});
+
+test("a Meter.tsx that does not say so is refused", () => {
+  refuses(
+    changed((k) => {
+      k.components[METER] = swap(k.components[METER], SENTENCE, "");
+    }),
+    /names Meter, and components\/Meter\.tsx does not say/,
+  );
+});
+
+test("a Meter dropped from the list is refused", () => {
+  refuses(
+    changed((k) => {
+      k.readme = swap(k.readme, "`Meter`", "the meter");
+    }),
+    /components\/Meter\.tsx says .* does not name Meter/,
+  );
 });
 
 test("a member nobody named in the README is refused", () => {
