@@ -554,7 +554,7 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `icons.tsx`                    | Icon types + the small built-in SVG set                                                                                                                                                                                                                                       |
 | `primitives/Typography.tsx`    | `Display` / `Headline` / `Title` / `Body` / `Label`                                                                                                                                                                                                                           |
 | `primitives/StateLayer.tsx`    | MD3 interaction state overlay                                                                                                                                                                                                                                                 |
-| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, Button, IconButton, Chip, Card, Carousel, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, BottomSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Avatar, Table, TopAppBar, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, LoadingIndicator, Meter, `color/*` |
+| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, Button, IconButton, ButtonGroup, SegmentedButton, SplitButton, FabMenu, Chip, Card, Carousel, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, BottomSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Badge, Avatar, Table, TopAppBar, Toolbar, Search, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, LoadingIndicator, Meter, `color/*` |
 | `adapters/next.tsx`            | Optional: Next router provider + `next/image` renderer. Delete if not on Next.js                                                                                                                                                                                              |
 | `adapters/react-router.tsx`    | Optional: React Router (or TanStack Router) provider so `href` links navigate client-side. Delete if not on React Router                                                                                                                                                      |
 | `changed.mjs`                  | The update check: lists the kit files a project changed since it installed them, against `RELEASE.json` — `node <ui>/ds/changed.mjs`, see _Taking an update_. Node builtins only. In the registry as `@ds/changed`                                                          |
@@ -614,7 +614,8 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
   the utility reads the token itself. Give such a loader's variable another
   name and name the family in DESIGN.md.
 - **Shape** — `rounded-shape-extra-small` (4px) → `rounded-shape-extra-large`
-  (28px), `rounded-shape-full`.
+  (28px), `rounded-shape-full`; between `large` (16px) and `extra-large`,
+  `rounded-shape-large-increased` (20px).
 - **Elevation** — `shadow-elevation-1` … `shadow-elevation-5`.
 - **Motion** — `duration-short-1` … `duration-long-4`, `ease-standard*`,
   `ease-emphasized*`.
@@ -1247,8 +1248,14 @@ Which plans have design systems, and where one is made, is on the same page.
   pair.
 - **`IconButton` has Material's five sizes and four colour styles, and is
   round.** `filled` is the default colour style, Material's. The square
-  shape, the shape morphs, the narrow and wide widths, the tooltip on hover
-  and button groups are not built.
+  shape, the shape morphs, the narrow and wide widths and the tooltip on
+  hover are not built.
+- **`Button` carries Material's button model once**: five sizes (`xsmall`
+  32px to `xlarge` 136px, `small` the default), round and square shapes with
+  their pressed and selected corners, and toggles. `ButtonGroup`,
+  `SplitButton` and the icon buttons in a group take their sizes, shapes and
+  state layers from it. `SegmentedButton` is built, though Material no
+  longer recommends it: for new work, `<ButtonGroup variant="connected">`.
 - **There is no separate alert dialog.** MD3's dialogs page covers one
   component in two sizes; "alert" is a *use*, not a variant. So it is
   `<Dialog role="alertdialog">` — the ARIA role, plus `ModalDialog` turning
@@ -1267,7 +1274,7 @@ Which plans have design systems, and where one is made, is on the same page.
   motion — the same way `Table` follows M2's data-table measurements on M3
   roles. The component's doc comment names every part it borrowed.
 - **`Tag` and `Avatar` are not Material components.** MD3 has no static
-  label pill (its badge is the notification dot on an icon) and no standalone
+  label pill (its badge, the kit's `Badge`, is the dot or count on an icon) and no standalone
   avatar; both exist because apps need them, drawn only in colour roles so
   they follow the palette. `Tag` is presentational — actions are chips.
 - **One shell, three components.** `TopAppBar` titles the screen,
@@ -1278,7 +1285,7 @@ Which plans have design systems, and where one is made, is on the same page.
   `aria-current="page"`, never tab sets, and the app bar's title is a real
   heading. `BottomNavigation` stays the compact-window bar.
 - **Server components**: `Typography`, `Card`, `ListItem`, `MenuItem`,
-  `Tag`, `Divider`, `TopAppBar`, `EmptyState` and `DialogContent` render on the server; everything backed by
+  `Tag`, `Badge`, `Divider`, `TopAppBar`, `EmptyState` and `DialogContent` render on the server; everything backed by
   React Aria carries `"use client"`. `react-aria-components` is marked
   `client-only`, so `utils.ts` deliberately does not import it — that is why
   `composeTailwindRenderProps` sits in `render-props.ts` instead. Keep it that
@@ -1316,7 +1323,7 @@ RAC-dependent helpers there, not in `utils.ts`.
 
 ## Not included
 
-Segmented button, search bar, date & time pickers: Material 3 describes them
+Date & time pickers: Material 3 describes them
 and the kit does not build them yet. Until it does, an app that needs one
 writes it in its own tree, beside the kit, on a headless component — the token
 and styling contracts above are what make it match. One added to the kit

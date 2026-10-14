@@ -90,7 +90,7 @@ export const WithAction: Story = {
                 Staff · Pizzeria Bellini
               </Body>
             </div>
-            <Button variant="text" size="small">
+            <Button variant="text" size="xsmall">
               Message
             </Button>
           </div>

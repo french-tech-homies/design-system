@@ -68,7 +68,7 @@ export const Basic: Story = {
                 <Tag>{user.role}</Tag>
               </Cell>
               <Cell>
-                <Button variant="text" size="small" color="error">
+                <Button variant="text" size="xsmall" color="error">
                   Remove
                 </Button>
               </Cell>

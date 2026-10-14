@@ -174,3 +174,95 @@ export const ErrorColor: Story = {
     </div>
   ),
 };
+
+const sizes = ["xsmall", "small", "medium", "large", "xlarge"] as const;
+
+/** Material's five sizes, 32 to 136 pixels tall: the padding, the icon and
+ *  the label's type role grow with them. `small` is the default. */
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-center gap-4">
+      {sizes.map((size) => (
+        <Button key={size} size={size} icon={Send}>
+          {size}
+        </Button>
+      ))}
+    </div>
+  ),
+};
+
+/** `shape="square"`: 12/12/16/28/28 pixel corners from `xsmall` to `xlarge`,
+ *  beside the default round. */
+export const Shapes: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {(["round", "square"] as const).map((shape) => (
+        <div key={shape} className="flex flex-wrap items-center gap-4">
+          {sizes.map((size) => (
+            <Button key={size} size={size} shape={shape} variant="tonal">
+              {shape}
+            </Button>
+          ))}
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+const toggleVariants = ["filled", "tonal", "outlined", "elevated"] as const;
+
+/** Toggles, unselected above and selected below, in the four styles that
+ *  toggle: a selected round button turns square, a selected square one
+ *  round. */
+export const Toggles: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {[false, true].map((isSelected) =>
+        (["round", "square"] as const).map((shape) => (
+          <div
+            key={`${shape}-${isSelected}`}
+            className="flex flex-wrap items-center gap-4"
+          >
+            {toggleVariants.map((variant) => (
+              <Button
+                key={variant}
+                isToggle
+                isSelected={isSelected}
+                variant={variant}
+                shape={shape}
+                icon={Settings}
+              >
+                {variant}
+              </Button>
+            ))}
+          </div>
+        )),
+      )}
+    </div>
+  ),
+};
+
+/** The styles, a toggle and a disabled button on the dark scheme. */
+export const Dark: Story = {
+  globals: { theme: "dark" },
+  decorators: [
+    (Story) => (
+      <div className="bg-surface p-6">
+        <Story />
+      </div>
+    ),
+  ],
+  render: () => (
+    <div className="flex flex-wrap items-center gap-4">
+      <Button icon={Plus}>Filled</Button>
+      <Button variant="tonal">Tonal</Button>
+      <Button variant="outlined">Outlined</Button>
+      <Button variant="elevated">Elevated</Button>
+      <Button variant="text">Text</Button>
+      <Button isToggle defaultSelected variant="outlined">
+        Selected
+      </Button>
+      <Button isDisabled>Disabled</Button>
+    </div>
+  ),
+};

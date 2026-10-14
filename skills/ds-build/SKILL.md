@@ -119,7 +119,7 @@ file, `<kit>/tokens/bridge-shadcn.css`, where the entry CSS imports it. `bg-prim
   else the system's: write it where the project wants one (an identifier, a
   time, an amount). No kit component uses it.
 - **Shape**: `rounded-shape-extra-small`, `-small`, `-medium`, `-large`,
-  `-extra-large`, `-full`. Never `rounded-lg`: it does not follow the theme.
+  `-large-increased`, `-extra-large`, `-full`. Never `rounded-lg`: it does not follow the theme.
 - **Elevation**: `shadow-elevation-1` to `shadow-elevation-5`.
 - **Motion**: `duration-short-1` to `duration-long-4`, `ease-standard`,
   `ease-emphasized` and their `-accelerate` / `-decelerate` forms. Enter with
@@ -154,8 +154,8 @@ opacity follows the state.
 - Every kit root carries `data-slot="<component>"`. Target a part by its slot,
   never by a class name.
 - Anything backed by React Aria is a client component. `Card`, `ListItem`,
-  `MenuItem`, `Tag`, `Divider`, `TopAppBar`, `EmptyState`, `DialogContent` and
-  the type primitives render on the server.
+  `MenuItem`, `Tag`, `Badge`, `Divider`, `TopAppBar`, `EmptyState`,
+  `DialogContent` and the type primitives render on the server.
 - Icons are any component taking `{ size, className }`. The kit ships no icon
   library.
 

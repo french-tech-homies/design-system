@@ -202,6 +202,7 @@
     "small": 8,
     "medium": 12,
     "large": 16,
+    "large-increased": 20,
     "extra-large": 28,
     "full": 9999
   },
