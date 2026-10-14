@@ -540,13 +540,15 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `tokens/bridge-shadcn.css`     | Optional shadcn ↔ MD3 variable layer                                                                                                                                                                                                                                          |
 | `tokens/preset-editorial.css`  | A deliberately un-Material identity, class-scoped — the worked example for _Retheming_ below                                                                                                                                                                                  |
 | `conventions.md`               | How components are written — token idiom, tv slots, state layers, data-slot, what to check before adding one                                                                                                                                                                  |
-| `components/field-styles.ts`   | The **style module** for the field container (`tv` slots), rendered by `TextField`, `NumberField`, `PhoneField`, `Select` and `ComboBox` — its `kind` variant is what lets one container serve typed, composite and trigger fields. Edit this to change field anatomy          |
+| `components/field-styles.ts`   | The **style module** for the field container (`tv` slots), rendered by `TextField`, `NumberField`, `PhoneField`, `Select`, `ComboBox`, `DatePicker`, `DateRangePicker` and `TimePicker` — its `kind` variant is what lets one container serve typed, composite, segmented and trigger fields. Edit this to change field anatomy |
+| `components/date-picker-styles.ts` | The **style module** for the calendar (`datePickerStyles`): the docked popover, the menu buttons, the day cell in every state, the year grid, the month and year menus — rendered by `DatePicker` and `DateRangePicker` |
+| `components/picker-dialog-styles.ts` | The **style module** for the pickers' dialog (`pickerDialogStyles`): container, supporting text, headline, divider, actions, full-screen layout — rendered by `DatePicker`, `DateRangePicker` and `TimePicker` |
 | `utils.ts`                     | `twMergeConfig`, `tv`, `cn`, `focusRing` — server-safe, no React Aria import                                                                                                                                                                                                  |
 | `render-props.ts`              | `composeTailwindRenderProps` (client-only; kept out of `utils.ts` so Server Components can use `cn`)                                                                                                                                                                          |
 | `icons.tsx`                    | Icon types + the small built-in SVG set                                                                                                                                                                                                                                       |
 | `primitives/Typography.tsx`    | `Display` / `Headline` / `Title` / `Body` / `Label`                                                                                                                                                                                                                           |
 | `primitives/StateLayer.tsx`    | MD3 interaction state overlay                                                                                                                                                                                                                                                 |
-| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, Button, IconButton, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Avatar, Table, TopAppBar, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, `color/*` |
+| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, DatePicker, DateRangePicker, TimePicker, Button, IconButton, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Avatar, Table, TopAppBar, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, `color/*` |
 | `adapters/next.tsx`            | Optional: Next router provider + `next/image` renderer. Delete if not on Next.js                                                                                                                                                                                              |
 | `adapters/react-router.tsx`    | Optional: React Router (or TanStack Router) provider so `href` links navigate client-side. Delete if not on React Router                                                                                                                                                      |
 | `changed.mjs`                  | The update check: lists the kit files a project changed since it installed them, against `RELEASE.json` — `node <ui>/ds/changed.mjs`, see _Taking an update_. Node builtins only. In the registry as `@ds/changed`                                                          |
@@ -871,8 +873,8 @@ Then:
 Answering the prompts by hand, file by file, also works at a terminal: Yes for
 a file you never edited, No for a file you edited and will merge later.
 
-Because `fieldStyles` backs all five fields, a field-anatomy change is *one*
-merge, not five. That is the point of the style-module layer — see
+Because `fieldStyles` backs all eight fields, a field-anatomy change is *one*
+merge, not eight. That is the point of the style-module layer — see
 _Retheming_.
 
 ### What each item does to your CSS variables
@@ -966,7 +968,7 @@ first two:
 | layer | files | you may | a kit update |
 | --- | --- | --- | --- |
 | **tokens** | your `DESIGN.md` and the theme generated from it (`theme/theme.css`, `theme/theme.v4.css`), plus per-component escape-hatch variables (`--md3-field-notch`) | change anything, through `DESIGN.md` | never touches them. Components name roles and scales, never values, and no registry item writes a palette value or targets your theme folder. The kit's own `tokens/*` files are its default and are replaced by an update — import yours instead of editing them |
-| **style modules** | `components/<x>-styles.ts` exporting `<x>Styles`. Today one: `components/field-styles.ts` → `fieldStyles`, the field container behind `TextField`, `NumberField`, `PhoneField`, `Select` and `ComboBox` | edit the file | replaces it, keeping the **slot and variant names**; what a slot contains may change, and your edit is put back by hand |
+| **style modules** | `components/<x>-styles.ts` exporting `<x>Styles`. Today three: `components/field-styles.ts` → `fieldStyles`, the field container behind `TextField`, `NumberField`, `PhoneField`, `Select`, `ComboBox` and the pickers; `components/date-picker-styles.ts` → `datePickerStyles`, the calendar behind `DatePicker` and `DateRangePicker`; `components/picker-dialog-styles.ts` → `pickerDialogStyles`, the dialog behind the date and time pickers | edit the file | replaces it, keeping the **slot and variant names**; what a slot contains may change, and your edit is put back by hand |
 | **behaviour** | the React Aria wiring, `utils.ts`, `render-props.ts`, `icons.tsx` | edit a file: allowed, priced, rarely needed | replaces every file that differs and promises no name in it; keeps following the four m3.material.io pages for behaviour and accessibility, even where your look departs from them |
 
 A `tv` becomes a style module only when more than one component renders from
@@ -1075,8 +1077,8 @@ themed app is short:
   risk;
 - an **anatomy** change to a style module you edited → the update replaces
   the file and you put your edit back from the diff, one file by hand.
-  Because `fieldStyles` serves all five fields, that is **one** merge, not
-  five — which is the whole reason the seam is one file and not thirty-five;
+  Because `fieldStyles` serves all eight fields, that is **one** merge, not
+  eight — which is the whole reason the seam is one file and not thirty-five;
 - a **behaviour or accessibility** fix → the same update, free for a file
   you never edited; for one you did, your edit is put back from the diff.
 

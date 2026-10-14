@@ -34,6 +34,45 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+### Added
+
+- **Date pickers: `DatePicker` and `DateRangePicker`**
+  (`components/DatePicker.tsx`, registry item `date-picker`), Material 3's
+  date pickers on React Aria's `DatePicker` and `DateRangePicker`. A
+  segmented text field whose calendar button opens the picker, in Material's
+  variants: docked (the default, a popover with month and year menus),
+  modal (`layout="modal"`, with the year grid and the switch to input), full
+  screen (`layout="fullscreen"`, with close and Save) and the modal date
+  input (`defaultMode="input"`). `DateRangePicker` is full screen, its
+  months in a vertical scroll, with a date input of two fields. Each holds a
+  draft that OK or Save commits and Cancel, Escape or a press outside drops.
+  Values are `@internationalized/date` values. Deviations, in the doc
+  comment: a typed date is React Aria's segments, where Material asks for
+  free text formatted on Enter; the docked picker confirms with OK, as its
+  anatomy draws.
+- **Time picker: `TimePicker`** (`components/TimePicker.tsx`, registry item
+  `time-picker`), Material 3's time picker: a modal dialog with a clock dial
+  (12 or 24 hours, `orientation` vertical or horizontal) or typed hour and
+  minute on React Aria's `TimeField`, an AM / PM radio group, Cancel / OK,
+  opened from a text-field-shaped trigger. The value is an
+  `@internationalized/date` `Time`. The dial is React Aria Components and
+  pointer events; each number is a tab stop named "Hour 7 of 12".
+- **Two style modules**: `components/date-picker-styles.ts` →
+  `datePickerStyles` (the calendar) and `components/picker-dialog-styles.ts`
+  → `pickerDialogStyles` (the pickers' dialog), registry items of their own.
+  Their slot and variant names are API, as `fieldStyles`' are.
+- **`fieldStyles` gains `kind: "segmented"`**, the date fields' container:
+  a row of date segments whose label floats on focus or once a segment holds
+  a value. The other kinds render as before.
+- **Icons**: `ChevronLeftIcon`, `ChevronRightIcon`, `CalendarIcon`,
+  `EditIcon`, `ScheduleIcon` and `KeyboardIcon` in `icons.tsx`.
+- **A dependency: `@internationalized/date` (`^3.12.4`).** The pickers'
+  files import its values (`CalendarDate`, `Time`) and its formatter, so the
+  `date-picker` and `time-picker` items declare it and `npx shadcn add
+  @ds/ds` installs it. A project on React Aria Components already has it in
+  its tree, through `react-aria-components`; the install makes it a direct
+  dependency, which no package manager may then leave unhoisted.
+
 ## [0.4.0] — 2026-10-14
 
 What the kit's first two installs of 0.3.0 asked of it. Three entries need an
