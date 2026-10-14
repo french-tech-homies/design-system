@@ -17,6 +17,7 @@ import {
   ButtonGroupContext,
   type ButtonSize,
   connectedItemStyles,
+  splitItemStyles,
   standardPressedButtonStyles,
 } from "./ButtonGroup";
 
@@ -365,7 +366,9 @@ function useButtonLayout(
     ? ""
     : group?.variant === "connected"
       ? connectedItemStyles[size]
-      : `${cornerStyles[shape][size]} ${
+      : group?.variant === "split"
+        ? splitItemStyles[size]
+        : `${cornerStyles[shape][size]} ${
           group?.variant === "standard" ? standardPressedButtonStyles[size] : ""
         }`;
   return { size, corners };

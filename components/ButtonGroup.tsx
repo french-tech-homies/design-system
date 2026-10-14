@@ -14,7 +14,8 @@ import { tv } from "../utils";
 export type ButtonSize = "xsmall" | "small" | "medium" | "large" | "xlarge";
 
 export type ButtonGroupContextValue = {
-  variant: "standard" | "connected";
+  /** `split` is the `SplitButton`'s two halves. */
+  variant: "standard" | "connected" | "split";
   size?: ButtonSize;
 };
 
@@ -43,6 +44,26 @@ export const connectedItemStyles: Record<ButtonSize, string> = {
     "flex-1 min-w-12 rounded-shape-full not-first:rounded-s-shape-large not-last:rounded-e-shape-large not-first:data-pressed:rounded-s-shape-medium not-last:data-pressed:rounded-e-shape-medium not-first:data-selected:not-data-pressed:rounded-s-shape-full not-last:data-selected:not-data-pressed:rounded-e-shape-full",
   xlarge:
     "flex-1 min-w-12 rounded-shape-full not-first:rounded-s-shape-large-increased not-last:rounded-e-shape-large-increased not-first:data-pressed:rounded-s-shape-large not-last:data-pressed:rounded-e-shape-large not-first:data-selected:not-data-pressed:rounded-s-shape-full not-last:data-selected:not-data-pressed:rounded-e-shape-full",
+};
+
+/**
+ * A split button's halves, by size (`md.comp.split-button.<size>.*`): outer
+ * corners full, inner ones 4/4/4/8/12dp, and 8/12/12/20/20dp hovered,
+ * focused and pressed. The trailing half's inner corner turns full while
+ * its menu is open (`aria-expanded`). Leading and trailing are read from
+ * `:first-child` and `:last-child`.
+ */
+export const splitItemStyles: Record<ButtonSize, string> = {
+  xsmall:
+    "rounded-shape-full not-last:rounded-e-shape-extra-small not-first:rounded-s-shape-extra-small not-last:hover:rounded-e-shape-small not-last:data-focus-visible:rounded-e-shape-small not-last:data-pressed:rounded-e-shape-small not-first:not-aria-expanded:hover:rounded-s-shape-small not-first:not-aria-expanded:data-focus-visible:rounded-s-shape-small not-first:not-aria-expanded:data-pressed:rounded-s-shape-small not-first:aria-expanded:rounded-s-shape-full",
+  small:
+    "rounded-shape-full not-last:rounded-e-shape-extra-small not-first:rounded-s-shape-extra-small not-last:hover:rounded-e-shape-medium not-last:data-focus-visible:rounded-e-shape-medium not-last:data-pressed:rounded-e-shape-medium not-first:not-aria-expanded:hover:rounded-s-shape-medium not-first:not-aria-expanded:data-focus-visible:rounded-s-shape-medium not-first:not-aria-expanded:data-pressed:rounded-s-shape-medium not-first:aria-expanded:rounded-s-shape-full",
+  medium:
+    "rounded-shape-full not-last:rounded-e-shape-extra-small not-first:rounded-s-shape-extra-small not-last:hover:rounded-e-shape-medium not-last:data-focus-visible:rounded-e-shape-medium not-last:data-pressed:rounded-e-shape-medium not-first:not-aria-expanded:hover:rounded-s-shape-medium not-first:not-aria-expanded:data-focus-visible:rounded-s-shape-medium not-first:not-aria-expanded:data-pressed:rounded-s-shape-medium not-first:aria-expanded:rounded-s-shape-full",
+  large:
+    "rounded-shape-full not-last:rounded-e-shape-small not-first:rounded-s-shape-small not-last:hover:rounded-e-shape-large-increased not-last:data-focus-visible:rounded-e-shape-large-increased not-last:data-pressed:rounded-e-shape-large-increased not-first:not-aria-expanded:hover:rounded-s-shape-large-increased not-first:not-aria-expanded:data-focus-visible:rounded-s-shape-large-increased not-first:not-aria-expanded:data-pressed:rounded-s-shape-large-increased not-first:aria-expanded:rounded-s-shape-full",
+  xlarge:
+    "rounded-shape-full not-last:rounded-e-shape-medium not-first:rounded-s-shape-medium not-last:hover:rounded-e-shape-large-increased not-last:data-focus-visible:rounded-e-shape-large-increased not-last:data-pressed:rounded-e-shape-large-increased not-first:not-aria-expanded:hover:rounded-s-shape-large-increased not-first:not-aria-expanded:data-focus-visible:rounded-s-shape-large-increased not-first:not-aria-expanded:data-pressed:rounded-s-shape-large-increased not-first:aria-expanded:rounded-s-shape-full",
 };
 
 /**
