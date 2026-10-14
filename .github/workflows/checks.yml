@@ -34,6 +34,11 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.60.0-noble
       options: --ipc=host --init
+    # Inside a container a step's default shell is sh, not the runner's bash,
+    # and the steps below are written for bash.
+    defaults:
+      run:
+        shell: bash
     outputs:
       publish: ${{ steps.decide.outputs.publish }}
     steps:
