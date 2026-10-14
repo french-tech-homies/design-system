@@ -23,6 +23,12 @@ export {
   XIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CalendarIcon,
+  EditIcon,
+  ScheduleIcon,
+  KeyboardIcon,
   GlobeIcon,
   ImageIcon,
   MinusIcon,
@@ -240,6 +246,18 @@ export {
   type SelectProps,
   type SelectItemProps,
 } from "./components/Select";
+export {
+  DatePicker,
+  DateRangePicker,
+  type DatePickerProps,
+  type DateRangePickerProps,
+  type DatePickerLabels,
+} from "./components/DatePicker";
+export {
+  TimePicker,
+  type TimePickerProps,
+  type TimePickerLabels,
+} from "./components/TimePicker";
 export {
   ComboBox,
   ComboBoxItem,

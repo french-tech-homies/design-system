@@ -717,7 +717,7 @@ const components = [
     type: "registry:lib",
     title: "Field styles",
     description:
-      "The MD3 field container as tailwind-variants slots (filled / outlined, floating label, icons, supporting text) with a kind variant for typed, composite and trigger fields — the one style module behind TextField, NumberField, PhoneField, Select and ComboBox.",
+      "The MD3 field container as tailwind-variants slots (filled / outlined, floating label, icons, supporting text) with a kind variant for typed, composite, segmented and trigger fields — the one style module behind TextField, NumberField, PhoneField, Select, ComboBox and the date and time pickers.",
     files: [file("components/field-styles.ts", "registry:lib")],
     deps: ["utils"],
   }),
@@ -791,6 +791,60 @@ const components = [
     files: [file("components/Select.tsx")],
     dependencies: [RAC],
     deps: ["utils", "icons", "render-props", "field-styles", "menu-item"],
+  }),
+  item({
+    name: "date-picker-styles",
+    type: "registry:lib",
+    title: "Date picker styles",
+    description:
+      "The MD3 calendar as tailwind-variants slots: the docked popover, the month and year menu buttons, the weekday row, the day cell in every state (today, selected, outside month, disabled, a range's band), the year grid and the month and year menus — the style module behind DatePicker and DateRangePicker.",
+    files: [file("components/date-picker-styles.ts", "registry:lib")],
+    deps: ["utils"],
+  }),
+  item({
+    name: "picker-dialog-styles",
+    type: "registry:lib",
+    title: "Picker dialog styles",
+    description:
+      "The MD3 picker dialog as tailwind-variants slots: container, supporting text, headline, divider, actions and the full-screen layout — the style module behind the date and time pickers' dialogs.",
+    files: [file("components/picker-dialog-styles.ts", "registry:lib")],
+    deps: ["utils"],
+  }),
+  item({
+    name: "date-picker",
+    title: "Date picker",
+    description:
+      "DatePicker (docked, modal, full screen, modal date input) and DateRangePicker (full screen, date input): a segmented text field whose calendar button opens the picker; Cancel / OK confirm a draft. Values are @internationalized/date values.",
+    files: [file("components/DatePicker.tsx")],
+    dependencies: [RAC, "@internationalized/date"],
+    deps: [
+      "utils",
+      "icons",
+      "render-props",
+      "field-styles",
+      "date-picker-styles",
+      "picker-dialog-styles",
+      "button",
+      "icon-button",
+      "modal",
+    ],
+  }),
+  item({
+    name: "time-picker",
+    title: "Time picker",
+    description:
+      "Modal time picker: a clock dial (12 or 24 hours, vertical or horizontal) or typed hour and minute, an AM / PM radio group, Cancel / OK, opened from a text-field-shaped trigger. The value is an @internationalized/date Time.",
+    files: [file("components/TimePicker.tsx")],
+    dependencies: [RAC, "@internationalized/date"],
+    deps: [
+      "utils",
+      "icons",
+      "field-styles",
+      "picker-dialog-styles",
+      "button",
+      "icon-button",
+      "modal",
+    ],
   }),
   item({
     name: "combo-box",

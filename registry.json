@@ -1559,7 +1559,7 @@
       "name": "field-styles",
       "type": "registry:lib",
       "title": "Field styles",
-      "description": "The MD3 field container as tailwind-variants slots (filled / outlined, floating label, icons, supporting text) with a kind variant for typed, composite and trigger fields — the one style module behind TextField, NumberField, PhoneField, Select and ComboBox.",
+      "description": "The MD3 field container as tailwind-variants slots (filled / outlined, floating label, icons, supporting text) with a kind variant for typed, composite, segmented and trigger fields — the one style module behind TextField, NumberField, PhoneField, Select, ComboBox and the date and time pickers.",
       "registryDependencies": [
         "@ds/utils",
         "@ds/license"
@@ -1802,6 +1802,116 @@
       }
     },
     {
+      "name": "date-picker-styles",
+      "type": "registry:lib",
+      "title": "Date picker styles",
+      "description": "The MD3 calendar as tailwind-variants slots: the docked popover, the month and year menu buttons, the weekday row, the day cell in every state (today, selected, outside month, disabled, a range's band), the year grid and the month and year menus — the style module behind DatePicker and DateRangePicker.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/date-picker-styles.ts",
+          "type": "registry:lib",
+          "target": "@ui/ds/components/date-picker-styles.ts"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "picker-dialog-styles",
+      "type": "registry:lib",
+      "title": "Picker dialog styles",
+      "description": "The MD3 picker dialog as tailwind-variants slots: container, supporting text, headline, divider, actions and the full-screen layout — the style module behind the date and time pickers' dialogs.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/picker-dialog-styles.ts",
+          "type": "registry:lib",
+          "target": "@ui/ds/components/picker-dialog-styles.ts"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "date-picker",
+      "type": "registry:ui",
+      "title": "Date picker",
+      "description": "DatePicker (docked, modal, full screen, modal date input) and DateRangePicker (full screen, date input): a segmented text field whose calendar button opens the picker; Cancel / OK confirm a draft. Values are @internationalized/date values.",
+      "dependencies": [
+        "react-aria-components",
+        "@internationalized/date"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/render-props",
+        "@ds/field-styles",
+        "@ds/date-picker-styles",
+        "@ds/picker-dialog-styles",
+        "@ds/button",
+        "@ds/icon-button",
+        "@ds/modal",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/DatePicker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/DatePicker.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "time-picker",
+      "type": "registry:ui",
+      "title": "Time picker",
+      "description": "Modal time picker: a clock dial (12 or 24 hours, vertical or horizontal) or typed hour and minute, an AM / PM radio group, Cancel / OK, opened from a text-field-shaped trigger. The value is an @internationalized/date Time.",
+      "dependencies": [
+        "react-aria-components",
+        "@internationalized/date"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/field-styles",
+        "@ds/picker-dialog-styles",
+        "@ds/button",
+        "@ds/icon-button",
+        "@ds/modal",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/TimePicker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/TimePicker.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "combo-box",
       "type": "registry:ui",
       "title": "Combo box",
@@ -1996,6 +2106,10 @@
         "@ds/switch",
         "@ds/radio",
         "@ds/select",
+        "@ds/date-picker-styles",
+        "@ds/picker-dialog-styles",
+        "@ds/date-picker",
+        "@ds/time-picker",
         "@ds/combo-box",
         "@ds/tokens",
         "@ds/design-md",

@@ -145,8 +145,9 @@ from it, or its anatomy is the product's identity rather than the component's
 function. Otherwise keep it as `const styles = tv({…})` in the component file.
 A component that shares an anatomy with an existing module must render from
 that module — add a variant to it rather than a second copy (`fieldStyles`'
-`kind` variant is how one container serves typed, composite and trigger
-fields). Whatever the layer, `npm run registry:build` must keep generating it:
+`kind` variant is how one container serves typed, composite, segmented and
+trigger fields; `pickerDialogStyles` is the one dialog shell of the date and
+time pickers). Whatever the layer, `npm run registry:build` must keep generating it:
 no hand-maintained registry items, ever.
 
 **What ships to a project's agent** is `skills/`: `ds-theme` (with the
@@ -292,7 +293,7 @@ renders under `tokens/preset-editorial.css`. Run one with
 
 ## Not in the kit (yet)
 
-Date/time pickers: Material 3 describes them.
+Nothing: every component Material 3 describes is in the kit.
 When adding one: follow the anatomy above, name variants after Material, cite
 its page in the doc comment, clear the
 quality bar (story, interaction test, axe under both presets), and keep
