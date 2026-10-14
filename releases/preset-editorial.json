@@ -1,6 +1,6 @@
 {
   "item": "preset-editorial",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "kit": {
     "tokens/preset-editorial.css": {
       "exact": "06241a346310046b62765379b8bd36ef5dd2e40ed430ad4e0d483697f739e2cc",
