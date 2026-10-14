@@ -168,7 +168,7 @@ type TableDensity = "default" | "dense";
 /** The table's density, for the rows and the header cells under it. */
 const TableDensityContext = createContext<TableDensity>("default");
 
-/** Whether the body's last row draws its line, for the rows under it. */
+/** Whether the table's last row draws its line, for the rows under it. */
 const TableLastRowDividerContext = createContext(true);
 
 export type TableProps = Omit<AriaTableProps, "className"> & {
