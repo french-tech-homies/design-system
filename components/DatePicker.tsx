@@ -119,8 +119,11 @@ import { pickerDialogStyles } from "./picker-dialog-styles";
  *   the calendar, so a pick there is a draft as well.
  * - **No swipe** between months and no clear button: the arrows and the
  *   keyboard move months, and Material calls the clear button optional.
- * - **No weekday tooltip**: the column headers carry the full weekday name
- *   for assistive technology (React Aria's), not a hover tooltip.
+ * - **No tooltips**: Material shows a weekday's full name on hover, and an
+ *   arrow's keyboard shortcut (Shift + Page Up for the previous year) on
+ *   focus. The column headers carry the full weekday name for assistive
+ *   technology (React Aria's); the shortcuts are React Aria's and are not
+ *   shown. Wrap an arrow in the kit's `TooltipTrigger` where they should be.
  * - **Full screen** takes the range selection's tokens (corner none,
  *   elevation 0, a `title-large` headline) for both pickers.
  *
@@ -925,7 +928,7 @@ function DayGrid({
       data-slot="date-picker-grid"
       weekdayStyle="narrow"
       offset={offset}
-      className={d.grid({ class: "mx-3" })}
+      className={d.grid({ class: "mx-auto" })}
     >
       <CalendarGridHeader>
         {(day) => (
