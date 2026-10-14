@@ -30,8 +30,8 @@
       "loose": "4c864c3bc5bbc2338d731d3157465452c4b93ff2f12ff2322d49b21b13105a54"
     },
     "components/Badge.tsx": {
-      "exact": "3b2ff9b377a10cb63620068339a227505508615fe7a48ab380b22f8c6ab88b31",
-      "loose": "a5123f8f6add0786c02de054649d1a6a3078ddb2673556e501759a168b3faa0f"
+      "exact": "9d827878b85d1ea429d4a95a682a0954afcb159dc4c3b85dd6aced6dfe6d00bf",
+      "loose": "502fec350e318c0116e4b5d8455167153a19592179bf1583dd2bc13c94eb2616"
     },
     "components/BottomNavigation.tsx": {
       "exact": "1bf0141f41ecb2ff51b9961cd4dd61cb65ecdd49fff5ce6b80958a828316c1c6",
