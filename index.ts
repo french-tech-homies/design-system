@@ -171,6 +171,7 @@ export {
   ProgressIndicator,
   type ProgressIndicatorProps,
 } from "./components/ProgressIndicator";
+export { Meter, type MeterProps } from "./components/Meter";
 
 // Color picker family
 export { default as ColorPicker } from "./components/color/ColorPicker";

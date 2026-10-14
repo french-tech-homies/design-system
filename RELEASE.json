@@ -105,6 +105,10 @@
       "exact": "a4fcd95871b64cf9cdfedfb9b0c6424abd0d5dbf39d8b42f87dddb0c1b7ca6cd",
       "loose": "0d0053b93ee282d6296696014e85784cebc1395f0fe3cae7706df09be24631ac"
     },
+    "components/Meter.tsx": {
+      "exact": "facb9d17c96dc4e3e88f973aa7f2cf5b50d376c3296ffc89ec80951d0691bd31",
+      "loose": "1fa95ea5c9b8c12654fdc88c058a8fc6e670e147e9581acf62a12103758fb999"
+    },
     "components/Modal.tsx": {
       "exact": "55b28c6a72fffe367562a573b0c4b5041c3a56e4571646f9e3933bbe5d128f08",
       "loose": "a0f746998fc0c75c12ed4808a8398f2d50c11a6e3dddd3d77a90f74a5fa37557"
@@ -142,8 +146,8 @@
       "loose": "0ee42af4b8a4f2e01f05ef1cbb3b5e945a309fc8a7f90a4545273d3e2f579d03"
     },
     "components/SegmentedButton.tsx": {
-      "exact": "1376fd17a3e1d8a8409b3ffbbde2316ebfae2e52e7ba6e33aa6c6eb63fe962a0",
-      "loose": "c469ebd78af5360ae1ae6c70ae7db8a7a8883b6f3f00705b4300b2288ea911c4"
+      "exact": "60bb0f1e8483f25c55a47e18406bf9b3b18c2385cdd0fe8ba0bf172eb542b592",
+      "loose": "575f0fc0a9fa33b065deaa6d2ace3b5731177ddef711db14c4036c9cb506348d"
     },
     "components/Select.tsx": {
       "exact": "44115ff11c3a8e44f88e1bfb2657975570d694d575bdba085ed2a0ff7e3fa9d9",
@@ -222,11 +226,11 @@
       "loose": "33831e5247b975333ca204c36bbab7c7abceb4e60cfa267cbecb0708fbd32c7d"
     },
     "index.ts": {
-      "exact": "371f5488b37dc1bca1054c99b6daba7636e2e2d251576397cb73b529fb4dfe88",
-      "loose": "8b597d23e68e27f689e4bbde1941895f68409bba9560f00a3311bd4bd3d1a79a",
+      "exact": "1cf555b10e4b74dbcf01e14465618462c5d2ae2dfe63d38484f37d4686c2523b",
+      "loose": "742b4e23ed4e2b534464497554a45d9e678cc1daae5da79778297e585154efee",
       "landed": {
-        "exact": "e7d53177ad2c400cbfb72f3b4740749a138476b9fc47969fb0bd6c37cb079bd0",
-        "loose": "f2418e71460cc9526afee008b28a05fa73e35dd4d9856b054d2acf90ee66e3cc"
+        "exact": "f8c1094e6e2077a4dba4eb7616d3dfb257e3660509297ab14f8452acb83323c4",
+        "loose": "7c20f84befcc03d01fd5021df7fcb5bff3e42f82020333dd02eb22b6744300aa"
       }
     },
     "primitives/StateLayer.tsx": {
@@ -280,8 +284,8 @@
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "a097051c38e9189c2ae5ddc7a42d22887b970f23738712e5efe93234431a6d1d",
-      "loose": "ef3ec2a874b7068849cd57d637bfc6d8b21692dedb9cce26dfa85e06975b8265"
+      "exact": "2cf002e4f3b84a5ae14b3837b506698eaa75cafbea427eb86915584e7433eb4e",
+      "loose": "438446dacce21a159e690024ce36934085b98bd94ce3f48881cd8c10dbb87b9f"
     },
     ".claude/skills/ds-spec/SKILL.md": {
       "exact": "96df5b9d9585d4dfb4f5ef97d0baa936a5d7176111ef5247d29a04670d8fd25e",

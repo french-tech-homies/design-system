@@ -6,8 +6,8 @@
      npm run registry:check-install     # the same rules, as tests
 
    The kit is Material 3's implementation. Beside what Material's
-   specification describes it ships a closed group of components of its own,
-   named in one place: the list in README.md between `<!-- own-components -->`
+   specification describes it ships a named group of components of its own,
+   Material-derived, each joining on a project's need, named in one place: the list in README.md between `<!-- own-components -->`
    and `<!-- /own-components -->`. This checks, on the README and the
    component files as they are in the kit, that:
 
@@ -15,7 +15,8 @@
    - every name in the list has a file `<Name>.tsx` under components/, and that
      file carries the sentence "Material 3 does not describe this component.";
    - no other component file carries the sentence: a component joins the
-     group in the README, on the repository owner's decision, or not at all;
+     group in the README, by a change that names the project that needs it,
+     or not at all;
    - every other component file cites a page of m3.material.io. A file that
      says neither is how a component ends up in the kit uncounted.
 
@@ -108,7 +109,7 @@ export function checkComponents({ readme, components }) {
     const text = unwrapped(components[path]);
     if (text.includes(SENTENCE))
       problems.push(
-        `${path} says "${SENTENCE}" and ${where} does not name ${nameOf(path)}: the group is closed, a component joins it there on the repository owner's decision`,
+        `${path} says "${SENTENCE}" and ${where} does not name ${nameOf(path)}: a component joins the group there, by a change that names the project that needs it`,
       );
     else if (!CITATION.test(text))
       problems.push(
