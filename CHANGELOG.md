@@ -129,7 +129,9 @@ npm run registry:check-version # what CI runs
   modal (`layout="modal"`, with the year grid and the switch to input), full
   screen (`layout="fullscreen"`, with close and Save) and the modal date
   input (`defaultMode="input"`). `DateRangePicker` is full screen, its
-  months in a vertical scroll that grows both ways, with a date input of two fields. Each holds a
+  months in a vertical scroll that grows both ways from the months it
+  shows, the month in view staying where it was whatever has the focus,
+  with a date input of two fields. Each holds a
   draft that OK or Save commits, disabled while the constraints refuse it,
   and Cancel, Escape or a press outside drops.
   Values are `@internationalized/date` values. Deviations, in the doc
