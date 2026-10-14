@@ -345,9 +345,118 @@ export const RangeInputReversed: Story = {
     await expect(
       within(dialog).getByText("The end date is before the start date"),
     ).toBeVisible();
-    await userEvent.click(within(dialog).getByRole("button", { name: "OK" }));
+    const ok = within(dialog).getByRole("button", { name: "OK" });
+    await expect(ok).toBeDisabled();
     await expect(screen.getByRole("dialog")).toBeVisible();
     await expect(args.onChange).not.toHaveBeenCalled();
+
+    // An end after the start enables it again.
+    await userEvent.click(end);
+    await userEvent.keyboard("25");
+    await expect(ok).toBeEnabled();
+  },
+};
+
+/** The docked popover opens under the helper text, not across it. */
+export const DockedClearsHelperText: Story = {
+  render: () => (
+    <DatePicker label="Date" className="w-80" defaultValue={june15} />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /open calendar/i }));
+    const dialog = await screen.findByRole("dialog");
+    const helper = canvas.getByText("MM/DD/YYYY").getBoundingClientRect();
+    const popover = dialog.closest("[data-slot=date-picker-popover]")!;
+    await waitFor(() =>
+      expect(popover.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+        helper.bottom,
+      ),
+    );
+  },
+};
+
+/** A value the constraints refuse cannot be confirmed: OK stays disabled
+    until a date in range is picked. */
+export const ModalInvalidDraft: Story = {
+  render: (args) => (
+    <DatePicker
+      label="Check-in"
+      layout="modal"
+      className="w-80"
+      defaultValue={parseDate("2026-05-01")}
+      minValue={june15}
+      validationBehavior="aria"
+      onChange={args.onChange}
+    />
+  ),
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /open calendar/i }));
+    const dialog = await screen.findByRole("dialog");
+    const ok = within(dialog).getByRole("button", { name: "OK" });
+    await expect(ok).toBeDisabled();
+    // The calendar opens on June, the first month the minimum allows.
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: /Monday, June 22, 2026/ }),
+    );
+    await expect(ok).toBeEnabled();
+    await userEvent.click(ok);
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await expect(args.onChange).toHaveBeenCalledWith(parseDate("2026-06-22"));
+  },
+};
+
+/** The range's months scroll both ways: scrolled to its top, the list
+    grows upward, keeps the month in view where it was, and a date months
+    before the range can be picked. */
+export const RangeScrollsBack: Story = {
+  render: (args) => (
+    <DateRangePicker
+      label="Stay"
+      className="w-80"
+      defaultValue={{ start: june15, end: parseDate("2026-06-19") }}
+      onChange={args.onChange}
+    />
+  ),
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /open calendar/i }));
+    const dialog = await screen.findByRole("dialog");
+    const list = dialog.querySelector<HTMLElement>(
+      "[data-slot=date-range-picker-months]",
+    )!;
+    const heading = (name: string) => within(list).getByText(name);
+
+    // Open on the range's month, with earlier months above it.
+    await waitFor(() =>
+      expect(heading("June 2026").getBoundingClientRect().top).toBeLessThan(
+        list.getBoundingClientRect().top + 40,
+      ),
+    );
+    await expect(heading("May 2026")).toBeInTheDocument();
+    await expect(within(list).queryByText("November 2025")).toBeNull();
+
+    // At the top, the window grows upward and the month in view stays put.
+    list.scrollTop = 0;
+    list.dispatchEvent(new Event("scroll"));
+    await waitFor(() => expect(heading("November 2025")).toBeInTheDocument());
+    const december = heading("December 2025").getBoundingClientRect().top;
+    await expect(
+      Math.abs(december - list.getBoundingClientRect().top),
+    ).toBeLessThan(40);
+
+    await userEvent.click(
+      within(list).getByRole("button", { name: /Thursday, January 8, 2026$/ }),
+    );
+    await userEvent.click(
+      within(list).getByRole("button", { name: /Tuesday, January 13, 2026$/ }),
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "Save" }));
+    await expect(args.onChange).toHaveBeenCalledWith({
+      start: parseDate("2026-01-08"),
+      end: parseDate("2026-01-13"),
+    });
   },
 };
 

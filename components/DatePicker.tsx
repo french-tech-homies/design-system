@@ -3,6 +3,7 @@
 import {
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
@@ -95,7 +96,9 @@ import { pickerDialogStyles } from "./picker-dialog-styles";
  *
  * Every picker holds a draft: the calendar and the input change it, OK or
  * Save commits it, and Cancel, Escape, the close button or a press outside
- * drop it. Typing in the field itself commits as it is typed.
+ * drop it. OK and Save are disabled while the draft is one the constraints
+ * refuse (outside `minValue` / `maxValue`, unavailable, or a reversed or
+ * half-typed range). Typing in the field itself commits as it is typed.
  *
  * Accessibility, as Material's page asks: the calendar button is the one way
  * into the picker and every segment of the field is a tab stop; the grid is
@@ -251,8 +254,13 @@ export function DatePicker<T extends DateValue>(props: DatePickerProps<T>) {
     defaultFocusedValue: pickerProps.placeholderValue,
   };
 
+  // The docked popover opens under the whole picker, its helper text
+  // included, so it neither cuts that row in half nor hides it.
+  const pickerRef = useRef<HTMLDivElement>(null);
+
   return (
     <AriaDatePicker
+      ref={pickerRef}
       data-slot="date-picker"
       data-variant={variant}
       data-layout={layout}
@@ -268,6 +276,7 @@ export function DatePicker<T extends DateValue>(props: DatePickerProps<T>) {
       {layout === "docked" ? (
         <Popover
           data-slot="date-picker-popover"
+          triggerRef={pickerRef}
           placement="bottom start"
           className={datePickerStyles().popover()}
         >
@@ -469,6 +478,9 @@ function SingleSurface({
   const { locale } = useLocale();
   const [draft, setDraft] = useState<DateValue | null>(state.value);
   const [mode, setMode] = useState<Mode>(defaultMode);
+  // A draft the constraints refuse (a value given outside min / max, or a
+  // date typed out of range) cannot be confirmed: OK and Save are disabled
+  // until the draft is one that can.
   const invalid = draft != null && isOutside(draft, constraints);
   const commit = () => {
     if (invalid) return;
@@ -491,6 +503,7 @@ function SingleSurface({
           labels={labels}
           onCancel={cancel}
           onConfirm={commit}
+          canConfirm={!invalid}
         />
       </div>
     );
@@ -511,7 +524,13 @@ function SingleSurface({
   return (
     <Dialog data-slot="date-picker-dialog" className={p.container()}>
       {fullscreen && (
-        <TopBar labels={labels} onClose={cancel} onSave={commit} styles={p} />
+        <TopBar
+          labels={labels}
+          onClose={cancel}
+          onSave={commit}
+          canSave={!invalid}
+          styles={p}
+        />
       )}
       <div data-slot="date-picker-header" className={p.header()}>
         <span className={p.supporting()}>{labels.selectDate}</span>
@@ -548,6 +567,7 @@ function SingleSurface({
           labels={labels}
           onCancel={cancel}
           onConfirm={commit}
+          canConfirm={!invalid}
         />
       )}
     </Dialog>
@@ -580,14 +600,19 @@ function RangeSurface({
   const [mode, setMode] = useState<Mode>(defaultMode);
 
   const reversed = start != null && end != null && end.compare(start) < 0;
+  const outside = (range: { start: DateValue | null; end: DateValue | null }) =>
+    (range.start != null && isOutside(range.start, constraints)) ||
+    (range.end != null && isOutside(range.end, constraints));
+  // As for one date: a range that cannot be committed (reversed, half
+  // typed, or outside the constraints) disables OK and Save.
+  const invalid =
+    mode === "input"
+      ? reversed || (start == null) !== (end == null) || outside({ start, end })
+      : draft != null && outside(draft);
   const commit = () => {
+    if (invalid) return;
     if (mode === "input") {
-      if (reversed) return;
-      if (start && end) {
-        if (isOutside(start, constraints) || isOutside(end, constraints))
-          return;
-        state.setValue({ start, end });
-      }
+      if (start && end) state.setValue({ start, end });
     } else if (draft) {
       state.setValue(draft);
     }
@@ -622,7 +647,13 @@ function RangeSurface({
   return (
     <Dialog data-slot="date-range-picker-dialog" className={p.container()}>
       {fullscreen && (
-        <TopBar labels={labels} onClose={cancel} onSave={commit} styles={p} />
+        <TopBar
+          labels={labels}
+          onClose={cancel}
+          onSave={commit}
+          canSave={!invalid}
+          styles={p}
+        />
       )}
       <div data-slot="date-picker-header" className={p.header()}>
         <span className={p.supporting()}>
@@ -677,6 +708,7 @@ function RangeSurface({
           labels={labels}
           onCancel={cancel}
           onConfirm={commit}
+          canConfirm={!invalid}
         />
       )}
     </Dialog>
@@ -689,11 +721,13 @@ function TopBar({
   labels,
   onClose,
   onSave,
+  canSave,
   styles: p,
 }: {
   labels: DatePickerLabels;
   onClose: () => void;
   onSave: () => void;
+  canSave: boolean;
   styles: DialogStyles;
 }) {
   return (
@@ -704,7 +738,7 @@ function TopBar({
         aria-label={labels.close}
         onPress={onClose}
       />
-      <Button variant="text" onPress={onSave}>
+      <Button variant="text" onPress={onSave} isDisabled={!canSave}>
         {labels.save}
       </Button>
     </div>
@@ -736,18 +770,20 @@ function Actions({
   labels,
   onCancel,
   onConfirm,
+  canConfirm,
 }: {
   className: string;
   labels: DatePickerLabels;
   onCancel: () => void;
   onConfirm: () => void;
+  canConfirm: boolean;
 }) {
   return (
     <div data-slot="date-picker-actions" className={className}>
       <Button variant="text" onPress={onCancel}>
         {labels.cancel}
       </Button>
-      <Button variant="text" onPress={onConfirm}>
+      <Button variant="text" onPress={onConfirm} isDisabled={!canConfirm}>
         {labels.ok}
       </Button>
     </div>
@@ -1172,11 +1208,18 @@ function YearGrid({
 }
 
 /**
- * The range picker's months, one under the other in a scroll. It starts at
- * the range's first month (or today's) and grows six months at a time as
- * the scroll nears its end; the keyboard moves past either end as React Aria
- * moves its visible range.
+ * The range picker's months, one under the other in a scroll that goes both
+ * ways. It opens on a window of thirteen months centred on the range's first
+ * month (or the placeholder's, or today's), scrolled so that month is on
+ * top, and the window grows by a year, six months each way, as the scroll
+ * nears either end; the month in view stays where it was. React Aria's
+ * `minValue` and `maxValue` bound the window, so it stops at them. The
+ * keyboard moves past either end as React Aria moves its visible range.
  */
+const RANGE_MONTHS = 13;
+const RANGE_GROWTH = 12;
+const RANGE_MAX_MONTHS = 121;
+
 function MonthList({
   value,
   onChange,
@@ -1188,7 +1231,7 @@ function MonthList({
   onAnchor: (date: DateValue | null) => void;
   constraints: Constraints;
 }) {
-  const [months, setMonths] = useState(6);
+  const [months, setMonths] = useState(RANGE_MONTHS);
   const d = datePickerStyles({ range: true, outsideMonth: "hidden" });
 
   return (
@@ -1200,26 +1243,93 @@ function MonthList({
       {...constraints}
       visibleDuration={{ months }}
       pageBehavior="single"
-      selectionAlignment="start"
+      selectionAlignment="center"
       autoFocus
       className={d.calendar({ class: "min-h-0 flex-1" })}
     >
       <AnchorWatch onAnchor={onAnchor} />
       <WeekdayRow styles={d} />
-      <div
-        data-slot="date-range-picker-months"
-        className="min-h-0 flex-1 overflow-y-auto"
-        onScroll={(e) => {
-          const el = e.currentTarget;
-          if (el.scrollTop + el.clientHeight > el.scrollHeight - 200 && months < 60)
-            setMonths(months + 6);
-        }}
-      >
-        {Array.from({ length: months }, (_, i) => (
-          <RangeMonth key={i} offset={i} styles={d} />
-        ))}
-      </div>
+      <MonthScroll months={months} setMonths={setMonths} styles={d} />
     </RangeCalendar>
+  );
+}
+
+function MonthScroll({
+  months,
+  setMonths,
+  styles: d,
+}: {
+  months: number;
+  setMonths: (months: number) => void;
+  styles: ReturnType<typeof datePickerStyles>;
+}) {
+  const state = useContext(RangeCalendarStateContext)!;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // The month in view when the window grew, and how far below the top of
+  // the scroll it stood.
+  const keep = useRef<{ month: string; top: number } | null>(null);
+  const first = state.visibleRange.start;
+  const last = first.add({ months: months - 1 });
+  const key = (date: DateValue) => `${date.year}-${date.month}`;
+  const atMin =
+    state.minValue != null &&
+    first.year * 12 + first.month <= state.minValue.year * 12 + state.minValue.month;
+  const atMax =
+    state.maxValue != null &&
+    last.year * 12 + last.month >= state.maxValue.year * 12 + state.maxValue.month;
+
+  // On open, the focused month on top.
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    const section = el?.querySelector<HTMLElement>(
+      `[data-month="${key(state.focusedDate)}"]`,
+    );
+    if (el && section) el.scrollTop = section.offsetTop;
+    // Once, on open: later scrolls are the person's.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // After a growth, the month that was in view back where it was.
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    const kept = keep.current;
+    if (!el || !kept) return;
+    keep.current = null;
+    const section = el.querySelector<HTMLElement>(`[data-month="${kept.month}"]`);
+    if (section) el.scrollTop = section.offsetTop - kept.top;
+  }, [months]);
+
+  return (
+    <div
+      ref={scrollRef}
+      data-slot="date-range-picker-months"
+      className="relative min-h-0 flex-1 overflow-y-auto"
+      onScroll={(e) => {
+        const el = e.currentTarget;
+        const nearTop = el.scrollTop < 200 && !atMin;
+        const nearEnd =
+          el.scrollTop + el.clientHeight > el.scrollHeight - 200 && !atMax;
+        if (!(nearTop || nearEnd) || months >= RANGE_MAX_MONTHS || keep.current)
+          return;
+        const inView = [...el.querySelectorAll<HTMLElement>("[data-month]")].find(
+          (section) => section.offsetTop + section.offsetHeight > el.scrollTop,
+        );
+        if (inView)
+          keep.current = {
+            month: inView.dataset.month!,
+            top: inView.offsetTop - el.scrollTop,
+          };
+        setMonths(months + RANGE_GROWTH);
+      }}
+    >
+      {Array.from({ length: months }, (_, i) => (
+        <RangeMonth
+          key={key(first.add({ months: i }))}
+          offset={i}
+          styles={d}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -1234,7 +1344,10 @@ function RangeMonth({
   const { locale } = useLocale();
   const month = state.visibleRange.start.add({ months: offset });
   return (
-    <section className="mx-auto w-fit">
+    <section
+      data-month={`${month.year}-${month.month}`}
+      className="mx-auto w-fit"
+    >
       <h3 className={d.monthHeading({ class: "px-3" })}>
         {formatter(locale, { month: "long", year: "numeric" }).format(month.toDate("UTC"))}
       </h3>
