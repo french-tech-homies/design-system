@@ -119,7 +119,7 @@ file, `<kit>/tokens/bridge-shadcn.css`, where the entry CSS imports it. `bg-prim
   else the system's: write it where the project wants one (an identifier, a
   time, an amount). No kit component uses it.
 - **Shape**: `rounded-shape-extra-small`, `-small`, `-medium`, `-large`,
-  `-extra-large`, `-full`. Never `rounded-lg`: it does not follow the theme.
+  `-large-increased`, `-extra-large`, `-full`. Never `rounded-lg`: it does not follow the theme.
 - **Elevation**: `shadow-elevation-1` to `shadow-elevation-5`.
 - **Motion**: `duration-short-1` to `duration-long-4`, `ease-standard`,
   `ease-emphasized` and their `-accelerate` / `-decelerate` forms. Enter with

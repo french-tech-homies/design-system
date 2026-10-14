@@ -337,10 +337,44 @@ const components = [
   item({
     name: "button",
     title: "Button",
-    description: "Filled, tonal, outlined, text, elevated and FAB variants.",
+    description:
+      "Filled, tonal, outlined, text, elevated and FAB variants, in Material's five sizes and two shapes, optionally toggleable.",
     files: [file("components/Button.tsx")],
     dependencies: [RAC],
-    deps: ["utils", "icons", "typography"],
+    deps: ["utils", "icons", "button-group"],
+  }),
+  item({
+    name: "button-group",
+    title: "Button group",
+    description:
+      "Standard and connected groups of buttons and icon buttons, with single or multiple selection.",
+    files: [file("components/ButtonGroup.tsx")],
+    dependencies: [RAC],
+    deps: ["utils"],
+  }),
+  item({
+    name: "segmented-button",
+    title: "Segmented button",
+    description: "Single- and multi-select segmented buttons.",
+    files: [file("components/SegmentedButton.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "icons"],
+  }),
+  item({
+    name: "split-button",
+    title: "Split button",
+    description: "A button and the menu of related actions beside it.",
+    files: [file("components/SplitButton.tsx")],
+    dependencies: [],
+    deps: ["utils", "icons", "button", "button-group", "menu"],
+  }),
+  item({
+    name: "fab-menu",
+    title: "FAB menu",
+    description: "A FAB that opens two to six related actions.",
+    files: [file("components/FabMenu.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "icons"],
   }),
   item({
     name: "icon-button",
@@ -349,7 +383,7 @@ const components = [
       "Standard, filled, tonal and outlined icon buttons in Material's five sizes, optionally toggleable.",
     files: [file("components/IconButton.tsx")],
     dependencies: [RAC],
-    deps: ["utils", "state-layer", "icons", "badge"],
+    deps: ["utils", "state-layer", "icons", "button-group", "badge"],
   }),
   item({
     name: "chip",

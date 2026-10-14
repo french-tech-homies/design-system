@@ -556,7 +556,7 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `icons.tsx`                    | Icon types + the small built-in SVG set                                                                                                                                                                                                                                       |
 | `primitives/Typography.tsx`    | `Display` / `Headline` / `Title` / `Body` / `Label`                                                                                                                                                                                                                           |
 | `primitives/StateLayer.tsx`    | MD3 interaction state overlay                                                                                                                                                                                                                                                 |
-| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, DatePicker, DateRangePicker, TimePicker, Button, IconButton, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, BottomSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Badge, Avatar, Table, TopAppBar, Toolbar, Search, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, LoadingIndicator, Meter, `color/*` |
+| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, DatePicker, DateRangePicker, TimePicker, Button, IconButton, ButtonGroup, SegmentedButton, SplitButton, FabMenu, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, BottomSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Badge, Avatar, Table, TopAppBar, Toolbar, Search, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, LoadingIndicator, Meter, `color/*` |
 | `adapters/next.tsx`            | Optional: Next router provider + `next/image` renderer. Delete if not on Next.js                                                                                                                                                                                              |
 | `adapters/react-router.tsx`    | Optional: React Router (or TanStack Router) provider so `href` links navigate client-side. Delete if not on React Router                                                                                                                                                      |
 | `changed.mjs`                  | The update check: lists the kit files a project changed since it installed them, against `RELEASE.json` — `node <ui>/ds/changed.mjs`, see _Taking an update_. Node builtins only. In the registry as `@ds/changed`                                                          |
@@ -616,7 +616,8 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
   the utility reads the token itself. Give such a loader's variable another
   name and name the family in DESIGN.md.
 - **Shape** — `rounded-shape-extra-small` (4px) → `rounded-shape-extra-large`
-  (28px), `rounded-shape-full`.
+  (28px), `rounded-shape-full`; between `large` (16px) and `extra-large`,
+  `rounded-shape-large-increased` (20px).
 - **Elevation** — `shadow-elevation-1` … `shadow-elevation-5`.
 - **Motion** — `duration-short-1` … `duration-long-4`, `ease-standard*`,
   `ease-emphasized*`.
@@ -1249,8 +1250,14 @@ Which plans have design systems, and where one is made, is on the same page.
   pair.
 - **`IconButton` has Material's five sizes and four colour styles, and is
   round.** `filled` is the default colour style, Material's. The square
-  shape, the shape morphs, the narrow and wide widths, the tooltip on hover
-  and button groups are not built.
+  shape, the shape morphs, the narrow and wide widths and the tooltip on
+  hover are not built.
+- **`Button` carries Material's button model once**: five sizes (`xsmall`
+  32px to `xlarge` 136px, `small` the default), round and square shapes with
+  their pressed and selected corners, and toggles. `ButtonGroup`,
+  `SplitButton` and the icon buttons in a group take their sizes, shapes and
+  state layers from it. `SegmentedButton` is built, though Material no
+  longer recommends it: for new work, `<ButtonGroup variant="connected">`.
 - **There is no separate alert dialog.** MD3's dialogs page covers one
   component in two sizes; "alert" is a *use*, not a variant. So it is
   `<Dialog role="alertdialog">` — the ARIA role, plus `ModalDialog` turning
@@ -1318,11 +1325,11 @@ RAC-dependent helpers there, not in `utils.ts`.
 
 ## Not included
 
-Segmented button, date & time pickers: Material 3 describes them
-and the kit does not build them yet. Until it does, an app that needs one
-writes it in its own tree, beside the kit, on a headless component — the token
-and styling contracts above are what make it match. One added to the kit
-itself cites its Material page and clears `conventions.md`'s "quality bar".
+Nothing Material 3 describes: the kit builds every component on its list.
+When Material adds one, an app that needs it before the kit does writes it in
+its own tree, beside the kit, on a headless component — the token and styling
+contracts above are what make it match. One added to the kit itself cites its
+Material page and clears `conventions.md`'s "quality bar".
 
 What Material 3 does not describe is not waiting to be included. A React Aria
 component of that kind joins the group named in _What this kit is_ when a

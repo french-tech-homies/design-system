@@ -78,8 +78,8 @@ Other scales, one utility family each:
   written weight Material asks for is the prominent weight of an active
   navigation label (`font-bold` in `BottomNavigation` and
   `NavigationDrawer`).
-- Shape: `rounded-shape-{extra-small,small,medium,large,extra-large,full}`
-  (4/8/12/16/28px/pill). Components own their shape role: buttons `full`,
+- Shape: `rounded-shape-{extra-small,small,medium,large,large-increased,extra-large,full}`
+  (4/8/12/16/20/28px/pill). Components own their shape role: buttons `full`,
   chips `small`, cards `medium`, dialogs `extra-large`.
 - Elevation: `shadow-elevation-1` … `shadow-elevation-5`.
 - Motion: `duration-short-1 … duration-long-4`, `ease-standard*`,
@@ -293,7 +293,7 @@ renders under `tokens/preset-editorial.css`. Run one with
 
 ## Not in the kit (yet)
 
-Segmented button: Material 3 describes it.
+Nothing: every component Material 3 describes is in the kit.
 When adding one: follow the anatomy above, name variants after Material, cite
 its page in the doc comment, clear the
 quality bar (story, interaction test, axe under both presets), and keep

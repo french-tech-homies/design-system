@@ -3,8 +3,8 @@
   "version": "0.4.0",
   "kit": {
     "tokens/preset-editorial.css": {
-      "exact": "36d6cbff1befb15e874652b781cfc4462f152114c2f1ad7110e362e95ff3ec06",
-      "loose": "67d3eddadc7bef487917db4cae6da6bb7584649000bc2a5ab5fb0f94dbc9b645"
+      "exact": "06241a346310046b62765379b8bd36ef5dd2e40ed430ad4e0d483697f739e2cc",
+      "loose": "fa963cc399fa0785b5c3bc6378fa16721becb632ae0dfc664b8ada61501a8e61"
     }
   }
 }

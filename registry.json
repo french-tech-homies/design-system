@@ -399,14 +399,14 @@
       "name": "button",
       "type": "registry:ui",
       "title": "Button",
-      "description": "Filled, tonal, outlined, text, elevated and FAB variants.",
+      "description": "Filled, tonal, outlined, text, elevated and FAB variants, in Material's five sizes and two shapes, optionally toggleable.",
       "dependencies": [
         "react-aria-components"
       ],
       "registryDependencies": [
         "@ds/utils",
         "@ds/icons",
-        "@ds/typography",
+        "@ds/button-group",
         "@ds/license"
       ],
       "files": [
@@ -414,6 +414,109 @@
           "path": "components/Button.tsx",
           "type": "registry:ui",
           "target": "@ui/ds/components/Button.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "button-group",
+      "type": "registry:ui",
+      "title": "Button group",
+      "description": "Standard and connected groups of buttons and icon buttons, with single or multiple selection.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/ButtonGroup.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/ButtonGroup.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "segmented-button",
+      "type": "registry:ui",
+      "title": "Segmented button",
+      "description": "Single- and multi-select segmented buttons.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/SegmentedButton.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/SegmentedButton.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "split-button",
+      "type": "registry:ui",
+      "title": "Split button",
+      "description": "A button and the menu of related actions beside it.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/button",
+        "@ds/button-group",
+        "@ds/menu",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/SplitButton.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/SplitButton.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.4.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "fab-menu",
+      "type": "registry:ui",
+      "title": "FAB menu",
+      "description": "A FAB that opens two to six related actions.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/icons",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/FabMenu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/FabMenu.tsx"
         }
       ],
       "meta": {
@@ -434,6 +537,7 @@
         "@ds/utils",
         "@ds/state-layer",
         "@ds/icons",
+        "@ds/button-group",
         "@ds/badge",
         "@ds/license"
       ],
@@ -1924,6 +2028,10 @@
         "@ds/typography",
         "@ds/state-layer",
         "@ds/button",
+        "@ds/button-group",
+        "@ds/segmented-button",
+        "@ds/split-button",
+        "@ds/fab-menu",
         "@ds/icon-button",
         "@ds/chip",
         "@ds/card",
