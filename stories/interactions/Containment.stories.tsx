@@ -701,7 +701,8 @@ export const CarouselMultiBrowseCenteredKeylines: Story = {
 };
 
 /**
- * Reduced motion: every item the same size, with no transform. The system's
+ * Reduced motion: every item the same size, with no transform, and the
+ * row still snapping as its layout does. The system's
  * setting is stood in for by `matchMedia`, put back after the story.
  */
 export const CarouselReducedMotionSameSize: Story = {
@@ -725,13 +726,34 @@ export const CarouselReducedMotionSameSize: Story = {
     };
   },
   render: () => (
-    <CarouselOnAPage layout="multi-browse">{carouselItems(6)}</CarouselOnAPage>
+    <div className="flex w-[412px] flex-col gap-2">
+      <Carousel aria-label="Browse" layout="multi-browse">
+        {carouselItems(6)}
+      </Carousel>
+      <Carousel aria-label="Heroes" layout="hero">
+        {carouselItems(6)}
+      </Carousel>
+    </div>
   ),
   play: async ({ canvasElement }) => {
-    const first = widthOf(canvasElement, 1);
-    for (let n = 1; n <= 6; n++) {
-      await near(widthOf(canvasElement, n), first);
-      await expect(slide(item(canvasElement, n)).style.transform).toBe("");
+    for (const name of ["Browse", "Heroes"]) {
+      const region = within(canvasElement).getByRole("region", { name });
+      const first = widthOf(region, 1);
+      for (let n = 1; n <= 6; n++) {
+        await near(widthOf(region, n), first);
+        await expect(slide(item(region, n)).style.transform).toBe("");
+      }
+      // Still snapping: reduced motion takes away the size change and the
+      // parallax, not the layout's snap; hero still moves one item at a time.
+      const scroller = region.querySelector('[data-slot="carousel-scroller"]')!;
+      await expect(getComputedStyle(scroller).scrollSnapType).toBe(
+        "x mandatory",
+      );
+      const snap = getComputedStyle(slide(item(region, 2)));
+      await expect(snap.scrollSnapAlign).not.toBe("none");
+      await expect(snap.scrollSnapStop).toBe(
+        name === "Heroes" ? "always" : "normal",
+      );
     }
   },
 };

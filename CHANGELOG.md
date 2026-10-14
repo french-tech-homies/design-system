@@ -43,7 +43,7 @@ npm run registry:check-version # what CI runs
   In multi-browse and the two heroes, items change width as the row
   scrolls (large, medium, small 40–56), with Material's parallax; the
   scroll is the browser's own, snapping to the layout. Under reduced
-  motion every item is one size, with no parallax. Each item is a React Aria
+  motion every item is one size, with no parallax, and the row still snaps. Each item is a React Aria
   `Button` (`onPress`) or `Link` (`href`) in a group named "3 of 8"; the
   carousel is a named region, never a tab stop. Tab and Left/Right move
   between items, Up and Down leave the carousel (full-screen: move between

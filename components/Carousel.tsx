@@ -100,6 +100,7 @@ const styles = tv({
     },
     { mode: "row", snap: true, centered: false, class: { item: "snap-start" } },
     { mode: "row", snap: true, centered: true, class: { item: "snap-center" } },
+    { mode: "row", oneAtATime: true, class: { item: "snap-always" } },
   ],
 });
 
@@ -403,7 +404,8 @@ export type CarouselProps = Omit<
  * **Reduced motion**, before the row is measured and on the server, these
  * three are a row of same-size items at the large width that reaches the
  * edge, with hero's next item partly shown: Material's reduced-motion
- * carousel.
+ * carousel. The row still snaps as its layout does, the heroes one item at
+ * a time.
  *
  * **Accessibility.** The root is a `section` named by `aria-label` or
  * `aria-labelledby` (a region, `aria-roledescription="carousel"`), never
@@ -653,12 +655,18 @@ export function Carousel(props: CarouselProps) {
     }
   };
 
+  // The keyline layouts snap in every mode: reduced motion, and the first
+  // frame before the row is measured, take away the size change and the
+  // parallax, not the snapping. The heroes move one item at a time.
+  const snap = keylineLayout || scrolling === "snap";
+  const oneAtATime = layout === "hero" || layout === "center-aligned-hero";
+
   const context = React.useMemo<CarouselContextValue>(
     () => ({
       count,
       layout,
       mode,
-      itemClass: styles({ mode, snap: scrolling === "snap", centered }).item(),
+      itemClass: styles({ mode, snap, centered, oneAtATime }).item(),
       itemLabel,
       register: (index, el) => {
         items.current[index] = el;
@@ -676,15 +684,10 @@ export function Carousel(props: CarouselProps) {
         if (visible) scrollToItem(index);
       },
     }),
-    [count, layout, mode, scrolling, centered, itemLabel, scrollToItem],
+    [count, layout, mode, snap, centered, oneAtATime, itemLabel, scrollToItem],
   );
 
-  const s = styles({
-    mode,
-    snap: scrolling === "snap",
-    centered,
-    oneAtATime: layout !== "multi-browse",
-  });
+  const s = styles({ mode, snap, centered, oneAtATime });
 
   const fallbackWidth =
     arrangement && !(layout !== "multi-browse" && itemWidth === undefined)

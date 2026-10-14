@@ -42,8 +42,8 @@
       "loose": "4aaf9f4a199060a1c012bb28826a23522ec902d3c1ccbe066c61cf582bfdbfae"
     },
     "components/Carousel.tsx": {
-      "exact": "3050935d12bda6ed042bc7dd147059d9022315e219af4ed7cf008c9b26a8d512",
-      "loose": "16082d1ac1e69a5fd94eb5e5ab33a8ce6be628694d9930219e033bd8a5fd3390"
+      "exact": "7578f52f8091a3b5fbbf59beaa353bedb24876d5c4a5adff07d29788a4642c23",
+      "loose": "e265ca2edcc0bc2d1963add138fb567a2dd8384c685774c6a4a2b805da6da2f5"
     },
     "components/Checkbox.tsx": {
       "exact": "19f5ae25c5000f5c6ced78744da05536b0b41bd87f8bd71cb1e2595254728c24",
