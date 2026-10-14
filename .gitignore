@@ -7,3 +7,5 @@
 node_modules/
 /r/
 /_site/
+# the actual and diff images of a failed screenshot comparison
+/.vitest-attachments/
