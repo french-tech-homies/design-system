@@ -21,6 +21,7 @@ import {
   SNACKBAR_TIMEOUT,
 } from "@french-tech-homies/design-system/components/Snackbar";
 import { ProgressIndicator } from "@french-tech-homies/design-system/components/ProgressIndicator";
+import { LoadingIndicator } from "@french-tech-homies/design-system/components/LoadingIndicator";
 
 /**
  * Behaviour tests for the table and for the feedback surfaces. See
@@ -132,7 +133,9 @@ export const TableSelection: Story = {
     await userEvent.click(firstRow!);
     await waitFor(() => expect(firstRow).toBeChecked());
     await expect(
-      canvas.getAllByRole("row").filter((r) => r.getAttribute("aria-selected") === "true"),
+      canvas
+        .getAllByRole("row")
+        .filter((r) => r.getAttribute("aria-selected") === "true"),
     ).toHaveLength(1);
 
     await userEvent.click(selectAll!);
@@ -362,7 +365,9 @@ export const TableCutCellWholeText: Story = {
     // Ends on the cut cell, with its text showing.
     await userEvent.keyboard("{ArrowUp}");
     await waitFor(() => expect(cell).toHaveFocus());
-    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      longNote,
+    );
   },
 };
 
@@ -415,7 +420,9 @@ export const TableCutCellOneTooltipAtATime: Story = {
       );
 
     await userEvent.hover(first!);
-    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      longNote,
+    );
 
     await userEvent.hover(second!);
     await screen.findByText(otherNote, { selector: '[role="tooltip"] *' });
@@ -471,7 +478,9 @@ export const TableCutCellEscapeKeepsSelection: Story = {
     await userEvent.tab();
     await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
     await waitFor(() => expect(cell).toHaveFocus());
-    await expect(await screen.findByRole("tooltip")).toHaveTextContent(longNote);
+    await expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      longNote,
+    );
 
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull(), {
@@ -538,7 +547,10 @@ export const TablePartClasses: Story = {
     await expect(part("table-column-content")).toHaveClass("gap-2");
     await expect(part("table-column-content")).not.toHaveClass("gap-1");
     await expect(part("table-sort-icon")).toHaveClass("text-primary");
-    await expect(part("table-cell-text")).toHaveClass("text-primary", "truncate");
+    await expect(part("table-cell-text")).toHaveClass(
+      "text-primary",
+      "truncate",
+    );
     await expect(part("table-cell-text").closest("td")).toHaveClass("italic");
 
     // Keyboard: Tab lands on the first row, and up from it is the heading.
@@ -555,9 +567,7 @@ function SnackbarHarness() {
   return (
     <div className="flex h-40 flex-col items-start gap-3">
       <Button onPress={() => snackbar("Changes saved")}>Save</Button>
-      <Button
-        onPress={() => snackbar("Email archived", { close: true })}
-      >
+      <Button onPress={() => snackbar("Email archived", { close: true })}>
         Archive
       </Button>
       <SnackbarRegion />
@@ -574,7 +584,8 @@ export const SnackbarQueueAndDismiss: Story = {
   render: () => <SnackbarHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts])
+      snackbarQueue.close(t.key);
 
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
     await expect(await screen.findByText("Changes saved")).toBeVisible();
@@ -586,7 +597,9 @@ export const SnackbarQueueAndDismiss: Story = {
 
     const close = await screen.findByRole("button", { name: /close/i });
     await userEvent.click(close);
-    await waitFor(() => expect(screen.queryByText("Email archived")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByText("Email archived")).toBeNull(),
+    );
   },
 };
 
@@ -601,7 +614,8 @@ export const SnackbarAutoDismissAndPause: Story = {
   render: () => <SnackbarHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts])
+      snackbarQueue.close(t.key);
 
     // 1. Left alone, it goes away on its own.
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
@@ -620,7 +634,8 @@ export const SnackbarAutoDismissAndPause: Story = {
     );
     await expect(toast).toBeVisible();
 
-    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts])
+      snackbarQueue.close(t.key);
     await waitFor(() => expect(screen.queryByText("Changes saved")).toBeNull());
   },
 };
@@ -633,14 +648,16 @@ export const SnackbarIsPolite: Story = {
   render: () => <SnackbarHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts])
+      snackbarQueue.close(t.key);
 
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
     const alert = await screen.findByRole("alert");
     await expect(alert).toHaveAttribute("aria-live", "polite");
     await expect(alert).toHaveTextContent("Changes saved");
 
-    for (const t of [...snackbarQueue.visibleToasts]) snackbarQueue.close(t.key);
+    for (const t of [...snackbarQueue.visibleToasts])
+      snackbarQueue.close(t.key);
     await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
   },
 };
@@ -664,11 +681,7 @@ export const ProgressIndicatorAccessibleValue: Story = {
         formatOptions={{ style: "decimal" }}
       />
       <ProgressIndicator label="Loading activity" isIndeterminate />
-      <ProgressIndicator
-        variant="circular"
-        label="Saving venue"
-        value={45}
-      />
+      <ProgressIndicator variant="circular" label="Saving venue" value={45} />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -683,7 +696,9 @@ export const ProgressIndicatorAccessibleValue: Story = {
     await expect(upload).toHaveTextContent("62%");
 
     // A custom scale is reported on its own terms, not rescaled to a percentage.
-    const printing = canvas.getByRole("progressbar", { name: "Printing codes" });
+    const printing = canvas.getByRole("progressbar", {
+      name: "Printing codes",
+    });
     await expect(printing).toHaveAttribute("aria-valuenow", "30");
     await expect(printing).toHaveAttribute("aria-valuemax", "60");
     await expect(printing).toHaveAttribute("aria-valuetext", "30");
@@ -698,6 +713,105 @@ export const ProgressIndicatorAccessibleValue: Story = {
     // The circular variant is the same role and the same value semantics.
     const saving = canvas.getByRole("progressbar", { name: "Saving venue" });
     await expect(saving).toHaveAttribute("aria-valuenow", "45");
+  },
+};
+
+/**
+ * A loading indicator is a progressbar with a name and no value, in both
+ * forms: Material forbids it ever turning determinate, so there is nothing
+ * for it to report but "working on this".
+ */
+export const LoadingIndicatorIsANamedProgressbar: Story = {
+  render: () => (
+    <div className="flex gap-6">
+      <LoadingIndicator aria-label="Loading news article" />
+      <LoadingIndicator variant="contained" aria-label="Refreshing page" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const [name, variant] of [
+      ["Loading news article", "default"],
+      ["Refreshing page", "contained"],
+    ] as const) {
+      const indicator = canvas.getByRole("progressbar", { name });
+      await expect(indicator).toHaveAttribute("data-variant", variant);
+      await expect(indicator).not.toHaveAttribute("aria-valuenow");
+      await expect(indicator).not.toHaveAttribute("aria-valuetext");
+    }
+    // Only the contained form draws its container.
+    const contained = canvas.getByRole("progressbar", {
+      name: "Refreshing page",
+    });
+    await expect(
+      contained.querySelector('[data-slot="loading-indicator-container"]'),
+    ).not.toBeNull();
+    await expect(
+      canvas
+        .getByRole("progressbar", { name: "Loading news article" })
+        .querySelector('[data-slot="loading-indicator-container"]'),
+    ).toBeNull();
+  },
+};
+
+/** It says "working", it is not a control: Tab passes over it. */
+export const LoadingIndicatorIsNotATabStop: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <Button variant="outlined">Before</Button>
+      <LoadingIndicator aria-label="Loading news article" />
+      <Button variant="outlined">After</Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Before" })).toHaveFocus();
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "After" })).toHaveFocus();
+  },
+};
+
+/**
+ * The spec's range is 24–240dp, and the active indicator keeps 38/48 of the
+ * container at every size: a size outside the range is clamped, and the
+ * indicator never leaves its share of the circle.
+ */
+export const LoadingIndicatorClampsSize: Story = {
+  render: () => (
+    <div className="flex items-end gap-6">
+      <LoadingIndicator size={10} variant="contained" aria-label="Too small" />
+      <LoadingIndicator size={400} variant="contained" aria-label="Too large" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const [name, px] of [
+      ["Too small", 24],
+      ["Too large", 240],
+    ] as const) {
+      const indicator = canvas.getByRole("progressbar", { name });
+      await expect(indicator).toHaveAttribute("data-size", String(px));
+      const svg = indicator.querySelector("svg")!;
+      await expect(svg.getBoundingClientRect().width).toBeCloseTo(px, 0);
+
+      const container = indicator.querySelector<SVGCircleElement>(
+        '[data-slot="loading-indicator-container"]',
+      )!;
+      const active = indicator.querySelector<SVGPathElement>(
+        '[data-slot="loading-indicator-active-indicator"]',
+      )!;
+      const diameter = container.r.baseVal.value * 2;
+      const box = active.getBBox();
+      // Every shape is scaled to touch the 38/48 circle as it turns, so its
+      // box never exceeds it, and its widest side reaches near it.
+      await expect(Math.max(box.width, box.height)).toBeLessThanOrEqual(
+        (diameter * 38) / 48 + 0.5,
+      );
+      await expect(Math.max(box.width, box.height)).toBeGreaterThan(
+        (diameter * 38) / 48 / 2,
+      );
+    }
   },
 };
 
