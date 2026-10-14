@@ -34,6 +34,36 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+### Added
+
+- **`Meter`** (`@ds/meter`, and in `@ds/ds`): a quantity within a known
+  range, such as a quota, a disk's use or a score, on React Aria's `Meter`.
+  It is the `meter` role, with `value`, `minValue`, `maxValue`,
+  `formatOptions` and `valueLabel` as React Aria gives them; React Aria
+  clamps the value to the range. Material 3 does not describe a meter, so it
+  is the eleventh of the kit's own and borrows the determinate linear
+  progress indicator's anatomy: track, active indicator, 4dp thick
+  (`thickness` to change it), a 4dp gap, a 4dp stop indicator, a non-zero
+  value drawn at least as a dot, mirrored right to left, and no motion. Its
+  label and value are written as `ProgressIndicator` writes them (`label`,
+  `showValue`). `color` (`primary`, the default, `secondary`, `tertiary`,
+  `error`) sets the active and stop indicators; the track stays
+  `secondary-container`. Its doc comment cites the Material page of each
+  borrowing. No action needed.
+
+### Changed
+
+- **The kit's own components join on need.** Before: a closed group of ten,
+  changed only on the repository owner's decision. Now: a React Aria
+  component Material 3 does not describe joins the group when a project
+  needs it, by a change that names that project and its need. It is
+  Material-derived (Material's foundations, the anatomy of the nearest
+  Material component), its doc comment cites each borrowing's page beside
+  "Material 3 does not describe this component.", and it is reviewed
+  against them. The README's _What this kit is_ and the `ds-build` skill say
+  it. What neither Material nor React Aria describes stays a project's. No
+  action needed.
+
 ## [0.4.0] — 2026-10-14
 
 What the kit's first two installs of 0.3.0 asked of it. Three entries need an

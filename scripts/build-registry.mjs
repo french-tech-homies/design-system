@@ -581,6 +581,15 @@ const components = [
     deps: ["utils", "render-props"],
   }),
   item({
+    name: "meter",
+    title: "Meter",
+    description:
+      "A quantity within a known range (a quota, a disk's use) on React Aria Meter, drawn with the determinate linear progress indicator's anatomy: a colour-role active indicator, secondary-container track, a 4dp gap and a stop indicator. No motion. One of the kit's own: Material 3 does not describe a meter.",
+    files: [file("components/Meter.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
     name: "color-area",
     title: "Color area",
     description: "React Aria ColorArea styled for MD3.",
