@@ -357,18 +357,16 @@ const rect = (el: Element) => el.getBoundingClientRect();
  * A story whose play moves the row, by focus, the arrow keys or a scroll,
  * leaves it where the browser's snap settles, which differs from run to run
  * by a few pixels or a part of an item, in the same image. Its picture is
- * left out; the carousel's look at rest is compared through the Containment
- * Carousel stories.
+ * left out, by the `no-screenshot` tag written on the story itself (the
+ * index reads tags as written, not through a spread); the carousel's look
+ * at rest is compared through the Containment Carousel stories.
  */
 const rowMoves = {
-  tags: ["no-screenshot"],
-  parameters: {
-    screenshot: {
-      reason:
-        "the play moves the row, and where its snap settles differs from run to run",
-    },
+  screenshot: {
+    reason:
+      "the play moves the row, and where its snap settles differs from run to run",
   },
-} satisfies Partial<Story>;
+};
 
 /**
  * Material's labelling: the container is a named region, never a tab stop,
@@ -393,7 +391,8 @@ export const CarouselIsLabelledRegion: Story = {
  * next item, which scrolls to the large keyline.
  */
 export const CarouselTabLandsOnFirstItem: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => (
     <CarouselOnAPage layout="multi-browse">{carouselItems(6)}</CarouselOnAPage>
   ),
@@ -416,7 +415,8 @@ export const CarouselTabLandsOnFirstItem: Story = {
 
 /** Right and Left move between items and scroll the next one in; no wrap. */
 export const CarouselArrowsMoveBetweenItems: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => <CarouselOnAPage>{carouselItems(6)}</CarouselOnAPage>,
   play: async ({ canvasElement }) => {
     const scroller = canvasElement.querySelector(
@@ -444,7 +444,8 @@ export const CarouselArrowsMoveBetweenItems: Story = {
 
 /** A disabled item is skipped by Tab and the arrows, and never pressed. */
 export const CarouselArrowsSkipDisabled: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   beforeEach: () => {
     disabledPressed.mockClear();
   },
@@ -471,7 +472,8 @@ export const CarouselArrowsSkipDisabled: Story = {
 
 /** Up and Down leave the carousel for the element before or after it. */
 export const CarouselUpDownLeave: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => <CarouselOnAPage>{carouselItems(6)}</CarouselOnAPage>,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -492,7 +494,8 @@ export const CarouselUpDownLeave: Story = {
 
 /** Enter and Space activate the focused item; an item with `href` is a link. */
 export const CarouselEnterAndSpaceActivate: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   beforeEach: () => {
     pressed.mockClear();
   },
@@ -524,7 +527,8 @@ export const CarouselEnterAndSpaceActivate: Story = {
 
 /** Right to left, Left moves to the next item and Right to the previous. */
 export const CarouselRtlArrows: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => (
     <I18nProvider locale="ar-EG">
       <div dir="rtl">
@@ -546,7 +550,8 @@ export const CarouselRtlArrows: Story = {
 /** Full-screen scrolls vertically: Up and Down move between items, which
     snap to the container's edge. */
 export const CarouselFullScreenVerticalArrows: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => (
     <div className="h-[400px] w-[300px]">
       <Carousel aria-label="Stories" layout="full-screen">
@@ -599,7 +604,8 @@ const near = async (a: number, b: number, by = 1) => {
  * the end.
  */
 export const CarouselMultiBrowseKeylines: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => (
     <CarouselOnAPage layout="multi-browse">{carouselItems(8)}</CarouselOnAPage>
   ),
@@ -643,7 +649,8 @@ export const CarouselMultiBrowseKeylines: Story = {
 /** Hero: one large item and a small one; at the end, the last is large and
     the one before is small at the start. */
 export const CarouselHeroKeylines: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => (
     <CarouselOnAPage layout="hero">{carouselItems(5)}</CarouselOnAPage>
   ),
@@ -668,7 +675,8 @@ export const CarouselHeroKeylines: Story = {
     the row full; one snap on, the large item is centred between two small
     ones. */
 export const CarouselCenterAlignedHeroKeylines: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => (
     <CarouselOnAPage layout="center-aligned-hero">
       {carouselItems(5)}
@@ -700,7 +708,8 @@ export const CarouselCenterAlignedHeroKeylines: Story = {
  * medium and a small item on each side, mirrored.
  */
 export const CarouselMultiBrowseCenteredKeylines: Story = {
-  ...rowMoves,
+  tags: ["no-screenshot"],
+  parameters: rowMoves,
   render: () => (
     <div className="w-[412px]">
       <Carousel
