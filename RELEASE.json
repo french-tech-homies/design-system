@@ -101,6 +101,10 @@
       "exact": "a4fcd95871b64cf9cdfedfb9b0c6424abd0d5dbf39d8b42f87dddb0c1b7ca6cd",
       "loose": "0d0053b93ee282d6296696014e85784cebc1395f0fe3cae7706df09be24631ac"
     },
+    "components/Meter.tsx": {
+      "exact": "facb9d17c96dc4e3e88f973aa7f2cf5b50d376c3296ffc89ec80951d0691bd31",
+      "loose": "1fa95ea5c9b8c12654fdc88c058a8fc6e670e147e9581acf62a12103758fb999"
+    },
     "components/Modal.tsx": {
       "exact": "55b28c6a72fffe367562a573b0c4b5041c3a56e4571646f9e3933bbe5d128f08",
       "loose": "a0f746998fc0c75c12ed4808a8398f2d50c11a6e3dddd3d77a90f74a5fa37557"
@@ -218,11 +222,11 @@
       "loose": "5d517687b747686b5744ba8de1b04daad2ad9bdb726172c1eaf1efbc7e6b1b56"
     },
     "index.ts": {
-      "exact": "ebd39b8958bb9b02ae5990fe47ae43343dd43f297cfc6c640b201aa18eca811f",
-      "loose": "5c318bdc1b89715e5eb4f4787853d4971a431febafd24f6cacc989aa2d5b754f",
+      "exact": "836c6744079885350926e391449fe2618ab96e8e7d241e4fc91f8b5201a14550",
+      "loose": "02999710c1a07078ab539d09d0a9e1cc0ccb44f57f06d46d636e772be70fd71a",
       "landed": {
-        "exact": "e664742a1d21f55a59e58f84d27eefcab8bee8069d6a30029162f575294d3e46",
-        "loose": "f2e778e6d4102a936bbbd332a0ff72cd059eeffafd3840c11a813accf6ff0bee"
+        "exact": "8766dcb35bf4a9a8b5fec1b4e7c72c5bfc84845a168ba3f091795821c373e1c4",
+        "loose": "1d60641e697edb610eb5e9d65dbb909158ae2a518863d6061d4fb62554288399"
       }
     },
     "primitives/StateLayer.tsx": {
@@ -276,8 +280,8 @@
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "8fd151637787375cf959e05afae7452b97a8e031e05d2d2978f14baf4a09d00f",
-      "loose": "11dad86a262901fbb74d1f341ee872048e1a0818cb52e47b716edebbe7997c63"
+      "exact": "941a0d54d869b9eba62a796ae71b34c1d03ce95554ad0ed7cf6de00e3591e339",
+      "loose": "d9111395758aa79e7e2e6501278eb08d0f8ad10c80005d66634748eaa5bf8119"
     },
     ".claude/skills/ds-spec/SKILL.md": {
       "exact": "96df5b9d9585d4dfb4f5ef97d0baa936a5d7176111ef5247d29a04670d8fd25e",

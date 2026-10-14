@@ -21,6 +21,7 @@ import {
   SNACKBAR_TIMEOUT,
 } from "@french-tech-homies/design-system/components/Snackbar";
 import { ProgressIndicator } from "@french-tech-homies/design-system/components/ProgressIndicator";
+import { Meter } from "@french-tech-homies/design-system/components/Meter";
 
 /**
  * Behaviour tests for the table and for the feedback surfaces. See
@@ -699,6 +700,67 @@ export const ProgressIndicatorAccessibleValue: Story = {
     const saving = canvas.getByRole("progressbar", { name: "Saving venue" });
     await expect(saving).toHaveAttribute("aria-valuenow", "45");
   },
+};
+
+/** A meter is read, not driven: it is the `meter` role, named by its label,
+    and reports its value on its own scale. */
+export const MeterAccessibleValue: Story = {
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          {
+            // React Aria writes `role="meter progressbar"`, `progressbar` the
+            // fallback for a browser without `meter`. ARIA takes the first
+            // role it knows, `meter`, which allows aria-value*; axe reads the
+            // two words as one unknown role and refuses them. The rule stays
+            // on for every other element, and this play reads the `meter`
+            // role and its values.
+            id: "aria-allowed-attr",
+            selector: '*:not([role="meter progressbar"])',
+          },
+        ],
+      },
+    },
+  },
+  render: () => (
+    <div className="bg-surface flex w-96 flex-col gap-6 p-4">
+      <Meter label="Storage used" value={62} showValue />
+      <Meter
+        label="Boards this month"
+        value={3}
+        maxValue={5}
+        formatOptions={{ style: "decimal" }}
+        valueLabel="3 of 5"
+        showValue
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const storage = canvas.getByRole("meter", { name: "Storage used" });
+    await expect(storage).toHaveAttribute("aria-valuenow", "62");
+    await expect(storage).toHaveAttribute("aria-valuemin", "0");
+    await expect(storage).toHaveAttribute("aria-valuemax", "100");
+    await expect(storage).toHaveAttribute("aria-valuetext", "62%");
+    // The visible value says the same thing as aria-valuetext.
+    await expect(storage).toHaveTextContent("62%");
+
+    // A custom scale is reported on its own terms, not rescaled to a percentage.
+    const boards = canvas.getByRole("meter", { name: "Boards this month" });
+    await expect(boards).toHaveAttribute("aria-valuenow", "3");
+    await expect(boards).toHaveAttribute("aria-valuemin", "0");
+    await expect(boards).toHaveAttribute("aria-valuemax", "5");
+    await expect(boards).toHaveAttribute("aria-valuetext", "3 of 5");
+    await expect(boards).toHaveTextContent("3 of 5");
+  },
+};
+
+/** The same, in the dark scheme. */
+export const MeterAccessibleValueDark: Story = {
+  ...MeterAccessibleValue,
+  globals: { theme: "dark" },
 };
 
 // A small inline SVG stands in for a picked image.

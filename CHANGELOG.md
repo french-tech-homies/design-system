@@ -34,9 +34,24 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
-<!-- The Bars and navigation batch: Badges, Toolbars, Search. -->
-
 ### Added
+
+- **`Meter`** (`@ds/meter`, and in `@ds/ds`): a quantity within a known
+  range, such as a quota, a disk's use or a score, on React Aria's `Meter`.
+  It is the `meter` role, with `value`, `minValue`, `maxValue`,
+  `formatOptions` and `valueLabel` as React Aria gives them; React Aria
+  clamps the value to the range. Material 3 does not describe a meter, so it
+  is the eleventh of the kit's own and borrows the determinate linear
+  progress indicator's anatomy: track, active indicator, 4dp thick
+  (`thickness` to change it), a 4dp gap, a 4dp stop indicator, a non-zero
+  value drawn at least as a dot, mirrored right to left, and no motion. Its
+  label and value are written as `ProgressIndicator` writes them (`label`,
+  `showValue`). `color` (`primary`, the default, `secondary`, `tertiary`,
+  `error`) sets the active and stop indicators; the track stays
+  `secondary-container`. Its doc comment cites the Material page of each
+  borrowing. No action needed.
+
+<!-- The Bars and navigation batch: Badges, Toolbars, Search. -->
 
 - **`Badge`** (`components/Badge.tsx`, registry item `badge`), Material's
   badge: the small badge, a 6dp dot, and the large one, a 16dp count up to
@@ -70,7 +85,22 @@ npm run registry:check-version # what CI runs
 - **`SearchIcon` and `ArrowBackIcon`** in `icons.tsx`, for the search bar
   and the search view's back button.
 
+<!-- /The Bars and navigation batch. -->
+
 ### Changed
+
+- **The kit's own components join on need.** Before: a closed group of ten,
+  changed only on the repository owner's decision. Now: a React Aria
+  component Material 3 does not describe joins the group when a project
+  needs it, by a change that names that project and its need. It is
+  Material-derived (Material's foundations, the anatomy of the nearest
+  Material component), its doc comment cites each borrowing's page beside
+  "Material 3 does not describe this component.", and it is reviewed
+  against them. The README's _What this kit is_ and the `ds-build` skill say
+  it. What neither Material nor React Aria describes stays a project's. No
+  action needed.
+
+<!-- The Bars and navigation batch: Badges, Toolbars, Search. -->
 
 - **`BottomNavigation`, `NavigationRail` and `NavigationDrawer`: a
   destination takes a `badge`** (a count, a short status, or `true` for the

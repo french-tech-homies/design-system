@@ -33,7 +33,7 @@ repository and the same registry, with its own components, tokens and spec.
 There is none today, and nothing here is built for one.
 
 **Which components are its own.** Those Material 3's specification describes,
-and a closed group of ten the kit ships that Material does not describe:
+and a named group of eleven the kit ships that Material does not describe:
 
 <!-- own-components -->
 
@@ -47,20 +47,28 @@ and a closed group of ten the kit ships that Material does not describe:
 - `PhoneField`: a text field for a phone number, with a country picker.
 - `ImageField`: choosing, previewing and removing one image.
 - `EmptyState`: what a list or a page shows when it has nothing to show.
+- `Meter`: a quantity within a known range, such as a quota or a disk's use.
 - `ColorPicker`: editing a colour, with its four parts `ColorArea`,
   `ColorField`, `ColorSlider` and `ColorSwatch`.
 
 <!-- /own-components -->
 
-The group is named here and nowhere else, and it is closed: a component joins
-it, or leaves it, only on the repository owner's decision, by a change to this
-list. Each member's file says "Material 3 does not describe this component."
-in a doc comment. `npm run registry:check-install`
+The group is named here and nowhere else, and it joins on need: a React Aria
+component that Material 3 does not describe joins it when a project needs it,
+by a change to this list that names that project and its need. A member is
+Material-derived. It is built on Material's foundations (the colour roles, the
+type scale, shape, state layers, motion, the 48dp target, the accessibility
+rules), its anatomy is borrowed from the nearest Material component, and its
+doc comment says "Material 3 does not describe this component." and cites,
+beside it, the m3.material.io page of each thing it borrows. It is reviewed
+as `ds-spec` reviews the kit's components: against that doc comment and the
+pages it cites. `npm run registry:check-install`
 (`scripts/check-components.mjs`) refuses a list and files that differ, and any
 component file that neither says so nor cites a page of m3.material.io.
 
-A part that is neither Material's nor the group's is a project's: it is
-written in the project, beside the kit, and does not come here.
+A part that neither Material nor React Aria describes is a project's: it is
+written in the project, beside the kit, and does not come here. So is a React
+Aria component no project has yet asked the kit for.
 
 **What a project may change.** An edit of a kit file is allowed, priced and
 rarely needed: an update overwrites every kit file that differs, and the
@@ -546,7 +554,7 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `icons.tsx`                    | Icon types + the small built-in SVG set                                                                                                                                                                                                                                       |
 | `primitives/Typography.tsx`    | `Display` / `Headline` / `Title` / `Body` / `Label`                                                                                                                                                                                                                           |
 | `primitives/StateLayer.tsx`    | MD3 interaction state overlay                                                                                                                                                                                                                                                 |
-| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, Button, IconButton, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Badge, Avatar, Table, TopAppBar, Toolbar, Search, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, `color/*` |
+| `components/`                  | TextField, NumberField, PhoneField, ImageField, ComboBox, Checkbox, Switch, Radio, Select, Button, IconButton, Chip, Card, ListItem, GridList, Menu, MenuItem, Dialog, DialogContent, ModalDialog, Modal, SideSheet, Disclosure, Tabs, Tooltip, PreviewTrigger, Snackbar, Tag, Badge, Avatar, Table, TopAppBar, Toolbar, Search, NavigationRail, NavigationDrawer, BottomNavigation, Slider, EmptyState, Divider, ProgressIndicator, Meter, `color/*` |
 | `adapters/next.tsx`            | Optional: Next router provider + `next/image` renderer. Delete if not on Next.js                                                                                                                                                                                              |
 | `adapters/react-router.tsx`    | Optional: React Router (or TanStack Router) provider so `href` links navigate client-side. Delete if not on React Router                                                                                                                                                      |
 | `changed.mjs`                  | The update check: lists the kit files a project changed since it installed them, against `RELEASE.json` — `node <ui>/ds/changed.mjs`, see _Taking an update_. Node builtins only. In the registry as `@ds/changed`                                                          |
@@ -563,7 +571,7 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 | `skills/ds-spec/`             | Claude Code skill + `md3.mjs`: the live Material 3 spec, Do/Don't and tokens from m3.material.io (`npm run md3`; `@ds/spec-skill`)                                                                                                                                           |
 | `scripts/build-registry.mjs`   | Generates `registry.json`: every item, from this folder                                                                                                                                                                                                                       |
 | `scripts/check-install.mjs`    | The rule that holds the one install whole: `ds`, and anything an update names, writes nothing into a project's CSS; `ds` reaches the generator, every skill and every file a skill names; a script's imports are declared by its item; no skill names this repository; every skill's frontmatter parses, with its folder's name and a description that opens with when to load it; the update command is written one way; no item lands a skill that is not the kit's own — `npm run registry:check-install`                                             |
-| `scripts/check-components.mjs` | The rule that holds the kit's own components a closed, named group: the list in _What this kit is_ is the set of component files that say Material 3 does not describe them, and every other component file cites a page of m3.material.io; and no file under `components/` or `primitives/` names the mono face — `npm run registry:check-install` |
+| `scripts/check-components.mjs` | The rule that holds the kit's own components a named group: the list in _What this kit is_ is the set of component files that say Material 3 does not describe them, and every other component file cites a page of m3.material.io; and no file under `components/` or `primitives/` names the mono face — `npm run registry:check-install` |
 | `spec-version.json`            | Site content version the components were last audited against (`npm run md3 -- check`)                                                                                                                                                                                        |
 
 ### Token scales
@@ -1311,8 +1319,10 @@ writes it in its own tree, beside the kit, on a headless component — the token
 and styling contracts above are what make it match. One added to the kit
 itself cites its Material page and clears `conventions.md`'s "quality bar".
 
-What Material 3 does not describe is not waiting to be included. Outside the
-closed group named in _What this kit is_, it is a project's.
+What Material 3 does not describe is not waiting to be included. A React Aria
+component of that kind joins the group named in _What this kit is_ when a
+project needs it, Material-derived, by the rule written there; until then, and
+for what neither Material nor React Aria describes, it is a project's.
 
 ## Publishing this repository
 

@@ -46,11 +46,15 @@ react-hook-form adapter are not part of the whole-kit install: add
 `@ds/react-hook-form-adapter` when the project needs one. Without a router
 adapter, `href` on a `Button`, `Chip` or menu item does a full page load.
 
-The kit holds what Material 3's specification describes, and a closed group
+The kit holds what Material 3's specification describes, and a named group
 of components of its own: each of those says "Material 3 does not describe
-this component." in its doc comment. A component the kit does not have is the
-project's: it is written beside the kit, not inside it, on
-`react-aria-components`, following the rules below.
+this component." in its doc comment and cites, beside it, the Material page
+of each thing it borrows. A React Aria component that Material 3 does not
+describe joins that group when a project needs it, asked of the kit and
+built there from Material's foundations and the nearest Material component.
+Until then, and for anything neither Material nor React Aria describes, a
+component the kit does not have is the project's: it is written beside the
+kit, not inside it, on `react-aria-components`, following the rules below.
 
 What the project's own component follows:
 
