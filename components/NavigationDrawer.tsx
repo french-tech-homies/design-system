@@ -12,7 +12,7 @@ import {
 
 import { Badge, badgeAccessibleText, BADGE_MAX, hasBadge } from "./Badge";
 import {
-  destinationBadgeName,
+  destinationName,
   type NavigationItem,
 } from "./BottomNavigation";
 import { Divider } from "./Divider";
@@ -287,7 +287,7 @@ function Destination({
 }) {
   const s = styles({ variant, isActive });
   const Icon = (isActive && item.activeIcon) || item.icon;
-  const name = destinationBadgeName(item);
+  const name = destinationName(item);
   // The text the row shows for its badge: the count, or `badgeLabel` for a
   // `true` badge. A `true` badge without one is the small dot.
   const badgeText = !hasBadge(item.badge)
@@ -311,7 +311,6 @@ function Destination({
       <Icon size={24} className={s.icon()} />
       <Label component="span" size="large" className={s.label()}>
         {item.label}
-        {name.hiddenText}
       </Label>
       {badgeText !== undefined ? (
         // Already in the name, after a comma: hidden here so it is not read
@@ -335,7 +334,7 @@ function Destination({
     "data-slot": "navigation-drawer-item",
     "data-active": isActive || undefined,
     "aria-current": isActive ? ("page" as const) : undefined,
-    "aria-label": name.ariaLabel,
+    "aria-label": name,
     onPress: onSelect,
     // The whole row *is* the active indicator, so the container carries the
     // `secondary-container` fill rather than a nested pill.

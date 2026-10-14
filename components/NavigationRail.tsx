@@ -9,7 +9,7 @@ import {
 
 import { Badge, hasBadge } from "./Badge";
 import {
-  destinationBadgeName,
+  destinationName,
   type NavigationItem,
 } from "./BottomNavigation";
 import StateLayer from "../primitives/StateLayer";
@@ -240,7 +240,7 @@ function Destination({
 }) {
   const s = styles({ isActive, isExpanded, isNarrow });
   const Icon = (isActive && item.activeIcon) || item.icon;
-  const name = destinationBadgeName(item);
+  const name = destinationName(item);
   // A count after the label on the expanded pill; the dot, and any badge on
   // a collapsed rail, on the icon.
   const isTrailingBadge =
@@ -262,7 +262,6 @@ function Destination({
         {isExpanded ? (
           <Label component="span" size="large" className={s.label()}>
             {item.label}
-            {name.hiddenText}
           </Label>
         ) : null}
         {isTrailingBadge ? (
@@ -289,7 +288,6 @@ function Destination({
         {isExpanded ? null : (
           <Label component="span" size="medium" className={s.label()}>
             {item.label}
-            {name.hiddenText}
           </Label>
         )}
       </>
@@ -300,7 +298,7 @@ function Destination({
     "data-slot": "navigation-rail-item",
     "data-active": isActive || undefined,
     "aria-current": isActive ? ("page" as const) : undefined,
-    "aria-label": name.ariaLabel,
+    "aria-label": name,
     onPress: onSelect,
     className: s.destination(),
   };

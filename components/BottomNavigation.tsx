@@ -86,21 +86,15 @@ export type NavigationItem = {
 };
 
 /**
- * The accessible name a destination takes from its badge: `aria-label` joined
- * to the badge's words where the item has one, else a visually hidden
- * ", <words>" after the visible label. Shared by the bar, the rail and the
- * drawer.
+ * The accessible name a destination takes with a badge: its `ariaLabel`, or
+ * its visible label, then the badge's words ("Inbox, 3"). Without a badge,
+ * the item's own `ariaLabel` (the visible label names it otherwise). Shared
+ * by the bar, the rail and the drawer.
  */
-export function destinationBadgeName(item: NavigationItem) {
+export function destinationName(item: NavigationItem) {
   const text = badgeAccessibleText(item.badge, item.badgeLabel);
-  if (text === undefined)
-    return { ariaLabel: item.ariaLabel, hiddenText: null };
-  if (item.ariaLabel !== undefined)
-    return { ariaLabel: `${item.ariaLabel}, ${text}`, hiddenText: null };
-  return {
-    ariaLabel: undefined,
-    hiddenText: <span className="sr-only">{`, ${text}`}</span>,
-  };
+  if (text === undefined) return item.ariaLabel;
+  return `${item.ariaLabel ?? item.label}, ${text}`;
 }
 
 export type BottomNavigationProps = Omit<
@@ -199,7 +193,7 @@ function Destination({
 }) {
   const { destination, indicator, iconBox, icon, label } = styles();
   const Icon = (isActive && item.activeIcon) || item.icon;
-  const name = destinationBadgeName(item);
+  const name = destinationName(item);
 
   const content = ({
     isHovered,
@@ -226,7 +220,6 @@ function Destination({
       </span>
       <Label component="span" size="medium" className={label({ isActive })}>
         {item.label}
-        {name.hiddenText}
       </Label>
     </>
   );
@@ -240,7 +233,7 @@ function Destination({
         data-active={isActive || undefined}
         href={item.href}
         aria-current={isActive ? "page" : undefined}
-        aria-label={name.ariaLabel}
+        aria-label={name}
         onPress={onSelect}
         className={destination()}
       >
@@ -254,7 +247,7 @@ function Destination({
       data-slot="bottom-navigation-item"
       data-active={isActive || undefined}
       aria-current={isActive ? "page" : undefined}
-      aria-label={name.ariaLabel}
+      aria-label={name}
       onPress={onSelect}
       className={destination()}
     >

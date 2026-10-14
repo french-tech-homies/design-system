@@ -142,14 +142,14 @@ const viewStyles = tv({
     ],
     modal: "fixed inset-0 flex",
     dialog: "relative flex flex-col text-on-surface outline-none",
-    header: "group/search-bar flex shrink-0 items-center gap-1 px-1",
+    header: "flex shrink-0 items-center gap-1 px-1",
     back: [
       focusRing(),
       "relative flex size-12 shrink-0 items-center justify-center rounded-shape-full text-on-surface",
       "before:absolute before:inset-1 before:rounded-shape-full before:bg-on-surface before:opacity-0 before:transition-opacity before:content-['']",
       "hover:before:state-opacity-hover data-pressed:before:state-opacity-pressed",
     ],
-    field: "flex h-full min-w-0 flex-1 items-center",
+    field: "group/search-bar flex h-full min-w-0 flex-1 items-center",
     results: "flex min-h-0 flex-1 flex-col",
     list: "min-h-0 flex-1 overflow-y-auto py-2 outline-none",
     empty:
@@ -376,6 +376,7 @@ export function SearchView<T extends object>({
 
   const { contains } = useFilter({ sensitivity: "base" });
   const barRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const bar = barStyles();
   const s = viewStyles({ layout, variant });
 
@@ -392,24 +393,37 @@ export function SearchView<T extends object>({
         // Enter runs the query unless an item was highlighted with the arrows.
         disableAutoFocusFirst
       >
-        <SearchField
-          aria-label={placeholder}
-          autoFocus
-          onSubmit={(query) => {
-            onSubmit?.(query);
-            setOpen(false);
-          }}
-          className={s.header()}
-          data-slot="search-view-header"
-        >
-          <AriaButton slot="close" aria-label="Back" className={s.back()}>
+        <div data-slot="search-view-header" className={s.header()}>
+          {/* Outside the field: inside it, the field's own button context
+              would make this a second clear button. */}
+          <AriaButton
+            aria-label="Back"
+            onPress={() => setOpen(false)}
+            className={s.back()}
+          >
             <ArrowBackIcon size={24} className="relative rtl:-scale-x-100" />
           </AriaButton>
-          <span className={s.field()}>
-            <Input placeholder={placeholder} className={bar.input()} />
+          <SearchField
+            aria-label={placeholder}
+            autoFocus
+            onSubmit={(query) => {
+              // Enter on a highlighted item is that item's: Autocomplete
+              // presses it, and the query is not run as well.
+              if (inputRef.current?.getAttribute("aria-activedescendant"))
+                return;
+              onSubmit?.(query);
+              setOpen(false);
+            }}
+            className={s.field()}
+          >
+            <Input
+              ref={inputRef}
+              placeholder={placeholder}
+              className={bar.input()}
+            />
             <ClearButton className={bar.clear()} />
-          </span>
-        </SearchField>
+          </SearchField>
+        </div>
         <Results
           className={s.results()}
           listClassName={s.list()}
@@ -515,8 +529,12 @@ function Results<T extends object>({
   // right whatever `filter` and `children` are.
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
+      // An empty list holds its empty state, in an option of its own.
+      const list = listRef.current;
       const count =
-        listRef.current?.querySelectorAll('[role="option"]').length ?? 0;
+        !list || list.hasAttribute("data-empty")
+          ? 0
+          : list.querySelectorAll('[role="option"]').length;
       setMessage(
         count === 0 ? "No results" : `${count} ${count === 1 ? "result" : "results"}`,
       );

@@ -1,7 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Home, ShoppingBasket, Utensils } from "lucide-react";
+import {
+  Archive,
+  Bell,
+  Bold,
+  History,
+  Home,
+  Italic,
+  ShoppingBasket,
+  Trash2,
+  Utensils,
+} from "lucide-react";
 import React from "react";
-import { expect, screen, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 
 import { BottomNavigation } from "@french-tech-homies/design-system/components/BottomNavigation";
 import { NavigationDrawer } from "@french-tech-homies/design-system/components/NavigationDrawer";
@@ -9,6 +19,13 @@ import { NavigationRail } from "@french-tech-homies/design-system/components/Nav
 import { Tab, TabList, TabPanel, Tabs } from "@french-tech-homies/design-system/components/Tabs";
 import Button from "@french-tech-homies/design-system/components/Button";
 import { TopAppBar } from "@french-tech-homies/design-system/components/TopAppBar";
+import IconButton from "@french-tech-homies/design-system/components/IconButton";
+import { Toolbar } from "@french-tech-homies/design-system/components/Toolbar";
+import {
+  SearchBar,
+  SearchView,
+  SearchViewItem,
+} from "@french-tech-homies/design-system/components/Search";
 
 /**
  * Behaviour tests for the navigation family. A navigation bar is not a tab
@@ -387,6 +404,427 @@ export const BottomNavigationAccessibleNames: Story = {
     await expect(canvas.getByRole("button", { name: "Home" })).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "Menu library" }),
+    ).toBeVisible();
+  },
+};
+
+/* ---- Badges ------------------------------------------------------------ */
+
+const badged = [
+  { id: "home", label: "Home", icon: Home, badge: 3 },
+  { id: "menus", label: "Menus", icon: Utensils, badge: true as const },
+  {
+    id: "orders",
+    label: "Orders",
+    icon: ShoppingBasket,
+    badge: 12,
+    badgeLabel: "12 new orders",
+  },
+  {
+    id: "library",
+    label: "Library",
+    icon: Utensils,
+    ariaLabel: "Menu library",
+    badge: 1200,
+  },
+  { id: "none", label: "Nothing", icon: Home, badge: 0 },
+];
+
+/** A badge is read after its destination, as Material's badges page says: the
+    count, "New notification" for the dot, `badgeLabel` where given, joined
+    to `ariaLabel` where the item has one. A count of 0 says nothing and
+    draws nothing. */
+export const BadgeJoinsTheDestinationName: Story = {
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <BottomNavigation items={badged} aria-label="Bar" defaultSelectedKey="home" />
+      <div className="h-[480px]">
+        <NavigationRail items={badged} aria-label="Rail" />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const landmark of ["Bar", "Rail"]) {
+      const nav = within(canvas.getByRole("navigation", { name: landmark }));
+      await expect(nav.getByRole("button", { name: "Home, 3" })).toBeVisible();
+      await expect(
+        nav.getByRole("button", { name: "Menus, New notification" }),
+      ).toBeVisible();
+      await expect(
+        nav.getByRole("button", { name: "Orders, 12 new orders" }),
+      ).toBeVisible();
+      await expect(
+        nav.getByRole("button", { name: "Menu library, 999+" }),
+      ).toBeVisible();
+      const nothing = nav.getByRole("button", { name: "Nothing" });
+      await expect(nothing.querySelector('[data-slot="badge"]')).toBeNull();
+    }
+    // The badge itself is hidden: its words are in the name already.
+    const badges = canvasElement.querySelectorAll('[data-slot="badge"]');
+    await expect(badges.length).toBe(8);
+    for (const badge of badges)
+      await expect(badge).toHaveAttribute("aria-hidden", "true");
+    await expect(canvas.getAllByText("999+")[0]).toBeInTheDocument();
+  },
+};
+
+/** The drawer's badge is its trailing label text, not the red badge, and is
+    read once, after the name. A `true` badge shows its `badgeLabel`. */
+export const DrawerBadgeIsTrailingText: Story = {
+  render: () => (
+    <NavigationDrawer
+      items={[
+        { id: "inbox", label: "Inbox", icon: Home, badge: 24 },
+        {
+          id: "spaces",
+          label: "Spaces",
+          icon: Utensils,
+          badge: true,
+          badgeLabel: "New",
+        },
+      ]}
+      defaultSelectedKey="inbox"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const inbox = canvas.getByRole("button", { name: "Inbox, 24" });
+    await expect(inbox).toHaveTextContent("24");
+    await expect(inbox.querySelector('[data-slot="badge"]')).toBeNull();
+    await expect(
+      inbox.querySelector('[data-slot="navigation-drawer-badge"]'),
+    ).toHaveAttribute("aria-hidden", "true");
+    await expect(canvas.getByRole("button", { name: "Spaces, New" })).toBeVisible();
+  },
+};
+
+/** A tab's badge follows its name, whether it sits on a stacked icon or after
+    an inline label, and the arrow keys still move between the tabs. */
+export const TabBadgeJoinsTheTabName: Story = {
+  render: () => (
+    <Tabs>
+      <TabList aria-label="Mailboxes">
+        <Tab id="inbox" icon={Home} badge={3}>
+          Inbox
+        </Tab>
+        <Tab id="sent" icon={Utensils} iconPosition="start" badge>
+          Sent
+        </Tab>
+        <Tab id="spam">Spam</Tab>
+      </TabList>
+      <TabPanel id="inbox">Inbox</TabPanel>
+      <TabPanel id="sent">Sent</TabPanel>
+      <TabPanel id="spam">Spam</TabPanel>
+    </Tabs>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const inbox = canvas.getByRole("tab", { name: "Inbox, 3" });
+    const sent = canvas.getByRole("tab", { name: "Sent, New notification" });
+    await userEvent.tab();
+    await expect(inbox).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(sent).toHaveFocus();
+    await expect(sent).toHaveAttribute("aria-selected", "true");
+  },
+};
+
+/** An icon button's badge is joined to its `aria-label`, toggle or not. */
+export const IconButtonBadgeJoinsItsLabel: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      <IconButton variant="standard" icon={Bell} aria-label="Notifications" badge={3} />
+      <IconButton
+        isToggle
+        variant="standard"
+        icon={Bell}
+        aria-label="Alerts"
+        badge
+      />
+      <IconButton
+        variant="standard"
+        icon={Archive}
+        aria-label="Archive"
+        badge={5}
+        badgeLabel="5 waiting"
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("button", { name: "Notifications, 3" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Alerts, New notification" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Archive, 5 waiting" }),
+    ).toBeVisible();
+  },
+};
+
+/* ---- Toolbar ----------------------------------------------------------- */
+
+/** The `toolbar` role, one stop in the tab order, the arrow keys between its
+    controls (React Aria's toolbar; the deviation is in the doc comment). */
+export const ToolbarArrowKeysMoveBetweenControls: Story = {
+  render: () => (
+    <div className="flex flex-col items-start gap-4">
+      <button type="button">Before</button>
+      <Toolbar variant="floating" aria-label="Message">
+        <IconButton variant="standard" icon={Archive} aria-label="Archive" />
+        <IconButton variant="standard" icon={Trash2} aria-label="Delete" />
+        <IconButton isToggle variant="standard" icon={Bold} aria-label="Bold" />
+      </Toolbar>
+      <button type="button">After</button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toolbar = canvas.getByRole("toolbar", { name: "Message" });
+    await expect(toolbar).toHaveAttribute("aria-orientation", "horizontal");
+    const archive = canvas.getByRole("button", { name: "Archive" });
+    const remove = canvas.getByRole("button", { name: "Delete" });
+    const bold = canvas.getByRole("button", { name: "Bold" });
+
+    canvas.getByRole("button", { name: "Before" }).focus();
+    await userEvent.tab();
+    await expect(archive).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(remove).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(bold).toHaveFocus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(remove).toHaveFocus();
+
+    // Space activates the focused control.
+    await userEvent.keyboard("{ArrowRight}");
+    await userEvent.keyboard(" ");
+    await expect(bold).toHaveAttribute("aria-pressed", "true");
+
+    // Tab leaves the toolbar.
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "After" })).toHaveFocus();
+  },
+};
+
+/** Vertical: Up and Down move, and the toolbar says its orientation. */
+export const ToolbarVerticalUsesUpAndDown: Story = {
+  render: () => (
+    <Toolbar variant="floating" orientation="vertical" aria-label="Format">
+      <IconButton isToggle variant="standard" icon={Bold} aria-label="Bold" />
+      <IconButton isToggle variant="standard" icon={Italic} aria-label="Italic" />
+    </Toolbar>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("toolbar")).toHaveAttribute(
+      "aria-orientation",
+      "vertical",
+    );
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Bold" })).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(canvas.getByRole("button", { name: "Italic" })).toHaveFocus();
+    await userEvent.keyboard("{ArrowUp}");
+    await expect(canvas.getByRole("button", { name: "Bold" })).toHaveFocus();
+  },
+};
+
+/* ---- Search ------------------------------------------------------------ */
+
+const onSearchSubmit = fn();
+const onSearchAction = fn();
+
+/** The bar is a `searchbox` named by its hint; Enter submits, Escape empties
+    it, and so does the clear button that appears once there is text. */
+export const SearchBarSubmitsAndClears: Story = {
+  render: () => (
+    <SearchBar placeholder="Search messages" onSubmit={onSearchSubmit} />
+  ),
+  play: async ({ canvasElement }) => {
+    onSearchSubmit.mockClear();
+    const canvas = within(canvasElement);
+    const box = canvas.getByRole("searchbox", { name: "Search messages" });
+    // No clear button while there is nothing to clear.
+    await expect(
+      canvas.queryByRole("button", { name: "Clear search" }),
+    ).toBeNull();
+
+    await userEvent.tab();
+    await expect(box).toHaveFocus();
+    await userEvent.keyboard("peanut{Enter}");
+    await expect(onSearchSubmit).toHaveBeenCalledWith("peanut");
+
+    await userEvent.keyboard("{Escape}");
+    await expect(box).toHaveValue("");
+
+    await userEvent.type(box, "plants");
+    await userEvent.click(canvas.getByRole("button", { name: "Clear search" }));
+    await expect(box).toHaveValue("");
+  },
+};
+
+const garden = ["Plants", "Planters", "Pruning shears", "Watering can"];
+
+function GardenSearch({
+  layout,
+  onAction,
+  onSubmit,
+}: {
+  layout: "docked" | "full-screen";
+  onAction?: (key: React.Key) => void;
+  onSubmit?: (value: string) => void;
+}) {
+  return (
+    <SearchView
+      placeholder="Search the garden shop"
+      layout={layout}
+      onAction={onAction}
+      onSubmit={onSubmit}
+    >
+      {garden.map((name) => (
+        <SearchViewItem key={name} id={name} label={name} leadingIcon={History} />
+      ))}
+    </SearchView>
+  );
+}
+
+/** Docked: the bar opens a dialog with the caret in its field; typing
+    filters, the arrows highlight, Enter chooses; Escape empties the field,
+    a second Escape closes the view and the focus goes back to the bar. */
+export const SearchViewFiltersAndChooses: Story = {
+  render: () => <GardenSearch layout="docked" onAction={onSearchAction} />,
+  play: async ({ canvasElement }) => {
+    onSearchAction.mockClear();
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", {
+      name: "Search the garden shop",
+    });
+
+    // Keyboard first: Tab to the bar, Enter opens it.
+    await userEvent.tab();
+    await expect(trigger).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    const dialog = await screen.findByRole("dialog", {
+      name: "Search the garden shop",
+    });
+    const box = within(dialog).getByRole("searchbox");
+    await waitFor(() => expect(box).toHaveFocus());
+    await expect(within(dialog).getAllByRole("option")).toHaveLength(4);
+
+    await userEvent.keyboard("pla");
+    await waitFor(() =>
+      expect(within(dialog).getAllByRole("option")).toHaveLength(2),
+    );
+    await waitFor(() =>
+      expect(within(dialog).getByRole("status")).toHaveTextContent("2 results"),
+    );
+
+    await userEvent.keyboard("{ArrowDown}");
+    const plants = within(dialog).getByRole("option", { name: "Plants" });
+    await waitFor(() => expect(plants).toHaveAttribute("data-focused", "true"));
+    await userEvent.keyboard("{Enter}");
+    await expect(onSearchAction).toHaveBeenCalledWith("Plants");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+    // The bar shows the query, and keeps it in its name.
+    await expect(
+      canvas.getByRole("button", { name: "Search the garden shop: pla" }),
+    ).toBeVisible();
+
+    // Escape empties the field first, then closes.
+    await userEvent.keyboard("{Enter}");
+    const again = await screen.findByRole("dialog");
+    const field = within(again).getByRole("searchbox");
+    await waitFor(() => expect(field).toHaveFocus());
+    await expect(field).toHaveValue("pla");
+    await userEvent.keyboard("{Escape}");
+    await expect(field).toHaveValue("");
+    await expect(screen.getByRole("dialog")).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() =>
+      expect(
+        canvas.getByRole("button", { name: "Search the garden shop" }),
+      ).toHaveFocus(),
+    );
+  },
+};
+
+/** With nothing to match, the list says so, and the live region too; Enter
+    with nothing highlighted runs the query. */
+export const SearchViewEmptyStateAndSubmit: Story = {
+  render: () => <GardenSearch layout="docked" onSubmit={onSearchSubmit} />,
+  play: async ({ canvasElement }) => {
+    onSearchSubmit.mockClear();
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Search the garden shop" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    await waitFor(() =>
+      expect(within(dialog).getByRole("searchbox")).toHaveFocus(),
+    );
+    await userEvent.keyboard("zebra");
+    await waitFor(() =>
+      expect(
+        within(dialog).queryByRole("option", { name: "Plants" }),
+      ).toBeNull(),
+    );
+    await expect(within(dialog).getAllByText("No results")[0]).toBeVisible();
+    await waitFor(() =>
+      expect(within(dialog).getByRole("status")).toHaveTextContent("No results"),
+    );
+    await userEvent.keyboard("{Enter}");
+    await expect(onSearchSubmit).toHaveBeenCalledWith("zebra");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  },
+};
+
+/** Full screen: a modal dialog over the whole window; the back button closes
+    it and gives the focus back to the bar. */
+export const SearchViewFullScreenBackCloses: Story = {
+  render: () => <GardenSearch layout="full-screen" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", {
+      name: "Search the garden shop",
+    });
+    await userEvent.click(trigger);
+    const dialog = await screen.findByRole("dialog");
+    await waitFor(() =>
+      expect(within(dialog).getByRole("searchbox")).toHaveFocus(),
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "Back" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+  },
+};
+
+/** The search app bar keeps the screen's heading, hidden, and draws its
+    search without a shadow. */
+export const TopAppBarSearchKeepsTheHeading: Story = {
+  render: () => (
+    <TopAppBar
+      title="Garden shop"
+      search={<SearchBar placeholder="Search the garden shop" />}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("heading", { level: 1, name: "Garden shop" }),
+    ).toBeInTheDocument();
+    // Every layer of the shadow is transparent: no elevation.
+    const bar = canvasElement.querySelector('[data-slot="search-bar"]')!;
+    const layers = getComputedStyle(bar).boxShadow.split(/,(?![^(]*\))/);
+    for (const layer of layers)
+      await expect(layer).toMatch(/none|rgba\(0, 0, 0, 0\)/);
+    await expect(
+      canvas.getByRole("searchbox", { name: "Search the garden shop" }),
     ).toBeVisible();
   },
 };

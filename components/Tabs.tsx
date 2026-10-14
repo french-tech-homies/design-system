@@ -271,6 +271,12 @@ export function Tab({
   const isScrollable = useContext(ScrollableContext);
   const hasStackedIcon = Boolean(icon) && iconPosition === "top";
   const badgeText = badgeAccessibleText(badge, badgeLabel);
+  // The badge's words after the tab's name: on `aria-label` when the label is
+  // plain text, else in a visually hidden span after it.
+  const badgeName =
+    badgeText !== undefined && typeof children === "string"
+      ? `${children}, ${badgeText}`
+      : undefined;
 
   const slotsFor = (isSelected: boolean, isDisabled: boolean) =>
     styles({ variant, isSelected, isDisabled, hasStackedIcon });
@@ -278,6 +284,7 @@ export function Tab({
   return (
     <AriaTab
       data-slot="tab"
+      aria-label={badgeName}
       {...props}
       className={composeRenderProps(className, (caller, renderProps) =>
         cn(
@@ -313,7 +320,7 @@ export function Tab({
                 ) : null}
                 <Title size="small" component="span" className={s.label()}>
                   {children}
-                  {badgeText !== undefined ? (
+                  {badgeText !== undefined && badgeName === undefined ? (
                     <span className="sr-only">{`, ${badgeText}`}</span>
                   ) : null}
                 </Title>
