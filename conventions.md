@@ -210,7 +210,10 @@ appears), and _accessibility_ (labels, roles, live regions, keyboard). Read
 them with the `ds-spec` skill (`skills/ds-spec/`, `npm run md3 -- page
 <component> guidelines`, `… tokens <component>`): it fetches the site's own
 JSON, no browser needed, cached per site version. Link the pages from the
-component's doc comment and record any deliberate deviation there.
+component's doc comment and record any deliberate deviation there. The doc
+comment sits directly on the exported component, not on its styles, so an
+editor and the published types show it; `npm run docs:check` refuses one that
+does not.
 `spec-version.json` records the site version the kit was last audited
 against; `npm run md3 -- check` reports when the spec moved.
 

@@ -43,7 +43,8 @@ What the kit is, and which components are its own, is said once: `README.md`,
 - `skills/`: what a project's agent reads (`ds-theme`, `ds-build`,
   `ds-spec`).
 - `scripts/`: the registry build and its four rule checks, the publish
-  decision (`decide-publish.mjs`) among them, and a worktree's own Storybook
+  decision (`decide-publish.mjs`) among them, the doc-comment check
+  (`check-docs.mjs`), and a worktree's own Storybook
   (`storybook-serve.mjs`).
 - `changed.mjs`: what a project runs before an update, to list the kit files
   it changed since it installed them.
@@ -89,6 +90,7 @@ npm run registry:build          # registry.json and RELEASE.json, then the items
 npm run registry:check-version  # every item carries package.json's version
 npm run registry:check-install  # the one install is whole
 npm run storybook:check         # serve and stop keep to their worktree; the browser server answers
+npm run docs:check              # every exported component carries its doc comment
 npm run registry:publishes -- --event push --base <sha> --ref refs/heads/main  # would this push publish? Publishes nothing
 npm run build-storybook
 npx playwright install chromium # once
@@ -119,6 +121,7 @@ git diff --exit-code -- registry.json RELEASE.json releases
 npm run registry:check-version
 npm run registry:check-install
 npm run storybook:check
+npm run docs:check
 npm run lint
 npm run typecheck
 ```

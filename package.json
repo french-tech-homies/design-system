@@ -22,6 +22,7 @@
     "test-storybook:watch": "vitest",
     "screenshots": "node scripts/screenshots.mjs",
     "screenshots:update": "node scripts/screenshots.mjs --update=all",
+    "docs:check": "node --test scripts/check-docs.check.mjs",
     "registry:check-version": "node scripts/check-registry-version.mjs r",
     "registry:check-install": "node --test scripts/check-install.check.mjs scripts/check-components.check.mjs scripts/changed.check.mjs scripts/decide-publish.check.mjs",
     "registry:publishes": "node scripts/decide-publish.mjs"

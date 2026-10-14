@@ -45,6 +45,17 @@ npm run registry:check-version # what CI runs
 
 ### Fixed
 
+- **Every component's doc comment sits on the component, so an editor's
+  hover and the types a project generates describe it.** Twenty-nine
+  components (`Badge`, `Checkbox`, `DatePicker`, `Meter`, `Tabs`,
+  `TextField`, `TimePicker`, `Toolbar` and the others) had theirs on the
+  `styles` above them, where nothing a reader sees picks it up; `StateLayer`
+  had a line comment. Each has moved, word for word, onto the exported
+  function. Search's comment is split between `SearchBar` and `SearchView`;
+  `Focusable` is now a `const` of React Aria's, so its comment reaches the
+  types; the globe's comment, on `UserIcon`, is on `GlobeIcon`. No
+  behaviour or look changes. No action needed.
+
 - **`TimePicker`'s hour and minute boxes hold their two digits under any
   display face.** Under a wide face (Michroma, say) the 96dp box clipped
   "07". Each box, on the dial and typed, now keeps Material's size as its
