@@ -31,65 +31,6 @@ import IconButton from "./IconButton";
 import Modal from "./Modal";
 import { pickerDialogStyles } from "./picker-dialog-styles";
 
-/**
- * MD3 time picker — a modal dialog that picks an hour and a minute, on a
- * clock dial or typed, opened from a text-field-shaped trigger (the shared
- * `./field-styles.ts` module at `kind="trigger"`). The value is an
- * `@internationalized/date` `Time`.
- *
- *   <TimePicker label="Alarm" defaultValue={new Time(7, 0)} />
- *   <TimePicker label="Start" hourCycle={24} defaultMode="input" />
- *
- * - **Dial** (`defaultMode="dial"`): the hour and minute selectors (96 by
- *   80dp, 114dp wide for a 24-hour vertical dial; `display-large`;
- *   `primary-container` when selected), the period selector (52 by 80dp
- *   stacked, 216 by 38dp in a row; `tertiary-container` when selected,
- *   1dp `outline`), and the 256dp `surface-container-highest` dial with
- *   its 48dp `primary` handle, 2dp track and 8dp centre. Press or drag on
- *   the dial; letting go of an hour moves on to the minutes.
- * - **Input** (`defaultMode="input"`, or the keyboard button): React Aria's
- *   `TimeField`, its hour and minute drawn as Material's 96 by 72dp boxes in
- *   `display-medium`, `primary-container` with a 2dp `primary` outline
- *   while focused, and labelled "Hour" and "Minute" below.
- * - **Layout**: `orientation="vertical"` (the default) stacks the dial
- *   under the selectors; `horizontal` sets it beside them, as Material's
- *   landscape layout does.
- * - **Any display face**: Material sizes the hour and minute boxes for
- *   Roboto. Here each box's width is a minimum, and the box grows to the
- *   widest of "00" to "99" in its face, plus 8dp each side (`DigitSizers`):
- *   a wide face, such as Michroma, shows both digits whole, and the box
- *   keeps one width whatever the value, so the dial does not shift under
- *   a drag. Roboto and Inter fit Material's sizes, which then draw as
- *   specified. The dialog, whose width is Material's "dynamic", widens
- *   with them; past 360dp under a very wide face. The period selector's
- *   52dp (stacked) and 216dp (in a row) are minimums the same way; in a
- *   row it spans the selectors above it, whatever their width.
- * - **12 or 24 hours**: the locale's, or `hourCycle`. A 24-hour picker has
- *   no period selector; its dial carries 00–11 on the outer ring and 12–23
- *   on the inner, as Material's figure draws it.
- *
- * Cancel, Escape and a press outside drop the draft; OK commits it.
- *
- * Accessibility, as Material's page lists it: every number on the dial is a
- * tab stop that Space or Enter selects, named "Hour 7 of 12" or
- * "Minute 15 of 60" and pressed when it is the value; AM and PM are radios
- * in a radio group; the toggle is "Toggle input picker" or "Toggle dial
- * picker"; the input's fields are named "Hour" and "Minute". Strings are
- * `labels`, English by default.
- *
- * Deviations, by name:
- * - **The dial is built on React Aria Components and pointer events**, not
- *   on the `react-aria` hooks (`useMove`, `usePress`, `useFocusRing`): the
- *   numbers are `ToggleButton`s, which bring press, keyboard and focus, and
- *   the drag is the dial's own pointer capture, so the kit adds no
- *   dependency.
- * - **The input's fields are spin buttons**, React Aria's segments, where
- *   Material's table says text input: they take digits and arrow keys.
- * - **Material's prose and figure disagree on the 24-hour rings** (odd
- *   numbers outside, or 00–11 outside); the figure is followed.
- *
- * Spec: https://m3.material.io/components/time-pickers/{overview,specs,guidelines,accessibility}
- */
 
 export type TimePickerLabels = {
   selectTime: string;
@@ -203,6 +144,65 @@ const styles = tv({
 type Mode = "dial" | "input";
 type Part = "hour" | "minute";
 
+/**
+ * MD3 time picker — a modal dialog that picks an hour and a minute, on a
+ * clock dial or typed, opened from a text-field-shaped trigger (the shared
+ * `./field-styles.ts` module at `kind="trigger"`). The value is an
+ * `@internationalized/date` `Time`.
+ *
+ *   <TimePicker label="Alarm" defaultValue={new Time(7, 0)} />
+ *   <TimePicker label="Start" hourCycle={24} defaultMode="input" />
+ *
+ * - **Dial** (`defaultMode="dial"`): the hour and minute selectors (96 by
+ *   80dp, 114dp wide for a 24-hour vertical dial; `display-large`;
+ *   `primary-container` when selected), the period selector (52 by 80dp
+ *   stacked, 216 by 38dp in a row; `tertiary-container` when selected,
+ *   1dp `outline`), and the 256dp `surface-container-highest` dial with
+ *   its 48dp `primary` handle, 2dp track and 8dp centre. Press or drag on
+ *   the dial; letting go of an hour moves on to the minutes.
+ * - **Input** (`defaultMode="input"`, or the keyboard button): React Aria's
+ *   `TimeField`, its hour and minute drawn as Material's 96 by 72dp boxes in
+ *   `display-medium`, `primary-container` with a 2dp `primary` outline
+ *   while focused, and labelled "Hour" and "Minute" below.
+ * - **Layout**: `orientation="vertical"` (the default) stacks the dial
+ *   under the selectors; `horizontal` sets it beside them, as Material's
+ *   landscape layout does.
+ * - **Any display face**: Material sizes the hour and minute boxes for
+ *   Roboto. Here each box's width is a minimum, and the box grows to the
+ *   widest of "00" to "99" in its face, plus 8dp each side (`DigitSizers`):
+ *   a wide face, such as Michroma, shows both digits whole, and the box
+ *   keeps one width whatever the value, so the dial does not shift under
+ *   a drag. Roboto and Inter fit Material's sizes, which then draw as
+ *   specified. The dialog, whose width is Material's "dynamic", widens
+ *   with them; past 360dp under a very wide face. The period selector's
+ *   52dp (stacked) and 216dp (in a row) are minimums the same way; in a
+ *   row it spans the selectors above it, whatever their width.
+ * - **12 or 24 hours**: the locale's, or `hourCycle`. A 24-hour picker has
+ *   no period selector; its dial carries 00–11 on the outer ring and 12–23
+ *   on the inner, as Material's figure draws it.
+ *
+ * Cancel, Escape and a press outside drop the draft; OK commits it.
+ *
+ * Accessibility, as Material's page lists it: every number on the dial is a
+ * tab stop that Space or Enter selects, named "Hour 7 of 12" or
+ * "Minute 15 of 60" and pressed when it is the value; AM and PM are radios
+ * in a radio group; the toggle is "Toggle input picker" or "Toggle dial
+ * picker"; the input's fields are named "Hour" and "Minute". Strings are
+ * `labels`, English by default.
+ *
+ * Deviations, by name:
+ * - **The dial is built on React Aria Components and pointer events**, not
+ *   on the `react-aria` hooks (`useMove`, `usePress`, `useFocusRing`): the
+ *   numbers are `ToggleButton`s, which bring press, keyboard and focus, and
+ *   the drag is the dial's own pointer capture, so the kit adds no
+ *   dependency.
+ * - **The input's fields are spin buttons**, React Aria's segments, where
+ *   Material's table says text input: they take digits and arrow keys.
+ * - **Material's prose and figure disagree on the 24-hour rings** (odd
+ *   numbers outside, or 00–11 outside); the figure is followed.
+ *
+ * Spec: https://m3.material.io/components/time-pickers/{overview,specs,guidelines,accessibility}
+ */
 export function TimePicker(props: TimePickerProps) {
   const {
     label,
