@@ -71,9 +71,7 @@ export const ModalDialogEscapeReturnsFocus: Story = {
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveTextContent("Delete this table?");
     // Focus moved into the dialog.
-    await waitFor(() =>
-      expect(dialog.contains(document.activeElement)).toBe(true),
-    );
+    await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
 
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
@@ -190,7 +188,9 @@ export const SideSheetCollapsedIsInert: Story = {
     const track = canvasElement.querySelector<HTMLElement>("[inert]");
     await expect(track).not.toBeNull();
     await expect(track).toHaveAttribute("aria-hidden", "true");
-    await expect(canvas.queryByRole("button", { name: /apply/i })).toBeNull();
+    await expect(
+      canvas.queryByRole("button", { name: /apply/i }),
+    ).toBeNull();
 
     await userEvent.tab();
     await expect(trigger).toHaveFocus();
@@ -257,7 +257,9 @@ export const TooltipOnFocus: Story = {
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("button", { name: /hover me/i });
 
-    await expect(screen.queryByText("Scans in the last 7 days")).toBeNull();
+    await expect(
+      screen.queryByText("Scans in the last 7 days"),
+    ).toBeNull();
 
     await userEvent.tab();
     await expect(trigger).toHaveFocus();
@@ -325,13 +327,15 @@ export const TooltipArrowJoinsOnEverySide: Story = {
     for (const tooltip of tooltips) {
       // The side it landed on, and the edge of the tooltip facing the trigger.
       const side = tooltip.getAttribute("data-placement") as
-        "top" | "bottom" | "left" | "right";
-      const facing = {
-        top: "bottom",
-        bottom: "top",
-        left: "right",
-        right: "left",
-      }[side] as "top" | "bottom" | "left" | "right";
+        | "top"
+        | "bottom"
+        | "left"
+        | "right";
+      const facing = { top: "bottom", bottom: "top", left: "right", right: "left" }[side] as
+        | "top"
+        | "bottom"
+        | "left"
+        | "right";
       const triangle = tooltip.querySelector(
         '[data-slot="tooltip-arrow"] path',
       )!;
@@ -542,9 +546,7 @@ export const AlertDialogDoesNotLightDismiss: Story = {
   render: () => <AlertDialogHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const trigger = canvas.getByRole("button", {
-      name: /delete your account/i,
-    });
+    const trigger = canvas.getByRole("button", { name: /delete your account/i });
 
     await userEvent.click(trigger);
     const dialog = await screen.findByRole("alertdialog");
@@ -608,9 +610,7 @@ export const PreviewOpensOnFocus: Story = {
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("button", { name: /3 products/i });
 
-    await expect(
-      screen.queryByRole("button", { name: /margherita/i }),
-    ).toBeNull();
+    await expect(screen.queryByRole("button", { name: /margherita/i })).toBeNull();
 
     await userEvent.tab();
     await expect(trigger).toHaveFocus();
@@ -750,6 +750,35 @@ export const BottomSheetNotDismissableKeepsScrim: Story = {
       within(dialog).getByRole("button", { name: "Share" }),
     );
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  },
+};
+
+/** The sheet stays mounted while closed, but each opening starts again at its
+    opening height: a modal sheet reopens capped at half the screen, however
+    it was left. */
+export const BottomSheetReopensAtItsOpeningHeight: Story = {
+  render: () => <BottomSheetHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: /photo actions/i });
+    await userEvent.click(trigger);
+    let dialog = await screen.findByRole("dialog", { name: "Photo actions" });
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Drag handle" }),
+    );
+    await waitFor(() =>
+      expect(dialog).toHaveAttribute("data-height", "expanded"),
+    );
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+
+    await userEvent.click(trigger);
+    dialog = await screen.findByRole("dialog", { name: "Photo actions" });
+    await expect(dialog).toHaveAttribute("data-height", "partial");
+    await expect(
+      within(dialog).queryByRole("button", { name: "Close" }),
+    ).toBeNull();
   },
 };
 

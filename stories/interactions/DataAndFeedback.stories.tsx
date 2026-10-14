@@ -849,16 +849,17 @@ export const LoadingIndicatorClampsSize: Story = {
       const active = indicator.querySelector<SVGPathElement>(
         '[data-slot="loading-indicator-active-indicator"]',
       )!;
-      const diameter = container.r.baseVal.value * 2;
-      const box = active.getBBox();
-      // Every shape is scaled to touch the 38/48 circle as it turns, so its
-      // box never exceeds it, and its widest side reaches near it.
-      await expect(Math.max(box.width, box.height)).toBeLessThanOrEqual(
-        (diameter * 38) / 48 + 0.5,
-      );
-      await expect(Math.max(box.width, box.height)).toBeGreaterThan(
-        (diameter * 38) / 48 / 2,
-      );
+      // The container circle and the shape share the viewBox's centre, its
+      // origin. The shape at rest (the path's own `d`) is scaled so its
+      // farthest point lies on the 38/48 circle: that point is the ratio.
+      const radius = container.r.baseVal.value;
+      const coords = (active.getAttribute("d") ?? "")
+        .match(/-?\d+(\.\d+)?/g)!
+        .map(Number);
+      let reach = 0;
+      for (let i = 0; i + 1 < coords.length; i += 2)
+        reach = Math.max(reach, Math.hypot(coords[i]!, coords[i + 1]!));
+      await expect(Math.abs(reach - (radius * 38) / 48)).toBeLessThan(0.5);
     }
   },
 };

@@ -128,8 +128,8 @@ export type BottomSheetProps = {
   heights?: readonly BottomSheetHeight[];
   /** The current height, controlled. */
   height?: BottomSheetHeight;
-  /** The height the sheet opens at, uncontrolled. Default the first of
-      `heights`. */
+  /** The height the sheet opens at, uncontrolled, each time it opens.
+      Default the first of `heights`. */
   defaultHeight?: BottomSheetHeight;
   onHeightChange?: (height: BottomSheetHeight) => void;
   className?: string;
@@ -227,9 +227,17 @@ export default function BottomSheet(props: BottomSheetProps) {
     classNames,
   } = props;
 
-  const [ownHeight, setOwnHeight] = useState<BottomSheetHeight>(
-    defaultHeight ?? heights[0] ?? "partial",
-  );
+  const openingHeight = defaultHeight ?? heights[0] ?? "partial";
+  const [ownHeight, setOwnHeight] = useState<BottomSheetHeight>(openingHeight);
+  // The sheet stays mounted while closed, so an uncontrolled height would
+  // otherwise survive a close: each opening starts again at the opening
+  // height (a modal sheet capped at half the screen). Reset on open rather
+  // than on close, so the sheet leaves at the height it was seen at.
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) setOwnHeight(openingHeight);
+  }
   const height = controlledHeight ?? ownHeight;
   const setHeight = (next: BottomSheetHeight) => {
     if (controlledHeight === undefined) setOwnHeight(next);
