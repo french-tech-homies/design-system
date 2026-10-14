@@ -36,6 +36,8 @@ export {
   PlusIcon,
   SpinnerIcon,
   UploadIcon,
+  SearchIcon,
+  ArrowBackIcon,
 } from "./icons";
 
 // Primitives
@@ -62,6 +64,13 @@ export {
 } from "./components/Card";
 export { default as ListItem, type ListItemProps } from "./components/ListItem";
 export { Tag, type TagProps } from "./components/Tag";
+export {
+  Badge,
+  badgeAccessibleText,
+  BADGE_MAX,
+  type BadgeProps,
+  type BadgeValue,
+} from "./components/Badge";
 export {
   Table,
   TableHeader,
@@ -136,6 +145,17 @@ export {
   type NavigationItem,
 } from "./components/BottomNavigation";
 export { TopAppBar, type TopAppBarProps } from "./components/TopAppBar";
+export { Toolbar, type ToolbarProps } from "./components/Toolbar";
+export {
+  SearchBar,
+  SearchView,
+  SearchViewItem,
+  SearchViewSection,
+  type SearchBarProps,
+  type SearchViewProps,
+  type SearchViewItemProps,
+  type SearchViewSectionProps,
+} from "./components/Search";
 export {
   NavigationRail,
   type NavigationRailProps,

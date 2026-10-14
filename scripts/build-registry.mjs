@@ -349,7 +349,7 @@ const components = [
       "Standard, filled, tonal and outlined icon buttons in Material's five sizes, optionally toggleable.",
     files: [file("components/IconButton.tsx")],
     dependencies: [RAC],
-    deps: ["utils", "state-layer", "icons"],
+    deps: ["utils", "state-layer", "icons", "badge"],
   }),
   item({
     name: "chip",
@@ -382,6 +382,14 @@ const components = [
       "Static label on a colour-role container (tonal / filled / outlined × neutral / primary / secondary / tertiary / error) — order numbers, plans, statuses. Server-safe.",
     files: [file("components/Tag.tsx")],
     deps: ["utils", "typography"],
+  }),
+  item({
+    name: "badge",
+    title: "Badge",
+    description:
+      "Material badge: a 6dp notification dot or a 16dp count on error (999+ at most), anchored on an icon's top trailing corner, and the words a host joins to its name. Server-safe.",
+    files: [file("components/Badge.tsx")],
+    deps: ["utils"],
   }),
   item({
     name: "avatar",
@@ -504,7 +512,7 @@ const components = [
       "Material primary and secondary tabs on React Aria Tabs: 48dp rows (64dp with a stacked icon), the 1dp divider, a 3dp rounded indicator that hugs its label for primary and a 2dp full-width one for secondary, fixed or scrollable.",
     files: [file("components/Tabs.tsx")],
     dependencies: [RAC],
-    deps: ["utils", "icons", "render-props", "typography"],
+    deps: ["utils", "icons", "render-props", "typography", "badge"],
   }),
   item({
     name: "snackbar",
@@ -522,7 +530,7 @@ const components = [
       "Material navigation bar: a <nav> of three to five destinations as React Aria links or buttons, with aria-current on the active one and a pill indicator behind its icon.",
     files: [file("components/BottomNavigation.tsx")],
     dependencies: [RAC],
-    deps: ["utils", "icons", "state-layer", "typography"],
+    deps: ["utils", "icons", "state-layer", "typography", "badge"],
   }),
   item({
     name: "top-app-bar",
@@ -531,6 +539,24 @@ const components = [
       "Material top app bar in the spec's four baseline types (small, center-aligned, medium, large) with a leading action, a heading title, an optional subtitle and trailing actions. Server-safe. No on-scroll collapse — documented in the doc comment.",
     files: [file("components/TopAppBar.tsx")],
     deps: ["utils", "typography"],
+  }),
+  item({
+    name: "toolbar",
+    title: "Toolbar",
+    description:
+      "Material toolbar on React Aria Toolbar: docked (64dp, full width, square) or floating (64dp pill at elevation 3, horizontal or vertical), standard or vibrant colours painted onto the kit's icon buttons, and an optional FAB beside a floating one.",
+    files: [file("components/Toolbar.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
+    name: "search",
+    title: "Search",
+    description:
+      "Material search: SearchBar on React Aria SearchField (56dp pill, Escape and a clear button empty it), and SearchView, the bar that opens a filtered list of suggestions on Autocomplete and ListBox, docked or full screen, divided or contained.",
+    files: [file("components/Search.tsx")],
+    dependencies: [RAC, "tw-animate-css"],
+    deps: ["utils", "icons", "render-props"],
   }),
   item({
     name: "navigation-rail",

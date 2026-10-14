@@ -122,6 +122,42 @@ npm run registry:check-version # what CI runs
   its tree, through `react-aria-components`; the install makes it a direct
   dependency, which no package manager may then leave unhoisted.
 
+<!-- The Bars and navigation batch: Badges, Toolbars, Search. -->
+
+- **`Badge`** (`components/Badge.tsx`, registry item `badge`), Material's
+  badge: the small badge, a 6dp dot, and the large one, a 16dp count up to
+  34dp wide that shows "999+" above `max` (999), both on `error` with
+  `label-small` `on-error` text. `anchored` sets it on the top trailing
+  corner of its positioned parent, the icon, at the spec's offsets, and it
+  moves to the other corner in a right-to-left page. It is `aria-hidden`:
+  `badgeAccessibleText(value, label?)` gives the words a host joins to its
+  name ("3", "New notification"). Server-safe. Nothing to do; the update
+  adds the file.
+- **`Toolbar`** (`components/Toolbar.tsx`, registry item `toolbar`),
+  Material's toolbar on React Aria's `Toolbar`: `variant="docked"` (64dp,
+  the full width, square, `surface-container`) or `"floating"` (a 64dp pill
+  at elevation 3), `color="standard"` or `"vibrant"` (`primary-container`),
+  `orientation="vertical"`, and `fab` for a FAB 8dp after a floating one,
+  drawn `secondary-container` or `tertiary-container`. The colours reach the
+  kit's standard icon buttons and text buttons inside it by their slots. The
+  `toolbar` role and the arrow keys are React Aria's; the toolbar is one
+  stop in the tab order, where Material's table also allows Tab between
+  its controls (a deviation, in its doc comment).
+- **Search** (`components/Search.tsx`, registry item `search`), Material's
+  search: `SearchBar`, React Aria's `SearchField` as a 56dp
+  `surface-container-high` pill, named by its hint, emptied by Escape or
+  its clear button; and `SearchView`, the bar that opens a dialog of
+  suggestions and results (`SearchViewItem`, `SearchViewSection`) on
+  `Autocomplete` and `ListBox`, filtered as one types, with a live region
+  that says how many results it holds. `layout="docked"` or
+  `"full-screen"`, `variant="divided"` (the baseline) or `"contained"`.
+  Enter on a highlighted item calls `onAction`, on none `onSubmit`; Escape
+  empties the field, then closes the view, and the focus returns to the bar.
+- **`SearchIcon` and `ArrowBackIcon`** in `icons.tsx`, for the search bar
+  and the search view's back button.
+
+<!-- /The Bars and navigation batch. -->
+
 ### Changed
 
 - **The kit's own components join on need.** Before: a closed group of ten,
@@ -134,6 +170,41 @@ npm run registry:check-version # what CI runs
   against them. The README's _What this kit is_ and the `ds-build` skill say
   it. What neither Material nor React Aria describes stays a project's. No
   action needed.
+
+<!-- The Bars and navigation batch: Badges, Toolbars, Search. -->
+
+- **`BottomNavigation`, `NavigationRail` and `NavigationDrawer`: a
+  destination takes a `badge`** (a count, a short status, or `true` for the
+  dot) and a `badgeLabel`, on `NavigationItem`. The bar and the rail draw
+  the `Badge` on the icon; the expanded rail draws a count after the label;
+  the drawer shows it as its own trailing label text, as Material's drawer
+  anatomy does. The badge's words follow the destination's name ("Inbox,
+  3"), joined to `ariaLabel` where the item has one. The "no badges"
+  deviation is gone from all three. The bar's and the rail's active
+  indicator no longer clip what is in them (the state layer takes the
+  pill's rounding itself), so a badge may reach past the pill. Nothing to
+  do; an item without `badge` draws as before.
+- **`NavigationDrawer`'s labels are start-aligned.** They were centred in a
+  destination drawn as a `<button>` (a button centres its text), which a
+  trailing badge made plain; Material draws them start-aligned. Nothing to
+  do.
+- **`Tab` takes a `badge` and a `badgeLabel`**: on the icon of a stacked
+  tab, after the label of an inline-icon or text tab, and read after the
+  tab's name. The "no badge slot" deviation is gone. Nothing to do.
+- **`IconButton` takes a `badge` and a `badgeLabel`**: the `Badge` on its
+  icon, its words joined to `aria-label` ("Notifications, 3"). Nothing to
+  do.
+- **`TopAppBar` takes a `search`**, Material's search app bar: a
+  `SearchView` or `SearchBar` in the title's place, 8dp from its
+  neighbours, drawn on `surface-container` with no shadow; the title stays
+  as a visually hidden heading, and the bar is one 64dp row whatever its
+  `variant`. The "no search app bar" deviation is gone. Its doc comment
+  says a screen that wants its actions as a toolbar passes a `Toolbar` into
+  `actions`. Nothing to do.
+- **The registry items `bottom-navigation`, `tabs` and `icon-button` now
+  depend on `badge`**, which `shadcn add` brings with them.
+
+<!-- /The Bars and navigation batch. -->
 
 ## [0.4.0] — 2026-10-14
 
