@@ -63,5 +63,12 @@ export const TwoItems: Story = {
 /** Open on the dark scheme. */
 export const Dark: Story = {
   globals: { theme: "dark" },
+  decorators: [
+    (Story) => (
+      <div className="bg-surface p-6">
+        <Story />
+      </div>
+    ),
+  ],
   args: { "aria-label": "Create", icon: Plus, items, defaultOpen: true },
 };

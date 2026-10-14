@@ -245,6 +245,13 @@ export const Toggles: Story = {
 /** The styles, a toggle and a disabled button on the dark scheme. */
 export const Dark: Story = {
   globals: { theme: "dark" },
+  decorators: [
+    (Story) => (
+      <div className="bg-surface p-6">
+        <Story />
+      </div>
+    ),
+  ],
   render: () => (
     <div className="flex flex-wrap items-center gap-4">
       <Button icon={Plus}>Filled</Button>

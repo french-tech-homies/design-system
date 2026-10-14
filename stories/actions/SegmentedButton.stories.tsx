@@ -87,6 +87,13 @@ export const Disabled: Story = {
 /** On the dark scheme. */
 export const Dark: Story = {
   globals: { theme: "dark" },
+  decorators: [
+    (Story) => (
+      <div className="bg-surface p-6">
+        <Story />
+      </div>
+    ),
+  ],
   render: () => (
     <SegmentedButton
       aria-label="Ranges"

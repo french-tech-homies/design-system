@@ -436,15 +436,18 @@ export const ButtonToggleKeyboard: Story = {
     await userEvent.tab();
     await expect(follow).toHaveFocus();
     await expect(follow).toHaveAttribute("aria-pressed", "false");
-    const roundRadius = getComputedStyle(follow).borderTopLeftRadius;
+    // Round, then, selected, the theme's `medium` corner (whatever a preset
+    // makes of the two).
+    const corner = (step: string) =>
+      getComputedStyle(follow)
+        .getPropertyValue(`--md-sys-shape-corner-${step}`)
+        .trim();
+    const radius = () => getComputedStyle(follow).borderTopLeftRadius;
+    await waitFor(() => expect(radius()).toBe(corner("full")));
 
     await userEvent.keyboard(" ");
     await expect(follow).toHaveAttribute("aria-pressed", "true");
-    await waitFor(() =>
-      expect(getComputedStyle(follow).borderTopLeftRadius).not.toBe(
-        roundRadius,
-      ),
-    );
+    await waitFor(() => expect(radius()).toBe(corner("medium")));
     await userEvent.keyboard("{Enter}");
     await expect(follow).toHaveAttribute("aria-pressed", "false");
 
@@ -487,6 +490,11 @@ export const ButtonGroupArrowKeys: Story = {
     await userEvent.keyboard("{Enter}");
     await expect(groupPress).toHaveBeenCalledTimes(1);
 
+    // React Aria's toolbar answers Tab by moving focus to its last button
+    // and letting the browser's Tab go on from there; user-event computes
+    // its Tab before that, so the exit is tested from the last button.
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}");
+    await expect(canvas.getByRole("button", { name: "Paste" })).toHaveFocus();
     await userEvent.tab();
     await expect(canvas.getByRole("button", { name: "After" })).toHaveFocus();
   },
@@ -579,7 +587,7 @@ export const ButtonGroupConnectedMultiSelect: Story = {
 
 /**
  * A single-select segmented button is a `radiogroup`: Tab lands on the first
- * segment where none is selected, the arrow keys move, Space and Enter
+ * segment, the arrow keys move, Space and Enter
  * select, and the selected segment shows its check.
  */
 export const SegmentedButtonSingleSelect: Story = {
@@ -612,6 +620,28 @@ export const SegmentedButtonSingleSelect: Story = {
     await expect(relevance).toHaveAttribute("aria-checked", "false");
     await expect(check(relevance)).toBeNull();
     await expect(check(date)).not.toBeNull();
+  },
+};
+
+/**
+ * Material: "the first segment will be focused regardless of selection
+ * state". Tab lands on the first segment though another is selected.
+ */
+export const SegmentedButtonFocusStartsOnFirst: Story = {
+  render: () => (
+    <SegmentedButton aria-label="Show" defaultSelectedKeys={["week"]} className="w-96">
+      <Segment id="day">Day</Segment>
+      <Segment id="week">Week</Segment>
+    </SegmentedButton>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await expect(canvas.getByRole("radio", { name: "Day" })).toHaveFocus();
+    await expect(canvas.getByRole("radio", { name: "Week" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
   },
 };
 

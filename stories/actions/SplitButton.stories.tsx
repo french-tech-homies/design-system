@@ -88,6 +88,13 @@ export const Open: Story = {
 /** On the dark scheme, filled and outlined. */
 export const Dark: Story = {
   globals: { theme: "dark" },
+  decorators: [
+    (Story) => (
+      <div className="bg-surface p-6">
+        <Story />
+      </div>
+    ),
+  ],
   args: { menuLabel: "More watch options", items },
   render: () => (
     <div className="flex items-center gap-4">

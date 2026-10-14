@@ -71,8 +71,8 @@ export type SegmentedButtonProps = Omit<
  *
  * Built on React Aria's `ToggleButtonGroup` and `ToggleButton`: `single` is a
  * `radiogroup` of radios, `multiple` a group of buttons with `aria-pressed`.
- * Tab reaches the group, the arrow keys move between segments, Space or
- * Enter selects and unselects the focused one. Name the group with
+ * Tab lands on the first segment, whatever is selected, the arrow keys move
+ * between segments, Space or Enter selects and unselects the focused one. Name the group with
  * `aria-label` (what it chooses, "Sort by") and each segment by its label,
  * or by `aria-label` where it shows an icon alone.
  *
@@ -92,10 +92,6 @@ export type SegmentedButtonProps = Omit<
  * `segment-label`, reached with `classNames`.
  *
  * Deviations, by name:
- * - **Initial focus.** Material: "the first segment will be focused
- *   regardless of selection state". React Aria's group lands Tab on the
- *   selected segment where one is selected (a radio group's convention), and
- *   on the first one otherwise.
  * - **Icon-only segments** keep their icon when selected: the container
  *   colour and the radio's or button's state say it.
  * - **Density** (each step 4dp shorter) is not built.

@@ -135,6 +135,13 @@ export const ConnectedMultiSelect: Story = {
 /** The connected group and the standard one on the dark scheme. */
 export const Dark: Story = {
   globals: { theme: "dark" },
+  decorators: [
+    (Story) => (
+      <div className="bg-surface p-6">
+        <Story />
+      </div>
+    ),
+  ],
   render: () => (
     <div className="flex w-96 flex-col gap-6">
       <ButtonGroup
