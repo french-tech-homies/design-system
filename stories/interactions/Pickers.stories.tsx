@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { parseDate, Time } from "@internationalized/date";
 import { I18nProvider } from "react-aria-components";
+import { useLayoutEffect, type ReactNode } from "react";
 import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 
 import {
@@ -765,5 +766,131 @@ export const TimeInputTyped: Story = {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     await expect(args.onChange).toHaveBeenCalledTimes(1);
     await expect(trigger).toHaveAccessibleName(/9:30 AM/);
+  },
+};
+
+/** The hour and minute of the open dialog: their boxes, and the digits
+    each draws. */
+const timeBoxes = (dialog: HTMLElement) =>
+  (["hour", "minute"] as const).map((part) => {
+    const box = dialog.querySelector<HTMLElement>(`[data-slot=time-picker-${part}]`)!;
+    const digits = box.querySelector<HTMLElement>("[data-slot=time-picker-digits]")!;
+    return { box: box.getBoundingClientRect(), digits: digits.getBoundingClientRect() };
+  });
+
+/** Digits whole inside their box, to half a pixel. */
+const holds = (box: DOMRect, digits: DOMRect) =>
+  digits.left >= box.left - 0.5 && digits.right <= box.right + 0.5;
+
+/** A spin button whose text overflows nothing. */
+const holdsText = (field: HTMLElement) => field.scrollWidth <= field.clientWidth;
+
+/** Under the kit's own preset the boxes are Material's: 96 by 80dp on the
+    dial, 52 by 80dp for the period, 96 by 72dp typed. Under Editorial, whose
+    face is the system's serif, the digits are whole. */
+export const TimeMaterialSizes: Story = {
+  render: () => (
+    <TimePicker
+      label="Alarm"
+      className="w-80"
+      hourCycle={12}
+      defaultValue={new Time(7, 0)}
+    />
+  ),
+  play: async ({ canvasElement, globals }) => {
+    const material = globals.preset !== "editorial";
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /alarm/i }));
+    let dialog = await screen.findByRole("dialog", { name: "Select time" });
+    await document.fonts.ready;
+    for (const { box, digits } of timeBoxes(dialog)) {
+      if (material) {
+        await expect([box.width, box.height]).toEqual([96, 80]);
+      }
+      await expect(holds(box, digits)).toBe(true);
+    }
+    if (material) {
+      const period = within(dialog)
+        .getByRole("radiogroup", { name: "AM or PM" })
+        .getBoundingClientRect();
+      await expect([period.width, period.height]).toEqual([52, 80]);
+    }
+
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Toggle input picker" }),
+    );
+    dialog = await screen.findByRole("dialog", { name: "Enter time" });
+    for (const name of [/hour/i, /minute/i]) {
+      const field = within(dialog).getByRole("spinbutton", { name });
+      const { width, height } = field.getBoundingClientRect();
+      if (material) await expect([width, height]).toEqual([96, 72]);
+      await expect(holdsText(field)).toBe(true);
+    }
+  },
+};
+
+const MICHROMA = "https://fonts.googleapis.com/css2?family=Michroma&display=block";
+
+/** Michroma, a wide face, as the display face of the whole page while the
+    story is mounted: on `<html>`, where it outweighs either preset. */
+function WideDisplayFace({ children }: { children: ReactNode }) {
+  useLayoutEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = MICHROMA;
+    document.head.append(link);
+    const root = document.documentElement.style;
+    root.setProperty("--md-sys-typescale-brand-font", '"Michroma", sans-serif');
+    return () => {
+      link.remove();
+      root.removeProperty("--md-sys-typescale-brand-font");
+    };
+  }, []);
+  return children;
+}
+
+/** A theme whose display face is wide (Michroma, as Nemia's theme names
+    it): Material's 96dp box would clip "07"; the boxes grow to hold both
+    digits, on the dial and typed. */
+export const TimeWideDisplayFace: Story = {
+  render: () => (
+    <WideDisplayFace>
+      <TimePicker
+        label="Alarm"
+        className="w-80"
+        hourCycle={12}
+        defaultValue={new Time(7, 0)}
+      />
+    </WideDisplayFace>
+  ),
+  play: async ({ canvasElement }) => {
+    await waitFor(
+      async () =>
+        expect((await document.fonts.load("57px Michroma")).length).toBeGreaterThan(0),
+      { timeout: 10000 },
+    );
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /alarm/i }));
+    let dialog = await screen.findByRole("dialog", { name: "Select time" });
+    await document.fonts.ready;
+    for (const { box, digits } of timeBoxes(dialog)) {
+      // The face is wide enough to matter: wider than Material's box.
+      await expect(digits.width).toBeGreaterThan(96);
+      await expect(holds(box, digits)).toBe(true);
+    }
+    const [hour, minute] = timeBoxes(dialog);
+    // As wide as the widest pair, so the dial does not move as the value does.
+    await expect(hour!.box.width).toBe(minute!.box.width);
+
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Toggle input picker" }),
+    );
+    dialog = await screen.findByRole("dialog", { name: "Enter time" });
+    await document.fonts.load("45px Michroma");
+    for (const name of [/hour/i, /minute/i]) {
+      await expect(
+        holdsText(within(dialog).getByRole("spinbutton", { name })),
+      ).toBe(true);
+    }
   },
 };
