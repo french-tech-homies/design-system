@@ -36,8 +36,8 @@ npm run registry:check-version # what CI runs
 
 ### Added
 
-- **`Carousel` and `CarouselItem`**, Material 3's carousel
-  (`@ds/carousel`, and in `@ds/ds`), in its six layouts: `multi-browse`, `uncontained`,
+- **`Carousel` and `CarouselItem`** (`@ds/carousel`, and in `@ds/ds`),
+  Material 3's carousel in its six layouts: `multi-browse`, `uncontained`,
   `uncontained-multi-aspect-ratio`, `hero`, `center-aligned-hero` and
   `full-screen`. `alignment="center"` centres multi-browse and uncontained.
   In multi-browse and the two heroes, items change width as the row
