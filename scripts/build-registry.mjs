@@ -472,6 +472,15 @@ const components = [
     deps: ["utils", "icons", "icon-button", "typography"],
   }),
   item({
+    name: "bottom-sheet",
+    title: "Bottom sheet",
+    description:
+      "Standard or modal bottom sheet: surface-container-low with extra-large top corners, a drag handle that cycles partial and expanded heights by press, keyboard or drag, and the modal form on React Aria ModalOverlay + Modal + Dialog.",
+    files: [file("components/BottomSheet.tsx")],
+    dependencies: [RAC, "tw-animate-css"],
+    deps: ["utils", "icons", "icon-button", "typography"],
+  }),
+  item({
     name: "tooltip",
     title: "Tooltip",
     description: "Plain and rich tooltips.",
@@ -577,6 +586,24 @@ const components = [
     description:
       "Linear and circular progress indicators, each determinate or indeterminate, on React Aria ProgressBar — primary active indicator, secondary-container track, a 4dp gap, and a stop indicator on the determinate linear bar. Carries its own keyframe; no animation library.",
     files: [file("components/ProgressIndicator.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
+    name: "loading-indicator",
+    title: "Loading indicator",
+    description:
+      "Material 3 Expressive loading indicator on React Aria ProgressBar, always indeterminate: a looping morph through seven Material shapes, default or contained, 24–240dp. Carries its own keyframes; no animation library.",
+    files: [file("components/LoadingIndicator.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
+    name: "meter",
+    title: "Meter",
+    description:
+      "A quantity within a known range (a quota, a disk's use) on React Aria Meter, drawn with the determinate linear progress indicator's anatomy: a colour-role active indicator, secondary-container track, a 4dp gap and a stop indicator. No motion. One of the kit's own: Material 3 does not describe a meter.",
+    files: [file("components/Meter.tsx")],
     dependencies: [RAC],
     deps: ["utils", "render-props"],
   }),

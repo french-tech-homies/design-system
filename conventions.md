@@ -251,12 +251,14 @@ pages render straight from `resolved.json`.
 
 ## The quality bar — what a new component must ship
 
-Before any of it, a new component is Material's or it is not the kit's. Its
-doc comment cites its page of m3.material.io; or the repository's owner adds
-it to the closed group in `README.md`, "What this kit is", and its doc comment
-says "Material 3 does not describe this component." `npm run
-registry:check-install` (`scripts/check-components.mjs`) refuses a component
-file that does neither, and a list and files that differ.
+Before any of it, a new component is Material's or Material-derived, or it
+is not the kit's. Its doc comment cites its page of m3.material.io; or it is
+a React Aria component Material does not describe, joining the named group in
+`README.md`, "What this kit is", on a project's need, by the rule written
+there: its doc comment says "Material 3 does not describe this component."
+and cites, beside it, the page of each thing it borrows from Material. `npm
+run registry:check-install` (`scripts/check-components.mjs`) refuses a
+component file that does neither, and a list and files that differ.
 
 Then four things, and CI (`.github/workflows/checks.yml`) enforces all
 of them:

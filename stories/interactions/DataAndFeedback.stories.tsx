@@ -21,6 +21,8 @@ import {
   SNACKBAR_TIMEOUT,
 } from "@french-tech-homies/design-system/components/Snackbar";
 import { ProgressIndicator } from "@french-tech-homies/design-system/components/ProgressIndicator";
+import { LoadingIndicator } from "@french-tech-homies/design-system/components/LoadingIndicator";
+import { Meter } from "@french-tech-homies/design-system/components/Meter";
 
 /**
  * Behaviour tests for the table and for the feedback surfaces. See
@@ -698,6 +700,167 @@ export const ProgressIndicatorAccessibleValue: Story = {
     // The circular variant is the same role and the same value semantics.
     const saving = canvas.getByRole("progressbar", { name: "Saving venue" });
     await expect(saving).toHaveAttribute("aria-valuenow", "45");
+  },
+};
+
+/** A meter is read, not driven: it is the `meter` role, named by its label,
+    and reports its value on its own scale. */
+export const MeterAccessibleValue: Story = {
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          {
+            // React Aria writes `role="meter progressbar"`, `progressbar` the
+            // fallback for a browser without `meter`. ARIA takes the first
+            // role it knows, `meter`, which allows aria-value*; axe reads the
+            // two words as one unknown role and refuses them. The rule stays
+            // on for every other element, and this play reads the `meter`
+            // role and its values.
+            id: "aria-allowed-attr",
+            selector: '*:not([role="meter progressbar"])',
+          },
+        ],
+      },
+    },
+  },
+  render: () => (
+    <div className="bg-surface flex w-96 flex-col gap-6 p-4">
+      <Meter label="Storage used" value={62} showValue />
+      <Meter
+        label="Boards this month"
+        value={3}
+        maxValue={5}
+        formatOptions={{ style: "decimal" }}
+        valueLabel="3 of 5"
+        showValue
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const storage = canvas.getByRole("meter", { name: "Storage used" });
+    await expect(storage).toHaveAttribute("aria-valuenow", "62");
+    await expect(storage).toHaveAttribute("aria-valuemin", "0");
+    await expect(storage).toHaveAttribute("aria-valuemax", "100");
+    await expect(storage).toHaveAttribute("aria-valuetext", "62%");
+    // The visible value says the same thing as aria-valuetext.
+    await expect(storage).toHaveTextContent("62%");
+
+    // A custom scale is reported on its own terms, not rescaled to a percentage.
+    const boards = canvas.getByRole("meter", { name: "Boards this month" });
+    await expect(boards).toHaveAttribute("aria-valuenow", "3");
+    await expect(boards).toHaveAttribute("aria-valuemin", "0");
+    await expect(boards).toHaveAttribute("aria-valuemax", "5");
+    await expect(boards).toHaveAttribute("aria-valuetext", "3 of 5");
+    await expect(boards).toHaveTextContent("3 of 5");
+  },
+};
+
+/** The same, in the dark scheme. */
+export const MeterAccessibleValueDark: Story = {
+  ...MeterAccessibleValue,
+  globals: { theme: "dark" },
+};
+
+/**
+ * A loading indicator is a progressbar with a name and no value, in both
+ * forms: Material forbids it ever turning determinate, so there is nothing
+ * for it to report but "working on this".
+ */
+export const LoadingIndicatorIsANamedProgressbar: Story = {
+  render: () => (
+    <div className="flex gap-6">
+      <LoadingIndicator aria-label="Loading news article" />
+      <LoadingIndicator variant="contained" aria-label="Refreshing page" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const [name, variant] of [
+      ["Loading news article", "default"],
+      ["Refreshing page", "contained"],
+    ] as const) {
+      const indicator = canvas.getByRole("progressbar", { name });
+      await expect(indicator).toHaveAttribute("data-variant", variant);
+      await expect(indicator).not.toHaveAttribute("aria-valuenow");
+      await expect(indicator).not.toHaveAttribute("aria-valuetext");
+    }
+    // Only the contained form draws its container.
+    const contained = canvas.getByRole("progressbar", {
+      name: "Refreshing page",
+    });
+    await expect(
+      contained.querySelector('[data-slot="loading-indicator-container"]'),
+    ).not.toBeNull();
+    await expect(
+      canvas
+        .getByRole("progressbar", { name: "Loading news article" })
+        .querySelector('[data-slot="loading-indicator-container"]'),
+    ).toBeNull();
+  },
+};
+
+/** It says "working", it is not a control: Tab passes over it. */
+export const LoadingIndicatorIsNotATabStop: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <Button variant="outlined">Before</Button>
+      <LoadingIndicator aria-label="Loading news article" />
+      <Button variant="outlined">After</Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Before" })).toHaveFocus();
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "After" })).toHaveFocus();
+  },
+};
+
+/**
+ * The spec's range is 24–240dp, and the active indicator keeps 38/48 of the
+ * container at every size: a size outside the range is clamped, and the
+ * indicator never leaves its share of the circle.
+ */
+export const LoadingIndicatorClampsSize: Story = {
+  render: () => (
+    <div className="flex items-end gap-6">
+      <LoadingIndicator size={10} variant="contained" aria-label="Too small" />
+      <LoadingIndicator size={400} variant="contained" aria-label="Too large" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const [name, px] of [
+      ["Too small", 24],
+      ["Too large", 240],
+    ] as const) {
+      const indicator = canvas.getByRole("progressbar", { name });
+      await expect(indicator).toHaveAttribute("data-size", String(px));
+      const svg = indicator.querySelector("svg")!;
+      await expect(svg.getBoundingClientRect().width).toBeCloseTo(px, 0);
+
+      const container = indicator.querySelector<SVGCircleElement>(
+        '[data-slot="loading-indicator-container"]',
+      )!;
+      const active = indicator.querySelector<SVGPathElement>(
+        '[data-slot="loading-indicator-active-indicator"]',
+      )!;
+      // The container circle and the shape share the viewBox's centre, its
+      // origin. The shape at rest (the path's own `d`) is scaled so its
+      // farthest point lies on the 38/48 circle: that point is the ratio.
+      const radius = container.r.baseVal.value;
+      const coords = (active.getAttribute("d") ?? "")
+        .match(/-?\d+(\.\d+)?/g)!
+        .map(Number);
+      let reach = 0;
+      for (let i = 0; i + 1 < coords.length; i += 2)
+        reach = Math.max(reach, Math.hypot(coords[i]!, coords[i + 1]!));
+      await expect(Math.abs(reach - (radius * 38) / 48)).toBeLessThan(0.5);
+    }
   },
 };
 

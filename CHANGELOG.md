@@ -36,6 +36,54 @@ npm run registry:check-version # what CI runs
 
 ### Added
 
+- **Loading indicator** (`components/LoadingIndicator.tsx`, registry item
+  `loading-indicator`): Material 3 Expressive's loading indicator, for a wait
+  of 200ms to 5s, on React Aria's `ProgressBar`, always indeterminate (a
+  `progressbar` with a name and no value; there is no `value` prop, since
+  Material says it never becomes determinate). `variant="default"` draws the
+  active indicator in `primary`; `variant="contained"` puts it in
+  `on-primary-container` on a `primary-container` circle. 48dp by default,
+  `size` clamped to 24–240dp, the 38/48 ratio held. The active indicator
+  morphs through the seven shapes of Compose's loading indicator, drawn by
+  the kit's own code from the parameters Compose's `MaterialShapes` publishes,
+  in keyframes the file carries itself. Deviations, recorded in its doc
+  comment: the curves are the kit's, close to Compose's; the morph eases
+  where Compose springs; where a browser cannot animate CSS `d` (WebKit,
+  today) the first shape turns without morphing; no pull-to-refresh, which
+  Material gives Compose alone. Under reduced motion it stands still.
+  `ProgressIndicator` is unchanged. No action needed.
+- **Bottom sheet** (`components/BottomSheet.tsx`, registry item
+  `bottom-sheet`): Material's standard and modal bottom sheets on
+  `surface-container-low`, extra-large top corners, elevation 1, full width
+  up to 640dp and Material's margins above a 640dp window. The modal sheet is
+  a React Aria `ModalOverlay` + `Modal` + `Dialog` over a scrim: named by its
+  `title` or `aria-label`, closed by Escape, the scrim (unless
+  `modalProps.isDismissable` is false), an action, or a drag down; focus goes
+  in and comes back. The standard sheet sits `absolute` at the bottom of the
+  caller's container and leaves the page usable; closed, it is `inert`. The
+  optional drag handle is a named button, the first tab stop: a press, Space
+  or Enter cycles the preset heights (`partial`, capped at half the screen;
+  `expanded`, up to the top margin), or closes a sheet with one height, and a
+  drag moves the sheet between them. Expanded, a modal sheet shows a close
+  button and a standard one a collapse button. Deviations, recorded in its
+  doc comment: the modal sheet is a named dialog, where Material labels only
+  the handle; no `minimized` state, which Material names in a token and
+  describes nowhere; no predictive back, an Android gesture. `SideSheet` is
+  unchanged. No action needed.
+- **`Meter`** (`@ds/meter`, and in `@ds/ds`): a quantity within a known
+  range, such as a quota, a disk's use or a score, on React Aria's `Meter`.
+  It is the `meter` role, with `value`, `minValue`, `maxValue`,
+  `formatOptions` and `valueLabel` as React Aria gives them; React Aria
+  clamps the value to the range. Material 3 does not describe a meter, so it
+  is the eleventh of the kit's own and borrows the determinate linear
+  progress indicator's anatomy: track, active indicator, 4dp thick
+  (`thickness` to change it), a 4dp gap, a 4dp stop indicator, a non-zero
+  value drawn at least as a dot, mirrored right to left, and no motion. Its
+  label and value are written as `ProgressIndicator` writes them (`label`,
+  `showValue`). `color` (`primary`, the default, `secondary`, `tertiary`,
+  `error`) sets the active and stop indicators; the track stays
+  `secondary-container`. Its doc comment cites the Material page of each
+  borrowing. No action needed.
 - **Date pickers: `DatePicker` and `DateRangePicker`**
   (`components/DatePicker.tsx`, registry item `date-picker`), Material 3's
   date pickers on React Aria's `DatePicker` and `DateRangePicker`. A
@@ -72,6 +120,19 @@ npm run registry:check-version # what CI runs
   @ds/ds` installs it. A project on React Aria Components already has it in
   its tree, through `react-aria-components`; the install makes it a direct
   dependency, which no package manager may then leave unhoisted.
+
+### Changed
+
+- **The kit's own components join on need.** Before: a closed group of ten,
+  changed only on the repository owner's decision. Now: a React Aria
+  component Material 3 does not describe joins the group when a project
+  needs it, by a change that names that project and its need. It is
+  Material-derived (Material's foundations, the anatomy of the nearest
+  Material component), its doc comment cites each borrowing's page beside
+  "Material 3 does not describe this component.", and it is reviewed
+  against them. The README's _What this kit is_ and the `ds-build` skill say
+  it. What neither Material nor React Aria describes stays a project's. No
+  action needed.
 
 ## [0.4.0] — 2026-10-14
 
