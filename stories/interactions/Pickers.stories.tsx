@@ -9,6 +9,9 @@ import {
   DateRangePicker,
 } from "@french-tech-homies/design-system/components/DatePicker";
 import { TimePicker } from "@french-tech-homies/design-system/components/TimePicker";
+// Michroma from the catalog itself (`@fontsource/michroma`, SIL OFL 1.1), not
+// from Google Fonts while the story runs: its screenshot is drawn offline.
+import michroma from "@fontsource/michroma/files/michroma-latin-400-normal.woff2?url";
 
 /**
  * Behaviour tests for the date and time pickers. Every story has a `play`
@@ -829,20 +832,16 @@ export const TimeMaterialSizes: Story = {
   },
 };
 
-const MICHROMA = "https://fonts.googleapis.com/css2?family=Michroma&display=block";
-
 /** Michroma, a wide face, as the display face of the whole page while the
     story is mounted: on `<html>`, where it outweighs either preset. */
 function WideDisplayFace({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = MICHROMA;
-    document.head.append(link);
+    const face = new FontFace("Michroma", `url(${michroma}) format("woff2")`);
+    document.fonts.add(face);
     const root = document.documentElement.style;
     root.setProperty("--md-sys-typescale-brand-font", '"Michroma", sans-serif');
     return () => {
-      link.remove();
+      document.fonts.delete(face);
       root.removeProperty("--md-sys-typescale-brand-font");
     };
   }, []);

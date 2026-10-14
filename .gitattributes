@@ -1,0 +1,2 @@
+# a baseline is an image: never merged as text, nor its line endings touched
+/screenshots/**/*.png binary
