@@ -88,6 +88,12 @@ jobs:
         # is read in whatever project installed the kit.
         run: npm run registry:check-install
 
+      - name: Storybook serve and stop keep to their worktree; the browser server answers
+        # `npm run storybook:serve` and `storybook:stop` against a stand-in
+        # server, two at once, and the playwright MCP server .mcp.json names
+        # listing its tools. No browser and no real Storybook start here.
+        run: npm run storybook:check
+
       - name: Does this run publish? Only a release does
         # The version is read in the five places a release writes it, in this
         # tree and in the commit before the push (the base, on a pull
