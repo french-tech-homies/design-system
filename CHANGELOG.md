@@ -34,6 +34,17 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+### Fixed
+
+- **`TimePicker`'s hour and minute boxes hold their two digits under any
+  display face.** Under a wide face (Michroma, say) the 96dp box clipped
+  "07". Each box, on the dial and typed, now keeps Material's size as its
+  minimum and grows to the widest digit pair its face draws, with 8dp each
+  side, so it neither clips nor changes width as the value changes; the
+  dialog widens with it. Under Roboto, Inter or the Editorial serif the
+  boxes are Material's 96 by 80dp and 96 by 72dp, as before. The vertical
+  period selector's 52dp is a minimum too. No action needed.
+
 ## [0.5.0] — 2026-10-14
 
 Three entries need an act of a project and say **Action needed**, and they

@@ -54,6 +54,15 @@ import { pickerDialogStyles } from "./picker-dialog-styles";
  * - **Layout**: `orientation="vertical"` (the default) stacks the dial
  *   under the selectors; `horizontal` sets it beside them, as Material's
  *   landscape layout does.
+ * - **Any display face**: Material sizes the hour and minute boxes for
+ *   Roboto. Here each box's width is a minimum, and the box grows to the
+ *   widest of "00" to "99" in its face, plus 8dp each side (`DigitSizers`):
+ *   a wide face, such as Michroma, shows both digits whole, and the box
+ *   keeps one width whatever the value, so the dial does not shift under
+ *   a drag. Roboto and Inter fit Material's sizes, which then draw as
+ *   specified. The dialog, whose width is Material's "dynamic", widens
+ *   with them; past 360dp under a very wide face. The vertical period
+ *   selector's 52dp is a minimum the same way.
  * - **12 or 24 hours**: the locale's, or `hourCycle`. A 24-hour picker has
  *   no period selector; its dial carries 00–11 on the outer ring and 12–23
  *   on the inner, as Material's figure draws it.
