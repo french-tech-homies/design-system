@@ -116,6 +116,27 @@ export function XIcon(props: SvgProps) {
   );
 }
 
+/** The search bar's leading glyph: a magnifier. */
+export function SearchIcon(props: SvgProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </Svg>
+  );
+}
+
+/** Back: an arrow pointing to the leading edge. Mirror it in a
+    right-to-left page (`rtl:-scale-x-100`). */
+export function ArrowBackIcon(props: SvgProps) {
+  return (
+    <Svg {...props}>
+      <path d="M19 12H5" />
+      <path d="m12 19-7-7 7-7" />
+    </Svg>
+  );
+}
+
 /** Globe: the phone field's "international" (no country) state. */
 export function UserIcon(props: SvgProps) {
   return (
