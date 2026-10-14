@@ -174,6 +174,63 @@ export function ChevronUpIcon(props: SvgProps) {
   );
 }
 
+export function ChevronLeftIcon(props: SvgProps) {
+  return (
+    <Svg {...props}>
+      <path d="m15 18-6-6 6-6" />
+    </Svg>
+  );
+}
+
+export function ChevronRightIcon(props: SvgProps) {
+  return (
+    <Svg {...props}>
+      <path d="m9 18 6-6-6-6" />
+    </Svg>
+  );
+}
+
+/** Calendar: a date field's picker button, and the date pickers' way back
+    from input to the calendar. */
+export function CalendarIcon(props: SvgProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </Svg>
+  );
+}
+
+/** Pencil: the modal date picker's switch to date input. */
+export function EditIcon(props: SvgProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </Svg>
+  );
+}
+
+/** Clock: the time picker's switch to the dial, and its field's button. */
+export function ScheduleIcon(props: SvgProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </Svg>
+  );
+}
+
+/** Keyboard: the time picker's switch to time input. */
+export function KeyboardIcon(props: SvgProps) {
+  return (
+    <Svg {...props}>
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M18 13h.01M10 13h4M7 16h10" />
+    </Svg>
+  );
+}
+
 export function SpinnerIcon({ size = 24, className }: SvgProps) {
   return (
     <svg
