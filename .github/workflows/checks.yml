@@ -114,9 +114,16 @@ jobs:
         # listing its tools. No browser and no real Storybook start here.
         run: npm run storybook:check
 
-      - name: Every exported component carries its doc comment
+      - name: ripgrep, for the CHANGELOG's commands
+        # The Playwright image has none, and a command the CHANGELOG gives a
+        # project is run with it (scripts/changelog.check.mjs). Ubuntu's is
+        # built with PCRE2.
+        run: apt-get update -qq && apt-get install -y -qq ripgrep && rg --pcre2-version
+
+      - name: Every exported component carries its doc comment, and the CHANGELOG's commands do what they say
         # On the exported declaration, where an editor's hover and the types
-        # a project generates read it, not on the styles above it.
+        # a project generates read it, not on the styles above it. In CI a
+        # command that cannot be run fails the check: it is never skipped.
         run: npm run docs:check
 
       - name: Does this run publish? Only a release does
