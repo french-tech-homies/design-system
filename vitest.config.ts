@@ -144,7 +144,9 @@ export default defineConfig({
     browser: {
       enabled: true,
       headless: true,
-      provider: playwright(),
+      // One zone for every run, so the day `screenshot.setup.ts` pins is the
+      // same day wherever the tests run.
+      provider: playwright({ contextOptions: { timezoneId: "UTC" } }),
       instances: [{ browser: "chromium" }],
       commands: { reducedMotion, holdTheNetwork },
     },
