@@ -66,6 +66,27 @@ test("the rule holds every component of components/ and primitives/, and the nam
     "SearchView",
     "Focusable",
     "Display",
+    // Pending until every component had its comment.
+    "Headline",
+    "Title",
+    "Body",
+    "Label",
+    "Dialog",
+    "CardContent",
+    "TableHeader",
+    "TableBody",
+    "Column",
+    "Row",
+    "Cell",
+    "GridListItem",
+    "TooltipTrigger",
+    "TabList",
+    "Tab",
+    "TabPanel",
+    "DisclosureGroup",
+    "DisclosurePanel",
+    "RadioGroup",
+    "DateRangePicker",
     ...ALSO,
     ...PENDING,
   ])
@@ -135,24 +156,28 @@ test("a re-export with its comment on the export line is refused", () => {
   );
 });
 
+test("nothing is pending: every component's comment is written", () => {
+  assert.deepEqual(PENDING, []);
+});
+
 test("a pending export that gains its doc comment must leave the list", () => {
+  // The list is empty; a fixture's holds Dialog, whose comment is written.
   const name = "Dialog";
-  assert.ok(PENDING.includes(name), `the list names ${name}, still to be written`);
-  const path = shipped.find((e) => e.name === name)?.file;
-  assert.ok(path, `${INDEX} exports ${name}`);
-  const problems = checkDocs(
-    readExports({
-      replace: {
-        [path]: swap(
-          read(path),
-          `export function ${name}(`,
-          `/** A fixture's comment. */\nexport function ${name}(`,
-        ),
-      },
-    }),
+  assert.ok(
+    shipped.find((e) => e.name === name)?.doc,
+    `${INDEX} exports ${name}, with its doc comment`,
   );
+  const problems = checkDocs(shipped, { pending: [name] });
   assert.ok(
     problems.some((p) => p.startsWith(`${name} (`) && /PENDING/.test(p)),
     `no problem asks ${name} out of PENDING:\n  ${problems.join("\n  ")}`,
+  );
+});
+
+test("a pending name the kit does not export is refused", () => {
+  const problems = checkDocs(shipped, { pending: ["NoSuchComponent"] });
+  assert.ok(
+    problems.includes(`${INDEX} does not export NoSuchComponent`),
+    problems.join("\n  "),
   );
 });

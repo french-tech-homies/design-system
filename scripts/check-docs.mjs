@@ -21,7 +21,8 @@
 
    `PENDING` names the components that have no doc comment yet, anywhere,
    to move: theirs is still to be written. One that gains a comment is
-   refused until it leaves the list, so the list only shrinks.
+   refused until it leaves the list, so the list only shrinks. It is empty
+   now, and a new component is held to the rule from the start.
 
    `readExports` takes texts that replace the kit's own, by path, so the rule
    checks in check-docs.check.mjs can hand it a kit with one comment moved
@@ -40,30 +41,7 @@ export const FOLDERS = ["components", "primitives"];
 export const ALSO = ["GlobeIcon"];
 
 /** Components with no doc comment written yet: the rule's known gaps. */
-export const PENDING = [
-  "Body",
-  "CardContent",
-  "Cell",
-  "CheckboxGroup",
-  "Column",
-  "DateRangePicker",
-  "Dialog",
-  "DisclosureGroup",
-  "DisclosurePanel",
-  "Display",
-  "GridListItem",
-  "Headline",
-  "Label",
-  "RadioGroup",
-  "Row",
-  "Tab",
-  "TabList",
-  "TabPanel",
-  "TableBody",
-  "TableHeader",
-  "Title",
-  "TooltipTrigger",
-];
+export const PENDING = [];
 
 const KIT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -134,17 +112,19 @@ export function heldToRule({ name, file }) {
 
 /**
  * @param {{ name: string, file: string, doc: string }[]} exports
+ * @param {{ pending?: string[] }} [options]
+ *   `pending` replaces `PENDING`, for the rule checks.
  * @returns {string[]} what is wrong, empty when nothing is
  */
-export function checkDocs(exports) {
+export function checkDocs(exports, { pending = PENDING } = {}) {
   const problems = [];
   const names = new Set(exports.map((e) => e.name));
-  for (const name of [...ALSO, ...PENDING])
+  for (const name of [...ALSO, ...pending])
     if (!names.has(name)) problems.push(`${INDEX} does not export ${name}`);
   for (const e of exports.filter(heldToRule).sort((a, b) =>
     a.name.localeCompare(b.name),
   ))
-    if (PENDING.includes(e.name)) {
+    if (pending.includes(e.name)) {
       if (e.doc)
         problems.push(
           `${e.name} (${e.file}) has its doc comment now: take it out of PENDING in scripts/check-docs.mjs`,
@@ -169,6 +149,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   }
   const held = exports.filter(heldToRule).length;
   console.log(
-    `ok: ${held - PENDING.length} exported components carry their doc comment; still to write: ${PENDING.join(", ")}`,
+    `ok: ${held - PENDING.length} exported components carry their doc comment` +
+      (PENDING.length ? `; still to write: ${PENDING.join(", ")}` : ""),
   );
 }
