@@ -47,6 +47,15 @@ npm run registry:check-version # what CI runs
   drawer's count stays its own label text, and only its dot takes the role.
   `BadgeColor` is exported. No action needed.
 
+- **Every component the kit exports has a doc comment now**, shown in an
+  editor's hover and in the types a project generates. The 22 that had
+  none have one: the type roles `Display`, `Headline`, `Title`, `Body` and
+  `Label`; `Dialog`; `CardContent`; the table's `TableHeader`, `TableBody`,
+  `Column`, `Row` and `Cell`; `GridListItem`; `TooltipTrigger`; `TabList`,
+  `Tab` and `TabPanel`; `DisclosureGroup` and `DisclosurePanel`;
+  `CheckboxGroup` and `RadioGroup`; `DateRangePicker`. No behaviour or look
+  changes. No action needed.
+
 ### Changed
 
 - **The README says what a red release run leaves** ("Publishing this
