@@ -15,7 +15,7 @@ land in your tree, where editing one is allowed, has a price at every update
 and is rarely needed (see _What this kit is_). All imports inside the folder
 are relative, so it works at any path under any alias.
 
-> Source: `french-tech-homies/design-system` · **v0.5.0**. Keep this
+> Source: `french-tech-homies/design-system` · **v0.5.1**. Keep this
 > marker — with the version — and it tells you exactly which release your copy
 > came from. See _Versioning and upgrades_.
 
@@ -291,7 +291,7 @@ carries the terms in `meta`, before anything is copied:
 
 ```bash
 curl -s https://french-tech-homies.github.io/design-system/r/button.json | jq .meta
-# → { "kit": "<owner>/<repository>", "version": "0.5.0", "license": "MIT" }
+# → { "kit": "<owner>/<repository>", "version": "0.5.1", "license": "MIT" }
 ```
 
 **Re-running `add` never silently clobbers your edits — and never silently
@@ -382,7 +382,7 @@ adapters. See _Taking an update_.
 
 **5. The registry serves the latest release only: read which one before you
 install.** Before, from the item itself; after, from the record it brought.
-The install's closing message names it too ("MD3 kit 0.5.0, under
+The install's closing message names it too ("MD3 kit 0.5.1, under
 `<ui>/ds/`").
 
 ```bash
@@ -781,7 +781,7 @@ Two places say it:
 ```bash
 # what the kit ships today
 curl -s https://french-tech-homies.github.io/design-system/r/button.json | jq .meta
-# → { "kit": "<owner>/<repository>", "version": "0.5.0", "license": "MIT" }
+# → { "kit": "<owner>/<repository>", "version": "0.5.1", "license": "MIT" }
 
 # what you copied: the release record the whole install brought
 jq .version src/components/ui/ds/RELEASE.json
