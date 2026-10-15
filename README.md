@@ -848,6 +848,13 @@ Besides the groups, and with no effect on the exit code, it says:
 - **The update command** for what you hold, as its last line:
   `npx shadcn add @ds/ds @ds/next-adapter --overwrite -y` for a project with
   the Next adapter. Run that one, not the bare `@ds/ds`.
+- **A line of your entry CSS that keeps `utils.ts` out of Tailwind's scan**,
+  by its file and line number, and to remove it: the focus ring's classes
+  are written only in `utils.ts` (`focusRing`), so with that line no kit
+  control draws a focus indicator. The entry CSS is the one
+  `components.json` names (`tailwind.css`); a line is named when its
+  `@source not` path, from that file's folder, is `<ui>/ds/utils.ts` or a
+  folder holding it, such as `<ui>/ds` itself. A glob is not read.
 
 `node <ui>/ds/changed.mjs --missing` also names every recorded file that is
 not in your tree, with the item it belongs to and whether you hold that item

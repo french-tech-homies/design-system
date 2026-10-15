@@ -32,6 +32,7 @@ import {
   digests,
   itemRecord,
   landedText,
+  unscannedUtils,
   updateCommand,
 } from "../changed.mjs";
 
@@ -481,6 +482,94 @@ test("it writes nothing", (t) => {
     spawnSync("find", [project.root, "-type", "f", "-newer", join(project.root, TAG)], { encoding: "utf8" }).stdout,
     before,
   );
+});
+
+/* ---- the entry CSS that keeps utils.ts out of the scan ----------------- */
+
+const CSS = "src/styles/globals.css";
+const withCss = { rsc: true, tsx: true, tailwind: { css: CSS } };
+const unscanned = (path, line) =>
+  `${path}:${line} keeps utils.ts out of Tailwind's scan, so no kit control draws its focus ring: the ring's classes are written only in utils.ts (focusRing). Remove that line.`;
+
+/** An install whose `components.json` names `src/styles/globals.css`,
+    holding `css`. */
+function installWithCss(t, css, config = withCss) {
+  const project = install(t, { config });
+  mkdirSync(join(project.root, dirname(CSS)), { recursive: true });
+  writeFileSync(join(project.root, CSS), css);
+  return project;
+}
+
+test("an entry CSS that keeps utils.ts out of the scan is named, with the line to remove; the exit code is the files'", (t) => {
+  const project = installWithCss(
+    t,
+    [
+      '@import "tailwindcss";',
+      '@import "../components/ui/ds/tokens/theme.v4.css";',
+      '@source not "../components/ui/ds/tokens";',
+      '@source not "../components/ui/ds/utils.ts";',
+      "",
+    ].join("\n"),
+  );
+  const clean = project.run();
+  assert.ok(clean.stdout.includes(`\n${unscanned(CSS, 4)}\n`), clean.stdout);
+  assert.equal(clean.status, 0);
+  project.edit(TAG, (text) => `${text}// mine\n`);
+  const edited = project.run();
+  assert.ok(edited.stdout.includes(unscanned(CSS, 4)), edited.stdout);
+  assert.equal(edited.status, 1);
+});
+
+test("the kit's folder, or one above it, kept out is named too: it holds utils.ts", (t) => {
+  for (const [source, written] of [
+    ["../components/ui/ds", '@source not "../components/ui/ds";'],
+    ["../components/ui/ds/", "@source not '../components/ui/ds/' ;"],
+    ["../components", '  @source  not  "../components";'],
+  ]) {
+    const { stdout } = installWithCss(t, `@import "tailwindcss";\n${written}\n`).run();
+    assert.ok(stdout.includes(unscanned(CSS, 2)), `${source}: ${stdout}`);
+  }
+});
+
+test("the exclusions the README gives, a line in a comment and another folder's utils.ts are not named", (t) => {
+  const css = [
+    '@import "tailwindcss";',
+    '@source not "../components/ui/ds/tokens";',
+    '@source not "../components/ui/ds/releases";',
+    '@source not "../components/ui/ds/DESIGN.md";',
+    '@source not "../components/ui/ds/RELEASE.json";',
+    '@source not "../components/ui/ds/changed.mjs";',
+    '@source not "../components/ui/ds/LICENSE";',
+    '/* @source not "../components/ui/ds/utils.ts"; */',
+    "/*",
+    '@source not "../components/ui/ds";',
+    "*/",
+    '@source not "../lib/utils.ts";',
+    '@source not "../components/ui/ds/utils.tsx";',
+    '@source "../components/ui/ds/utils.ts";',
+    '@source not inline("focus-visible:outline-3");',
+    "",
+  ].join("\n");
+  const { stdout, status } = installWithCss(t, css).run();
+  assert.ok(!stdout.includes("keeps utils.ts out"), stdout);
+  assert.equal(status, 0);
+});
+
+test("no entry CSS named, or none where it is named: nothing is said of the scan", (t) => {
+  const named = install(t).run();
+  assert.ok(!named.stdout.includes("keeps utils.ts out"), named.stdout);
+  const missing = install(t, { config: withCss }).run();
+  assert.ok(!missing.stdout.includes("keeps utils.ts out"), missing.stdout);
+  assert.equal(missing.stderr, "");
+  assert.equal(missing.status, 0);
+});
+
+test("unscannedUtils: pure, the CSS and the two places in, each excluding line out", () => {
+  const kit = "/p/src/components/ui/ds";
+  const css = '@import "tailwindcss";\n@source not "../components/ui/ds/utils.ts";\n@source not "../components/ui/ds/tokens";\n@source not "/p/src/components/ui/ds";\n';
+  assert.deepEqual(unscannedUtils({ css, cssPath: "/p/src/styles/globals.css", kit }), [2, 4]);
+  assert.deepEqual(unscannedUtils({ css, cssPath: "/p/app/globals.css", kit }), [4]);
+  assert.deepEqual(unscannedUtils({ css: "", cssPath: "/p/a.css", kit }), []);
 });
 
 /* ---- the digests ------------------------------------------------------- */
