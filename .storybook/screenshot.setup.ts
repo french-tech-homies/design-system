@@ -47,6 +47,18 @@ type StoryInContext = {
 
 const THEMES = ["light", "dark"] as const;
 
+// Loaded twice, every picture would be taken twice, the second from the page
+// the first one's restore left: a carousel that re-snaps in between is then
+// drawn a snap away, now and then. `vitest.config.ts` gives this file once.
+const LOADED = Symbol.for("md3.screenshot.setup");
+const scope = globalThis as { [LOADED]?: true };
+if (scope[LOADED]) {
+  throw new Error(
+    "screenshot.setup.ts is loaded twice: give vitest.config.ts setupFiles as an array",
+  );
+}
+scope[LOADED] = true;
+
 /**
  * The instant every story test runs at: noon, in the zone `vitest.config.ts`
  * gives the browser (UTC), in a month no story shows, so that only a story
