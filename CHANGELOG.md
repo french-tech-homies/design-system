@@ -56,6 +56,15 @@ npm run registry:check-version # what CI runs
   `CheckboxGroup` and `RadioGroup`; `DateRangePicker`. No behaviour or look
   changes. No action needed.
 
+### Changed
+
+- **The README says what a red release run leaves** ("Publishing this
+  repository"): a release whose own run on `main` is red publishes nothing,
+  and once a fix to a kit file is pushed after it, neither a push nor a hand
+  start publishes it any more. Re-run the release commit's own run; where
+  the commit itself is wrong, the next patch release publishes. How the kit
+  is published is unchanged. No action needed.
+
 ## [0.5.1] — 2026-10-14
 
 A patch: two fixes and a pin of this repository's own Playwright. No entry

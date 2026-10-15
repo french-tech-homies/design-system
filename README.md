@@ -1418,6 +1418,20 @@ with the catalog as `main` has it. Once `main` has moved past the release it
 publishes nothing, and says which release that was: what `main` holds since
 is published by the next release. It publishes nothing from another branch.
 
+**A release whose own run is red publishes nothing, and is re-run, never
+fixed by a push.** When the run of a release's commit on `main` goes red,
+the release is merged but not published, and the site stays as the release
+before left it. Once a fix that touches a kit file is pushed after it, no
+path publishes that release any more: the push finds the version already in
+all five places, so it is no release, and a hand start finds `RELEASE.json`,
+which holds every kit file's hash, changed since the release's commit, so
+`main` has moved past it. Only a re-run of the release commit's own run (on
+the Actions page, "Re-run all jobs", or `gh run rerun <run id>`) still
+publishes it, which serves where the red came from outside the commit: a
+flaky step, a deployment that failed, Pages not yet set up. Where the commit
+itself is wrong, leave the release unpublished, merge the fix, and make the
+next patch release: it publishes both.
+
 **One setting, made once by a person**: Settings → Pages → Build and
 deployment → Source = "GitHub Actions". Until then `publish` fails at
 "Configure Pages".
