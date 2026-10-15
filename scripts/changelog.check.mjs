@@ -9,7 +9,8 @@
    `[Unreleased]`, so the text a project copies is the text tested.
 
    It needs ripgrep (`rg`, built with PCRE2) on the PATH, as the command
-   does; without one the test says so and is skipped.
+   does; without one the test says so and is skipped, except in CI
+   (`CI` set), where it fails.
    ========================================================================== */
 
 import assert from "node:assert/strict";
@@ -98,7 +99,13 @@ function run(t, command) {
 }
 
 const ripgrep = spawnSync("sh", ["-c", "rg --pcre2-version"], { encoding: "utf8" }).status === 0;
-const needsRipgrep = ripgrep ? {} : { skip: "no ripgrep built with PCRE2 on the PATH" };
+/** Skipped on a machine with no ripgrep; in CI, where the pull request is
+    judged, the proof is never missing: no ripgrep fails instead. */
+const needsRipgrep = ripgrep || process.env.CI ? {} : { skip: "no ripgrep built with PCRE2 on the PATH" };
+
+test("ripgrep built with PCRE2 is on the PATH, in CI", { skip: !process.env.CI && "not in CI" }, () => {
+  assert.ok(ripgrep, "`rg --pcre2-version` failed: install ripgrep before docs:check");
+});
 
 test("the command that lists unsaid icon buttons lists exactly those that name no variant", needsRipgrep, (t) => {
   const command = iconButtonCommand(unreleased);
