@@ -109,7 +109,11 @@ export const Unavailable: Story = {
 
 /** Today's date is outlined in `primary`. The one story that shows today. */
 export const Today: Story = {
-  parameters: { layout: "padded" },
+  tags: ["no-screenshot"],
+  parameters: {
+    layout: "padded",
+    screenshot: { reason: "it draws the day it runs on, so no picture of it holds the next day" },
+  },
   args: { defaultOpen: true, placeholderValue: today(getLocalTimeZone()) },
 };
 
