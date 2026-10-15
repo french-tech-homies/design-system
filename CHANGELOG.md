@@ -65,6 +65,30 @@ npm run registry:check-version # what CI runs
   the commit itself is wrong, the next patch release publishes. How the kit
   is published is unchanged. No action needed.
 
+### Fixed
+
+- **The command that lists the icon buttons naming no colour style lists
+  exactly those.** 0.4.0's entry made the filled style the default and gave
+  a command to find each `<IconButton>` that names no `variant`. It
+  stopped reading a button at the first `>`, which is also the `=>` of an
+  arrow function, so a button whose `variant` came after an
+  `onPress={() => …}` was listed though it names one (never the other way).
+  This one reads a `{…}` prop whole, however deep, and a quoted string
+  whole, so an arrow, an element or a `>` in a prop does not end the
+  button. It lists a button with no `variant` prop, before or after any
+  other, and no other:
+
+  ```bash
+  rg -U --pcre2 -n '<IconButton\b(?!(?:[^{}>"\x27]|"[^"]*"|\x27[^\x27]*\x27|(\{(?:[^{}]|(?1))*\}))*\svariant\s*=)' src
+  ```
+
+  As before, it does not find a button imported under another name, and a
+  button whose props are spread from an object (`<IconButton {...props} />`)
+  is listed: the object may hold the `variant`. A string inside a `{…}` prop
+  that holds an unmatched brace stops it; no kit file has one. A button
+  the old command listed that does name its `variant` needed no edit then
+  and needs none now. No action needed.
+
 ## [0.5.1] — 2026-10-14
 
 A patch: two fixes and a pin of this repository's own Playwright. No entry
