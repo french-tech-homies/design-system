@@ -47,3 +47,53 @@
 @source inline("rounded-shape-{extra-small,small,medium,large,extra-large,full}");
 @source inline("shadow-elevation-{1,2,3,4,5}");
 @source inline("text-{display,headline,title,body,label}-{large,medium,small}");
+
+/* The catalog's ground in dark: the current preset's `surface`, so what a
+   story draws in the dark theme's light ink is read on the dark ground it is
+   made for, not on the page's white. The roles are read from `<html>`, so the
+   ground follows the preset the toolbar puts there: Material, Editorial or a
+   handed theme. Light sets nothing: its ground stays the page's white.
+   Storybook's own frame is not the kit's and is not reached from here.
+
+   A story's canvas is its `<body>`, dark where `<html>` is (the screenshots
+   switch that class). A Docs page is its wrapper and each story's preview
+   block, with the Docs' own text (headings, prose, code, the args table;
+   never what a story draws) in `on-surface`: dark where the toolbar is,
+   which `preview.ts` writes as `data-docs-theme`, since a story's own
+   `globals` puts `.dark` on `<html>` for the whole page. */
+.dark:not([data-docs-theme]) body,
+[data-docs-theme="dark"] body,
+[data-docs-theme="dark"] .sbdocs-wrapper,
+[data-docs-theme="dark"] .sbdocs-preview,
+[data-docs-theme="dark"] .sbdocs-preview > :not(.docs-story) {
+  background-color: var(--md-sys-color-surface);
+}
+[data-docs-theme="dark"] .sbdocs-preview {
+  border-color: var(--md-sys-color-outline-variant);
+}
+/* The preview's toolbar and its "Show code" bar: never the story. */
+[data-docs-theme="dark"] .sbdocs-preview > :not(.docs-story),
+[data-docs-theme="dark"] .sbdocs-preview > :not(.docs-story) button,
+[data-docs-theme="dark"] .sbdocs-preview-actions button {
+  border-color: var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface-variant);
+}
+/* An args table's controls keep their own light field and ink. */
+[data-docs-theme="dark"]
+  .sbdocs-wrapper
+  :is(h1, h2, h3, h4, h5, h6, p, li, th, td, a, span, div):not(
+    .sbdocs-preview *,
+    button *,
+    label *
+  ) {
+  color: var(--md-sys-color-on-surface);
+}
+[data-docs-theme="dark"] .sbdocs-wrapper :is(table, th, td, tr):not(.sbdocs-preview *) {
+  background-color: var(--md-sys-color-surface);
+  border-color: var(--md-sys-color-outline-variant);
+}
+[data-docs-theme="dark"] .sbdocs-wrapper code:not(.sbdocs-preview *) {
+  background-color: var(--md-sys-color-surface-container-high);
+  border-color: var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface);
+}

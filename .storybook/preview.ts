@@ -78,6 +78,22 @@ const preview: Preview = {
       },
       defaultTheme: "light",
     }),
+    // A Docs page's ground follows the toolbar's theme, not the `.dark` a
+    // story's own `globals` puts on `<html>` for the whole page: in light, a
+    // Docs page that holds a dark story keeps its white ground. Only a story
+    // that sets no theme of its own reads the toolbar's, so only it writes
+    // the page's. A story's canvas follows `<html>` (storybook.css).
+    (Story, context) => {
+      const docs = context.viewMode === "docs";
+      const ownTheme = context.storyGlobals?.theme !== undefined;
+      const docsTheme = docs ? (context.globals.theme === "dark" ? "dark" : "light") : null;
+      useEffect(() => {
+        const root = document.documentElement;
+        if (!docsTheme) delete root.dataset.docsTheme;
+        else if (!ownTheme) root.dataset.docsTheme = docsTheme;
+      }, [docsTheme, ownTheme]);
+      return Story();
+    },
     (Story, context) => {
       const preset = context.globals.preset as string | undefined;
       const [, updateGlobals] = useGlobals();
