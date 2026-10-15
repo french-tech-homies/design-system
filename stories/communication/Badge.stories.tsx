@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Bell, Inbox, Mail, MessageSquare, Users, Video } from "lucide-react";
 import React from "react";
+import { expect, within } from "storybook/test";
 
-import { Badge } from "@french-tech-homies/design-system/components/Badge";
+import { Badge, type BadgeColor } from "@french-tech-homies/design-system/components/Badge";
 import { BottomNavigation } from "@french-tech-homies/design-system/components/BottomNavigation";
 import IconButton from "@french-tech-homies/design-system/components/IconButton";
 import { NavigationDrawer } from "@french-tech-homies/design-system/components/NavigationDrawer";
@@ -31,11 +32,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A 24dp icon box, as a host draws one, with a badge on its corner. */
-function OnIcon({ value }: { value?: number | string }) {
+function OnIcon({
+  value,
+  color,
+}: {
+  value?: number | string;
+  color?: BadgeColor;
+}) {
   return (
     <span className="relative inline-flex text-on-surface-variant">
       <Inbox size={24} aria-hidden />
-      <Badge value={value} anchored />
+      <Badge value={value} color={color} anchored />
     </span>
   );
 }
@@ -202,4 +209,122 @@ export const Dark: Story = {
       <BottomNavigation items={destinations} defaultSelectedKey="mail" />
     </div>
   ),
+};
+
+const COLORS: BadgeColor[] = ["error", "primary", "secondary", "tertiary"];
+
+/** WCAG's contrast ratio of two computed `rgb(…)` colours. */
+function contrast(a: string, b: string) {
+  const luminance = (css: string) => {
+    const [r = 0, g = 0, b = 0] = css.match(/[\d.]+/g)!.slice(0, 3).map((c) => {
+      const v = Number(c) / 255;
+      return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const [x, y] = [luminance(a), luminance(b)];
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+/**
+ * Each badge's text on its fill at least 4.5:1, its label being 11px text,
+ * and its fill on the surface at least 3:1, as Material's guidelines ask of a
+ * role other than its own: in light and in dark. axe cannot check either, a
+ * badge being `aria-hidden`.
+ */
+async function expectBadgesContrast(canvasElement: HTMLElement) {
+  const html = document.documentElement;
+  const wasDark = html.classList.contains("dark");
+  const surface = canvasElement.querySelector<HTMLElement>("[data-surface]")!;
+  try {
+    for (const dark of [false, true]) {
+      html.classList.toggle("dark", dark);
+      const ground = getComputedStyle(surface).backgroundColor;
+      for (const badge of canvasElement.querySelectorAll<HTMLElement>(
+        '[data-slot="badge"]',
+      )) {
+        const { backgroundColor, color } = getComputedStyle(badge);
+        const where = `${badge.dataset.color} ${badge.dataset.size}, ${dark ? "dark" : "light"}`;
+        await expect(contrast(backgroundColor, ground), `${where}: fill`).toBeGreaterThanOrEqual(3);
+        if (badge.dataset.size === "large")
+          await expect(contrast(color, backgroundColor), `${where}: text`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  } finally {
+    html.classList.toggle("dark", wasDark);
+  }
+}
+
+/** `color`, which is not Material's: Material draws every badge in `error`,
+    the default. The others, each fill with its own `on-` role for the text,
+    are for a project whose colours mean something of their own. */
+export const Colors: Story = {
+  render: () => (
+    <div data-surface className="bg-surface inline-grid grid-cols-[auto_repeat(3,3rem)] items-center gap-x-6 gap-y-4 p-4">
+      {COLORS.map((color) => (
+        <React.Fragment key={color}>
+          <Label component="span" size="medium" colorRole="on-surface-variant">
+            {color}
+          </Label>
+          <OnIcon color={color} />
+          <OnIcon value={3} color={color} />
+          <OnIcon value={1200} color={color} />
+        </React.Fragment>
+      ))}
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const badges = canvasElement.querySelectorAll<HTMLElement>('[data-slot="badge"]');
+    await expect(badges.length).toBe(12);
+    await expectBadgesContrast(canvasElement);
+  },
+};
+
+/** "Primary", as a destination's label. */
+const titled = (color: string) => color.charAt(0).toUpperCase() + color.slice(1);
+
+const colored = COLORS.flatMap((color) => [
+  {
+    id: `${color}-count`,
+    label: titled(color),
+    icon: Mail,
+    badge: 3,
+    badgeColor: color,
+  },
+  {
+    id: `${color}-dot`,
+    label: "Dot",
+    ariaLabel: `${color} dot`,
+    icon: Bell,
+    badge: true as const,
+    badgeColor: color,
+  },
+]);
+
+/** A destination's `badgeColor` on the rail: on the icon collapsed, after
+    the label expanded, the dot on the icon in both. */
+export const ColorsOnNavigationRail: Story = {
+  render: () => (
+    <div data-surface className="bg-surface flex h-[600px] gap-6">
+      <NavigationRail items={colored} aria-label="Collapsed" />
+      <NavigationRail items={colored} isExpanded aria-label="Expanded" />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const rail of ["Collapsed", "Expanded"]) {
+      const nav = within(canvas.getByRole("navigation", { name: rail }));
+      for (const color of COLORS) {
+        const name = `${titled(color)}, 3`;
+        const count = nav.getByRole("button", { name });
+        const dot = nav.getByRole("button", { name: `${color} dot, New notification` });
+        for (const [destination, size] of [[count, "large"], [dot, "small"]] as const) {
+          const badge = destination.querySelector<HTMLElement>('[data-slot="badge"]')!;
+          await expect(badge).toHaveAttribute("data-color", color);
+          await expect(badge).toHaveAttribute("data-size", size);
+        }
+      }
+    }
+    await expectBadgesContrast(canvasElement);
+  },
 };

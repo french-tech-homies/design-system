@@ -34,6 +34,19 @@ npm run registry:check-version # what CI runs
 
 ## [Unreleased]
 
+### Added
+
+- **`Badge` takes `color`**: `primary`, `secondary`, `tertiary` or `error`,
+  the fill with its own `on-` role for the text, the roles `Meter` takes.
+  The default is `error`, Material's, so every badge drawn today is
+  unchanged. Another role is not Material's (its badges are always `error`):
+  it is for a project whose colours mean something of their own, where a
+  count of what waits on the reader must not read as "something failed".
+  A destination of `BottomNavigation`, `NavigationRail` and
+  `NavigationDrawer` carries it as `badgeColor`, beside `badge`; the
+  drawer's count stays its own label text, and only its dot takes the role.
+  `BadgeColor` is exported. No action needed.
+
 ## [0.5.1] — 2026-10-14
 
 A patch: two fixes and a pin of this repository's own Playwright. No entry
