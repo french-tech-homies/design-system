@@ -1314,6 +1314,15 @@ Which plans have design systems, and where one is made, is on the same page.
   label pill (its badge, the kit's `Badge`, is the dot or count on an icon) and no standalone
   avatar; both exist because apps need them, drawn only in colour roles so
   they follow the palette. `Tag` is presentational — actions are chips.
+- **A `Badge` can take a colour role, which Material's cannot.** Material
+  draws every badge in `error`, and the default keeps it so. `color`
+  (`primary`, `secondary`, `tertiary`, `error`, each on its own `on-` role, as
+  `Meter` and `Tag` take theirs) is for a project whose colours carry their
+  own meanings, where a count of what waits on the reader must not read as a
+  failure. On the bar, the rail and the drawer, a destination's `badgeColor`
+  carries it: `{ id: "runs", label: "Runs", icon: Play, badge: 3,
+  badgeColor: "primary" }`. The drawer's count is its own label text and
+  keeps its colour; only its dot takes the role.
 - **One shell, three components.** `TopAppBar` titles the screen,
   `NavigationRail` runs down its leading edge in a medium or expanded window
   (collapsed at 96dp, expanded at 220dp — the spec's own two states) and

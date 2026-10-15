@@ -514,6 +514,47 @@ export const BadgeMirrorsRightToLeft: Story = {
   },
 };
 
+/** A destination's `badgeColor` reaches its badge on the bar, the rail and
+    the drawer's dot; a badge given none is Material's `error`. The drawer's
+    count is its own label text, which takes no fill. */
+export const BadgeColorReachesEveryHost: Story = {
+  render: () => {
+    const items = [
+      { id: "home", label: "Home", icon: Home, badge: 3 },
+      { id: "menus", label: "Menus", icon: Utensils, badge: true as const, badgeColor: "primary" as const },
+      { id: "orders", label: "Orders", icon: ShoppingBasket, badge: 12, badgeColor: "tertiary" as const },
+    ];
+    return (
+      <div className="flex gap-6">
+        <div className="w-[320px]">
+          <BottomNavigation items={items} aria-label="Bar" />
+        </div>
+        <div className="h-[260px]">
+          <NavigationRail items={items} aria-label="Rail" />
+        </div>
+        <NavigationDrawer items={items} aria-label="Drawer" />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const badgeOf = (nav: string, name: string) =>
+      within(canvas.getByRole("navigation", { name: nav }))
+        .getByRole("button", { name })
+        .querySelector<HTMLElement>('[data-slot="badge"]');
+    for (const nav of ["Bar", "Rail"]) {
+      await expect(badgeOf(nav, "Home, 3")).toHaveAttribute("data-color", "error");
+      await expect(badgeOf(nav, "Home, 3")).toHaveClass("bg-error", "text-on-error");
+      await expect(badgeOf(nav, "Menus, New notification")).toHaveAttribute("data-color", "primary");
+      await expect(badgeOf(nav, "Menus, New notification")).toHaveClass("bg-primary");
+      await expect(badgeOf(nav, "Orders, 12")).toHaveAttribute("data-color", "tertiary");
+      await expect(badgeOf(nav, "Orders, 12")).toHaveClass("bg-tertiary", "text-on-tertiary");
+    }
+    await expect(badgeOf("Drawer", "Menus, New notification")).toHaveAttribute("data-color", "primary");
+    await expect(badgeOf("Drawer", "Orders, 12")).toBeNull();
+  },
+};
+
 /** The drawer's badge is its trailing label text, not the red badge, and is
     read once, after the name. A `true` badge shows its `badgeLabel`. */
 export const DrawerBadgeIsTrailingText: Story = {

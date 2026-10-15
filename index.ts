@@ -93,6 +93,7 @@ export {
   Badge,
   badgeAccessibleText,
   BADGE_MAX,
+  type BadgeColor,
   type BadgeProps,
   type BadgeValue,
 } from "./components/Badge";
