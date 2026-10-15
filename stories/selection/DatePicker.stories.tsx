@@ -19,7 +19,9 @@ import {
  * `@internationalized/date` values.
  *
  * Every story pins its locale (en-US) and its dates, so it renders the same
- * on any day and any machine; only `Today` shows today, as it must.
+ * on any day and any machine; only `Today` shows today, as it must. Its
+ * screenshot is drawn on the day the story tests pin (2026-03-15,
+ * `.storybook/screenshot.setup.ts`).
  */
 const meta = {
   title: "MD3/Selection/Date picker",
@@ -109,11 +111,7 @@ export const Unavailable: Story = {
 
 /** Today's date is outlined in `primary`. The one story that shows today. */
 export const Today: Story = {
-  tags: ["no-screenshot"],
-  parameters: {
-    layout: "padded",
-    screenshot: { reason: "it draws the day it runs on, so no picture of it holds the next day" },
-  },
+  parameters: { layout: "padded" },
   args: { defaultOpen: true, placeholderValue: today(getLocalTimeZone()) },
 };
 

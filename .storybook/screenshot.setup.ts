@@ -16,11 +16,12 @@
  *
  * What moves is held still: the page is compared under
  * `prefers-reduced-motion: reduce`, which the kit's moving parts honour, and
- * Playwright finishes any CSS animation or transition still running. A story
- * that still cannot be drawn the same way twice is left out by the
- * `no-screenshot` tag, with its reason in `parameters.screenshot.reason`.
+ * Playwright finishes any CSS animation or transition still running. The day
+ * is held still too: see `PINNED_NOW` below. A story that still cannot be
+ * drawn the same way twice is left out by the `no-screenshot` tag, with its
+ * reason in `parameters.screenshot.reason`.
  */
-import { afterEach, beforeAll, expect, inject } from "vitest";
+import { afterEach, beforeAll, expect, inject, vi } from "vitest";
 import { commands, page } from "vitest/browser";
 
 declare module "vitest" {
@@ -45,6 +46,31 @@ type StoryInContext = {
 };
 
 const THEMES = ["light", "dark"] as const;
+
+// Loaded twice, every picture would be taken twice, the second from the page
+// the first one's restore left: a carousel that re-snaps in between is then
+// drawn a snap away, now and then. `vitest.config.ts` gives this file once.
+const LOADED = Symbol.for("md3.screenshot.setup");
+const scope = globalThis as { [LOADED]?: true };
+if (scope[LOADED]) {
+  throw new Error(
+    "screenshot.setup.ts is loaded twice: give vitest.config.ts setupFiles as an array",
+  );
+}
+scope[LOADED] = true;
+
+/**
+ * The instant every story test runs at: noon, in the zone `vitest.config.ts`
+ * gives the browser (UTC), in a month no story shows, so that only a story
+ * that reads today draws today's outline. A story that reads
+ * today (DatePicker's `Today`) then draws the same day on every run and every
+ * machine, while Storybook for a person still shows the real today. Set here,
+ * before a story file is imported, since a story's args may read the date
+ * when its file loads; only `Date` is replaced, and it goes on from this
+ * instant as time passes, so timers and waits run as they would.
+ */
+const PINNED_NOW = new Date("2026-03-15T12:00:00Z");
+vi.useFakeTimers({ now: PINNED_NOW, toFake: ["Date"], shouldAdvanceTime: true });
 
 beforeAll(async () => {
   if (inject("md3Screenshots")) await commands.holdTheNetwork();

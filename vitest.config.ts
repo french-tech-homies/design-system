@@ -116,8 +116,10 @@ export default defineConfig({
     fileParallelism: false,
     // Every story's screenshot, after it played and passed axe. Compared only
     // inside the Playwright image (`MD3_SCREENSHOTS`), where the baselines
-    // were made: see `.storybook/screenshot.setup.ts`.
-    setupFiles: "./.storybook/screenshot.setup.ts",
+    // were made: see `.storybook/screenshot.setup.ts`. An array, never a
+    // string: `storybookTest` copies a string into its own list, the merge
+    // adds it again, and every hook in it then runs twice.
+    setupFiles: ["./.storybook/screenshot.setup.ts"],
     provide: { md3Screenshots: Boolean(process.env.MD3_SCREENSHOTS) },
     // One project per identity. A component that is only accessible under the
     // Material palette is not accessible: the Editorial preset is a different
@@ -144,7 +146,9 @@ export default defineConfig({
     browser: {
       enabled: true,
       headless: true,
-      provider: playwright(),
+      // One zone for every run, so the day `screenshot.setup.ts` pins is the
+      // same day wherever the tests run.
+      provider: playwright({ contextOptions: { timezoneId: "UTC" } }),
       instances: [{ browser: "chromium" }],
       commands: { reducedMotion, holdTheNetwork },
     },
