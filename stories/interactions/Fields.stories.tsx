@@ -57,7 +57,11 @@ export const TextFieldTyping: Story = {
   },
 };
 
-/** Invalid swaps the supporting text for the error and marks the input. */
+/**
+ * Invalid swaps the supporting text for the error and marks the input. The
+ * error icon is named by `errorLabel`, so a page in another language names
+ * it in that language.
+ */
 export const TextFieldError: Story = {
   render: () => (
     <TextField
@@ -65,6 +69,7 @@ export const TextFieldError: Story = {
       supportingText="Shown on the storefront"
       isInvalid
       errorMessage="A display name is required"
+      errorLabel="Erreur"
       className="w-80"
     />
   ),
@@ -75,6 +80,8 @@ export const TextFieldError: Story = {
     await expect(
       canvas.getByRole("textbox", { name: /display name/i }),
     ).toHaveAttribute("aria-invalid", "true");
+    await expect(canvas.getByRole("img", { name: "Erreur" })).toBeVisible();
+    await expect(canvas.queryByRole("img", { name: "Error" })).toBeNull();
   },
 };
 
