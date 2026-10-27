@@ -36,6 +36,13 @@ npm run registry:check-version # what CI runs
 
 ### Added
 
+- **The error icon's name can be translated**: `TextField`, `NumberField`,
+  `PhoneField` and `ComboBox` take `errorLabel`, the accessible name of the
+  icon an invalid field draws, so a page in another language no longer
+  announces "Error" in English. The default stays `"Error"`, so every field
+  drawn today is unchanged. No action needed; a project whose pages are not
+  in English passes its own word.
+
 - **`Badge` takes `color`**: `primary`, `secondary`, `tertiary` or `error`,
   the fill with its own `on-` role for the text, the roles `Meter` takes.
   The default is `error`, Material's, so every badge drawn today is
