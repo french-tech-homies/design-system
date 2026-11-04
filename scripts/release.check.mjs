@@ -15,7 +15,7 @@
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
@@ -27,6 +27,7 @@ import { versions } from "./decide-publish.mjs";
 import {
   BRANCH,
   GROUPS,
+  WORKFLOW,
   LABELS,
   NOTE_HEADING,
   bumpOf,
@@ -36,6 +37,7 @@ import {
   next,
   noteOf,
   plan,
+  prBody,
   section,
   sectionOf,
   unreleasedOf,
@@ -480,4 +482,16 @@ test("release-label.yml: every pull request, its labels and its pushes", () => {
   }
   const runs = w.jobs.label.steps.map((s) => s.run).filter(Boolean);
   assert.deepEqual(runs, ["node scripts/release.mjs labels", "node scripts/release.mjs label-check"]);
+});
+
+test("the release pull request's body names the workflow that keeps it, and no workflow that is not there", () => {
+  assert.ok(existsSync(join(kit, WORKFLOW)), `${WORKFLOW} exists`);
+  const body = prBody({ version: "0.6.0", sectionText: "## [0.6.0] — 2026-11-04\n", unlabelled: [3] });
+  assert.ok(body.includes(`\`${WORKFLOW}\``));
+  for (const [path] of body.matchAll(/\.github\/workflows\/[\w.-]+\.ya?ml/g)) {
+    assert.ok(existsSync(join(kit, path)), `the body names ${path}, which is not there`);
+  }
+  for (const [path] of read("scripts/release.mjs").matchAll(/\.github\/workflows\/[\w.-]+\.ya?ml/g)) {
+    assert.ok(existsSync(join(kit, path)), `release.mjs names ${path}, which is not there`);
+  }
 });

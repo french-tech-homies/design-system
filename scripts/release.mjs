@@ -12,7 +12,7 @@
    does to the next version. `.github/workflows/release-label.yml` refuses a
    pull request without one, and sets it where the files touched decide.
 
-   `.github/workflows/release.yml`, on every push to `main` and after every
+   `.github/workflows/release-pr.yml`, on every push to `main` and after every
    run of Pages, reads the pull requests merged since the newest `v*` tag on
    `main`. When some are not `internal`, it rebuilds the branch `release` from
    `main`: the bump their labels ask, `npm version <bump>
@@ -274,6 +274,8 @@ export function sectionOf(changelog, version) {
 
 /* ---- the plan ---------------------------------------------------------- */
 
+/** The workflow that keeps the release pull request: named in its body. */
+export const WORKFLOW = ".github/workflows/release-pr.yml";
 export const BRANCH = "release";
 export const BASE = "main";
 export const titleOf = (version) => `Release ${version}`;
@@ -341,7 +343,7 @@ export function prBody({ version, sectionText, unlabelled }) {
   return [
     `Merging this releases **${version}**: the five places a release writes the version move in its one commit, so the push publishes the catalog and the registry (\`.github/workflows/pages.yml\`), and the commit is then tagged \`v${version}\` with its GitHub release.`,
     "",
-    "Not ready? Leave it open: `.github/workflows/release.yml` rebuilds the branch `release` from `main` on every push, and its checks run there (the commit status **Release checks**). Edits to this branch or to this description are overwritten.",
+    `Not ready? Leave it open: \`${WORKFLOW}\` rebuilds the branch \`release\` from \`main\` on every push, and its checks run there (the commit status **Release checks**). Edits to this branch or to this description are overwritten.`,
     ...(unlabelled.length
       ? [
           "",
