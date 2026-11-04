@@ -25,6 +25,7 @@
      when to load it ("Use when") and is no longer than a listing keeps;
    - the update command is written one way in the README and the skills:
      `npx shadcn add @ds/ds`, each optional item held, `--overwrite -y`;
+     its preview the same way, ending `--dry-run` or `--diff <path>`;
    - no item lands a skill that is not one of the kit's own three, named
      here and not read from what skills/ holds, and Adobe's React Aria skill is named, never shipped: its
      install command is in the `ds-build` skill and once in the README,
@@ -75,6 +76,12 @@ const ARIA_MCP = /@react-aria\/mcp|react[- ]aria[^\n]{0,40}\bMCP\b|\bMCP\b[^\n]{
     goes, and the one form it has: see rule 8. */
 const UPDATE_COMMAND = /(?:\bnpx\s+)?\bshadcn(?:@[^\s`]+)?\s+add\b[^`\n]*--overwrite[^`\n]*/g;
 const UPDATE_FORM = /^npx shadcn add @ds\/ds((?: @ds\/[a-z0-9-]+)*) --overwrite -y$/;
+
+/** A `shadcn add` that previews, and its form: the update's, ending on the
+    preview. A diff names its file: without one, the CLI shows the first five
+    of the install's files, not the ones that change. */
+const PREVIEW_COMMAND = /(?:\bnpx\s+)?\bshadcn(?:@[^\s`]+)?\s+add\b[^`\n]*--(?:dry-run|diff)\b[^`\n]*/g;
+const PREVIEW_FORM = /^npx shadcn add @ds\/ds((?: @ds\/[a-z0-9-]+)*) (?:--dry-run|--diff \S+)$/;
 
 /** What a harness's skill listing keeps of a description: the Agent Skills
     format's limit. The description is all a session reads before it decides
@@ -439,23 +446,31 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
     ["README.md", readme ?? ""],
     ...skillFiles.filter((p) => p.endsWith(".md")).map((p) => [p, texts[p] ?? ""]),
   ];
+  //    Its preview, `--dry-run` or `--diff <path>`, is written the same way.
+  const forms = [
+    [UPDATE_COMMAND, UPDATE_FORM, "the update command", "npx shadcn add @ds/ds --overwrite -y"],
+    [PREVIEW_COMMAND, PREVIEW_FORM, "the update's preview", "npx shadcn add @ds/ds --dry-run` or `--diff <path>"],
+  ];
   for (const [path, text] of commands) {
     text.split("\n").forEach((line, index) => {
-      for (const m of line.matchAll(UPDATE_COMMAND)) {
-        const at = `${path}:${index + 1}`;
-        const command = m[0].trim();
-        const said = UPDATE_FORM.exec(command);
-        if (!said) {
-          problems.push(
-            `${at}: writes the update command as \`${command}\`. It is \`npx shadcn add @ds/ds --overwrite -y\`, with each optional item held named after \`@ds/ds\``,
-          );
-          continue;
-        }
-        for (const named of said[1].trim().split(/\s+/).filter(Boolean)) {
-          if (!items.has(named.slice(NS.length))) {
+      for (const [pattern, form, what, shape] of forms) {
+        for (const m of line.matchAll(pattern)) {
+          const at = `${path}:${index + 1}`;
+          // A shell comment after the command is not part of it.
+          const command = m[0].replace(/\s+#.*$/, "").trim();
+          const said = form.exec(command);
+          if (!said) {
             problems.push(
-              `${at}: the update command names ${named}, an item the registry does not hold`,
+              `${at}: writes ${what} as \`${command}\`. It is \`${shape}\`, with each optional item held named after \`@ds/ds\``,
             );
+            continue;
+          }
+          for (const named of said[1].trim().split(/\s+/).filter(Boolean)) {
+            if (!items.has(named.slice(NS.length))) {
+              problems.push(
+                `${at}: ${what} names ${named}, an item the registry does not hold`,
+              );
+            }
           }
         }
       }
