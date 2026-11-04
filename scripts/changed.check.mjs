@@ -531,7 +531,7 @@ test("the kit's folder, or one above it, kept out is named too: it holds utils.t
   }
 });
 
-test("the exclusions the README gives, a line in a comment and another folder's utils.ts are not named", (t) => {
+test("the exclusions docs/installing.md gives, a line in a comment and another folder's utils.ts are not named", (t) => {
   const css = [
     '@import "tailwindcss";',
     '@source not "../components/ui/ds/tokens";',

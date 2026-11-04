@@ -12,8 +12,8 @@ versioned is *the source you copied*, not a runtime API. Until 1.0.0:
 - **patch** (`0.x.y`) — additive or corrective only. A file you have not edited
   can always be re-added with `shadcn add --overwrite`.
 
-What "breaking" means per layer is defined in the README, "Retheming — the
-three layers": token *names* and style-module *slot
+What "breaking" means per layer is defined in `docs/theming.md`, "Retheming —
+the three layers": token *names* and style-module *slot
 names* are the contract; what a slot contains is not.
 
 Every generated registry item carries the version it was built from in
@@ -65,8 +65,21 @@ npm run registry:check-version # what CI runs
 
 ### Changed
 
-- **An update is three commands, at the top of the README's "Versioning
-  and upgrades"** (_Updating, in three commands_), and the `ds-theme` and
+- **The README is a front page, and the detail is in `docs/`.** The README
+  is what a newcomer reads in a few minutes: what the kit is, a picture
+  from the catalog's own screenshots, a quick start, why, install, the
+  update, the components linked to their pages of the catalog. Everything
+  else it held is on one page of `docs/` a topic (installing, using,
+  theming, versioning and updates, the catalog and the tests, design
+  decisions, troubleshooting, the design system in Claude, what this kit
+  is), moved as it was; releasing and publishing are in `CONTRIBUTING.md`.
+  The kit files that pointed at the README's "Retheming — the three layers"
+  (the three style modules, `tokens/theme.v4.css` and
+  `tokens/preset-editorial.css`) point at that section of `docs/theming.md`
+  on GitHub; only their comments change. No action needed.
+
+- **An update is three commands, on the README's front page** (_Update_;
+  the why is in `docs/updating.md`), and the `ds-theme` and
   `ds-build` skills lead with the same three: `npx shadcn add @ds/ds
   --dry-run` lists what the release would change and writes nothing,
   `npx shadcn add @ds/ds --diff <path>` shows the change in one file (with
@@ -78,8 +91,8 @@ npm run registry:check-version # what CI runs
   the kit's change, where the check names your edits alone. What the check
   does is unchanged. No action needed.
 
-- **The README says what a red release run leaves** ("Publishing this
-  repository"): a release whose own run on `main` is red publishes nothing,
+- **`CONTRIBUTING.md` says what a red release run leaves** ("Publishing
+  this repository"): a release whose own run on `main` is red publishes nothing,
   and once a fix to a kit file is pushed after it, neither a push nor a hand
   start publishes it any more. Re-run the release commit's own run; where
   the commit itself is wrong, the next patch release publishes. How the kit

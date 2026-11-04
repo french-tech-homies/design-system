@@ -1,7 +1,8 @@
 /* =============================================================================
    "Editorial" — a deliberately un-Material preset
    -----------------------------------------------------------------------------
-   The proof behind the README's "Retheming — the three layers": an app built on this
+   The proof behind "Retheming — the three layers", in the kit's docs
+   (https://github.com/french-tech-homies/design-system/blob/main/docs/theming.md): an app built on this
    kit should not read as a Google app, and getting there should touch layer 1
    (tokens) and layer 2 (style modules) only — never a component.
 

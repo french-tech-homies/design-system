@@ -7,8 +7,8 @@ Guidance for an agent working in this repository.
 The MD3 kit: Material Design 3 components on React Aria Components and
 Tailwind CSS 4, with a `DESIGN.md` at its centre. MIT, copyright
 french-tech-homies.
-What the kit is, and which components are its own, is said once: `README.md`,
-"What this kit is".
+What the kit is is said once: `docs/what-this-kit-is.md`. Which components
+are its own is listed once: `README.md`, "The kit's own".
 
 - **This repository is the kit's source.** The kit is changed here, and
   nowhere else.
@@ -23,7 +23,7 @@ What the kit is, and which components are its own, is said once: `README.md`,
 - **Only a release publishes**, to every project that installs the kit: a
   push to `main` that moves the version in every place a release writes it.
   Any other merge is checked whole and publishes nothing. The rule is said
-  once: `README.md`, "Publishing this repository".
+  once: `CONTRIBUTING.md`, "Publishing this repository".
 
 ## Layout
 
@@ -64,6 +64,10 @@ What the kit is, and which components are its own, is said once: `README.md`,
 - `.claude/skills/`: the skills this repository's own agents load.
   `ds-spec` is a link to `skills/ds-spec`, never a copy. `react-aria` is
   Adobe's, with its record in `skills-lock.json`.
+- `README.md`: the front page, and the list of the kit's own components that
+  `scripts/check-components.mjs` reads between its markers. `docs/`: one page
+  a topic, linked from the README's "Learn more". `CONTRIBUTING.md`:
+  releasing and publishing, for maintainers.
 - `NOTICE` and `LICENSES/`: the credit for what is here and is not the
   kit's, and each such licence in full (`LICENSES/Apache-2.0.txt`).
 
@@ -71,7 +75,8 @@ What the kit is, and which components are its own, is said once: `README.md`,
 
 `conventions.md` is the contract every component follows: tokens, anatomy,
 interaction states, accessibility and the quality bar a new component has to
-clear. `README.md` is what a consumer reads: install, update, retheming.
+clear. `README.md` is what a consumer reads first, and `docs/` the rest:
+install, update, retheming. `CONTRIBUTING.md` is releasing and publishing.
 `CHANGELOG.md` records every change to the kit, with the entries that need
 action from a consumer flagged.
 
@@ -178,7 +183,7 @@ npm run storybook:stop       # says the port is free
   pictures committed with the change, and the closeout names them. Look at
   the new pictures before committing: a baseline holds whatever it is given.
   Without Docker, the CI's `screenshots` artifact holds each changed
-  picture (README, "Screenshots").
+  picture (`docs/catalog-and-tests.md`, "Screenshots").
 - **Stop.** `npm run storybook:stop` stops the process group its own record
   names, waits until the port is free and says so. Never stop a Storybook
   any other way: not by a name or a port pattern (`pkill`, `killall`, a
