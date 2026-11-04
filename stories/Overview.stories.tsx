@@ -32,7 +32,7 @@ import {
  * shipped Material identity; `editorial` applies
  * `tokens/preset-editorial.css` — a hand-written palette, 2px corners, a serif
  * face, hairline elevation and stacked field labels. Nothing in any component
- * changes between the two; see the README, "Retheming — the three layers".
+ * changes between the two; see docs/theming.md, "Retheming — the three layers".
  *
  * The `MD3/Foundations/*` pages are the exception: they render from
  * `tokens/resolved.json`, a snapshot of the *shipped* tokens, so they keep

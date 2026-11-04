@@ -2,7 +2,7 @@
 
 How components in this kit are written, so new ones match and tools (a design
 agent, a registry, a linter) can rely on the same shape. Read alongside
-`README.md` (install/use) and `tokens/` (the values).
+`README.md` and `docs/` (install, use, theming) and `tokens/` (the values).
 
 ## Source of truth
 
@@ -156,13 +156,14 @@ DESIGN.md contract), `ds-build` and `ds-spec`, landed in the project's
 project: it names kit files as `<kit>/…`, only files the install brings, and
 nothing of this repository. Its frontmatter is strict YAML (quote a
 description that holds a colon and a space), with the folder's name as
-`name`. `npm run registry:check-install` enforces all four. This file and `README.md` are the maintainer's and are in
+`name`. `npm run registry:check-install` enforces all four. This file, `README.md` and `docs/` are the maintainer's and are in
 no item: a rule a project's agent needs goes in a skill.
 
 The three layers, the update mechanism and what a themed app pays at update
-time: `README.md`, "Retheming — the three layers". What a project may change,
+time: `docs/theming.md`, "Retheming — the three layers". What a project may change,
 and its price, is one rule stated once: `skills/ds-build/SKILL.md`, "What a project may change". What the kit is, and which
-components are its own: `README.md`, "What this kit is".
+components are its own: `docs/what-this-kit-is.md`, and the list in
+`README.md`, "The kit's own".
 
 ## Component anatomy
 
@@ -258,8 +259,8 @@ pages render straight from `resolved.json`.
 Before any of it, a new component is Material's or Material-derived, or it
 is not the kit's. Its doc comment cites its page of m3.material.io; or it is
 a React Aria component Material does not describe, joining the named group in
-`README.md`, "What this kit is", on a project's need, by the rule written
-there: its doc comment says "Material 3 does not describe this component."
+`README.md`, "The kit's own", on a project's need, by the rule written in
+`docs/what-this-kit-is.md`: its doc comment says "Material 3 does not describe this component."
 and cites, beside it, the page of each thing it borrows from Material. `npm
 run registry:check-install` (`scripts/check-components.mjs`) refuses a
 component file that does neither, and a list and files that differ.
@@ -293,7 +294,7 @@ of them:
    light and dark under both presets (`screenshots/`). A new story, or one
    changed on purpose, is baselined with
    `npm run screenshots:update -- <story file>`, and the pictures are
-   committed with it. See `README.md`, "Screenshots".
+   committed with it. See `docs/catalog-and-tests.md`, "Screenshots".
 
 Both projects run from one Vitest config (`vitest.config.ts`): `material` uses
 the shipped tokens, `editorial` injects `__MD3_PRESET__` so the whole catalog
@@ -306,6 +307,6 @@ Nothing: every component Material 3 describes is in the kit.
 When adding one: follow the anatomy above, name variants after Material, cite
 its page in the doc comment, clear the
 quality bar (story, interaction test, axe under both presets), and keep
-`README.md`'s component table current. A component Material 3 does not
-describe is not on this list: it joins the kit only through the group in
-`README.md`, "What this kit is".
+`README.md`'s component table, "Components", current. A component Material 3
+does not describe is not on this list: it joins the kit only through the
+group in `README.md`, "The kit's own".
