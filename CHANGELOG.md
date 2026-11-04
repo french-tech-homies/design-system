@@ -65,6 +65,19 @@ npm run registry:check-version # what CI runs
 
 ### Changed
 
+- **An update is three commands, at the top of the README's "Versioning
+  and upgrades"** (_Updating, in three commands_), and the `ds-theme` and
+  `ds-build` skills lead with the same three: `npx shadcn add @ds/ds
+  --dry-run` lists what the release would change and writes nothing,
+  `npx shadcn add @ds/ds --diff <path>` shows the change in one file (with
+  no path it shows the first five files, not the changed ones), and
+  `npx shadcn add @ds/ds --overwrite -y` takes it; each adapter or the
+  preset you hold is named after `@ds/ds` on all three. They need shadcn
+  4.0.0 or later. `node <ui>/ds/changed.mjs` is now the step of a project
+  that edits kit files: the dry run marks your edit `~ overwrite` exactly as
+  the kit's change, where the check names your edits alone. What the check
+  does is unchanged. No action needed.
+
 - **The README says what a red release run leaves** ("Publishing this
   repository"): a release whose own run on `main` is red publishes nothing,
   and once a fix to a kit file is pushed after it, neither a push nor a hand

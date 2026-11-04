@@ -292,6 +292,59 @@ test("the update command is written one way, in the README and in every skill", 
   );
 });
 
+test("the update's preview is written the update's way, and its diff names a file", () => {
+  const DRY = "npx shadcn add @ds/ds --dry-run";
+  const DIFF = "npx shadcn add @ds/ds --diff <path>";
+  // As shipped: the README and the two skills that speak of an update say both.
+  for (const text of [kit.readme, kit.texts[THEME_SKILL], kit.texts["skills/ds-build/SKILL.md"]]) {
+    assert.ok(text.includes(DRY));
+    assert.ok(text.includes(DIFF));
+  }
+  const saying = (text) =>
+    changed((k) => {
+      k.texts[THEME_SKILL] += `\nThen run \`${text}\`.\n`;
+    });
+  // With the items a project holds, and a file: passes.
+  assert.deepEqual(
+    checkInstall(saying("npx shadcn add @ds/ds @ds/next-adapter --dry-run")),
+    [],
+  );
+  assert.deepEqual(
+    checkInstall(saying("npx shadcn add @ds/ds @ds/preset-editorial --diff components/Tag.tsx")),
+    [],
+  );
+  // A shell comment after it is not part of it.
+  assert.deepEqual(
+    checkInstall(saying("npx shadcn add @ds/ds --dry-run   # writes nothing")),
+    [],
+  );
+  assert.deepEqual(
+    checkInstall(saying("npx shadcn add @ds/ds --overwrite -y   # take it")),
+    [],
+  );
+  refuses(saying("npx shadcn add @ds/ds --overwrite # -y"), /writes the update command as/);
+  // A diff that names no file shows the first five of the install's files,
+  // not the ones that change; one item alone; another runner; an item the
+  // registry does not hold.
+  refuses(
+    saying("npx shadcn add @ds/ds --diff"),
+    /skills\/ds-theme\/SKILL\.md:\d+: writes the update's preview as `npx shadcn add @ds\/ds --diff`/,
+  );
+  refuses(saying("npx shadcn add @ds/button --dry-run"), /writes the update's preview as/);
+  refuses(saying("shadcn add @ds/ds --dry-run"), /writes the update's preview as/);
+  refuses(
+    saying("npx shadcn add @ds/ds @ds/nope --dry-run"),
+    /skills\/ds-theme\/SKILL\.md:\d+: .*names @ds\/nope, an item the registry does not hold/,
+  );
+  // The README is held to it too.
+  refuses(
+    changed((k) => {
+      k.readme += "\n`npx shadcn@latest add @ds/ds --diff`\n";
+    }),
+    /README\.md:\d+: writes the update's preview as/,
+  );
+});
+
 test("a skill's description opens with when to load it, within what a listing keeps", () => {
   for (const folder of OWN_SKILLS) {
     assert.match(kit.texts[`skills/${folder}/SKILL.md`], /^---\nname: \S+\ndescription: "Use when /, folder);
