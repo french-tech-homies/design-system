@@ -104,6 +104,10 @@ only by a release: what they serve is the last release, never what `main` has
 gathered since. See _Publishing this repository_. The built registry is not
 committed: `npm run registry:build` writes it to `r/`.
 
+**Already installed?** An update is three commands, `--dry-run`, `--diff
+<path>` and `--overwrite -y`: see _Versioning and upgrades › Updating, in
+three commands_.
+
 ### Coming from `@md3`
 
 Through 0.2.0 the kit was served under the namespace `@md3`, from addresses
@@ -300,7 +304,8 @@ a file that **differs** raises a per-file overwrite prompt that defaults to
 *No* — even under `-y` — and only `--overwrite` replaces it. The CLI keeps no
 record of what it installed, so "differs" covers both a file you edited and a
 file the kit changed: it cannot tell them apart. An update is therefore
-`--overwrite` plus your own diff — see _Taking an update_.
+`--overwrite` plus your own diff — see _Updating, in three commands_, and
+_Taking an update_ for why.
 
 ### What an install and an update ask of your project
 
@@ -773,6 +778,79 @@ is "what changed, and which of my edits do I put back?". An edit of a kit file
 is allowed, priced and rarely needed; the rule is
 `skills/ds-build/SKILL.md`, "What a project may change", and this section
 is the mechanism behind its price.
+
+### Updating, in three commands
+
+From a clean working tree (commit first), in the folder that holds
+`components.json`:
+
+```bash
+jq .version src/components/ui/ds/RELEASE.json        # the release you hold
+curl -s https://french-tech-homies.github.io/design-system/r/button.json | jq .meta   # the one published
+
+npx shadcn add @ds/ds --dry-run          # what the release would change, file by file; writes nothing
+npx shadcn add @ds/ds --diff <path>      # the change itself, in one file the dry run marked ~ overwrite
+npx shadcn add @ds/ds --overwrite -y     # take it
+git diff                                 # read what moved
+```
+
+Read `CHANGELOG.md` from your release to the published one before you take
+it: an entry that needs action from you is flagged.
+
+**An adapter or the preset you added is named on the same three lines**,
+or it stays at the old release:
+
+```bash
+npx shadcn add @ds/ds @ds/react-router-adapter --dry-run
+npx shadcn add @ds/ds @ds/react-router-adapter --diff <path>
+npx shadcn add @ds/ds @ds/react-router-adapter --overwrite -y
+```
+
+**A project that generates its own theme** (a `DESIGN.md` and a `theme/`
+folder of its own) runs the generator again, and reads the diff of `theme/`.
+It moves only when the release's CHANGELOG entry says the generator, its
+template (`tokens/theme.v4.css`) or a default moved:
+
+```bash
+npx tsx src/components/ui/ds/tokens/generate-theme.mjs DESIGN.md --out theme
+```
+
+**A project that edited a kit file** runs one more command before the dry
+run, `node src/components/ui/ds/changed.mjs`. The dry run and the diff
+compare your copy with the incoming release, so a file you edited reads
+`~ overwrite` exactly as a file the kit changed does, and the overwrite
+removes your edit. `changed.mjs` compares your copy with the release you
+installed (`RELEASE.json`), so it names your edits alone: after the
+overwrite, put those back from `git diff`. A project that never edits a kit
+file never needs it.
+
+The rest of this section is why it works this way: what the CLI does with a
+file that differs, and what `changed.mjs` says.
+
+**Seen on 2026-11-03**, on a fresh Vite app with the kit installed from a
+local copy of the registry, then served again with `components/Tag.tsx`
+changed, and `components/Button.tsx` edited in the app, with shadcn 4.19.0,
+4.22.1 and 4.23.0 alike:
+
+- `--dry-run` wrote nothing and listed all 80 files of `@ds/ds`: `= … skip
+  (identical)` for 78, `~ … overwrite` for both `Tag.tsx` and `Button.tsx`,
+  then `⚠ 2 files will be overwritten.` and the dependencies. A file the
+  release adds reads `+ … create`.
+- `--diff` with no path printed the first five files of the item (`LICENSE`,
+  `utils.ts`, `icons.tsx`, two colour fields: `No changes.`) and
+  `Showing 5 of 80 files. Use --diff <path> to view a specific file.`,
+  neither changed file among them. Name the file: the full path the dry run
+  prints, `components/Tag.tsx` or `Tag.tsx` all work.
+- `--diff src/components/ui/ds/components/Button.tsx` showed the app's edit
+  as a line removed, the kit's change in `Tag.tsx` as a line added: the diff
+  is from your file to the release's.
+- `node src/components/ui/ds/changed.mjs` named `Button.tsx` alone, exit 1.
+- `--overwrite -y` updated the two files, skipped 78, and `git diff` showed
+  both.
+
+`--dry-run` and `--diff` came with shadcn 4.0.0 (2026-03-06): an update
+needs that release or a later one, which `npx shadcn` fetches when your
+project has none of its own.
 
 ### Which version am I on?
 
