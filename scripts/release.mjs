@@ -439,6 +439,22 @@ async function publishedCommit(version) {
   return found;
 }
 
+/** The commit status the release workflow writes on the release commit. */
+export const STATUS = "Release checks";
+
+/** The state of the newest "Release checks" status on `sha`, or "" when it
+    has none, or it cannot be read (which asks for the checks again). */
+function releaseChecks(repo, sha) {
+  try {
+    return gh(
+      "api", `repos/${repo}/commits/${sha}/status`,
+      "--jq", `[.statuses[] | select(.context == "${STATUS}")][0].state // ""`,
+    ).trim();
+  } catch {
+    return "";
+  }
+}
+
 async function releasePr() {
   const repo = process.env.GITHUB_REPOSITORY;
   git("fetch", "--force", "--tags", "origin", `+refs/heads/*:refs/remotes/origin/*`);
@@ -493,7 +509,7 @@ async function releasePr() {
   const head = git("rev-parse", "HEAD").trim();
 
   // Pushed only when it is not what the branch holds already: the same
-  // tree on the same `main` asks for no new checks.
+  // tree on the same `main` is the same release commit.
   const held = (ref) => {
     try {
       return git("rev-parse", "--verify", "--quiet", ref).trim();
@@ -503,15 +519,30 @@ async function releasePr() {
   };
   const same =
     held(`origin/${BRANCH}^`) === main && held(`origin/${BRANCH}^{tree}`) === held("HEAD^{tree}");
+  let sha = head;
   if (same) {
+    sha = held(`origin/${BRANCH}`);
     say(`The branch \`${BRANCH}\` already holds release ${decided.version} on this \`main\`: not pushed.`);
-    output("sha", held(`origin/${BRANCH}`));
-    output("pushed", "false");
   } else {
     git("push", "--force", "origin", `HEAD:refs/heads/${BRANCH}`);
-    output("sha", head);
-    output("pushed", "true");
   }
+  // Whether to check is the commit's own status, not whether this run
+  // pushed: a run that pushed and then failed, or was cancelled during its
+  // checks, leaves the commit red, pending or unchecked, and the next run
+  // on the same `main` checks it again. Runs are one at a time, so a
+  // pending status here is one whose run is gone.
+  const checked = same ? releaseChecks(repo, sha) : "";
+  const check = checked !== "success";
+  if (same) {
+    say(
+      check
+        ? `Its ${STATUS} ${checked ? `are ${checked}` : "were never written"}: checked again.`
+        : `Its ${STATUS} are green: not checked again.`,
+    );
+  }
+  output("sha", sha);
+  output("pushed", String(!same));
+  output("check", String(check));
   output("base", main);
 
   const unlabelled = prs.filter((pr) => pr.label === null).map((pr) => pr.number);

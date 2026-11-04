@@ -360,6 +360,8 @@ const state = JSON.parse(fs.readFileSync(${JSON.stringify(state)}, "utf8"));
 const has = (a) => args.includes(a);
 if (args[0] === "pr" && args[1] === "list" && has("merged")) console.log(JSON.stringify(state.merged));
 else if (args[0] === "pr" && args[1] === "list") console.log(JSON.stringify(state.open ? [{ number: state.open }] : []));
+else if (args[0] === "api" && args[1].includes("/commits/") && args[1].endsWith("/status")) console.log(state.status ?? "");
+else if (args[0] === "pr" && args[1] === "create" && state.failCreate) { console.error("GitHub Actions is not permitted to create or approve pull requests."); process.exit(1); }
 else if (args[0] === "pr" && args[1] === "create") { state.open = 40; fs.writeFileSync(${JSON.stringify(state)}, JSON.stringify(state)); console.log("https://github.com/o/r/pull/40"); }
 else if (args[0] === "pr" && args[1] === "edit") {}
 else { console.error("gh: not stood in for: " + args.join(" ")); process.exit(1); }
@@ -395,7 +397,7 @@ if (args[0] === "version") {
         .map((line) => JSON.parse(line))
         .filter((a) => a[0] === "pr" && (a[1] === "create" || a[1] === "edit"))
         .map((a) => a.slice(0, 3).join(" ").replace(/ --repo$/, "")),
-    run: () => {
+    run: (expected = 0) => {
       const outputs = join(root, `out-${Math.random().toString(36).slice(2)}`);
       writeFileSync(outputs, "");
       const r = spawnSync(process.execPath, [join(kit, "scripts/release.mjs"), "pr"], {
@@ -403,7 +405,7 @@ if (args[0] === "version") {
         encoding: "utf8",
         env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, GITHUB_REPOSITORY: "o/r", GITHUB_OUTPUT: outputs, GITHUB_STEP_SUMMARY: "" },
       });
-      assert.equal(r.status, 0, `release.mjs pr: ${r.stdout}\n${r.stderr}`);
+      assert.equal(r.status === 0 ? 0 : 1, expected, `release.mjs pr: ${r.stdout}\n${r.stderr}`);
       return { stdout: r.stdout, outputs: readFileSync(outputs, "utf8") };
     },
     release: () => {
@@ -438,6 +440,7 @@ test("run: a fix opens the release pull request; a second run updates it, not a 
 
   const second = repo.run();
   assert.match(second.outputs, /^pushed=false$/m, "the same release on the same main is not pushed again");
+  assert.match(second.outputs, /^check=true$/m, "its status was never written: it is checked");
   assert.deepEqual(repo.calls(), ["pr create", "pr edit 40"]);
 });
 
@@ -494,4 +497,28 @@ test("the release pull request's body names the workflow that keeps it, and no w
   for (const [path] of read("scripts/release.mjs").matchAll(/\.github\/workflows\/[\w.-]+\.ya?ml/g)) {
     assert.ok(existsSync(join(kit, path)), `release.mjs names ${path}, which is not there`);
   }
+});
+
+test("run: a pull request that could not be opened leaves its commit to be checked by the next run; green, it is not checked again", (t) => {
+  const repo = repository(t);
+  repo.setState({ merged: repo.merged("fix"), open: null, failCreate: true });
+  const first = repo.run(1);
+  assert.match(first.outputs, /^pushed=true$/m);
+  assert.match(first.outputs, /^check=true$/m);
+  assert.match(first.stdout, /Allow GitHub Actions to create and approve pull requests/);
+
+  // The setting turned on; the same `main`, so nothing is pushed.
+  repo.setState({ merged: repo.merged("fix"), open: null, status: "failure" });
+  const second = repo.run();
+  assert.match(second.outputs, /^pushed=false$/m);
+  assert.match(second.outputs, /^check=true$/m, "a red status is checked again");
+  assert.deepEqual(repo.calls(), ["pr create", "pr create"]);
+
+  repo.setState({ merged: repo.merged("fix"), open: 40, status: "pending" });
+  assert.match(repo.run().outputs, /^check=true$/m, "a pending status, its run gone, is checked again");
+
+  repo.setState({ merged: repo.merged("fix"), open: 40, status: "success" });
+  const green = repo.run();
+  assert.match(green.outputs, /^check=false$/m, "green: not checked again");
+  assert.match(green.stdout, /Release checks are green/);
 });

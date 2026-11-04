@@ -68,7 +68,10 @@ A pull request opened with the workflow's `GITHUB_TOKEN` starts no
 workflow, so `checks.yml` does not run on it by itself: `release-pr.yml`
 runs `checks.yml` whole on the release commit, and writes the result on it as
 the commit status **Release checks**, which the pull request shows. Merge it
-once that is green.
+once that is green. A run checks the release commit again unless that status
+is already green: one left red, pending or unwritten by an earlier run (the
+pull request could not be opened, the run was cancelled) is checked by the
+next run, after the next Pages run at the latest.
 
 **Merging it is the release.** Its push publishes (below), and once
 published the `tag` job of `pages.yml` tags the commit `vX.Y.Z` and makes the
