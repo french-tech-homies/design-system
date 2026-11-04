@@ -34,6 +34,7 @@
 import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 
 import { RECORD, digests, itemRecord, landedText } from "../changed.mjs";
+import { kitRange } from "./ranges.mjs";
 
 const KIT = ".";
 const NS = "@ds";
@@ -50,6 +51,17 @@ const RAC = "react-aria-components";
 // any item's JSON before a single file is copied.
 const PACKAGE = JSON.parse(readFileSync(`${KIT}/package.json`, "utf8"));
 const VERSION = PACKAGE.version;
+
+/** `name@range`, the range read from the kit's own package.json (or, for a
+    package it does not hold, RANGES_OUTSIDE_PACKAGE in
+    scripts/ranges.mjs), so an install takes what the kit is built and
+    tested on. Every npm dependency of every item goes through it: `shadcn
+    add` installs a bare name at its latest version, whatever major that is. */
+const pinned = (name) => {
+  const range = kitRange(PACKAGE, name);
+  if (!range) throw new Error(`${name} has no range in the kit's package.json`);
+  return `${name}@${range}`;
+};
 const stamp = { meta: { kit: "french-tech-homies/design-system", version: VERSION, license: "MIT" } };
 
 /* ---- the licence rides with the code ---------------------------------- */
@@ -147,13 +159,6 @@ const tokensItem = {
 
 /* ---- the DESIGN.md generator ------------------------------------------ */
 
-/** `name@range`, the range read from the kit's own package.json so an install
-    declares what the kit itself runs with. */
-const pinned = (name) => {
-  const range = PACKAGE.devDependencies?.[name] ?? PACKAGE.dependencies?.[name];
-  if (!range) throw new Error(`${name} is not a dependency of the kit`);
-  return `${name}@${range}`;
-};
 
 // DESIGN.md → theme. Two files beside the template they read, so the command
 // is the same in a project as here: `npx tsx <ui>/ds/tokens/generate-theme.mjs
@@ -224,7 +229,7 @@ const themeItem = {
   title: "MD3 theme",
   description:
     "The kit's theme files (through `tokens`) and the shadcn variable bridge. Writes only the bridge into your CSS (--background: var(--md-sys-color-background), …), never a palette value: import <ui>/ds/tokens/theme.css and theme.v4.css, or your own generated ones, from your entry CSS.",
-  dependencies: ["tw-animate-css"],
+  dependencies: ["tw-animate-css"].map(pinned),
   registryDependencies: [`${NS}/${TOKENS}`, `${NS}/${LICENSE}`],
   cssVars: { light: bridge, dark: bridge },
   css: {
@@ -283,7 +288,7 @@ const item = ({
   type,
   title,
   description,
-  ...(dependencies.length ? { dependencies } : {}),
+  ...(dependencies.length ? { dependencies: dependencies.map(pinned) } : {}),
   // The licence is appended to every item's dependencies — see licenseItem.
   registryDependencies: [...deps, LICENSE].map((d) => `${NS}/${d}`),
   files,

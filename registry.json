@@ -78,7 +78,7 @@
       "title": "MD3 theme",
       "description": "The kit's theme files (through `tokens`) and the shadcn variable bridge. Writes only the bridge into your CSS (--background: var(--md-sys-color-background), …), never a palette value: import <ui>/ds/tokens/theme.css and theme.v4.css, or your own generated ones, from your entry CSS.",
       "dependencies": [
-        "tw-animate-css"
+        "tw-animate-css@^1.4.0"
       ],
       "registryDependencies": [
         "@ds/tokens",
@@ -285,9 +285,9 @@
       "title": "Kit utils",
       "description": "twMergeConfig, cn, tv and focusRing bound to the MD3 scales (server-safe).",
       "dependencies": [
-        "clsx",
-        "tailwind-merge",
-        "tailwind-variants"
+        "clsx@^2.1.1",
+        "tailwind-merge@^3.6.0",
+        "tailwind-variants@^1.0.0"
       ],
       "registryDependencies": [
         "@ds/license"
@@ -311,7 +311,7 @@
       "title": "Render-prop helpers",
       "description": "composeTailwindRenderProps for React Aria className render props (client-only).",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -401,7 +401,7 @@
       "title": "Button",
       "description": "Filled, tonal, outlined, text, elevated and FAB variants, in Material's five sizes and two shapes, optionally toggleable.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -428,7 +428,7 @@
       "title": "Button group",
       "description": "Standard and connected groups of buttons and icon buttons, with single or multiple selection.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -453,7 +453,7 @@
       "title": "Segmented button",
       "description": "Single- and multi-select segmented buttons.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -505,7 +505,7 @@
       "title": "FAB menu",
       "description": "A FAB that opens two to six related actions.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -531,7 +531,7 @@
       "title": "Icon button",
       "description": "Standard, filled, tonal and outlined icon buttons in Material's five sizes, optionally toggleable.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -560,7 +560,7 @@
       "title": "Chip",
       "description": "Assist, filter and input chips.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -610,7 +610,7 @@
       "title": "Carousel",
       "description": "Material 3 carousel in its six layouts (multi-browse, uncontained, uncontained multi-aspect ratio, hero, center-aligned hero, full-screen) on React Aria Button and Link: scroll snap, keyline sizing with parallax, reduced-motion fallback, arrow keys.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -635,7 +635,7 @@
       "title": "Table",
       "description": "Data table on React Aria Table: sortable columns, optional row selection (checkbox column added), empty state, dense rows, cells cut to one line — M2 data-table measurements on M3 roles.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -755,7 +755,7 @@
       "title": "List (GridList)",
       "description": "React Aria GridList collection with MD3 state layers on items.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -805,7 +805,7 @@
       "title": "Menu",
       "description": "Popover menu from any trigger, items as data.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -856,7 +856,7 @@
       "title": "Dialog",
       "description": "React Aria Dialog wrapping DialogContent.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/dialog-content",
@@ -881,8 +881,8 @@
       "title": "Modal",
       "description": "Modal overlay with MD3 enter/exit motion.",
       "dependencies": [
-        "react-aria-components",
-        "tw-animate-css"
+        "react-aria-components@^1.20.0",
+        "tw-animate-css@^1.4.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -930,7 +930,7 @@
       "title": "Disclosure",
       "description": "Expand/collapse on React Aria Disclosure: one section, or a DisclosureGroup (the accordion, single or allowsMultipleExpanded). MD3 publishes no page for this component — the anatomy is a 56dp list row with a state layer, outline-variant hairlines and MD3 motion, documented in the doc comment.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -957,7 +957,7 @@
       "title": "Side sheet",
       "description": "Standard (inline) or modal side sheet.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -985,8 +985,8 @@
       "title": "Bottom sheet",
       "description": "Standard or modal bottom sheet: surface-container-low with extra-large top corners, a drag handle that cycles partial and expanded heights by press, keyboard or drag, and the modal form on React Aria ModalOverlay + Modal + Dialog.",
       "dependencies": [
-        "react-aria-components",
-        "tw-animate-css"
+        "react-aria-components@^1.20.0",
+        "tw-animate-css@^1.4.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1014,7 +1014,7 @@
       "title": "Tooltip",
       "description": "Plain and rich tooltips.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1040,8 +1040,8 @@
       "title": "Preview trigger",
       "description": "A non-modal popover that opens on hover, focus and long press and may hold interactive content — React Aria PreviewTrigger on a Material container surface. MD3 has no page for it; the doc comment says so and points at the rich tooltip for the simpler case.",
       "dependencies": [
-        "react-aria-components",
-        "tw-animate-css"
+        "react-aria-components@^1.20.0",
+        "tw-animate-css@^1.4.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1066,7 +1066,7 @@
       "title": "Tabs",
       "description": "Material primary and secondary tabs on React Aria Tabs: 48dp rows (64dp with a stacked icon), the 1dp divider, a 3dp rounded indicator that hugs its label for primary and a 2dp full-width one for secondary, fixed or scrollable.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1095,8 +1095,8 @@
       "title": "Snackbar",
       "description": "One-at-a-time bottom snackbar on React Aria Toast: a global queue and snackbar(text, { action, close, timeout }) helper, auto-dismiss paused on hover / focus, persistent when actionable.",
       "dependencies": [
-        "react-aria-components",
-        "tw-animate-css"
+        "react-aria-components@^1.20.0",
+        "tw-animate-css@^1.4.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1123,7 +1123,7 @@
       "title": "Bottom navigation",
       "description": "Material navigation bar: a <nav> of three to five destinations as React Aria links or buttons, with aria-current on the active one and a pill indicator behind its icon.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1175,7 +1175,7 @@
       "title": "Toolbar",
       "description": "Material toolbar on React Aria Toolbar: docked (64dp, full width, square) or floating (64dp pill at elevation 3, horizontal or vertical), standard or vibrant colours painted onto the kit's icon buttons, and an optional FAB beside a floating one.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1201,8 +1201,8 @@
       "title": "Search",
       "description": "Material search: SearchBar on React Aria SearchField (56dp pill, Escape and a clear button empty it), and SearchView, the bar that opens a filtered list of suggestions on Autocomplete and ListBox, docked or full screen, divided or contained.",
       "dependencies": [
-        "react-aria-components",
-        "tw-animate-css"
+        "react-aria-components@^1.20.0",
+        "tw-animate-css@^1.4.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1229,7 +1229,7 @@
       "title": "Navigation rail",
       "description": "The vertical destination list of a medium or expanded window, in both spec states: collapsed at 96dp with vertical items and a 56x32 pill indicator, expanded at 220dp with horizontal items in a full-width pill. A <nav> of links or buttons, not a tab set.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1258,8 +1258,8 @@
       "title": "Navigation drawer",
       "description": "The full-height destination list, standard (inline, elevation 0) and modal (scrim, focus trap, Escape, on React Aria Modal + Dialog). 360dp with 16dp trailing corners, 56dp full-pill active indicators, optional headlines and Divider-separated sections.",
       "dependencies": [
-        "react-aria-components",
-        "tw-animate-css"
+        "react-aria-components@^1.20.0",
+        "tw-animate-css@^1.4.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1289,7 +1289,7 @@
       "title": "Slider",
       "description": "Single or range slider.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1359,7 +1359,7 @@
       "title": "Progress indicator",
       "description": "Linear and circular progress indicators, each determinate or indeterminate, on React Aria ProgressBar — primary active indicator, secondary-container track, a 4dp gap, and a stop indicator on the determinate linear bar. Carries its own keyframe; no animation library.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1385,7 +1385,7 @@
       "title": "Loading indicator",
       "description": "Material 3 Expressive loading indicator on React Aria ProgressBar, always indeterminate: a looping morph through seven Material shapes, default or contained, 24–240dp. Carries its own keyframes; no animation library.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1411,7 +1411,7 @@
       "title": "Meter",
       "description": "A quantity within a known range (a quota, a disk's use) on React Aria Meter, drawn with the determinate linear progress indicator's anatomy: a colour-role active indicator, secondary-container track, a 4dp gap and a stop indicator. No motion. One of the kit's own: Material 3 does not describe a meter.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1437,7 +1437,7 @@
       "title": "Color area",
       "description": "React Aria ColorArea styled for MD3.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/license"
@@ -1461,7 +1461,7 @@
       "title": "Color field",
       "description": "Hex input for a color value.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/license"
@@ -1485,7 +1485,7 @@
       "title": "Color slider",
       "description": "Single-channel color slider.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/license"
@@ -1509,7 +1509,7 @@
       "title": "Color swatch",
       "description": "Color preview swatch.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/license"
@@ -1533,7 +1533,7 @@
       "title": "Color picker",
       "description": "Swatch trigger opening area, hue slider and hex field.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/color-area",
@@ -1583,7 +1583,7 @@
       "title": "Text field",
       "description": "Filled and outlined text fields with floating label, icons, supporting text, error and character counter.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1611,7 +1611,7 @@
       "title": "Number field",
       "description": "Locale-aware number field: Intl.NumberFormat formatting, min / max / step, arrow-key and wheel stepping, optional trailing − / + steppers.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1639,8 +1639,8 @@
       "title": "Phone field",
       "description": "Phone number field: E.164 value, as-you-type international formatting and a flag + calling-code country picker in the leading slot (react-phone-number-input on the text-field container).",
       "dependencies": [
-        "react-aria-components",
-        "react-phone-number-input"
+        "react-aria-components@^1.20.0",
+        "react-phone-number-input@^3.4.9"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1669,7 +1669,7 @@
       "title": "Image field",
       "description": "Image upload: drop zone + tonal \"Choose image\" (React Aria DropZone + FileTrigger), preview with remove icon button and replace, size / type rejection. Value is a data URL.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1698,7 +1698,7 @@
       "title": "Checkbox",
       "description": "Checkbox and CheckboxGroup with indeterminate, error and disabled states.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1725,7 +1725,7 @@
       "title": "Switch",
       "description": "MD3 switch with growing handle and optional icons.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1752,7 +1752,7 @@
       "title": "Radio",
       "description": "Radio and RadioGroup with label, supporting text, error and orientation.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1778,7 +1778,7 @@
       "title": "Select",
       "description": "Exposed dropdown menu: text-field-shaped trigger with floating label opening a menu of options.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1851,8 +1851,8 @@
       "title": "Date picker",
       "description": "DatePicker (docked, modal, full screen, modal date input) and DateRangePicker (full screen, date input): a segmented text field whose calendar button opens the picker; Cancel / OK confirm a draft. Values are @internationalized/date values.",
       "dependencies": [
-        "react-aria-components",
-        "@internationalized/date"
+        "react-aria-components@^1.20.0",
+        "@internationalized/date@^3.12.4"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1885,8 +1885,8 @@
       "title": "Time picker",
       "description": "Modal time picker: a clock dial (12 or 24 hours, vertical or horizontal) or typed hour and minute, an AM / PM radio group, Cancel / OK, opened from a text-field-shaped trigger. The value is an @internationalized/date Time.",
       "dependencies": [
-        "react-aria-components",
-        "@internationalized/date"
+        "react-aria-components@^1.20.0",
+        "@internationalized/date@^3.12.4"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1917,7 +1917,7 @@
       "title": "Combo box",
       "description": "Autocomplete text field with a menu; selectionMode=\"multiple\" renders the selection as input chips inline with the caret.",
       "dependencies": [
-        "react-aria-components"
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/utils",
@@ -1946,8 +1946,8 @@
       "title": "react-hook-form adapter",
       "description": "FormTextField, FormNumberField, FormPhoneField, FormImageField, FormCheckbox, FormCheckboxGroup, FormSwitch, FormRadioGroup, FormSelect, FormChipGroup and FormComboBox: kit controls bound through Controller. Skip if not on react-hook-form.",
       "dependencies": [
-        "react-hook-form",
-        "react-aria-components"
+        "react-hook-form@^7.55.0",
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/text-field",
@@ -1986,8 +1986,8 @@
       "title": "Next.js adapter",
       "description": "Router provider for React Aria links and a next/image renderer for Card media. Skip if not on Next.js.",
       "dependencies": [
-        "next",
-        "react-aria-components"
+        "next@^16.2.7",
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/card",
@@ -2017,8 +2017,8 @@
       "title": "React Router adapter",
       "description": "Router provider for React Aria links (Button / Chip / Menu / ListItem href) on React Router; the same shape adapts to TanStack Router. Skip if not on React Router.",
       "dependencies": [
-        "react-router",
-        "react-aria-components"
+        "react-router@^7.18.2",
+        "react-aria-components@^1.20.0"
       ],
       "registryDependencies": [
         "@ds/license"
@@ -2137,7 +2137,7 @@
         "license": "MIT"
       },
       "dependencies": [
-        "tw-animate-css"
+        "tw-animate-css@^1.4.0"
       ],
       "docs": "MD3 kit 0.5.1, under <ui>/ds/ (the release is recorded in <ui>/ds/RELEASE.json). This install wrote nothing into your entry CSS.\n\nA first install: import the theme from your entry CSS, with every @import above any other at-rule. The path is from that file to your ui folder: ./components/ui/ds/ from src/index.css to src/components/ui, ../app/_components/ui/ds/ from src/styles/globals.css to src/app/_components/ui.\n\n  @import \"tailwindcss\";\n  @import \"./components/ui/ds/tokens/theme.css\";\n  @import \"./components/ui/ds/tokens/theme.v4.css\";\n  @import \"tw-animate-css\";\n\nAn update, or a theme of your own already imported (theme/theme.css, theme/theme.v4.css): keep your lines as they are.\n\nStock shadcn components in the project read the Material roles through one more import, written after theme.css:\n\n  @import \"./components/ui/ds/tokens/bridge-shadcn.css\";\n\nFor a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead."
     },

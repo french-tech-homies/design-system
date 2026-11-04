@@ -4,13 +4,13 @@ name: Checks
 # generated theme, the resolved token snapshot and the registry index must
 # match their sources, the one install must be whole, and the Storybook
 # catalog must build under the Vite pipeline (which silently drops misordered
-# @imports — see the README's troubleshooting section) with every story
+# @imports — see docs/troubleshooting.md) with every story
 # passing its interaction test and axe.
 #
 # Called by pages.yml on a push to main: the site it publishes is the `_site`
 # this job assembled, after every step above it passed on the same commit.
 # Only a release publishes: the step "Does this run publish?" decides, and
-# pages.yml deploys on its word alone. See the README, "Publishing this
+# pages.yml deploys on its word alone. See CONTRIBUTING.md, "Publishing this
 # repository".
 #
 # Called by release-pr.yml too, on the release commit it pushed (`ref`), whose

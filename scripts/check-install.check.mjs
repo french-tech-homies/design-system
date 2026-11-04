@@ -123,6 +123,73 @@ test("a dependency declared at another range than the kit's own is refused", () 
   );
 });
 
+test("every registry dependency carries the kit's own range", () => {
+  // `shadcn add` installs a name with no range at its latest version: a
+  // fresh install took tailwind-variants 4, and `tsc -b` failed in utils.ts.
+  for (const found of kit.registry.items) {
+    for (const d of [...(found.dependencies ?? []), ...(found.devDependencies ?? [])]) {
+      assert.match(d, /.@[^@]+$/, `item "${found.name}" declares "${d}" with no range`);
+    }
+  }
+  assert.ok(item(kit, "utils").dependencies.includes("tailwind-variants@^1.0.0"));
+  assert.ok(item(kit, "ds").dependencies.includes("tw-animate-css@^1.4.0"));
+});
+
+test("a registry dependency with no range is refused, naming the range to write", () => {
+  refuses(
+    changed((k) => {
+      const utils = item(k, "utils");
+      utils.dependencies = utils.dependencies.map((d) =>
+        d.startsWith("tailwind-variants@") ? "tailwind-variants" : d,
+      );
+    }),
+    /item "utils" declares "tailwind-variants" with no range: write tailwind-variants@\^1\.0\.0/,
+  );
+  refuses(
+    changed((k) => {
+      const button = item(k, "button");
+      button.dependencies = button.dependencies.map((d) =>
+        d.startsWith("react-aria-components@") ? "react-aria-components" : d,
+      );
+    }),
+    /item "button" declares "react-aria-components" with no range: write react-aria-components@\^1\.20\.0/,
+  );
+  // A package outside the kit's package.json: its range is the one written,
+  // with its reason, in RANGES_OUTSIDE_PACKAGE.
+  refuses(
+    changed((k) => {
+      const theme = item(k, "theme");
+      theme.dependencies = ["tw-animate-css"];
+    }),
+    /item "theme" declares "tw-animate-css" with no range: write tw-animate-css@\^1\.4\.0/,
+  );
+});
+
+test("a registry dependency at another range than the kit's own is refused", () => {
+  refuses(
+    changed((k) => {
+      const utils = item(k, "utils");
+      utils.dependencies = utils.dependencies.map((d) =>
+        d.startsWith("tailwind-variants@") ? "tailwind-variants@^4.0.0" : d,
+      );
+    }),
+    /item "utils" declares tailwind-variants@\^4\.0\.0, but the kit's package\.json has tailwind-variants@\^1\.0\.0: write tailwind-variants@\^1\.0\.0/,
+  );
+  refuses(
+    changed((k) => {
+      item(k, "theme").dependencies = ["tw-animate-css@latest"];
+    }),
+    /item "theme" declares tw-animate-css@latest.*write tw-animate-css@\^1\.4\.0/,
+  );
+  // A package the kit holds no range for at all is refused, whatever its range.
+  refuses(
+    changed((k) => {
+      item(k, "button").dependencies.push("left-pad@^1.3.0");
+    }),
+    /item "button" declares left-pad@\^1\.3\.0, a package with no range in the kit's package\.json nor in RANGES_OUTSIDE_PACKAGE/,
+  );
+});
+
 test("a command a skill names that no package provides is refused", () => {
   refuses(
     changed((k) => {

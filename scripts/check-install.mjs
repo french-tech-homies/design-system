@@ -16,9 +16,15 @@
      `.claude/skills/`;
    - every file a skill names (`<kit>/…`, `.claude/skills/…`, a file beside
      it) is one the install brings;
+   - every npm dependency of every item carries the range the kit is built
+     and tested on: the one its own package.json gives (devDependencies, then
+     dependencies), or for a package it does not hold, the one written with
+     its reason in RANGES_OUTSIDE_PACKAGE (scripts/ranges.mjs). `shadcn add` installs what
+     registry.json names, as it names it: a name with no range is its latest
+     version, whatever major that is;
    - the item that carries a script declares what the script imports, and the
      generator's item declares the package of every `npx` command a skill
-     names, each at the range of the kit's own package.json;
+     names;
    - no skill file names anything of this repository;
    - every skill opens with a frontmatter that parses as strict YAML and
      names the skill as its folder does, with a description that opens with
@@ -41,6 +47,10 @@ import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { parse } from "yaml";
+
+import { RANGES_OUTSIDE_PACKAGE, kitRange } from "./ranges.mjs";
+
+export { RANGES_OUTSIDE_PACKAGE, kitRange };
 
 const ENTRY = "ds";
 const NS = "@ds/";
@@ -235,23 +245,38 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme, docs = 
     }
   }
 
-  // 3. What a script imports is declared by the item that carries it.
-  const declares = (found, name) => {
-    const declared = [
+  // 3. Every npm dependency of every item, at the kit's own range: what an
+  //    install takes is read from here, as the CLI reads it.
+  for (const found of registry.items) {
+    for (const d of [
       ...(found.dependencies ?? []),
       ...(found.devDependencies ?? []),
-    ]
-      .map(splitDependency)
-      .find(([n]) => n === name);
-    if (!declared) return "missing";
-    const own = pkg.devDependencies?.[name] ?? pkg.dependencies?.[name];
-    if (declared[1] !== own) {
-      problems.push(
-        `item "${found.name}" declares ${name}@${declared[1]}, but the kit's package.json has ${name}@${own ?? "nothing"}`,
-      );
+    ]) {
+      const [name, range] = splitDependency(d);
+      const own = kitRange(pkg, name);
+      if (own === undefined) {
+        problems.push(
+          `item "${found.name}" declares ${d}, a package with no range in the kit's package.json nor in RANGES_OUTSIDE_PACKAGE (scripts/ranges.mjs): add it to one, with the range the kit is tested on`,
+        );
+      } else if (!range) {
+        problems.push(
+          `item "${found.name}" declares "${name}" with no range: write ${name}@${own}, the kit's own (an install takes a bare name at its latest version)`,
+        );
+      } else if (range !== own) {
+        problems.push(
+          `item "${found.name}" declares ${name}@${range}, but the kit's ${name in RANGES_OUTSIDE_PACKAGE ? "RANGES_OUTSIDE_PACKAGE" : "package.json"} has ${name}@${own}: write ${name}@${own}`,
+        );
+      }
     }
-    return "declared";
-  };
+  }
+
+  // 3b. What a script imports is declared by the item that carries it.
+  const declares = (found, name) =>
+    [...(found.dependencies ?? []), ...(found.devDependencies ?? [])]
+      .map(splitDependency)
+      .some(([n]) => n === name)
+      ? "declared"
+      : "missing";
   for (const [path, { item: found, target }] of landed) {
     if (!path.endsWith(".mjs")) continue;
     for (const specifier of imports(texts[path] ?? "")) {
