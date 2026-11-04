@@ -18,12 +18,12 @@ name: Pages
 #
 # Started by hand (`workflow_dispatch`), it publishes again what the last
 # release holds, and nothing once `main` has moved past it: the run then says
-# which release that is. The rule is in the README, "Publishing this
+# which release that is. The rule is in CONTRIBUTING.md, "Publishing this
 # repository".
 #
 # ONE-TIME HUMAN STEP: Settings → Pages → Build and deployment → Source =
 # "GitHub Actions". Until that is done this workflow fails at "Configure
-# Pages". See the README, "Publishing this repository".
+# Pages". See CONTRIBUTING.md, "Publishing this repository".
 
 on:
   push:

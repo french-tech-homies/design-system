@@ -74,11 +74,13 @@ canonical guarantees two versions of the same component in one codebase.
 
 Nothing Material 3 describes: the kit builds every component on its list.
 When Material adds one, an app that needs it before the kit does writes it in
-its own tree, beside the kit, on a headless component — the token and styling
-contracts above are what make it match. One added to the kit itself cites its
-Material page and clears `conventions.md`'s "quality bar".
+its own tree, beside the kit, on a headless component; the token and styling
+contracts of [conventions.md](../conventions.md) are what make it match. One
+added to the kit itself cites its Material page and clears that file's
+[quality bar](../conventions.md#the-quality-bar--what-a-new-component-must-ship).
 
 What Material 3 does not describe is not waiting to be included. A React Aria
-component of that kind joins the group named in [The kit's own](../README.md#the-kits-own) when a
-project needs it, Material-derived, by the rule written there; until then, and
-for what neither Material nor React Aria describes, it is a project's.
+component of that kind joins the kit's own group when a project needs it,
+Material-derived, by the rule the README writes in
+[The kit's own](../README.md#the-kits-own). Until then, and for what neither
+Material nor React Aria describes, it is a project's.

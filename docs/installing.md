@@ -353,10 +353,13 @@ as `ds/` (e.g. `src/ds`, `app/ui/ds`).
 **2. Install the peer dependencies.**
 
 ```bash
-npm install react-aria-components tailwind-variants tailwind-merge clsx tw-animate-css
+npm install "react-aria-components@^1.20.0" "tailwind-variants@^1.0.0" "tailwind-merge@^3.6.0" "clsx@^2.1.1" "tw-animate-css@^1.4.0"
 ```
 
-`PhoneField` additionally needs `react-phone-number-input` (parsing,
+Each at the range the kit is tested on, the one the registry declares: a
+bare name installs the latest version, and `tailwind-variants` 4 does not
+type-check with the kit's `utils.ts`. `PhoneField` additionally needs
+`react-phone-number-input@^3.4.9` (parsing,
 formatting, flags); skip it — and delete the component — if you have no
 phone input.
 
