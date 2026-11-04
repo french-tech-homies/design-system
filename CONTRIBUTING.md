@@ -8,31 +8,105 @@ push to `main`. Read first:
   cheap checks a change passes before it is handed on, and its rules.
 - [`conventions.md`](conventions.md): the contract every component follows,
   and the quality bar a new component has to clear.
-- [`CHANGELOG.md`](CHANGELOG.md): every change to the kit has an entry under
-  `[Unreleased]`.
+- [`CHANGELOG.md`](CHANGELOG.md): every release, its section generated from
+  the pull requests it holds.
 
 ## Releasing (maintainers)
 
+A release is a pull request the repository keeps open, and its merge. Nobody
+bumps the version or writes a CHANGELOG section by hand.
+
+**Every pull request carries one release label**, which says what its merge
+does to the next version:
+
+| Label      | The next release                 | For                                                    |
+| ---------- | -------------------------------- | ------------------------------------------------------ |
+| `feature`  | minor                            | something a project can now do                         |
+| `fix`      | patch                            | something corrected                                    |
+| `docs`     | patch                            | the documentation alone                                |
+| `breaking` | minor while 0.x, major from 1.0  | a change a project must act on                         |
+| `internal` | none, and left out of the notes  | CI, stories, screenshots, scripts only                 |
+
+`.github/workflows/release-label.yml` makes the five exist (`gh label create
+--force`) and refuses a pull request with none, or two, saying which to add.
+Where the files touched decide, it sets the label itself: only `README.md`
+or `docs/**` is `docs`; only `.github/**`, `stories/**`, `screenshots/**`
+or `scripts/**` is `internal`. `internal` on a change to a kit file is
+refused: a project receives it.
+
+**A note for a project only when it must act.** The pull request template
+has a section, "For a project that installs the kit": filled when the change
+asks something of a project (what to look for, what to run, what to edit),
+left empty otherwise. It is copied, as written, into the release's section of
+`CHANGELOG.md` under **Action needed**. The rest of the notes are the pull
+requests' titles, grouped by label: **Breaking**, **Added** (`feature`),
+**Fixed** (`fix`), **Docs**; `internal` is left out. `.github/release.yml`
+groups GitHub's own generated notes the same way. A command a note gives a
+project is tested by `npm run docs:check` (`scripts/changelog.check.mjs`),
+in the pull request that writes it.
+
+**The release pull request.** On every push to `main`, and again after every
+run of Pages, `.github/workflows/release-pr.yml` reads the pull requests
+merged since the newest `v*` tag on `main` (`scripts/release.mjs`). When
+some are not `internal`, it rebuilds the branch `release` from `main`, in
+one commit:
+
 ```bash
-npm version minor --no-git-tag-version   # or patch; package.json is the only source of truth
-npm run registry:build         # restamps every item's meta.version, and writes the release record
-npm run registry:check-version # what CI runs
-# add the CHANGELOG entry, commit package.json, package-lock.json, registry.json and RELEASE.json together
+npm version <bump> --no-git-tag-version   # the largest bump their labels ask
+npm run registry:build                    # every item's meta.version, and RELEASE.json
+# and a numbered section of CHANGELOG.md, made of their titles and notes
 ```
 
-`.github/workflows/checks.yml` fails when a bump was not followed by
-`registry:build`, alongside the existing guards on `resolved.json` and on a
-`registry.json` or a `RELEASE.json` that is not what the build writes.
+so the five places a release writes the version move together. Then it
+opens the pull request "Release x.y.z", or updates the one open, with that
+section as its body. The branch `release` is the workflow's own and is
+force-pushed; `main` never is. With only `internal` pull requests since the
+tag it opens nothing; with no tag yet it opens nothing, and says which tag
+to make first.
 
-The merge of that one commit to `main` is what publishes: see [Publishing
-this repository](#publishing-this-repository).
+A pull request opened with the workflow's `GITHUB_TOKEN` starts no
+workflow, so `checks.yml` does not run on it by itself: `release-pr.yml`
+runs `checks.yml` whole on the release commit, and writes the result on it as
+the commit status **Release checks**, which the pull request shows. Merge it
+once that is green. A run checks the release commit again unless that status
+is already green: one left red, pending or unwritten by an earlier run (the
+pull request could not be opened, the run was cancelled) is checked by the
+next run, after the next Pages run at the latest.
+
+**Merging it is the release.** Its push publishes (below), and once
+published the `tag` job of `pages.yml` tags the commit `vX.Y.Z` and makes the
+GitHub release, its notes the release's section. The next run of
+`release-pr.yml` reads from that tag.
+
+Leave the pull request open while the release is not wanted: it is
+refreshed on every push. A pull request merged with no release label counts
+as a patch, and the release pull request lists it under **Not labelled**:
+label it, and the next push to `main` takes it.
+
+**Two settings, made once by a person**: Settings → Actions → General →
+"Allow GitHub Actions to create and approve pull requests", without which
+the workflow cannot open the pull request and says so; and the tags of the
+releases made before this workflow, each on the commit of `main` whose push
+published it:
+
+```bash
+git tag v0.3.0 ebb1e22bc32387a26dc06b9155441f1dc6ef4bed
+git tag v0.4.0 4b0c186b24bd55870a23226046efc41112f21666
+git tag v0.5.0 b72faceef932db3a3e31a72b1d8cb62340243a36
+git tag v0.5.1 09bb8eff6a59268239843c949f54b9ffa2f9c602
+git push origin --tags
+```
+
+The entries written by hand under `[Unreleased]` before the switch go, as
+written, into the first generated section; the past sections stay as they
+are.
 
 ## Publishing this repository
 
 **Only a release publishes.** The catalog and the registry are served from
 GitHub Pages, which holds one build: no address serves an older release. So
 a merge to `main` does not publish by itself, or the registry would serve
-what is under `[Unreleased]` under the number of the last release.
+what `main` gathered since the last release under that release's number.
 
 - **Every pull request and every push to `main` is checked whole** by
   `.github/workflows/checks.yml`: the cheap checks, the Storybook build and
@@ -77,7 +151,10 @@ the Actions page, "Re-run all jobs", or `gh run rerun <run id>`) still
 publishes it, which serves where the red came from outside the commit: a
 flaky step, a deployment that failed, Pages not yet set up. Where the commit
 itself is wrong, leave the release unpublished, merge the fix, and make the
-next patch release: it publishes both.
+next patch release: it publishes both. An unpublished release is not tagged,
+and `release-pr.yml` waits for its tag before it opens the next release pull
+request, saying so: tag it by hand on its commit (`git tag vX.Y.Z <sha> &&
+git push origin vX.Y.Z`), and the next push to `main` opens it.
 
 **One setting, made once by a person**: Settings → Pages → Build and
 deployment → Source = "GitHub Actions". Until then `publish` fails at

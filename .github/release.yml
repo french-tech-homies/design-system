@@ -1,0 +1,24 @@
+# GitHub's grouping of generated release notes, by pull-request label: what
+# "Generate release notes" writes on the Releases page. The release workflow
+# writes its own notes with the same groups, in the same order
+# (scripts/release.mjs, GROUPS; release.check.mjs holds the two together).
+changelog:
+  exclude:
+    labels:
+      - internal
+  categories:
+    - title: Breaking
+      labels:
+        - breaking
+    - title: Added
+      labels:
+        - feature
+    - title: Fixed
+      labels:
+        - fix
+    - title: Docs
+      labels:
+        - docs
+    - title: Not labelled
+      labels:
+        - "*"

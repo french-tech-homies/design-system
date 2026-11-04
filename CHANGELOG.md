@@ -8,7 +8,8 @@ versioned is *the source you copied*, not a runtime API. Until 1.0.0:
 
 - **minor** (`0.x.0`) — may include breaking changes: a renamed style-module
   slot or variant, a removed component, a changed prop. Every one is listed
-  under **Changed** or **Removed** below.
+  under **Changed** or **Removed** below, and in a generated section under
+  **Breaking**, with its note under **Action needed**.
 - **patch** (`0.x.y`) — additive or corrective only. A file you have not edited
   can always be re-added with `shadcn add --overwrite`.
 
@@ -23,12 +24,20 @@ if a bump was not followed by `npm run registry:build`.
 
 ## Releasing
 
-```bash
-npm version minor --no-git-tag-version   # or patch — package.json and the lockfile
-npm run registry:build         # restamps every item with the new version, and writes RELEASE.json
-npm run registry:check-version # what CI runs
-# then add the entry below and commit everything together
-```
+Nobody writes a section here by hand. A release is the pull request
+"Release x.y.z" that `.github/workflows/release-pr.yml` keeps open: from the
+labels of the pull requests merged since the last `v*` tag it takes the bump
+(`npm version <bump> --no-git-tag-version`, `npm run registry:build`) and
+writes the release's section, their titles grouped by label (**Breaking**,
+**Added**, **Fixed**, **Docs**; `internal` left out), with the note each
+pull request holds for a project that must act under **Action needed**, as
+written. Its merge publishes, and the commit is tagged `vX.Y.Z` with a
+GitHub release of the same section. How, for maintainers:
+`CONTRIBUTING.md`, "Releasing (maintainers)".
+
+The entries written by hand under `[Unreleased]` before releases were
+generated go, as written, into the first generated section. The sections
+before it stay as they were written.
 
 ---
 

@@ -24,6 +24,11 @@ are its own is listed once: `README.md`, "The kit's own".
   push to `main` that moves the version in every place a release writes it.
   Any other merge is checked whole and publishes nothing. The rule is said
   once: `CONTRIBUTING.md`, "Publishing this repository".
+- **A release is a pull request the repository keeps open**, "Release
+  x.y.z", rebuilt from `main` by `.github/workflows/release-pr.yml` from the
+  labels of the pull requests merged since the last `v*` tag; its merge
+  publishes, and is then tagged. How: `CONTRIBUTING.md`, "Releasing
+  (maintainers)".
 
 ## Layout
 
@@ -42,8 +47,9 @@ are its own is listed once: `README.md`, "The kit's own".
   tests inside the Playwright image (`.storybook/screenshot.setup.ts`).
 - `skills/`: what a project's agent reads (`ds-theme`, `ds-build`,
   `ds-spec`).
-- `scripts/`: the registry build and its four rule checks, the publish
-  decision (`decide-publish.mjs`) among them, the doc-comment check
+- `scripts/`: the registry build and its five rule checks, the publish
+  decision (`decide-publish.mjs`) and the release from labels
+  (`release.mjs`) among them, the doc-comment check
   (`check-docs.mjs`), the check of the CHANGELOG's commands
   (`changelog.check.mjs`), and a worktree's own Storybook
   (`storybook-serve.mjs`).
@@ -77,8 +83,8 @@ are its own is listed once: `README.md`, "The kit's own".
 interaction states, accessibility and the quality bar a new component has to
 clear. `README.md` is what a consumer reads first, and `docs/` the rest:
 install, update, retheming. `CONTRIBUTING.md` is releasing and publishing.
-`CHANGELOG.md` records every change to the kit, with the entries that need
-action from a consumer flagged.
+`CHANGELOG.md` records every release, its section generated from the pull
+requests it holds, with the notes for a project that must act.
 
 ## Commands
 
@@ -206,9 +212,12 @@ npm run storybook:stop       # says the port is free
 - **A change lands as a branch and a pull request**, never as a push to
   `main`: every project that installs the kit receives what `main` holds at
   the next release, and a push that moves the version publishes at once.
-- **No change touches the version.** A release is a change of its own:
-  `npm version <minor|patch> --no-git-tag-version`, `npm run registry:build`,
-  `npm run registry:check-version`, the CHANGELOG's heading, one commit.
+- **No change touches the version, nor writes a section of
+  `CHANGELOG.md`.** A release is the pull request "Release x.y.z" that
+  `.github/workflows/release-pr.yml` keeps open, its one commit written by
+  `scripts/release.mjs`: `npm version <bump> --no-git-tag-version`,
+  `npm run registry:build`, the CHANGELOG's section. Its merge is the
+  owner's.
 - **Generated files are never edited by hand**: `tokens/theme.css`,
   `tokens/theme.v4.css`, `tokens/DESIGN.resolved.md`, `tokens/resolved.json`,
   `registry.json`, `RELEASE.json` and `releases/*.json`. Edit the source (`DESIGN.md`, the kit's
@@ -237,8 +246,18 @@ npm run storybook:stop       # says the port is free
   `NOTICE`, with its licence in `LICENSES/`.
 - **Requirements**: React 19, Tailwind CSS 4.1 or later, React Aria
   Components. Do not widen or narrow a dependency range without saying why in
-  the changelog.
-- **Every change to the kit is in `CHANGELOG.md`**, under `[Unreleased]`:
-  what a project receives, or how it is published. A change to this
-  repository's own tooling alone has no entry.
+  the pull request's note for a project.
+- **Every pull request carries one release label**: `feature` (minor),
+  `fix` (patch), `docs` (patch), `breaking` (minor while 0.x, major from
+  1.0) or `internal` (no release: CI, stories, screenshots, scripts only).
+  The "Release label" check refuses one without, and sets it where the files
+  decide (only `README.md` or `docs/**`: `docs`; only `.github/**`,
+  `stories/**`, `screenshots/**`, `scripts/**`: `internal`). Its title is
+  its line in the release notes: say what a project receives.
+- **A note for a project only when it must act**: the pull request
+  template's section "For a project that installs the kit", filled when the
+  change asks something of a project (what to look for, run or edit), left
+  empty otherwise. It is copied, as written, into the release's section of
+  `CHANGELOG.md`. Nothing is written under `[Unreleased]` any more; a
+  command a note gives is tested in `scripts/changelog.check.mjs`.
 - Commit messages say what changed and why, in plain words.
