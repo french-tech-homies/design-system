@@ -23,13 +23,13 @@
    - every skill opens with a frontmatter that parses as strict YAML and
      names the skill as its folder does, with a description that opens with
      when to load it ("Use when") and is no longer than a listing keeps;
-   - the update command is written one way in the README and the skills:
+   - the update command is written one way in the README, docs/ and the skills:
      `npx shadcn add @ds/ds`, each optional item held, `--overwrite -y`;
      its preview the same way, ending `--dry-run` or `--diff <path>`;
    - no item lands a skill that is not one of the kit's own three, named
      here and not read from what skills/ holds, and Adobe's React Aria skill is named, never shipped: its
-     install command is in the `ds-build` skill and once in the README,
-     nowhere else an install reaches, and its MCP server nowhere at all.
+     install command is in the `ds-build` skill and once in the README and
+     docs/ together, nowhere else an install reaches, and its MCP server nowhere at all.
 
    `checkInstall` is pure (the kit in, a list of problems out) so the rule
    checks in check-install.check.mjs can hand it a kit with one thing wrong.
@@ -132,9 +132,11 @@ const imports = (source) =>
  * @param {Record<string, string>} kit.texts kit-relative path → content, for
  *   every skill file and every file the registry carries
  * @param {string} kit.readme     the kit's README.md
+ * @param {Record<string, string>} [kit.docs] kit-relative path → content,
+ *   for every page of docs/
  * @returns {string[]} problems; empty when the install is whole
  */
-export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
+export function checkInstall({ registry, pkg, skillFiles, texts, readme, docs = {} }) {
   const problems = [];
   const items = new Map(registry.items.map((i) => [i.name, i]));
 
@@ -431,10 +433,11 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
       `${ARIA_SKILL_IN}: does not name \`npx skills add\`, the command that installs Adobe's React Aria skill`,
     );
   }
-  const inReadme = (readme ?? "").match(ARIA_SKILL)?.length ?? 0;
-  if (inReadme !== 1) {
+  const pages = [readme ?? "", ...Object.values(docs)];
+  const inPages = pages.reduce((n, text) => n + (text.match(ARIA_SKILL)?.length ?? 0), 0);
+  if (inPages !== 1) {
     problems.push(
-      `README.md: names \`npx skills add\` ${inReadme} times. It names Adobe's React Aria skill once`,
+      `README.md and docs/: name \`npx skills add\` ${inPages} times. Together they name Adobe's React Aria skill once`,
     );
   }
 
@@ -444,6 +447,7 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme }) {
   //    item alone leaves the release record at the old release.
   const commands = [
     ["README.md", readme ?? ""],
+    ...Object.entries(docs),
     ...skillFiles.filter((p) => p.endsWith(".md")).map((p) => [p, texts[p] ?? ""]),
   ];
   //    Its preview, `--dry-run` or `--diff <path>`, is written the same way.
@@ -510,6 +514,12 @@ export function readKit() {
     skillFiles,
     texts,
     readme: read("README.md"),
+    docs: Object.fromEntries(
+      readdirSync(join(kit, "docs"))
+        .filter((name) => name.endsWith(".md"))
+        .sort()
+        .map((name) => [`docs/${name}`, read(`docs/${name}`)]),
+    ),
   };
 }
 

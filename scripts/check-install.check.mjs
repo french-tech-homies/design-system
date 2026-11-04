@@ -21,6 +21,7 @@ const changed = (change) => {
     ...kit,
     registry: structuredClone(kit.registry),
     texts: { ...kit.texts },
+    docs: { ...kit.docs },
   };
   change(copy);
   return copy;
@@ -256,7 +257,7 @@ test("a skill whose frontmatter does not parse is refused", () => {
 
 /* ---- the update command, and when a skill is loaded -------------------- */
 
-test("the update command is written one way, in the README and in every skill", () => {
+test("the update command is written one way, in the README, the docs and every skill", () => {
   const UPDATE = "npx shadcn add @ds/ds --overwrite -y";
   // As shipped: the README and the two skills that speak of an update say it.
   assert.ok(kit.readme.includes(UPDATE));
@@ -289,6 +290,14 @@ test("the update command is written one way, in the README and in every skill", 
       k.readme += "\n`npx shadcn@latest add @ds/ds --overwrite`\n";
     }),
     /README\.md:\d+: writes the update command as/,
+  );
+  // And every page of docs/.
+  assert.ok(Object.keys(kit.docs).includes("docs/updating.md"), "the kit reads docs/");
+  refuses(
+    changed((k) => {
+      k.docs["docs/updating.md"] += "\n`npx shadcn@latest add @ds/ds --overwrite`\n";
+    }),
+    /docs\/updating\.md:\d+: writes the update command as/,
   );
 });
 
@@ -343,6 +352,12 @@ test("the update's preview is written the update's way, and its diff names a fil
     }),
     /README\.md:\d+: writes the update's preview as/,
   );
+  refuses(
+    changed((k) => {
+      k.docs["docs/installing.md"] += "\n`npx shadcn add @ds/ds --diff`\n";
+    }),
+    /docs\/installing\.md:\d+: writes the update's preview as/,
+  );
 });
 
 test("a skill's description opens with when to load it, within what a listing keeps", () => {
@@ -370,9 +385,11 @@ test("a skill's description opens with when to load it, within what a listing ke
 const BUILD_SKILL = "skills/ds-build/SKILL.md";
 const ARIA_SKILL = "npx skills add https://react-aria.adobe.com";
 
-test("the shipped kit names Adobe's skill in ds-build and once in the README", () => {
+test("the shipped kit names Adobe's skill in ds-build and once in the README and docs/", () => {
   assert.ok(kit.texts[BUILD_SKILL].includes(ARIA_SKILL));
-  assert.equal(kit.readme.split(ARIA_SKILL).length - 1, 1);
+  const pages = [kit.readme, ...Object.values(kit.docs)];
+  assert.equal(pages.join("\n").split(ARIA_SKILL).length - 1, 1);
+  assert.ok(kit.docs["docs/installing.md"].includes(ARIA_SKILL), "said where installing is");
   // The fallback, and where Material's pages are read.
   assert.match(kit.texts[BUILD_SKILL], /https:\/\/react-aria\.adobe\.com\/\w+\.md/);
   assert.match(kit.texts[BUILD_SKILL], /Material's pages with the `ds-spec` skill/);
@@ -472,7 +489,7 @@ test("an item that carries a skill that is not the kit's is refused", () => {
   );
 });
 
-test("the command that installs Adobe's skill is said in ds-build and once in the README, nowhere else", () => {
+test("the command that installs Adobe's skill is said in ds-build and once in the README and docs/, nowhere else", () => {
   refuses(
     changed((k) => {
       k.texts[THEME_SKILL] += `\nRun \`${ARIA_SKILL}\`.\n`;
@@ -492,17 +509,24 @@ test("the command that installs Adobe's skill is said in ds-build and once in th
     }),
     /skills\/ds-build\/SKILL\.md: does not name `npx skills add`/,
   );
+  // Said again on the front page, or on another page of docs/.
   refuses(
     changed((k) => {
       k.readme += `\n${ARIA_SKILL}\n`;
     }),
-    /README\.md: names `npx skills add` 2 times/,
+    /README\.md and docs\/: name `npx skills add` 2 times/,
   );
   refuses(
     changed((k) => {
-      k.readme = k.readme.replace(ARIA_SKILL, "");
+      k.docs["docs/using.md"] += `\n${ARIA_SKILL}\n`;
     }),
-    /README\.md: names `npx skills add` 0 times/,
+    /README\.md and docs\/: name `npx skills add` 2 times/,
+  );
+  refuses(
+    changed((k) => {
+      k.docs["docs/installing.md"] = k.docs["docs/installing.md"].replace(ARIA_SKILL, "");
+    }),
+    /README\.md and docs\/: name `npx skills add` 0 times/,
   );
 });
 
