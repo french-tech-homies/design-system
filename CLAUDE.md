@@ -258,6 +258,8 @@ npm run storybook:stop       # says the port is free
   template's section "For a project that installs the kit", filled when the
   change asks something of a project (what to look for, run or edit), left
   empty otherwise. It is copied, as written, into the release's section of
-  `CHANGELOG.md`. Nothing is written under `[Unreleased]` any more; a
-  command a note gives is tested in `scripts/changelog.check.mjs`.
+  `CHANGELOG.md`. Nothing is written under `[Unreleased]` any more (a
+  release keeps the heading, empty, and carries whatever is under it into
+  its section); a command a note gives is tested in
+  `scripts/changelog.check.mjs`.
 - Commit messages say what changed and why, in plain words.

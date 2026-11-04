@@ -140,6 +140,6 @@ test("once the next release's section is generated, the command is read there, u
     changelog,
     section({ version: "9.9.9", date: "2026-11-04", prs: [], carried: unreleasedOf(changelog) }),
   );
-  assert.ok(!generated.includes("## [Unreleased]"));
+  assert.equal(unreleasedOf(generated), "", "`[Unreleased]` is left empty");
   assert.equal(iconButtonCommand(generated), iconButtonCommand(changelog));
 });

@@ -240,34 +240,65 @@ test("the switch: `[Unreleased]` goes, as written, into the first generated sect
   assert.equal(carried, "### Added\n\n- **Written by hand.**");
   const text = section({ version: "0.6.0", date: "2026-11-04", prs: [pr(7, "fix")], carried });
   const out = insertSection(CHANGELOG, text);
-  assert.ok(!out.includes("## [Unreleased]"));
-  assert.ok(out.startsWith("# Changelog\n\n---\n\n## [0.6.0] — 2026-11-04\n"));
+  // The heading stays, empty, above the new section: the place for the next note.
+  assert.ok(out.startsWith("# Changelog\n\n---\n\n## [Unreleased]\n\n## [0.6.0] — 2026-11-04\n"));
+  assert.equal(out.match(/^## \[Unreleased\]/gm).length, 1);
   assert.ok(out.includes("- **Written by hand.**\n\n## [0.5.1] — 2026-10-14\n"));
   assert.ok(out.endsWith(CHANGELOG.slice(CHANGELOG.indexOf("## [0.5.1]"))), "the past sections, byte for byte");
   // The decision reads the generated heading as the version.
   assert.deepEqual(versions((p) => (p === "CHANGELOG.md" ? out : null))["CHANGELOG.md"], ["0.6.0"]);
-  // A later release, with no `[Unreleased]`, goes above the newest.
+  // A later release, with `[Unreleased]` left empty, carries nothing and keeps the heading.
   assert.equal(unreleasedOf(out), "");
-  const later = insertSection(out, section({ version: "0.6.1", date: "2026-11-05", prs: [pr(8, "fix")] }));
-  assert.ok(later.includes("---\n\n## [0.6.1] — 2026-11-05\n\n### Fixed\n\n- Change 8 ([#8](https://github.com/o/r/pull/8))\n\n## [0.6.0]"));
+  const later = insertSection(out, section({ version: "0.6.1", date: "2026-11-05", prs: [pr(8, "fix")], carried: unreleasedOf(out) }));
+  assert.ok(later.includes("---\n\n## [Unreleased]\n\n## [0.6.1] — 2026-11-05\n\n### Fixed\n\n- Change 8 ([#8](https://github.com/o/r/pull/8))\n\n## [0.6.0]"));
+  assert.deepEqual(versions((p) => (p === "CHANGELOG.md" ? later : null))["CHANGELOG.md"], ["0.6.1"]);
+});
+
+test("a note written under the empty `[Unreleased]` after a release is carried by the next one", () => {
+  const released = insertSection(CHANGELOG, section({ version: "0.6.0", date: "2026-11-04", prs: [], carried: unreleasedOf(CHANGELOG) }));
+  const noted = released.replace("## [Unreleased]\n", "## [Unreleased]\n\n**Action needed**: run this.\n");
+  assert.equal(unreleasedOf(noted), "**Action needed**: run this.");
+  const later = insertSection(noted, section({ version: "0.6.1", date: "2026-11-05", prs: [pr(8, "fix")], carried: unreleasedOf(noted) }));
+  assert.equal(unreleasedOf(later), "");
+  assert.match(sectionOf(later, "0.6.1"), /### Written under `\[Unreleased\]`\n\n\*\*Action needed\*\*: run this\.$/);
+  assert.equal(later.match(/run this/g).length, 1, "the note moves, it is not copied");
+});
+
+test("a CHANGELOG with no `[Unreleased]` is given one by its next release", () => {
+  const bare = CHANGELOG.replace(/## \[Unreleased\][\s\S]*?(?=## \[0\.5\.1\])/, "");
+  const out = insertSection(bare, section({ version: "0.6.0", date: "2026-11-04", prs: [pr(7, "fix")] }));
+  assert.ok(out.includes("---\n\n## [Unreleased]\n\n## [0.6.0] — 2026-11-04\n"));
 });
 
 test("the GitHub release's notes are its section, the heading left out", () => {
   const out = insertSection(CHANGELOG, section({ version: "0.6.0", date: "2026-11-04", prs: [pr(7, "fix")], carried: unreleasedOf(CHANGELOG) }));
   assert.equal(
     sectionOf(out, "0.6.0"),
-    "### Fixed\n\n- Change 7 ([#7](https://github.com/o/r/pull/7))\n\n### Written under `[Unreleased]` before releases were generated\n\n### Added\n\n- **Written by hand.**",
+    "### Fixed\n\n- Change 7 ([#7](https://github.com/o/r/pull/7))\n\n### Written under `[Unreleased]`\n\n### Added\n\n- **Written by hand.**",
   );
   assert.equal(sectionOf(out, "0.5.1"), "A patch.");
   assert.equal(sectionOf(out, "0.4.0"), null);
 });
 
-test("the kit's own CHANGELOG reads as the switch expects", () => {
-  const changelog = read("CHANGELOG.md");
-  assert.match(unreleasedOf(changelog), /^### Added\n/);
+/** What holds of the kit's own CHANGELOG on any commit, `main` or a
+    release's: what is written there is the file's, so only its shape is
+    held here; the switch's own shape is held on the fixtures above. */
+function holdsAnywhere(changelog) {
+  const headings = [...changelog.matchAll(/^## \[([^\]]+)\]/gm)].map(([, name]) => name);
+  assert.equal(headings.filter((h) => h === "Unreleased").length, 1, "one `[Unreleased]`, the place for the next note");
+  assert.equal(headings[0], "Unreleased", "`[Unreleased]` above every numbered section");
   const out = insertSection(changelog, section({ version: "9.9.9", date: "2026-11-04", prs: [], carried: unreleasedOf(changelog) }));
   const past = changelog.slice(changelog.search(/^## \[\d/m));
   assert.ok(out.endsWith(past), "every past section kept");
+  assert.equal(unreleasedOf(out), "", "the next release leaves `[Unreleased]` empty");
+  assert.deepEqual(versions((p) => (p === "CHANGELOG.md" ? out : null))["CHANGELOG.md"], ["9.9.9"]);
+  if (unreleasedOf(changelog)) assert.ok(sectionOf(out, "9.9.9").endsWith(unreleasedOf(changelog)), "what was written is carried, as written");
+  return out;
+}
+
+test("the kit's own CHANGELOG holds on `main` and on the release commit made from it", () => {
+  const released = holdsAnywhere(read("CHANGELOG.md"));
+  holdsAnywhere(released);
 });
 
 /* ---- the plan ---------------------------------------------------------- */
