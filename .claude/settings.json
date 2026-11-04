@@ -31,5 +31,9 @@
   },
   "enabledMcpjsonServers": [
     "playwright"
-  ]
+  ],
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  }
 }
