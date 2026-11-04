@@ -363,8 +363,8 @@ type-check with the kit's `utils.ts`. `PhoneField` additionally needs
 formatting, flags); skip it — and delete the component — if you have no
 phone input.
 
-Tested against: `react-aria-components` ^1.20, `tailwind-variants` ^1.0,
-`tailwind-merge` ^3.6, Tailwind CSS ^4.1, React 19. No Tailwind plugin is
+Tested against: `react-aria-components` ^1.20.0, `tailwind-variants` ^1.0.0,
+`tailwind-merge` ^3.6.0, `tailwindcss` ^4.1.4, `react` ^19.2.0. No Tailwind plugin is
 needed: interaction states use Tailwind's own variants (`hover:`,
 `focus-visible:`, `disabled:`) and the bare data-attribute variants React Aria
 emits (`data-pressed:`, `data-entering:`, `data-[placement=top]:`) — the same
