@@ -5,8 +5,17 @@
 
    A command an entry asks a project to run is run here, as written, on a
    fixture project: a temp folder whose `src/` holds each shape the command
-   has to tell apart. The command is read from the entry under
-   `[Unreleased]`, so the text a project copies is the text tested.
+   has to tell apart. The command is read from CHANGELOG.md, so the text a
+   project copies is the text tested.
+
+   Since releases are generated (scripts/release.mjs), an entry that asks
+   something of a project is a pull request's note for a project, copied as
+   written into its release's section, and an entry written by hand under
+   `[Unreleased]` before the switch goes into the first generated section.
+   So the command is read from the file whole, wherever its section is: it
+   is under `[Unreleased]` until the next release, then under that
+   release's number. A note that gives a new command gets its test here, in
+   the pull request that writes it, read the same way.
 
    It needs ripgrep (`rg`, built with PCRE2) on the PATH, as the command
    does; without one the test says so and is skipped, except in CI
@@ -21,27 +30,24 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { insertSection, section, unreleasedOf } from "./release.mjs";
+
 const KIT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const changelog = readFileSync(join(KIT, "CHANGELOG.md"), "utf8");
 
-/** The entries not yet released: from `## [Unreleased]` to the next release. */
-const unreleased = changelog.slice(
-  changelog.indexOf("## [Unreleased]"),
-  changelog.search(/\n## \[\d/),
-);
+/** 0.4.0's command, as it was published: `[^>]*` stops at an arrow's `>`. */
+const PUBLISHED = "rg -U --pcre2 -n '<IconButton\\b(?![^>]*\\bvariant=)' src";
 
-/** The one `rg` line of a fenced block in `text` that names `<IconButton`. */
+/** The one `rg` line of a fenced block in `text` that names `<IconButton`,
+    0.4.0's own left out: it is kept as it was published. */
 function iconButtonCommand(text) {
   const lines = [...text.matchAll(/```bash\n([\s\S]*?)```/g)]
     .flatMap(([, block]) => block.split("\n"))
     .map((line) => line.trim())
-    .filter((line) => line.startsWith("rg ") && line.includes("<IconButton"));
+    .filter((line) => line.startsWith("rg ") && line.includes("<IconButton") && line !== PUBLISHED);
   assert.equal(lines.length, 1, `one command that lists icon buttons, found: ${lines.join(" | ")}`);
   return lines[0];
 }
-
-/** 0.4.0's command, as it was published: `[^>]*` stops at an arrow's `>`. */
-const PUBLISHED = "rg -U --pcre2 -n '<IconButton\\b(?![^>]*\\bvariant=)' src";
 
 /** Each shape, one a line, its first line opening with the button, and
     whether it names a `variant`. */
@@ -108,7 +114,7 @@ test("ripgrep built with PCRE2 is on the PATH, in CI", { skip: !process.env.CI &
 });
 
 test("the command that lists unsaid icon buttons lists exactly those that name no variant", needsRipgrep, (t) => {
-  const command = iconButtonCommand(unreleased);
+  const command = iconButtonCommand(changelog);
   const named = run(t, command);
   assert.deepEqual(
     named,
@@ -127,4 +133,13 @@ test("the fixture holds the shapes 0.4.0's command got wrong", needsRipgrep, (t)
   ]) {
     assert.ok(named.includes(shape), `0.4.0's command lists "${shape}"`);
   }
+});
+
+test("once the next release's section is generated, the command is read there, unchanged", () => {
+  const generated = insertSection(
+    changelog,
+    section({ version: "9.9.9", date: "2026-11-04", prs: [], carried: unreleasedOf(changelog) }),
+  );
+  assert.ok(!generated.includes("## [Unreleased]"));
+  assert.equal(iconButtonCommand(generated), iconButtonCommand(changelog));
 });

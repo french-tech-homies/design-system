@@ -11,6 +11,11 @@ name: Pages
 # and the previous site stays; so does a build that fails any check. The built
 # registry is not committed.
 #
+# Once a release's push is published, `tag` tags its commit `vX.Y.Z` and makes
+# its GitHub release, with its section of CHANGELOG.md as the notes
+# (scripts/release.mjs). The release itself is the pull request release-pr.yml
+# keeps open.
+#
 # Started by hand (`workflow_dispatch`), it publishes again what the last
 # release holds, and nothing once `main` has moved past it: the run then says
 # which release that is. The rule is in the README, "Publishing this
@@ -65,3 +70,27 @@ jobs:
         run: |
           echo "catalog:  ${{ steps.deploy.outputs.page_url }}"
           echo "registry: ${{ steps.deploy.outputs.page_url }}r/{name}.json"
+
+  tag:
+    name: Tag the release, and its GitHub release
+    # After the release is published, and only on its push: a hand start
+    # publishes again on `main`'s tip, which is not the release's commit.
+    # The tag is what release-pr.yml reads the next release's pull requests
+    # since; its run after this one opens that pull request.
+    needs: publish
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # the tag and the release, made through the API
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Tag the commit vX.Y.Z, its notes the CHANGELOG's section
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release.mjs tag

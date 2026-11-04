@@ -1,0 +1,50 @@
+name: Release label
+
+# Every pull request carries one release label, which says what its merge
+# does to the next version: `feature` (minor), `fix` (patch), `docs`
+# (patch), `breaking` (minor while 0.x, major from 1.0) or `internal` (no
+# release). This check refuses one with none, and says which to add. Where
+# the files touched decide it, it is set: only README.md or docs/** is
+# `docs`; only .github/**, stories/**, screenshots/** or scripts/** is
+# `internal`. The rules are scripts/release.mjs's (`judge`).
+#
+# It first makes the five labels exist (`gh label create --force`), so the
+# repository holds them without a hand step.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled, ready_for_review]
+
+permissions:
+  contents: read
+  issues: write # the labels themselves
+  pull-requests: write # a label the files decide
+
+concurrency:
+  group: release-label-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    name: One release label
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: The five release labels exist
+        # A fork's pull request has a token that cannot write them; the
+        # check below runs all the same.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release.mjs labels
+
+      - name: The pull request carries one
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release.mjs label-check

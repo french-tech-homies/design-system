@@ -1,0 +1,115 @@
+name: Release PR
+
+# Keeps one pull request "Release x.y.z" open and current, from the branch
+# `release` into `main`, when pull requests other than `internal` merged
+# since the newest `v*` tag. Merging it is the release: its push moves the
+# version in the five places and pages.yml publishes, then tags it. See
+# CONTRIBUTING.md, "Releasing (maintainers)", and scripts/release.mjs.
+#
+# On every push to `main`, and again after every run of Pages, whose `tag`
+# job may have just made the tag the pull requests are read since.
+#
+# A pull request this workflow opens with its GITHUB_TOKEN starts no
+# workflow, so checks.yml does not run on it by itself: the job `checks`
+# below runs checks.yml whole on the release commit, and `status` writes its
+# result on that commit as the status "Release checks", which the pull
+# request shows.
+#
+# ONE-TIME HUMAN STEP: Settings → Actions → General → "Allow GitHub Actions to
+# create and approve pull requests". Until then "Open or update" fails, and
+# says so.
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: [Pages]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+# One at a time, and never cancelled: a run cancelled in its checks would
+# leave its commit's status pending, and the run after it, finding the same
+# release, would not check it again. A newer pending run replaces an older one.
+concurrency:
+  group: release-pr
+  cancel-in-progress: false
+
+jobs:
+  release-pr:
+    name: Open or update the release pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # the branch `release`, force-pushed; `main` never is
+      pull-requests: write
+      statuses: write
+    outputs:
+      sha: ${{ steps.pr.outputs.sha }}
+      base: ${{ steps.pr.outputs.base }}
+      pushed: ${{ steps.pr.outputs.pushed }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          # The tags and the history back to the last one.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        # `npm run registry:build` needs them.
+        run: npm ci
+
+      - name: Open or update the release pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release.mjs pr
+
+      - name: The release commit's checks are pending
+        if: steps.pr.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/statuses/${{ steps.pr.outputs.sha }}" \
+            -f state=pending -f context="Release checks" \
+            -f description="checks.yml, run by the Release PR workflow" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+  checks:
+    name: Checks of the release commit
+    needs: release-pr
+    if: needs.release-pr.outputs.pushed == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/checks.yml
+    with:
+      ref: ${{ needs.release-pr.outputs.sha }}
+      base: ${{ needs.release-pr.outputs.base }}
+
+  status:
+    name: Release checks, on the release commit
+    needs: [release-pr, checks]
+    if: ${{ !cancelled() && needs.release-pr.outputs.pushed == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      statuses: write
+    steps:
+      - name: Write the checks' result on the release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ needs.checks.result }}
+        run: |
+          state=failure
+          [ "$RESULT" = success ] && state=success
+          gh api "repos/$GITHUB_REPOSITORY/statuses/${{ needs.release-pr.outputs.sha }}" \
+            -f state="$state" -f context="Release checks" \
+            -f description="checks.yml: $RESULT" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
