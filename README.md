@@ -51,6 +51,9 @@ npx shadcn@latest init @ds/base     # aria-nova style, lucide icons, theme files
 npx shadcn add @ds/ds               # the one install: everything, under <ui>/ds/ and .claude/skills/
 ```
 
+After `init`, `add` asks whether to install a new style: answer yes (seen
+with shadcn 4.23.0, on 2026-11-03).
+
 The install writes nothing into your entry CSS. Import the theme there
 (here `src/index.css`, beside `src/components/ui`):
 
@@ -78,13 +81,15 @@ import { Button, Card, CardContent } from "@/components/ui/ds";
 
 It draws in the kit's neutral default. **For a look of your own**, give the
 project its own `DESIGN.md` (start from the kit's, which the install brought),
-change what you want in it, generate, and point the two theme imports at
-`theme/` instead:
+change what you want in it (its `seed`, a font), and generate:
 
 ```bash
 cp src/components/ui/ds/DESIGN.md DESIGN.md
 npx tsx src/components/ui/ds/tokens/generate-theme.mjs DESIGN.md --out theme
 ```
+
+Then point the two theme imports at `theme/` instead:
+`@import "../theme/theme.css";` and `@import "../theme/theme.v4.css";`.
 
 Or open your coding agent in the project and ask for a look ("make it look
 like cyberpunk"): the `ds-theme` skill the install brought does those steps,
