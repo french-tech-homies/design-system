@@ -99,7 +99,10 @@ git push origin --tags
 
 The entries written by hand under `[Unreleased]` before the switch go, as
 written, into the first generated section; the past sections stay as they
-are.
+are. Every release leaves the heading `## [Unreleased]` in place, empty,
+above its section, so `CHANGELOG.md` has it on `main` and on a release
+commit alike; whatever is written under it is carried, as written, into the
+next release's section.
 
 ## Publishing this repository
 

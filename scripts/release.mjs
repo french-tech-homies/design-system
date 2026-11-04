@@ -223,7 +223,7 @@ export function section({ version, date, prs, carried = "" }) {
   }
   if (carried.trim()) {
     out.push(
-      "### Written under `[Unreleased]` before releases were generated",
+      "### Written under `[Unreleased]`",
       "",
       carried.trim(),
       "",
@@ -245,20 +245,26 @@ export function unreleasedOf(changelog) {
   return (end < 0 ? body : body.slice(0, end)).trim();
 }
 
-/** CHANGELOG.md with `section` in place of `[Unreleased]`, or above the
-    newest numbered section when there is none. The past sections are kept
-    byte for byte. */
+/** The heading a release leaves, empty, above its section: the place for
+    the next note written by hand, so every commit, `main` or a release's,
+    has one, and a person finds where a note goes without making it. */
+const EMPTY_UNRELEASED = "## [Unreleased]\n\n";
+
+/** CHANGELOG.md with `section` in place of what was under `[Unreleased]`,
+    the heading kept, empty, above it; with no such heading, both go above
+    the newest numbered section. The past sections are kept byte for byte. */
 export function insertSection(changelog, sectionText) {
+  const head = `${EMPTY_UNRELEASED}${sectionText}`;
   const at = changelog.search(UNRELEASED);
   if (at >= 0) {
     const below = at + UNRELEASED.exec(changelog.slice(at))[0].length;
     const end = changelog.slice(below).search(NUMBERED);
     const after = end < 0 ? "" : changelog.slice(below + end);
-    return `${changelog.slice(0, at)}${sectionText}${after ? `\n${after}` : ""}`;
+    return `${changelog.slice(0, at)}${head}${after ? `\n${after}` : ""}`;
   }
   const newest = changelog.search(NUMBERED);
-  if (newest < 0) return `${changelog.trimEnd()}\n\n${sectionText}`;
-  return `${changelog.slice(0, newest)}${sectionText}\n${changelog.slice(newest)}`;
+  if (newest < 0) return `${changelog.trimEnd()}\n\n${head}`;
+  return `${changelog.slice(0, newest)}${head}\n${changelog.slice(newest)}`;
 }
 
 /** The text of one numbered section, its heading left out: the GitHub
