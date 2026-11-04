@@ -44,7 +44,7 @@ export const readDocs = () =>
 const RANGE = String.raw`(?:[\^~]|[<>]=?|=)?\d+(?:\.(?:\d+|x|\*))*(?:-[0-9A-Za-z.]+)?`;
 // An npm name, scoped or not, not itself the tail of a longer word or path.
 const NAME = String.raw`(?<![\w@/.-])((?:@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*)`;
-const NAME_AT_RANGE = new RegExp(`${NAME}@(${RANGE})(?![\\w.])`, "g");
+const NAME_AT_RANGE = new RegExp(`${NAME}@(${RANGE})(?!\\w|\\.\\w)`, "g");
 const TESTED = /Tested against:([\s\S]*?)(?:\.(?=\s|$)|\n\s*\n|$)/g;
 const PAIR = new RegExp("`([^`]+)`\\s+(" + RANGE + ")", "g");
 

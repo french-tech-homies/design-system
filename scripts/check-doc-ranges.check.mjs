@@ -165,3 +165,20 @@ test("a scoped name is read whole, and a registry item or an address is not a ra
     "docs/x.md:3: @internationalized/date@^3.0.0, write @internationalized/date@^3.12.4, the range the kit is tested on",
   ]);
 });
+
+test("a range at a sentence's end is held, its full stop not read as part of it", () => {
+  const docs = shipped.map((d) =>
+    d.path === "docs/installing.md"
+      ? {
+          ...d,
+          text: `${d.text}\nThen run npm install clsx@^1.0.0. It is done.\n`,
+        }
+      : d,
+  );
+  const problems = checkDocRanges(docs, pkg);
+  assert.equal(problems.length, 1);
+  assert.match(
+    problems[0],
+    /^docs\/installing\.md:\d+: clsx@\^1\.0\.0, write clsx@\^2\.1\.1/,
+  );
+});
