@@ -43,6 +43,50 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-11-04
+
+### Action needed
+
+#### Every registry dependency carries the range the kit is tested on ([#33](https://github.com/french-tech-homies/design-system/pull/33))
+
+An install made before this release may hold `tailwind-variants` 4 (or
+another major of a package the kit names), which the kit is not tested on:
+`tsc -b` fails in `<ui>/ds/utils.ts`. Look at your `package.json`. The update,
+`npx shadcn add @ds/ds --overwrite -y` with each optional item you hold,
+installs every package the kit names at the range it is tested on, even one
+your project already has: `tailwind-variants@^1.0.0`,
+`react-aria-components@^1.20.0`, `tailwind-merge@^3.6.0`, `clsx@^2.1.1`,
+`tw-animate-css@^1.4.0`, `@internationalized/date@^3.12.4`,
+`react-phone-number-input@^3.4.9`.
+
+The adapters now carry their framework's range too:
+
+- `@ds/next-adapter` installs `next@^16.2.7`. A project on Next 15 or older
+  that names it in the update is moved to Next 16: leave `@ds/next-adapter`
+  out of the update until the project is on Next 16.
+- `@ds/react-router-adapter` installs `react-router@^7.18.2`: a project on an
+  older 7.x is moved to the latest 7.x.
+- `@ds/react-hook-form-adapter` installs `react-hook-form@^7.55.0`.
+
+### Added
+
+- Let a badge take a colour role, and a navigation destination's badge a badgeColor ([#21](https://github.com/french-tech-homies/design-system/pull/21))
+- Give the 22 pending exports a doc comment each, and empty docs:check's PENDING ([#24](https://github.com/french-tech-homies/design-system/pull/24))
+- Let fields name their error icon in the page's language ([#26](https://github.com/french-tech-homies/design-system/pull/26))
+
+### Fixed
+
+- Give the next release an exact icon-button command, and say what excluding utils.ts costs ([#25](https://github.com/french-tech-homies/design-system/pull/25))
+- Every registry dependency carries the range the kit is tested on ([#33](https://github.com/french-tech-homies/design-system/pull/33))
+
+### Docs
+
+- Say in the README what a red release run leaves: re-run it, never push a kit fix after it ([#23](https://github.com/french-tech-homies/design-system/pull/23))
+- Say an update as three commands a person types, in the README and the skills ([#27](https://github.com/french-tech-homies/design-system/pull/27))
+- Make the README a front page and move the detail to docs/ ([#29](https://github.com/french-tech-homies/design-system/pull/29))
+
+### Written under `[Unreleased]`
+
 ### Added
 
 - **The error icon's name can be translated**: `TextField`, `NumberField`,
