@@ -20,8 +20,12 @@
  * Each `Form*` field is given `validationBehavior="aria"`: the form decides
  * what is valid, so a field marked `isRequired` shows its asterisk and says
  * so, and the browser's own validation does not stop the submit before the
- * form's rules have run. Pass `validationBehavior="native"` to hand a field
- * back to the browser.
+ * form's rules have run. So what a field would check by itself is the
+ * form's to check: `isRequired`, a number's or a date's `minValue` and
+ * `maxValue`, a `pattern` each want a rule, or the schema's. Put
+ * `noValidate` on the `form` too: the browser still judges an input's
+ * `type` (`email`, `url`) and stops the submit with a bubble of its own.
+ * Pass `validationBehavior="native"` to hand a field back to the browser.
  *
  * A refused submit puts the focus in the first invalid field, as
  * react-hook-form does by default (`shouldFocusError`), and

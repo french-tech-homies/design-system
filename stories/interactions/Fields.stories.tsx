@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
 import KitCard from "@french-tech-homies/design-system/components/Card";
 import type { UserEvent } from "@vitest/browser-playwright/context";
 import React, { useState } from "react";
@@ -758,11 +759,16 @@ export const OutlinedLabelTakesItsCardsColour: Story = {
           <TextField variant="outlined" label={`Name on a ${variant} card`} defaultValue="Ada" />
         </KitCard>
       ))}
+      <SideSheet isOpen title="Details">
+        <TextField variant="outlined" label="Name in a side sheet" defaultValue="Ada" />
+      </SideSheet>
     </div>
   ),
   play: async ({ canvasElement }) => {
-    const cards = canvasElement.querySelectorAll('[data-slot="card"]');
-    await expect(cards).toHaveLength(3);
+    const cards = canvasElement.querySelectorAll(
+      '[data-slot="card"], [data-slot="side-sheet"]',
+    );
+    await expect(cards).toHaveLength(4);
     // The Editorial preset stacks the label above the field: no notch.
     if (canvasElement.closest(".preset-editorial")) return;
     for (const card of cards) {

@@ -576,7 +576,9 @@ export type ChipGroupProps = Omit<
   /** Fires when focus leaves any chip in the set (form "touched" tracking). */
   onBlur?: FocusEventHandler<HTMLDivElement>;
   /** One row that scrolls sideways where the chips do not fit, in place of
-   *  wrapping onto more rows: a filter row on a phone. */
+   *  wrapping onto more rows: a filter row on a phone. Material's
+   *  guidelines: "Chip sets can be scrolled horizontally", and past two
+   *  rows of wrapping they ask for it. */
   isScrollable?: boolean;
   /** The group's element: to scroll it into view, or to find a chip in it
    *  and give it the focus. */

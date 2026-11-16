@@ -23,6 +23,7 @@ import Modal from "@french-tech-homies/design-system/components/Modal";
 import { ModalDialog } from "@french-tech-homies/design-system/components/ModalDialog";
 import { page } from "vitest/browser";
 import TextField from "@french-tech-homies/design-system/components/TextField";
+import { Tree, TreeItem } from "@french-tech-homies/design-system/components/Tree";
 import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
 import BottomSheet, {
   type BottomSheetProps,
@@ -338,6 +339,51 @@ function SideSheetHarness() {
     </div>
   );
 }
+
+function SheetWithTheOpenFolder() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Open folders</Button>
+      <SideSheet
+        variant="modal"
+        isOpen={open}
+        title="Folders"
+        onClose={() => setOpen(false)}
+      >
+        {/* The selection is the folder that is open: it is never cleared. */}
+        <Tree
+          aria-label="Folders"
+          selectionMode="single"
+          selectedKeys={["finance"]}
+          escapeKeyBehavior="none"
+        >
+          <TreeItem id="finance" title="Finance" />
+          <TreeItem id="design" title="Design" />
+        </Tree>
+      </SideSheet>
+    </>
+  );
+}
+
+/**
+ * A tree whose selection is where the app is leaves Escape alone
+ * (`escapeKeyBehavior="none"`), so Escape on one of its rows closes the
+ * sheet around it. Left to clear a selection that is never cleared, the
+ * tree would keep the key for ever.
+ */
+export const EscapeLeavesAListWhoseSelectionStays: Story = {
+  render: () => <SheetWithTheOpenFolder />,
+  play: async ({ canvasElement }) => {
+    const opener = within(canvasElement).getByRole("button", { name: "Open folders" });
+    await userEvent.click(opener);
+    const sheet = await screen.findByRole("dialog", { name: "Folders" });
+    within(sheet).getByRole("row", { name: /Finance/ }).focus();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(opener).toHaveFocus());
+  },
+};
 
 function ModalSheetOnAPhone() {
   const [open, setOpen] = useState(false);
