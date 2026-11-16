@@ -26,8 +26,8 @@
       "loose": "071b795cc4e1b026854bc4cafb72a5ce3b3720dc4f50b923a2cbc2b06a7c9ee4"
     },
     "components/Avatar.tsx": {
-      "exact": "f672b4d9473a458826ccf7c7d381e117d5d84ebd4416944339a38e42960cc3c9",
-      "loose": "4c864c3bc5bbc2338d731d3157465452c4b93ff2f12ff2322d49b21b13105a54"
+      "exact": "22caa92f2896fa726befb8d4a833b359ac10d969a7f0c174b0b789509836f242",
+      "loose": "d5f742ec8f744b5934daa4bf6aebb6ad38c69bf0e7bf2e4cab24c0235a1b7f50"
     },
     "components/Badge.tsx": {
       "exact": "d48fc44b36f659893977b257411a9eb2179bc8bac39735d5b0ebdbbb545539eb",
