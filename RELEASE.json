@@ -177,6 +177,10 @@
       "exact": "4bb5330a3cacb09ae105d4365366e7746e71e0232e2eac731cf1251fb1c6e963",
       "loose": "d8fc0ef23171c5c2fe30da4cde49c41e56ac5c510f7d3ede63999224a310ebd0"
     },
+    "components/Pressable.tsx": {
+      "exact": "c29ae47e3b26bb526f0e2aa706d87010e9042550797a85c4e0be02ab50598f42",
+      "loose": "074c375ef90717821b2ddc9b58fe06a222f7647bfe0e300c13523e8688de2f0f"
+    },
     "components/PreviewTrigger.tsx": {
       "exact": "745ab1d41130af47c9cf16cd28de6afb02cf98381548f40fec03ed30546f2988",
       "loose": "378b468c6df842b32454c8a17f413a703a0a325f99863b4b60a1a3cf0247644e"
@@ -298,11 +302,11 @@
       "loose": "f53873012a0ccb6815603ab3e49154577deef31809651d1b1b6ad7c74045c38f"
     },
     "index.ts": {
-      "exact": "f337539387c09749d929f9e02235c066d93aeb888a5c2542299bb4fef493129d",
-      "loose": "7170052d73c46a2dad7c767eb5e77f1fb696fbc394e4ffecdf932a3dc71c1252",
+      "exact": "915dfb9901bf3b7d9b630ee6b69fa519b74fa465ce7dc971703a2bc653ed0519",
+      "loose": "bdf0cf0054438e297951d22d65d39f223aaa0e06071f0229ccc3cd116db42863",
       "landed": {
-        "exact": "c14c8b40dc3dca64f17997d5adb19b010cac7fff425c9a8a42a94b4abf531685",
-        "loose": "0edc7dee4597d25a271f8b4aa4d8793c7e282f3794c6ae163f8b95f7af34c708"
+        "exact": "7fb3bc41c43af44ac2fe303e412eb9cde91567dc7a88deb50fc26e5ff410910e",
+        "loose": "06985f530e2342e9b82821828b69bb2b31c08f136cca115bb44bc38573c4eeb8"
       }
     },
     "primitives/StateLayer.tsx": {
@@ -356,8 +360,8 @@
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "aad6e4b3f375398512b2299106d96daa77d23e454e31b43f21d87c5cb4800079",
-      "loose": "c1a1c8c3f170c79b0f2d0a2c885377123692b966fe6b2399572345e6a7004bf5"
+      "exact": "079cdb58363cf75bb14fb0cad41b07a91820e41c4b68da0d2b5f445415c9127f",
+      "loose": "b1329fdadd4098c20a783cbecf5887aac5847e9aad81253eb6c145bd02d97b7b"
     },
     ".claude/skills/ds-spec/SKILL.md": {
       "exact": "96df5b9d9585d4dfb4f5ef97d0baa936a5d7176111ef5247d29a04670d8fd25e",

@@ -701,6 +701,14 @@ const components = [
     deps: ["utils", "typography"],
   }),
   item({
+    name: "pressable",
+    title: "Pressable",
+    description:
+      "A button, or a link, that holds anything (an avatar, a card's content, a line of text), with the state layer and the focus ring.",
+    files: [file("components/Pressable.tsx")],
+    deps: ["utils", "render-props"],
+  }),
+  item({
     name: "skeleton",
     title: "Skeleton",
     description:
