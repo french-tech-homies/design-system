@@ -488,6 +488,42 @@ export const PhoneFieldFormatting: Story = {
   },
 };
 
+/** Reached by Tab, the field holds the country's calling code alone, and
+    the browser has selected it: the digits typed go after the code, not in
+    its place. */
+export const PhoneFieldTabKeepsTheCallingCode: Story = {
+  render: () => (
+    <PhoneField label="Phone" defaultCountry="FR" className="w-80" />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole<HTMLInputElement>("textbox", { name: /phone/i });
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(field).toHaveFocus();
+    await waitFor(() => expect(field.selectionStart).toBe(field.value.length));
+    await userEvent.keyboard("612345678");
+    await expect(field.value).toMatch(/^\+33\s?6\s?12\s?34\s?56\s?78/);
+  },
+};
+
+/** The zone holds an unseen button, React Aria's, for a paste or a drop by
+    the keyboard: when Tab stops on it the zone draws the focus ring. */
+export const DropZoneShowsWhereTheFocusIs: Story = {
+  render: () => (
+    <DropZone aria-label="Upload files" className="w-80">
+      Drop files here
+    </DropZone>
+  ),
+  play: async ({ canvasElement }) => {
+    const zone = canvasElement.querySelector<HTMLElement>('[data-slot="drop-zone"]');
+    if (!zone) throw new Error("no drop zone");
+    await userEvent.tab();
+    await expect(zone.contains(document.activeElement)).toBe(true);
+    await expect(getComputedStyle(zone).outlineStyle).toBe("solid");
+  },
+};
+
 const categories = [
   { id: "starters", name: "Starters" },
   { id: "mains", name: "Mains" },

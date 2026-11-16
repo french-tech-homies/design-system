@@ -997,6 +997,38 @@ export const RouterLinkToAFragmentScrolls: Story = {
   },
 };
 
+/** An address with a scheme is not the router's: the adapter leaves a
+    `mailto:` and an `https:` link as written, where React Router's `useHref`
+    would make each a path of the app. */
+export const RouterLeavesAnExternalAddress: Story = {
+  render: () => (
+    <MemoryRouter initialEntries={["/clients/acme"]}>
+      <AriaRouterProvider>
+        <p className="text-body-medium font-body-medium text-on-surface flex gap-4">
+          <Link href="mailto:ada@example.com">Write to Ada</Link>
+          <Link href="https://example.com/docs">Read the docs</Link>
+          <Link href="/clients">All clients</Link>
+        </p>
+      </AriaRouterProvider>
+    </MemoryRouter>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("link", { name: "Write to Ada" })).toHaveAttribute(
+      "href",
+      "mailto:ada@example.com",
+    );
+    await expect(canvas.getByRole("link", { name: "Read the docs" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs",
+    );
+    await expect(canvas.getByRole("link", { name: "All clients" })).toHaveAttribute(
+      "href",
+      "/clients",
+    );
+  },
+};
+
 /* ---- Breadcrumbs ------------------------------------------------------- */
 
 const crumbPressed = fn();
