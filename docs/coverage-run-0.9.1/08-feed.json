@@ -1,0 +1,235 @@
+{
+  "screen": "Feed",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Cards of mixed content, one playing a video with its controls",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Title",
+        "Body",
+        "Label",
+        "IconButton",
+        "Slider"
+      ],
+      "leaves": [
+        {
+          "kind": "control",
+          "what": "src/feed/VideoPlayer.tsx: a plain <video> element with a control bar under it, driven by the element's own events (play, pause, ended, timeupdate, durationchange, volumechange). The bar is the kit's: IconButton for play/pause, Slider for seeking, a toggle IconButton for mute, Body for the time. It pauses when it leaves the screen (IntersectionObserver).",
+          "why": "The kit has no video or media player, and nothing that binds a media element to its controls."
+        },
+        {
+          "kind": "option",
+          "what": "Did not use CardContent; composed each card's insides as children (Title component=\"h2\", Body, Label, a foot row).",
+          "why": "CardContent draws its headline as headline-medium in a div: too large for a phone feed card, and not a heading a screen reader can list. It has no slot for a subhead/overline or for a foot with text and an action on one row (its doc says to compose those)."
+        },
+        {
+          "kind": "use",
+          "what": "classNames={{ content: \"p-0\" }} on every Card so the media and the video run to the card's edges.",
+          "why": "Card's doc: \"To lay them out another way or to run them to the card's edges, say so on that part: `classNames={{ content: \\\"p-0\\\" }}`\"."
+        },
+        {
+          "kind": "option",
+          "what": "className=\"gap-0\" on the Slider used as the seek bar.",
+          "why": "With no label and showOutput={false} the Slider's grid still keeps the label row and its 8dp gap, so the track sits 8dp low beside the buttons. There is no bare/inline form."
+        },
+        {
+          "kind": "option",
+          "what": "formatOptions (unit: second) passed through to the Slider so the handle's value is read as \"5 seconds\".",
+          "why": "The Slider has no value-label formatter (a function of the value), so the handle cannot say \"0:05 of 0:20\"; the clock time is written beside it as text instead."
+        },
+        {
+          "kind": "layout",
+          "what": "The four card kinds (recipe, video, tip, collection), their text columns, the foot row, the collection's inner list, the tip's tertiary-container band.",
+          "why": "A card's insides are the screen's."
+        },
+        {
+          "kind": "layout",
+          "what": "A recipe's picture is a lucide icon on a tonal container (primary/secondary/tertiary-container), marked decorative. The video is a 20 s test pattern with a tone, generated locally with ffmpeg into public/media/, with a poster frame.",
+          "why": "No web, so no photographs or real footage; nothing is hot-linked."
+        },
+        {
+          "kind": "read",
+          "what": "Card.tsx past its doc comment (how it detects media and drops the padding); Slider.tsx's body (its grid, what the thumb is named by, which props pass through).",
+          "why": "The Slider's doc does not say how it lays out without label and output, nor that React Aria's formatOptions pass through."
+        }
+      ],
+      "notes": "Never run in a browser: verified by tsc, the build, the linter and one server render. Unexercised: playback, seeking by pointer and by arrow keys on the slider, mute, the pause on scroll-away. The video has no captions (it is a test pattern with a tone). No fullscreen control: in fullscreen the custom bar would be left behind. The Save toggle on each card works on state and shows a snackbar with Undo. The seek slider steps by one second. Card titles take useId() ids, since a saved item is drawn both in the hidden feed and in Saved."
+    },
+    {
+      "n": 2,
+      "part": "Filter chips",
+      "built": "yes",
+      "kit": [
+        "ChipGroup",
+        "Chip"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "Accepted the chips wrapping onto two rows at a phone's width; did not build the single scrolling row a phone feed usually has, and did not make the chips sticky (two rows pinned would take too much of a phone).",
+          "why": "ChipGroup's className lands on its outer div; the row itself is hard-coded `flex flex-wrap gap-2` with no part to reach (no classNames, no data-slot on the inner group)."
+        },
+        {
+          "kind": "read",
+          "what": "Chip.tsx's ChipGroup body.",
+          "why": "To learn where className lands and that aria-label reaches the ToggleButtonGroup when there is no visible label (the doc speaks only of `label`)."
+        },
+        {
+          "kind": "option",
+          "what": "A wrapper div with a ref around ChipGroup, and a querySelector for the first `[data-slot=\"chip\"]`, to move the focus there after \"Clear filters\" removes itself.",
+          "why": "ChipGroup takes no ref and has no way to be focused from outside."
+        }
+      ],
+      "notes": "Multiple selection, AND between chips; they drive the list's filter text and the mock server filters. Vegan + Dessert (or Video + Dessert) matches nothing and reaches the empty state. Not exercised in a browser."
+    },
+    {
+      "n": 3,
+      "part": "Endless loading",
+      "built": "yes",
+      "kit": [
+        "LoadingIndicator",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "hook",
+          "what": "useAsyncList from react-aria-components holds the pages, the cursor (an item's id), the filter text and the abort of a stale request; its items go to a plain <ul>, not a GridList.",
+          "why": "The skill's table names it for \"a list that is ... loaded as it is scrolled\", but only with GridList/Table. A feed of cards holding a slider and buttons cannot be grid rows (the grid takes the arrow keys)."
+        },
+        {
+          "kind": "layout",
+          "what": "An IntersectionObserver on a sentinel after the list calls loadMore(); it is made again after each load so a short page in a tall window asks for the next. The feed ends with a line saying so, and a visually hidden status says how many are shown.",
+          "why": "The kit has nothing that says \"the end came into view\" outside a collection component. Nobody operates it, so it is logged as layout."
+        },
+        {
+          "kind": "guess",
+          "what": "Wrote list.cursor to know whether more follows; AsyncListData does not expose it. Also took the list's first state for `loading`: it is `idle` until its effect runs, so the empty state showed on the first paint (caught by a server render, not by the build). Fixed with two flags of the project's own, hasMore and hasLoaded, set in load().",
+          "why": "Neither is in the skill or in the hook's types' comments; a line in the skill on \"is there more\" and on the first render would have saved both."
+        }
+      ],
+      "notes": "22 mock items, 6 a page, 1.1 s a page. Not exercised in a browser: the observer, the abort on a filter change, StrictMode's double effect (reasoned, not seen)."
+    },
+    {
+      "n": 4,
+      "part": "A FAB",
+      "built": "yes",
+      "kit": [
+        "Button (variant=\"fab\")",
+        "app-shell-block",
+        "ModalDialog",
+        "TextField",
+        "ChipGroup",
+        "Chip",
+        "Headline",
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Edited the block: a `fab` prop, drawn absolute at the content's bottom trailing corner while the window is compact, before `main` in the document so Tab reaches it without crossing the feed; from 600dp the same FAB is the rail's `railHeader`.",
+          "why": "The block's comment: \"Yours to change: a drawer in place of the expanded rail, a FAB in the rail's `header`, an account button in its `footer`, other widths.\" It has a place for a FAB on the rail and none over the content on a phone."
+        },
+        {
+          "kind": "use",
+          "what": "SnackbarRegion className=\"bottom-40 sm:bottom-4\" so a snackbar clears the bar and the FAB.",
+          "why": "Snackbar's doc: \"Place the region with `className` when the layout has a bottom navigation bar or a FAB the snackbar must sit above (`bottom-20 sm:bottom-4`)\"."
+        },
+        {
+          "kind": "layout",
+          "what": "The dialog's form (name field, tag chips, Cancel and Add) as children of ModalDialog, with its own Headline.",
+          "why": "ModalDialog's structured form has no place for fields."
+        }
+      ],
+      "notes": "The FAB opens a dialog that adds a recipe to the mock server and to the top of the feed; if the filters hide it the snackbar offers to clear them. The block switches at 600px of its own width, the snackbar at Tailwind's sm (640px of the window): between the two a snackbar sits higher than it needs to. Not exercised in a browser."
+    },
+    {
+      "n": 5,
+      "part": "Bottom navigation",
+      "built": "yes",
+      "kit": [
+        "app-shell-block",
+        "BottomNavigation",
+        "NavigationRail",
+        "TopAppBar",
+        "Link"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Edited the block: the compact bar is moved before the content in the document and drawn last with `order-last`.",
+          "why": "The block's comment: \"it is copied into your project to be edited. It is yours from then on\". As shipped the bar comes after `main`, so under an endless feed Tab reaches it only when the feed ends."
+        },
+        {
+          "kind": "layout",
+          "what": "The views behind the destinations: Home (the feed, kept mounted and hidden so its pages survive), Saved (the saved cards, or an EmptyState), and one line each for Explore and Profile.",
+          "why": "Explore and Profile are other screens; they are stated as not built rather than faked."
+        }
+      ],
+      "notes": "`npx shadcn@latest add @ds/app-shell-block -y` was refused by this session's permission layer, so kit-blocks/AppShell.tsx was copied to src/components/AppShell.tsx, as the brief allows. Destinations are buttons on state, not routes: no address and no Back. The Saved destination carries a badge with the count. From 600dp the block shows the rail instead (expanded from 1200dp). Not exercised in a browser. Coming back to Home keeps the loaded pages but not the scroll position."
+    },
+    {
+      "n": 6,
+      "part": "A placeholder while loading",
+      "built": "yes",
+      "kit": [
+        "SkeletonGroup",
+        "Skeleton",
+        "Card",
+        "Title",
+        "Body",
+        "Label"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Six card-shaped placeholders in a SkeletonGroup given the feed's grid; text skeletons inside the type primitives they replace, sizes by className.",
+          "why": "Skeleton's doc: \"Size it with `className`\", \"Put it inside the type primitive it replaces\", and SkeletonGroup's \"give it the layout of the content it stands for\"."
+        },
+        {
+          "kind": "option",
+          "what": "`rounded-none` on the rectangle that stands for the card's edge-to-edge picture.",
+          "why": "A rectangle always takes the medium corner; inside a card that already clips there is no square form."
+        },
+        {
+          "kind": "layout",
+          "what": "FeedCardSkeleton, the shape of a recipe card.",
+          "why": "The placeholder's shape is the screen's."
+        }
+      ],
+      "notes": "Shown on the first load and after every filter change (the server render shows 36 skeleton elements on first paint). Loading a further page shows a LoadingIndicator under the list instead."
+    },
+    {
+      "n": 7,
+      "part": "An empty state",
+      "built": "yes",
+      "kit": [
+        "EmptyState",
+        "Button"
+      ],
+      "leaves": [],
+      "notes": "Reached with filters that match nothing (Vegan + Dessert); its action clears the filters. A second one stands in Saved when nothing is saved, and a third would show if a load failed (the mock never fails). size=\"sm\" with a lucide icon as media. Not exercised in a browser. Its button is removed by its own press, so the focus is moved to the first filter chip. Un-saving a card in Saved moves the focus to the shell's main (id app-shell-main, the block's own). Neither focus move was exercised."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page: `h-dvh` root, the feed's column with a container query (one, two, three columns of cards by the content's own width), 96px of bottom padding so the FAB covers no card's action.",
+      "why": "A page's layout is the screen's."
+    },
+    {
+      "kind": "read",
+      "what": "Past the doc comments, for facts used: Button.tsx and IconButton.tsx (the prop types: icon, isToggle, onChange, the fab size), EmptyState.tsx (the media's type), DialogContent.tsx and ModalDialog.tsx (children in place of the structured parts, isOpen/onClose), Skeleton.tsx, TopAppBar.tsx's props, Badge.tsx (a count of 0 gives no badge and no words), Typography.tsx (the colorRole list, that `component` takes h2), BottomNavigation.tsx's item type, Snackbar.tsx's region classes.",
+      "why": "Most are prop types that sit just under the doc comment; a props table in each doc comment would end the reading."
+    },
+    {
+      "kind": "layout",
+      "what": "Verification without a browser: a one-off server render of App (tsx, renderToString) to count skeletons on first paint. The first attempt wrote its script one directory above the project (rerun-091/ssr-08.tsx), outside the brief's boundary; it was removed at once and the check redone from a file inside the project, also removed.",
+      "why": "The brief forbids a browser and a dev server; the build alone could not show the first-paint empty state."
+    }
+  ],
+  "friction": "1. Nothing in the kit or the skill covers media: a video card is a likely feed part, and the pieces exist (IconButton, Slider), but the Slider has no bare inline form (label row and gap stay) and no value formatter, so a seek bar is two reaches. 2. ChipGroup cannot be a single scrolling row: its className is the outer div's and the row is hard-coded to wrap; a `classNames.list` or a `wrap={false}` would do it. 3. useAsyncList is named in the skill only beside GridList/Table; for a list of cards with controls inside, the skill could say: plain ul, IntersectionObserver sentinel, that AsyncListData hides its cursor (keep your own hasMore) and that it is `idle`, not `loading`, on the first render. That last one passes the build and shows an empty state for a frame. 4. AppShell has a FAB place on the rail but none on a phone, and its bar comes after main in the document: under a long or endless page a keyboard user cannot reach it. Both were short edits, but every feed will make them. 5. CardContent's headline is headline-medium in a div; a feed wants a smaller, real heading, so CardContent goes unused and the card's padding rule (dropped only when CardContent with media is a direct child) has to be learned from the source. 6. The shadcn add command was refused by the session's permissions; the kit-blocks/ copy made that painless."
+}

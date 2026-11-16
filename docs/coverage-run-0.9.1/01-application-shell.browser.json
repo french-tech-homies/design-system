@@ -1,0 +1,90 @@
+{
+  "screen": "Application shell",
+  "console": [
+    "pageerror: External navigation is not allowed — thrown each time the mailto link on a client's page (/clients/hartwell-sons, 'edith@hartwelljoinery.example') is activated, by Enter or by a click, at 400 and at 1280. It comes from react-router's navigate, which the link is routed through.",
+    "Nothing else: no console error, no console warning, no page error and no failed request at load or during the work, at 400, 700, 1000 and 1280, light and dark."
+  ],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Rail on desktop, drawer on tablet, bottom navigation on phone",
+      "works": "partly",
+      "tried": "1280 (expanded rail) and 1000 (collapsed rail): Tab to each destination, Enter on Clients and Reports: address, h1, title and aria-current=page follow, focus stays on the pressed destination with its ring, no reload. 700: Tab to 'Open navigation' (aria-haspopup=dialog, aria-expanded false/true), Enter and Space open a dialog 'Main' with the nav inside, the page behind inert, Tab and Shift+Tab loop inside the five destinations, Escape closes and focus returns to the button; Enter on Clients routes, closes and returns focus to the button; Enter on the current destination closes too; resized while open; mouse: click opens, click on the scrim closes. 400: Tab to the bottom navigation after main, Enter on Invoices routes, focus stays. Boundaries 599/600/839/840/1199/1200: exactly one form at each width.",
+      "failures": [
+        "unsure (not a key press): at 700 with the drawer open and focus inside it, the window resized to 1000 or to 400: the drawer closes as intended but document.activeElement is BODY; focus should land on something in the new navigation or on main (the 'Open navigation' button it would return to is hidden at those widths)."
+      ],
+      "could_not_exercise": [
+        "Touch (a swipe to close the drawer): mouse and keyboard only.",
+        "What a screen reader says of the dialog and of the badge ('Invoices, 2 overdue' is the link's accessible name in all three forms; read from the DOM only)."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Top app bar",
+      "works": "partly",
+      "tried": "Every route at 400, 700, 1000, 1280: a header with one h1 holding the route's name (Overview, Clients, the client's name, the invoice number, Not found, Unknown client), document.title beside it, the title not clipped. Tab order in the bar: leading button, then the account button. 700: the menu button is the leading (see part 1). 400 on /clients/hartwell-sons/invoices/inv-2041: Tab to 'Back to Hartwell & Sons Joinery' (a real <a>), Enter goes to the client, focus stays on the button, now 'Back to Clients'; Enter again goes to /clients.",
+      "failures": [
+        "400, on /clients/hartwell-sons: Enter on 'Back to Clients' goes to /clients, where the back button no longer exists: document.activeElement is BODY; focus should be on main, the title or another control (next Tab lands on the account button)."
+      ],
+      "could_not_exercise": [
+        "On-scroll behaviour of the bar: it has none (the log says so), nothing to try."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "Breadcrumbs",
+      "works": "partly",
+      "tried": "On /clients/hartwell-sons/invoices/inv-2041 at 1280 and 400: nav 'Path' holding an ol 'Breadcrumbs' of three levels, the first two real <a> reached by Tab, the last a span role=link aria-disabled aria-current=page out of the tab order; fits one line at 400 (ends at 354 of 400), no sideways scroll for any client. Enter on 'Hartwell & Sons Joinery' goes to the client, then Enter on 'Clients' goes to /clients, both client-side with the page's name put in the polite status. Top-level pages show no path (by design). Mouse click on a level works.",
+      "failures": [
+        "1280 and 400, on the invoice page: Enter on the crumb 'Hartwell & Sons Joinery' goes to /clients/hartwell-sons but document.activeElement is BODY (the crumb pressed becomes the current, non-focusable level); focus should stay in the path or move to main.",
+        "1280 and 400, on the client page: Enter on the crumb 'Clients' goes to /clients, the whole path disappears and document.activeElement is BODY; same expectation."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 4,
+      "part": "Account menu",
+      "works": "partly",
+      "tried": "1280 and 400: Tab to the button 'Account: Maya Okafor' (aria-haspopup, aria-expanded), Enter, Space and ArrowDown open a menu named by the button, with the header (avatar, name, email) and items Profile and settings (<a role=menuitem href=/settings>), Use dark theme, separator, Sign out; focus on the first item, shown by its state layer; ArrowDown/ArrowUp wrap, Home/End work, Tab stays in the menu, Escape closes and returns focus to the button. Enter on 'Use dark theme' sets .dark on <html>, closes, focus back on the button, the item now reads 'Use light theme'; Space on it switches back. Enter on Profile routes to /settings client-side, focus back on the button. Enter on Sign out shows the signed-out page; Tab to 'Sign in again', Enter brings the shell back on the same address. The menu stays inside the window at 400 (152..384). Mouse: click opens, click outside closes.",
+      "failures": [
+        "Enter on 'Sign out': the signed-out page replaces the shell and document.activeElement is BODY; focus should be on the page's heading, its main or 'Sign in again'.",
+        "After 'Sign out' nothing says so to a screen reader and the tab does not either: document.title stays 'Settings · Ledgerly' (the page left), there is no live region on the signed-out page and it has no h1 (its only heading is an h2 'You are signed out').",
+        "Enter on 'Sign in again': the shell returns (the button pressed is gone) and document.activeElement is BODY; focus should be on main or the account button."
+      ],
+      "could_not_exercise": [
+        "Typeahead in the menu: my key presses came with focus already on the matching item, so they show nothing either way.",
+        "The theme choice across a reload: the log says it is not kept; not counted."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "Skip link and landmarks",
+      "works": "partly",
+      "tried": "1280 and 400, light: the first Tab lands on 'Skip to content' (a span role=link, hidden until focused, then drawn at 8,8 with its ring, light text on inverse surface); Enter moves focus to main#app-shell-main and the next Tab is the first control in main (on the invoice page, which has none, the next control after it). Landmarks on every route at both widths: one header (banner), one visible nav 'Main' (the other two display:none), nav 'Path' on nested pages, one main, one h1 then h2s, html lang=en; the skip link is the only control outside a landmark. A polite role=status holds '<name> page' after each client-side navigation and is empty at load. At 600-839 there is no nav landmark until the drawer is open (the log says so).",
+      "failures": [
+        "400x800 on / (main is the scroller: scrollHeight 810, clientHeight 656) with focus on BODY, as it is at load and after most navigations: PageDown, ArrowDown, Space and End leave main.scrollTop at 0, the page cannot be scrolled by the keyboard; only after 'Skip to content' + Enter (focus in main) does PageDown scroll it (scrollTop 154). The content should scroll from the keyboard without first finding the skip link.",
+        "unsure: main takes focus from the skip link with no visible indication at all (outline hidden); nothing shows where focus went until the next Tab."
+      ],
+      "could_not_exercise": [
+        "A screen reader's reading of the landmarks and of the status region: roles, names and text were read from the DOM only."
+      ]
+    },
+    {
+      "n": 6,
+      "part": "Routed links",
+      "works": "partly",
+      "tried": "A marker on window survived every navigation (no reload) at 1280 and 400: destinations, breadcrumb levels, the back button, the menu's Profile item, the list rows (Overview's invoices, Clients, a client's invoices: Tab into the grid, ArrowDown/ArrowUp/Home/End move between rows with a visible ring and scroll them into view, Enter opens the row's address), EmptyState actions 'Go to Clients' and 'Go to Overview'. Deep links load directly (/clients/hartwell-sons/invoices/inv-2041, /clients/blue-heron?dark), unknown addresses show 'Not found' / 'Unknown client' with a way out, browser back and forward restore the page and its title, 'Clients' stays aria-current on its nested pages. Mouse: click on a row and on a crumb route; Ctrl+click on a row and on a destination open a new tab at the right address. Enter on the mailto link.",
+      "failures": [
+        "On /clients/hartwell-sons, Tab to the link 'edith@hartwelljoinery.example', Enter (and a mouse click): the page throws 'External navigation is not allowed' and nothing happens. Its href in the DOM is '/clients/hartwell-sons/mailto:edith@hartwelljoinery.example', not 'mailto:edith@hartwelljoinery.example': the router adapter's useHref treats it as a relative path and its navigate is called with it. It should be left to the browser as a mailto: link.",
+        "Enter on a list row (/ 'INV-1987, Hartwell & Sons Joinery'; /clients 'Hartwell & Sons Joinery'; a client's invoice row), at 1280 and 400: the address changes but document.activeElement is BODY on the new page; focus should be on main or its heading. Next Tab then starts from an arbitrary place (the skip link at 1280, the bottom navigation's 'Overview' at 400).",
+        "Enter on 'Go to Clients' (/reports) and on 'Go to Overview' (/nope/at/all): routed, but document.activeElement is BODY afterwards; same expectation.",
+        "The list rows are not links: each is a div role=row with data-href, no <a> and no link role inside (0 anchors in the grid), so nothing tells assistive technology that a row leads to a page and the browser's own link features are missing; the log's 'every link is a real <a>' is not true of them. unsure about the consequence I saw: a middle click on a row opened no tab in headless Chromium (Ctrl+click did)."
+      ],
+      "could_not_exercise": [
+        "Whether a mail client opens from the mailto link: headless Chromium has none; the thrown error and the wrong href are what was observed.",
+        "Space on a link or a row does nothing, as for any link; not counted."
+      ]
+    }
+  ]
+}

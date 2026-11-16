@@ -1,0 +1,112 @@
+{
+  "screen": "Data table (Orders)",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Sortable columns",
+      "built": "yes",
+      "kit": ["Table", "TableHeader", "TableBody", "Column", "Row", "Cell", "Tag", "Card"],
+      "leaves": [
+        { "kind": "read", "what": "Read Table.tsx whole, styles and CellText included, not only its doc comments.", "why": "The file came in one piece; the doc comments alone would have been enough for sorting." },
+        { "kind": "use", "what": "sortDescriptor / onSortChange on Table, allowsSorting on seven columns; the comparator and the reset to page 1 are the project's (src/orders/data.ts, sortOrders).", "why": "Table's doc comment: \"optional sorting (`sortDescriptor` / `onSortChange`, `allowsSorting` per column)\"." },
+        { "kind": "option", "what": "Imported the types SortDescriptor, Selection and Key from react-aria-components.", "why": "The kit's barrel re-exports none of the types its Table's callbacks take." },
+        { "kind": "use", "what": "Card variant=\"outlined\" with classNames={{ content: \"p-0\" }} around the table, and showLastRowDivider={false}.", "why": "Card: \"To lay them out another way or to run them to the card's edges, say so on that part: `classNames={{ content: \"p-0\" }}`\"; Table: \"A table that closes with an edge of the project's own (a frame, a card's border) says `<Table showLastRowDivider={false}>`\"." },
+        { "kind": "use", "what": "className=\"tabular-nums\" on the Items and Total cells.", "why": "Table: \"each takes `className`\". No token exists for figures; tabular-nums is a stock Tailwind utility, not a value." },
+        { "kind": "layout", "what": "The page itself: main, the header with its title and count, the column of search, chips, card, bar and pager.", "why": "Expected of a screen." }
+      ],
+      "notes": "Sorts the whole filtered set, then pages. Default is Placed, newest first. Not seen in a browser: reasoned from the source and the build."
+    },
+    {
+      "n": 2,
+      "part": "Search",
+      "built": "yes",
+      "kit": ["SearchBar"],
+      "leaves": [
+        { "kind": "read", "what": "Read SearchBar's props type and body in Search.tsx.", "why": "To see that value / onChange pass through to React Aria's SearchField: the doc comment names only onSubmit." },
+        { "kind": "use", "what": "Controlled value / onChange, filtering as one types over order number, customer and email.", "why": "Search's doc comment: \"`SearchBar` is React Aria's `SearchField` drawn as Material's bar\"; it shows only `onSubmit`, so live filtering is inferred from that line." }
+      ],
+      "notes": "The bar is Material's 56dp elevated bar, at most 720dp wide, so on a desktop it does not span the table. A search empties the selection of the rows it hides and returns to page 1. Not seen in a browser."
+    },
+    {
+      "n": 3,
+      "part": "Filter chips",
+      "built": "yes",
+      "kit": ["ChipGroup", "Chip"],
+      "leaves": [
+        { "kind": "read", "what": "Read ChipGroup's body in Chip.tsx.", "why": "To learn whether a group with no visible label can be named: aria-label reaches the ToggleButtonGroup only through the props spread." },
+        { "kind": "option", "what": "ChipGroup named by aria-label=\"Filter by status\" rather than its `label`.", "why": "The doc comment gives only the visible `label` (title-small above the chips), which a filter row over a table does not want; an invisible name is undocumented." }
+      ],
+      "notes": "Five status chips, several at once; none chosen means all. Not seen in a browser."
+    },
+    {
+      "n": 4,
+      "part": "Multiple selection with a bulk-action bar",
+      "built": "yes",
+      "kit": ["Table", "Toolbar", "IconButton", "Tooltip", "TooltipTrigger", "Label", "ModalDialog", "SnackbarRegion", "snackbar", "XIcon"],
+      "leaves": [
+        { "kind": "use", "what": "selectionMode=\"multiple\" with selectedKeys / onSelectionChange; the selection is the project's own set, kept across pages: the table is given the page's part of it, and \"all\" or \"none\" from the table change that page only.", "why": "Table's doc comment: \"row selection (`selectionMode`, a leading checkbox column is added for you)\". Selection over several pages is the project's logic." },
+        { "kind": "option", "what": "A Label (\"3 selected\") placed as a child of the floating Toolbar, with padding by className.", "why": "Toolbar describes icon buttons and text buttons as children and has no place for a count or any text that is not a control." },
+        { "kind": "option", "what": "Toolbar className=\"pointer-events-auto max-w-full\".", "why": "Its doc comment says the margin is the layout's but does not say it takes className; it comes through React Aria's props." },
+        { "kind": "layout", "what": "A sticky wrapper (sticky bottom-4, centred, pointer-events-none) after the table in the document, so the bar floats over the rows and Tab from the grid reaches it.", "why": "Toolbar: \"Keep it 16dp from the window's edge ...; the margin is the layout's, not the toolbar's.\"" },
+        { "kind": "use", "what": "Each icon-only action wrapped in TooltipTrigger with a plain Tooltip.", "why": "IconButton: \"Tooltip on hover ... Not built in; wrap the button in a `TooltipTrigger`.\"" },
+        { "kind": "hook", "what": "VisuallyHidden role=\"status\" from react-aria-components says \"3 orders selected\" as the selection changes.", "why": "ds-build: \"Text only a screen reader gets | `VisuallyHidden` | For a status, or a name with no visible text.\"" },
+        { "kind": "use", "what": "SnackbarRegion className=\"bottom-24\" while the bar shows.", "why": "Snackbar: \"Place the region with `className` when the layout has a bottom navigation bar or a FAB the snackbar must sit above (`bottom-20 sm:bottom-4`).\"" }
+      ],
+      "notes": "Actions: mark as shipped, export as CSV (a real file download), cancel (confirmed in an alertdialog), clear. Each acts only on the orders it applies to and says how many it left; status changes offer Undo, which restores the list as it was before the action (a later change would be undone with it). With rows selected, React Aria makes a press on a row toggle it instead of opening its details. A reload empties the selection. Unsure, not seen: that the sticky bar sits well over the last rows at 400px, and that the snackbar clears it."
+    },
+    {
+      "n": 5,
+      "part": "A row's menu",
+      "built": "yes",
+      "kit": ["Menu", "IconButton", "ModalDialog", "Headline", "Body", "Button", "snackbar"],
+      "leaves": [
+        { "kind": "guess", "what": "First gave the details dialog a <dl> as `supportingText`; it built, but DialogContent draws supportingText inside a Body, a <p>, and a <dl> in a <p> is invalid. Rewrote it with `children`: my own Headline, the <dl>, a Close button.", "why": "`supportingText` is typed `string | ReactNode` and the doc comment does not say it is drawn in a paragraph." },
+        { "kind": "read", "what": "Read DialogContent.tsx's styles and body, and ModalDialog.tsx.", "why": "To find the above, and the spacing (mb-4, mt-6) its own headline and actions take, which a dialog with children must restate." },
+        { "kind": "layout", "what": "The details dialog's insides: headline, a two-column <dl>, the action row.", "why": "A dialog with children draws nothing else." },
+        { "kind": "value", "what": "grid-cols-[auto_1fr] on the details <dl>.", "why": "No utility for a label column as wide as its longest label." },
+        { "kind": "option", "what": "The menu column's heading is a VisuallyHidden \"Actions\" inside Column, with width and minWidth 64.", "why": "Nothing says how to name a column that shows no heading." },
+        { "kind": "use", "what": "dependencies={[orders]} on TableBody, so a cached row's menu does not act on a stale list.", "why": "TableBody: \"React Aria's `TableBody`, holding the `Row`s (or `items` and a function that renders each)\": dependencies is React Aria's prop, passed through." }
+      ],
+      "notes": "Each trigger is named \"Actions for order 10480\". Items: View details, Mark as shipped, Refund, a divider, Cancel order (confirmed in an alertdialog, as Menu's comment asks of a destructive action); items that do not apply to the order's status are disabled. The actions change the mock data. A row's own action (Enter, or a press when nothing is selected) opens the same details. Not seen in a browser."
+    },
+    {
+      "n": 6,
+      "part": "Paging or loading more",
+      "built": "yes",
+      "kit": ["pager-block (Pager)"],
+      "leaves": [
+        { "kind": "layout", "what": "The page asked for is clamped to the pages there are before the slice, and reset to 1 on search, filter, sort and page size.", "why": "The Pager clamps only what it shows." }
+      ],
+      "notes": "Paging, 10, 25 or 50 a page. `npx shadcn@latest add @ds/pager-block -y` was refused by this session's permission layer (not by the registry), so kit-blocks/Pager.tsx was copied to src/components/Pager.tsx, unedited, as the brief allows. Not seen in a browser."
+    },
+    {
+      "n": 7,
+      "part": "Resizable columns",
+      "built": "yes",
+      "kit": ["ResizableTableContainer", "Column"],
+      "leaves": [
+        { "kind": "use", "what": "allowsResizing on the seven data columns, with defaultWidth (pixels, or 1fr for Customer and Email) and minWidth; the menu column is fixed and not resized.", "why": "Column: \"`defaultWidth`, `width`, `minWidth` and `maxWidth` are React Aria's, in pixels, percentages or `fr`.\"" },
+        { "kind": "use", "what": "Cell truncate on Customer and Email, their width the column's.", "why": "Table: \"A cut cell takes the width its column is given and no more\"." }
+      ],
+      "notes": "Widths are not kept across a reload, and the table is unmounted while loading, empty or in error, so they return to their defaults then. At 400px the minimum widths add up to more than the window and the container scrolls sideways (min-w-0 on its ancestors). Unsure, not seen: how the 16dp resize handle and the sort arrow share a narrow end-aligned heading (Items, Total)."
+    },
+    {
+      "n": 8,
+      "part": "Empty, loading, error",
+      "built": "yes",
+      "kit": ["EmptyState", "Skeleton", "SkeletonGroup", "Button", "Menu"],
+      "leaves": [
+        { "kind": "option", "what": "Empty and error are drawn in the card in place of the table, not through TableBody's renderEmptyState.", "why": "In a resizable table that scrolls sideways the empty state's cell is as wide as the table, so a centred EmptyState would sit partly off a phone's screen; nothing in the kit pins it to the visible part." },
+        { "kind": "use", "what": "EmptyState size=\"sm\" with className=\"border-0 bg-transparent\", a lucide icon as media, one action each (Clear search and filters; Try again).", "why": "EmptyState: \"To draw it bare inside a card or a table, pass `className=\"border-0 bg-transparent\"`.\"" },
+        { "kind": "layout", "what": "The loading placeholder: a SkeletonGroup (\"Loading orders\") of a 56dp heading row and one 52dp row per row of the page, each a flex row of Skeletons; the error's wrapper carries role=\"alert\".", "why": "Skeleton: \"lays out nothing: give it the layout of the content it stands for\". A SkeletonGroup is a div and cannot be a table's body." }
+      ],
+      "notes": "Loading is a 1.2 s timer on first load and on every reload. The error is reached with `?error` in the address, or the page menu (top right): \"Reload with a failure (demo)\"; \"Try again\" loads. Search and chips stay usable meanwhile and are kept. Not seen in a browser."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "No app frame: the page is a main with its own heading, not a TopAppBar or the app-shell block.", "why": "The screen names the table page only." },
+    { "kind": "use", "what": "lucide-react icons passed to IconButton, Menu items and EmptyState.", "why": "ds-build: \"Icons are any component taking `{ size, className }`. The kit ships no icon library.\"" }
+  ],
+  "friction": "The build was green at the first attempt; nothing was verified in a browser, so every visual claim is reasoned. What cost time: (1) Table says nothing about selection over several pages, nor that a press on a row stops opening it once rows are selected: a paragraph on `selectedKeys` with paging would settle both. (2) A bulk-action bar is the commonest companion of a selectable table and the kit has no word on it: Toolbar's comment speaks of page actions and has no place for the count. (3) renderEmptyState is named as the way to an empty table, but in a ResizableTableContainer that scrolls sideways its content is centred on the table's width, not the window's; I avoided it without being able to see it. (4) DialogContent's `supportingText` takes a ReactNode and draws it in a <p>: say so, or draw a div. (5) The barrel exports none of React Aria's types (SortDescriptor, Selection, Key). (6) ChipGroup and Toolbar take aria-label and className only through an undocumented spread. (7) SearchBar's comment shows onSubmit only: one line saying `value` / `onChange` filter as one types would do. (8) The shadcn command for the block was refused here by the session's permissions; kit-blocks/ made that harmless."
+}

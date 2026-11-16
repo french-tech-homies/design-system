@@ -1,0 +1,81 @@
+{
+  "screen": "Product",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "An image carousel",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab and Shift+Tab through the four items, ArrowRight/ArrowLeft between them (each focused item scrolls into the large slot, scrollLeft 0/380/760/1140 at 1280, 0/312/624/936 at 400); Enter on an item opens the dialog 'Photos of Ridge Runner in Chalk' on that photo, focus on the dialog, Tab cycles Previous/Next/All photos/Close; Next and Previous with Enter and Space ('Photo 3 of 4' in an aria-live span); All photos; Escape and Close return focus to the item or to 'Show all 4 photos' that opened it. Mouse: wheel dx and Shift+wheel scroll it, a click on an item opens its photo, a click on the scrim closes and returns focus.",
+      "failures": [
+        "In the photo dialog, on 'Next photo' at photo 3 of 4 I pressed Space: photo 4 shows, the button becomes disabled and document.activeElement is the body (focus is outside the dialog). It should stay on a control of the dialog. The next Tab lands on 'All photos'. Same at 1280 and 400.",
+        "In the photo dialog, on 'Previous photo' I pressed Enter until photo 1 of 4: the button becomes disabled and focus is the body. It should stay in the dialog. The next Tab lands on 'Next photo'.",
+        "Mouse: pressing on the carousel and dragging 210px to the left does not scroll it (scrollLeft unchanged, no dialog opened). Unsure: the builder's log says a mouse has the wheel, the scrollbar and the keyboard only; in headless Chromium no scrollbar took any height (offsetHeight - clientHeight = 0), so I could not see or use one."
+      ],
+      "could_not_exercise": [
+        "A touch swipe: the synthetic touch gestures I sent over CDP (Input.synthesizeScrollGesture) did not scroll the carousel at all, which a native scroller would do, so the gesture itself was not valid. A tap by Playwright's touchscreen did open the photo.",
+        "Dragging the carousel's scrollbar with the mouse: none was drawn in headless Chromium."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "A choice of variant by chip and by colour swatch",
+      "works": "yes",
+      "tried": "At 1280 and 400: Tab to the Colour radiogroup (one stop), ArrowRight/Left/Down move and choose with wrap, the text under it reads 'Ink is chosen', the carousel's name becomes 'Photos of Ridge Runner in Ink', the out-of-stock chips and 'Out of stock in Ink: UK 5, 10.' follow. Tab to 'UK size' (radiogroup, one stop), arrows skip the disabled chip, Space and Enter choose (aria-checked=true), Space on the chosen one clears it. With UK 5 chosen in Chalk, choosing Ink shows 'UK 5 is out of stock in Ink. Choose another size or colour.' (role=alert, and the group's description) and Tab lands on the first size in stock. Mouse: click on a swatch and on a chip choose; a click on a disabled chip does nothing.",
+      "failures": [
+        "Unsure: when the size error shows ('Choose a size…' or 'UK 5 is out of stock in Ink…') the 'UK size' radiogroup has no aria-invalid; the error is only its aria-describedby text in a role=alert."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 3,
+      "part": "A quantity",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to 'Quantity' (text input, aria-roledescription 'Number field', described by 'Up to 10 an order.'), ArrowUp/ArrowDown/PageUp step it, Home goes to 1 and End to the most, typing 4 then Enter commits, 99 then Tab becomes 10, 0 becomes 1, letters are refused, empty goes back to 1; the Total (aria-live) follows (£356.00 for 4). With Ink UK 11 (1 left) the value is 1, both steppers are disabled and the text is 'Only 1 left in UK 11.'; back on UK 8 the asked 7 returns. Mouse: Decrease and Increase click (they are not Tab stops; the arrow keys do their work).",
+      "failures": [
+        "At 400x800: from the top of the page I pressed Tab to the Quantity field. It takes focus at y 705..761 while the sticky 'Total / Add to basket' bar covers y 719..800: only the label and the field's top edge show, the value typed and both steppers are hidden under the bar (elementFromPoint at the field's centre is the bar). The focused field should be scrolled clear of the bar.",
+        "I typed 2.5 and pressed Tab: the field keeps 2.5, the Total reads £222.50, and Add to basket then says '2.5 × Ridge Runner, Chalk, UK 5 added to basket' with the Basket button named 'Basket, 2.5 pairs'. A count of pairs should be a whole number."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 4,
+      "part": "A bottom sheet of details",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to 'Materials, fit and delivery', Enter or Space opens a dialog named 'Ridge Runner: details' at the bottom half (full width at 400, 640 wide at 1280), focus on the dialog, the page behind inert; Tab cycles 'Drag handle' and 'Close'; PageDown/arrows/End scroll its content to the end; Escape, and Enter on Close, close it and focus returns to the button that opened it. Enter on 'Drag handle' expands the sheet to nearly the full height, Space brings it back. Mouse: a click on the handle expands it, a click on the scrim closes it and focus returns.",
+      "failures": [
+        "The handle is a button named 'Drag handle' with no aria-expanded and no description: Enter grows the sheet from half to full height and Space shrinks it, and neither the state nor what the button does is announced.",
+        "Mouse: pressing on the handle and dragging 300px down, slowly, does not move or close the sheet (its top stays at 400, during the drag and after). Unsure whether the handle is meant to be dragged by a mouse.",
+        "Expanded, the sheet has two buttons both named 'Close' (an icon button at its top and the text button at its end). Unsure: both close it."
+      ],
+      "could_not_exercise": [
+        "A touch drag of the handle: my synthetic touch events (CDP Input.dispatchTouchEvent and synthesizeScrollGesture) moved nothing, but the same gestures did not scroll the carousel either, so they prove nothing."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "Add to basket with a snackbar",
+      "works": "partly",
+      "tried": "At 1280 and 400: Enter on 'Add to basket' with no size: 'Choose a size to add the trainers to your basket.' shows (role=alert), the sizes scroll into view and focus moves to the first size in stock; same with a size out of stock. With a size and quantity 2: Enter, the button is aria-disabled for 700ms (a second Enter adds nothing), then the snackbar '2 × Ridge Runner, Ink, UK 6 added to basket' with Undo (role=alertdialog in a region '1 notification.'), the Basket button becomes 'Basket, 2 pairs' with badge 2, focus stays on Add to basket. Undo is reached by Tab past the end of the page or by F6 then Tab; while focus is in it the 8s timer waits (still there after 9s); Enter on Undo empties the basket and shows 'Removed from basket', which takes focus, and when it leaves focus returns to where it came from; Escape in the snackbar dismisses it and focus returns to Add to basket; unfocused, it leaves after 8s. At 400 it sits above the sticky bar (y 636..704, bar 719..800).",
+      "failures": [
+        "After Undo was reached with Tab and pressed, snackbars later take the focus: I pressed Enter on 'Basket' (snackbar 'Basket: 2 pairs, £178.00', focus stays), Shift+Tab to 'Save to favourites', Space: the toggle happens but document.activeElement is now the snackbar 'Saved to favourites' (role=alertdialog), not the button I pressed. Focus should stay on the button. Reproduced four times at 1280 and at 400; it does not happen if Undo was never used, nor when Undo was reached with F6.",
+        "While adding (700ms) the button is only aria-disabled=true with its name unchanged; the spinner is aria-hidden and there is no aria-busy, progressbar or live text. Unsure: the loading state is not announced, though the snackbar announces the result.",
+        "A snackbar stays drawn over the open bottom sheet (it is neither inert nor hidden while the sheet is modal) and covers lines of the sheet's text: Add to basket, then open 'Materials, fit and delivery' within 8 seconds.",
+        "A quantity of 2.5 is added as '2.5 × Ridge Runner…' and counted as 'Basket, 2.5 pairs' (see part 3).",
+        "Unsure: pressing Add to basket twice shows only the second snackbar; the first one's Undo is gone, so only the last line added can be undone (basket 4 pairs, one Undo for 2)."
+      ],
+      "could_not_exercise": [
+        "A swipe to dismiss the snackbar by touch: no valid touch gesture (see part 1)."
+      ]
+    },
+    {
+      "n": 6,
+      "part": "A rating",
+      "works": "yes",
+      "tried": "At 1280 and 400: the read rating is an image named 'Rated 4.5 out of 5' beside '4.5' and the link '128 ratings' (Enter jumps to the reviews section); five meters named '5 stars'… '1 star' with their counts. Tab to 'Your rating' (radiogroup, one stop on '1 star'), Space chooses it, ArrowRight/Left/Up/Down move and choose with wrap; the stars up to the chosen one fill, the live text reads 'You gave 4 stars. Choose another to change it.', the count becomes 129 ratings and the '4 stars' meter 32; the focus ring is drawn on the star. Mouse: hovering the third star fills three, a click chooses '3 stars' and the meters follow.",
+      "failures": [],
+      "could_not_exercise": []
+    }
+  ]
+}

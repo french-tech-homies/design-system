@@ -1,0 +1,68 @@
+{
+  "screen": "Activity",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A thread of comments with a rich-text field to reply",
+      "works": "partly",
+      "tried": "At 1280 and 400, keyboard only: Tab through the thread; Space/Enter on Like (aria-pressed and count 2<->3, heart filled); Enter/Space/ArrowDown on a comment's More menu, Escape (focus back on the trigger), Copy link (clipboard holds http://localhost:4918/#comment-c1 once the permission is granted); Enter on Reply (mention chip written, focus in the field); typed, Ctrl+B, Ctrl+I, toolbar by Shift+Tab + arrows + Space/Enter for Bold, Strikethrough, Bulleted and Numbered list (aria-pressed follows the caret, tooltip on focus), Mention menu, Backspace over a chip, Ctrl+V of HTML (pasted as plain text), Enter and Shift+Enter; posted by Tab + Enter on Post reply, by Ctrl+Enter and by Meta+Enter (comment drawn with <strong>, <em>, <s>, mention links, <ul>/<ol>, heading counts up, field emptied and focused, Post reply disabled, empty Ctrl+Enter posts nothing); deleted my own comment from its menu and undid it from the snackbar.",
+      "failures": [
+        "Delete: on my own comment, Enter on 'More for Sam Rivera's comment', ArrowDown, Enter on Delete: the comment goes ('Comments (4)' -> 'Comments (3)') and document.activeElement is BODY, at 1280 and at 400. Focus should land on a neighbouring comment or the thread.",
+        "Undo: from there Tab, Tab reaches the snackbar's Undo, Enter restores the comment at its place, and document.activeElement is BODY again (the focus the delete lost is what the snackbar gives back); the restored comment is not focused.",
+        "At 400x800, Tab from the toolbar into the reply field leaves the field at y=746..858 of an 800px window (scrollY 484 of a possible 703): 54px of its 112px are in view, the rest and Post reply are below the fold until one types or scrolls. unsure: the first line and the caret are in view.",
+        "At 400x800, while a snackbar is up (16,716 368x68) the focused Like, Reply, the toolbar's Bold and the top of the reply field sit under it when they are at the bottom of the window (see part 4)."
+      ],
+      "could_not_exercise": [
+        "Copy link without the clipboard permission answers 'The link could not be copied' in headless Chromium; it was confirmed only with clipboard-read/clipboard-write granted.",
+        "What a screen reader says when a comment is posted or removed (only the DOM was read: the snackbar's role=alert, the heading's count).",
+        "The empty thread ('No comments yet'): only my own comments can be deleted, the three seeded ones cannot.",
+        "Spell checking in the field."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "A popover of notifications from a badged icon button",
+      "works": "partly",
+      "tried": "At 1280 and 400, light and dark: Tab to the bell ('Notifications, 2 unread', badge 2, then 4 after the two arrivals), Enter and Space open it (aria-expanded true, role=dialog named 'Notifications', focus on the dialog, inside the window: 352px wide at x=36 on 400); Tab cycles Mark all read <-> the list and stays inside; ArrowDown, Home, End move over the rows; Enter on a row closes, marks it read (badge counts down), scrolls to and focuses its comment, highlighted for 2 s; Enter on the row with no comment closes, focus back on the bell, and 'Opening that design is outside this page' is shown in its turn; Mark all read ('4 notifications marked as read', then 'No unread notifications' on a second press; badge gone, label 'Notifications', 'You are all caught up.', focus kept); Escape closes with focus on the bell. Mouse: click the bell, click outside, click a row.",
+      "failures": [
+        "Opened from a snackbar's 'View' action (focus on Resolve thread, F6, Tab to View, Enter), at 1280 and at 400: the popover opens with focus on the dialog, but Escape then leaves document.activeElement on BODY; it should go to the bell (as it does when the bell opened it) or back to Resolve thread.",
+        "Space on a focused notification row does nothing (popover stays open, row not opened); only Enter opens it. unsure: Enter may be all a grid row owes.",
+        "The bell has aria-expanded but no aria-haspopup. unsure."
+      ],
+      "could_not_exercise": [
+        "What a screen reader says of the badge and of a row's 'Unread' (read from the DOM only: aria-label 'Notifications, 4 unread', a visually hidden 'Unread')."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "A card previewing a mentioned person",
+      "works": "partly",
+      "tried": "At 1280 and 400, light and dark: Tab to '@Ada Martin' opens the card on focus (aria-expanded true, aria-haspopup=dialog, 288px wide, inside the window at both widths); Tab goes into it: Follow toggled by Space and Enter (aria-pressed, label Follow <-> Following, 'Following Ada Martin' / 'Unfollowed Ada Martin' shown in their turn), View profile by Enter (hash #people/ada); Tab past it returns to the thread and the card closes; Escape inside closes it with focus back on the link and it does not reopen; Enter on the link goes to #people/kenji. Mouse: hover opens, moving into the card keeps it, click Follow, moving away closes. Touch at 400: a 900 ms press opens it, a tap outside closes it, a tap follows the link.",
+      "failures": [
+        "The card is role=dialog with no aria-label and no aria-labelledby: a dialog with no name. unsure whether the kit means it to be named.",
+        "With a snackbar up, a focused mention at the bottom of the window is under it: '@Kenji Sato' at 400 (68,713 293x43 under the snackbar at 16,716 368x68), '@Léa Fontaine' at 1280 (344,770 under 385,736 510x48); the card still opens, the link itself is hidden (see part 4)."
+      ],
+      "could_not_exercise": [
+        "What a screen reader says when the card opens on focus."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "Snackbars queued",
+      "works": "partly",
+      "tried": "Recorded the snackbar every 50 ms: the two arrivals show one after the other (Léa at 4.0 s to 12.1 s, Noor at 12.3 s to 20.3 s); three quick toggles of Resolve thread show 'Thread resolved', 'Thread reopened', 'Thread resolved' in order, 5 s each, 250 ms apart, never two at once. Keyboard: F6 goes to the region ('1 notification.'), Tab to the snackbar (role=alertdialog, its text in role=alert aria-live=polite), to its action and to Close; Tab from the end of the page reaches it too; Enter on View opens the notifications, Enter on Undo restores a deleted comment, Enter on Close and Escape each close it with focus back on the button that was focused before (Resolve thread), at 1280 and 400; the rest of the keyboard path was worked at 1280. Mouse: click Close. At 400 it stays inside the window (368 wide).",
+      "failures": [
+        "It covers what has the focus: fixed at the bottom of the window (400: 16,716 368x68; 1280: 385,736 510x48), it sits over a focused control that Tab brought to the window's bottom edge. At 400 while it was up, Tab landed on '@Kenji Sato', Like (60,760), Reply (129,760), Bold (21,701) and the reply field, each under it (elementFromPoint at the control's centre is the snackbar); at 1280, on '@Léa Fontaine'. The two arrivals alone keep one up for 16 s after load.",
+        "What an action says waits behind the line: Space on Resolve thread just after the two arrivals showed 'Thread resolved' 16.3 s later; a 'Comment deleted / Undo' enqueued the same way would be as late. unsure: that is what a queue does, but the Undo is then out of reach meanwhile.",
+        "View -> notifications popover -> Escape leaves document.activeElement on BODY though Resolve thread had the focus before F6 (1280 and 400; see part 2). Undo or Close reached after a delete also end on BODY, but only because the delete had already lost the focus (part 1)."
+      ],
+      "could_not_exercise": [
+        "Whether a hover or a focus holds a snackbar's timer: not measured.",
+        "What a screen reader announces, and when, for each queued snackbar.",
+        "A swipe to dismiss on touch."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,284 @@
+{
+  "screen": "Product",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "An image carousel",
+      "built": "yes",
+      "kit": [
+        "Carousel",
+        "CarouselItem",
+        "ModalDialog",
+        "Button",
+        "IconButton",
+        "ChevronLeftIcon",
+        "ChevronRightIcon",
+        "Headline",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Carousel layout=\"hero\" with className=\"h-72 md:h-96\" for the row's height.",
+          "why": "Doc comment: \"The kit's own, where Material gives no value: the row's height (224px, `h-56` on the root; full-screen fills its parent)\"."
+        },
+        {
+          "kind": "use",
+          "what": "classNames.container=\"bg-surface-container-high\" on each CarouselItem so the drawing stands on a tinted ground.",
+          "why": "Doc comment: \"Classes for the named parts.\" / \"`container` (`carousel-item-container`, the button or link)\"."
+        },
+        {
+          "kind": "use",
+          "what": "A \"Show all 4 photos\" text Button under the carousel, opening every photo in a 2-column grid in a ModalDialog; a press on an item opens that photo large, with previous/next IconButtons.",
+          "why": "Doc comment: \"Show all is the caller's. On a page that scrolls vertically Material requires a way to see every item without scrolling sideways: a Show all `Button` 4dp below the carousel\"."
+        },
+        {
+          "kind": "option",
+          "what": "No position indicator (dots or \"2 of 4\") and no previous/next buttons on the carousel itself; position is only in the lightbox I wrote.",
+          "why": "Carousel has no current-item callback or controlled index, and no pointer buttons: a mouse user has the scrollbar, the wheel and the keyboard only (the doc says so under 'Mouse drag')."
+        },
+        {
+          "kind": "layout",
+          "what": "The lightbox's insides (headline, picture, pager row, photo grid, close row) and the gallery column.",
+          "why": "Composition."
+        },
+        {
+          "kind": "layout",
+          "what": "The pictures are inline SVG drawings of a trainer (TrainerArt), four views, redrawn in the chosen colour.",
+          "why": "No web, no real photographs."
+        },
+        {
+          "kind": "value",
+          "what": "Hex values in data.ts and TrainerArt.tsx (the shoe's upper, accent and sole) used as SVG fills.",
+          "why": "They are the product's own colours, data and not theme; the drawing's outline is currentColor on `text-outline` so it holds in dark."
+        },
+        {
+          "kind": "read",
+          "what": "Read Carousel.tsx well past its doc comment (styles, keyline arithmetic, item props).",
+          "why": "The doc comment is 300 lines into the file; I needed CarouselItem's props (onPress or href is required) and whether an item could be unpressable."
+        },
+        {
+          "kind": "read",
+          "what": "Read DialogContent.tsx's prop types and function body, and grepped Dialog and Modal for max-height and overflow.",
+          "why": "The docs do not say whether a dialog with tall children scrolls (it does not: overflow-hidden, no max height). I made the all-photos view a grid that fits instead of a scrolling column."
+        }
+      ],
+      "notes": "Built but unseen in a browser. A press on a photo opens a lightbox, which is what makes the kit's pressed items honest here. Unsure how the hero layout's small 56px keyline crops an SVG that is drawn centred (Material's parallax keeps the content at the large width). The lightbox's 2x2 grid may be tight in a 280px dialog at 400px wide."
+    },
+    {
+      "n": 2,
+      "part": "A choice of variant by chip and by colour swatch",
+      "built": "yes",
+      "kit": [
+        "ChipGroup",
+        "Chip",
+        "RadioGroup",
+        "ColorSwatch",
+        "focusRing",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "React Aria `Radio` imported from react-aria-components and drawn as a swatch (48px target, state layer, a primary ring when selected), inside the kit's RadioGroup.",
+          "why": "The kit has no swatch chooser: its ColorSwatch only shows a colour, its Radio always draws the ring-and-dot, and ColorPicker picks an arbitrary colour. React Aria's ColorSwatchPicker identifies items by colour value, not by a product variant with a name, so a radio group was the better fit."
+        },
+        {
+          "kind": "option",
+          "what": "Wrapped ColorSwatch in a span carrying a 1px `border-outline` so the light Chalk swatch shows on a light surface.",
+          "why": "ColorSwatch hard-codes its className (`rounded-shape-full h-8 w-8`) and drops a caller's: no size, no outline, no class can be passed."
+        },
+        {
+          "kind": "option",
+          "what": "Added `data-focus-visible:outline-solid` beside focusRing() on the Radio.",
+          "why": "focusRing only flips on `focus-visible:`; a React Aria Radio's focus is on its hidden input, so the label never matches :focus-visible. Neither the skill nor utils.ts says what to do for such a part."
+        },
+        {
+          "kind": "use",
+          "what": "RadioGroup orientation=\"horizontal\" with className=\"gap-x-1 gap-y-1\", label and supportingText naming the chosen colour.",
+          "why": "Doc comment: \"`horizontal` wraps them in a row, for the rare compact case Material's guidelines allow\"; skill: \"a `className` passed by a caller wins over the kit's own utility\"."
+        },
+        {
+          "kind": "use",
+          "what": "ChipGroup selectionMode=\"single\" of filter Chips, controlled; isInvalid + errorMessage when Add is pressed with no size; out-of-stock sizes isDisabled, named in supportingText.",
+          "why": "Doc comment: \"`selectionMode=\\\"multiple\\\"` renders a `toolbar` of `aria-pressed` buttons, `\\\"single\\\"` a `radiogroup`\" and \"`errorMessage` replaces `supportingText` when invalid\"."
+        },
+        {
+          "kind": "option",
+          "what": "A div with a ref around ChipGroup, to scroll it into view and focus its first enabled chip when the size is missing.",
+          "why": "ChipGroup takes no ref and has no way to be focused from outside."
+        },
+        {
+          "kind": "layout",
+          "what": "The stack of the two choices.",
+          "why": "Composition."
+        },
+        {
+          "kind": "read",
+          "what": "Read Chip.tsx, Radio.tsx and ColorSwatch.tsx in full.",
+          "why": "To learn whether a filter Chip takes ToggleButton props (isDisabled, id), whether the kit's RadioGroup accepts foreign Radio children, and whether ColorSwatch takes a className (it does not)."
+        },
+        {
+          "kind": "option",
+          "what": "Project logic around the two groups: the size chosen is kept when the colour changes; if it is out of stock in the new colour the ChipGroup is marked invalid with a message naming the size and colour, and Add is refused until another is chosen.",
+          "why": "Two dependent variant groups are the project's to reconcile; no kit doc line covers it. A radio group selects on every arrow key, so clearing the size on a colour change would have destroyed it while a keyboard user passed over a colour."
+        }
+      ],
+      "notes": "Built but unseen. The size chips are a single-select radiogroup that can be emptied, so 'no size yet' is a real state. Each disabled chip is named 'UK 9, out of stock'. A size that the newly chosen colour lacks stays selected (on a disabled chip) and is flagged by the group's error message; unsure how a selected and disabled filter chip looks. The swatch's selected ring is shape, and the chosen name is written under the row."
+    },
+    {
+      "n": 3,
+      "part": "A quantity",
+      "built": "yes",
+      "kit": [
+        "NumberField"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "NumberField steppers minValue={1} maxValue={stock of the chosen size, at most 10}, controlled, className=\"w-48\", supportingText saying the limit or 'Only 2 left'.",
+          "why": "Doc comment's own example: \"<NumberField label=\\\"Quantity\\\" steppers minValue={1} maxValue={20} defaultValue={1} />\"."
+        },
+        {
+          "kind": "option",
+          "what": "The field shows min(the quantity asked for, what the chosen size and colour allow), worked out at render, and the asked quantity is kept; an emptied field (NaN) goes back to 1.",
+          "why": "NumberField clamps to maxValue only on commit (\"On commit (blur, Enter, a stepper) the value is clamped\"), not when maxValue itself drops under the value, so the project derives it."
+        },
+        {
+          "kind": "layout",
+          "what": "The field's place in the column, at w-48.",
+          "why": "Composition."
+        }
+      ],
+      "notes": "The steppers are out of the tab order by the kit's design (arrow keys step). A filled 56dp text field is heavy for a quantity on a phone; the kit has no compact stepper control. Stock is not reduced after an add."
+    },
+    {
+      "n": 4,
+      "part": "A bottom sheet of details",
+      "built": "yes",
+      "kit": [
+        "BottomSheet",
+        "Button",
+        "Body",
+        "Title",
+        "Divider"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The sheet's content: description, a dl of materials and fit, delivery list, care, a Close button.",
+          "why": "Composition."
+        },
+        {
+          "kind": "read",
+          "what": "Grepped BottomSheet.tsx's slot styles (base, header, content).",
+          "why": "To see that the content part scrolls and carries its own padding, which the doc comment says only in passing."
+        }
+      ],
+      "notes": "variant=\"modal\", opened by an outlined Button, string title names the dialog; partial and expanded heights left at the default. Drag and the sheet's scrolling are unseen."
+    },
+    {
+      "n": 5,
+      "part": "Add to basket with a snackbar",
+      "built": "yes",
+      "kit": [
+        "Button",
+        "snackbar",
+        "SnackbarRegion",
+        "IconButton",
+        "TopAppBar",
+        "Title",
+        "Label"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "SnackbarRegion className=\"bottom-24 md:bottom-4\" to sit above the phone's sticky Add bar.",
+          "why": "Doc comment: \"Place the region with `className` when the layout has a bottom navigation bar or a FAB the snackbar must sit above (`bottom-20 sm:bottom-4`)\"."
+        },
+        {
+          "kind": "use",
+          "what": "Button isLoading during a 700ms simulated request, then snackbar(text, { action: Undo, timeout: 8000 }); Undo removes that basket line.",
+          "why": "Doc comment: \"snackbar(\\\"Email archived\\\", { action: { label: \\\"Undo\\\", onPress: undo } })\" and \"Auto-dismiss delay in ms\"."
+        },
+        {
+          "kind": "layout",
+          "what": "A bar of total and button that is sticky at the bottom on a phone and in the column on desktop; the basket count as the app bar IconButton's badge.",
+          "why": "Composition."
+        },
+        {
+          "kind": "read",
+          "what": "Read snackbar()'s body and the region's classes; grepped IconButton for badgeLabel.",
+          "why": "To confirm an explicit timeout wins when there is an action, that the region is `fixed bottom-4`, and what badgeLabel does with no badge."
+        }
+      ],
+      "notes": "The basket IconButton says the basket's content in a snackbar; there is no basket page. The app bar has no back button: there is nowhere to go back to and a dead one would be fake. Sticky bar position unseen."
+    },
+    {
+      "n": 6,
+      "part": "A rating",
+      "built": "yes",
+      "kit": [
+        "Meter",
+        "Link",
+        "Headline",
+        "Body",
+        "Title",
+        "focusRing",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "React Aria `RadioGroup`, `Radio` and `Label` for the rating a person gives: five star radios, one tab stop, arrow keys, each a 48px target named '3 stars', filled up to the hovered or chosen one.",
+          "why": "The kit has no rating control. Its Radio cannot be drawn as a star, and a Slider or a Meter would be bent to look like one."
+        },
+        {
+          "kind": "layout",
+          "what": "`Stars`: the rating that is read, a role=\"img\" span named 'Rated 4.6 out of 5' with a row of filled stars clipped to the average over a row of empty ones.",
+          "why": "The kit has no rating display. It is not operated, so it is a composition and not a control."
+        },
+        {
+          "kind": "option",
+          "what": "`data-focus-visible:outline-solid` beside focusRing() on each star Radio, as for the swatches.",
+          "why": "focusRing answers :focus-visible only."
+        },
+        {
+          "kind": "value",
+          "what": "An inline style width in percent clips the filled stars to the average.",
+          "why": "A computed measure; no token could say it."
+        },
+        {
+          "kind": "use",
+          "what": "Meter per star level (label, value, maxValue, valueLabel, showValue) for the distribution.",
+          "why": "Doc comment: \"<Meter label=\\\"Boards this month\\\" value={3} maxValue={5} valueLabel=\\\"3 of 5\\\" showValue />\"."
+        },
+        {
+          "kind": "layout",
+          "what": "The summary under the price (stars, average, a Link to #reviews) and the reviews section (average, distribution, your rating, three reviews).",
+          "why": "Composition."
+        }
+      ],
+      "notes": "'A rating' is ambiguous, so both are built: the product's rating, read, and the visitor's own, given. Giving one counts into the average and the distribution at once and is confirmed by a polite live line under the stars (not a snackbar: a radio group selects on every arrow key); it can be changed, not withdrawn. Star icons are lucide-react's. Unseen in a browser."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page: TopAppBar (the product's name as h1, favourite toggle, basket), a two-column grid from md, one column on a phone; the loading state as a SkeletonGroup shaped like the page, on a 900ms timer.",
+      "why": "Composition."
+    },
+    {
+      "kind": "read",
+      "what": "Read kit-blocks/ReadingCarousel.tsx in full and the first lines of the other five blocks.",
+      "why": "To decide between it and Carousel for photos (it is for content that is read, not pressed, and has the position and buttons Carousel lacks); none of the six blocks was used."
+    },
+    {
+      "kind": "read",
+      "what": "Read Typography.tsx's variant table and the top of StateLayer.tsx and utils.ts (focusRing).",
+      "why": "To learn colorRole's values and which elements `component` takes, StateLayer's props (not used in the end: the group-data utilities were simpler), and what focusRing emits."
+    }
+  ],
+  "friction": "Nothing was verified in a browser: the build is green on the first run, but layout, dark mode, drag and focus are unseen. Hardest: (1) Carousel's doc comment sits 370 lines into a 900-line file under the keyline arithmetic, and CarouselItem must be pressed; a product gallery wants a position indicator and pointer buttons, which the kit's Carousel does not offer and the ReadingCarousel block does, for the wrong content. One sentence on 'a product's photos' in either doc would settle it. (2) Choosing a colour by swatch: ColorSwatch is exported at the top level but is a display with a hard-coded className, and nothing says what to build a swatch choice from; a swatch-radio block, or a line in the skill, would have saved the detour through ColorSwatchPicker's types. (3) focusRing() does not light on React Aria parts whose focus is on a hidden input (Radio); the skill says 'extend it' but not how. (4) No rating component or block; the skill's table of what comes straight from React Aria could name RadioGroup as the base for it. (5) Whether a Dialog with children scrolls is not in its doc. Easy: ChipGroup, NumberField, BottomSheet, Snackbar and Meter each had an example in the doc comment that was exactly the job."
+}

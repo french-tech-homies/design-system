@@ -1,0 +1,78 @@
+{
+  "screen": "Settings",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Sections by tabs or by list and detail",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to the tab list (one stop, the first stop while nothing is unsaved), ArrowRight x4 (wraps), ArrowLeft, Home, End; checked aria-selected, the panel's name (aria-labelledby the tab) and its headings each time; Tab into the panel and Shift+Tab back; toggled a switch and read the tab's name ('Privacy, unsaved changes'), left the section and came back (the change was kept); clicked a tab with the mouse. At 400 checked that the focused tab is scrolled into the list's view each time (it is).",
+      "failures": [
+        "Tab onto any tab, both widths: the 3px focus ring (outline-offset 2px) is cut by the tab list's own overflow (overflow-x:auto makes overflow-y clip too): its top and bottom edges are never drawn, only the two side bars, and on the first tab (Notifications) and on a tab flush with the list's right edge at 400 (Privacy, Workspace) one side bar is cut as well. The focus is still told by the state layer and the remaining bar; a whole ring should be drawn.",
+        "at 400, after ArrowRight to Privacy or Workspace the list scrolls and its bottom divider line (the list's ::after, inset-x-0) scrolls away with the tabs: it ends mid-row (about x=195 with Workspace selected) instead of spanning the row."
+      ],
+      "could_not_exercise": [
+        "Touch scrolling (a swipe) of the tab row at 400: not tried, no touch emulation; keyboard and mouse click only."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Switches",
+      "works": "yes",
+      "tried": "At 1280 and 400, all eleven switches over the four sections: Tab to each, Space (flips checked, focus stays), Enter (does nothing, as a switch should), Space back. Each is role=switch, found by getByRole('switch', {name, exact}) with the title alone as its name, and its aria-describedby resolves to the second line. Turning Sound off disables the slider and Tab skips it. With the mouse: a click on the title and on the description each toggles.",
+      "failures": [
+        "unsure: a focused switch shows only the faint state-layer halo around its handle; no element of the row draws the kit's ring (the only outline is on the hidden input). Visible in the picture, but weak beside the ring the buttons and the status line get.",
+        "unsure: at 1280x800, Tab from the slider to 'Email digest' does not scroll the page (scrollY stays 0): the row sits at y=750-810, so its description line is cut by the window's bottom edge. The track and handle are in view."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 3,
+      "part": "Radio groups",
+      "works": "partly",
+      "tried": "At 1280 and 400: each of the five groups (Notify me about, Theme tiles, Density, Who can message you directly, Keep messages) is one tab stop landing on the checked radio; ArrowDown/Up/Right/Left move and select with wrap, Space keeps; role=radiogroup with its name, supporting text reached by aria-describedby where there is one. Theme tiles: arrows toggle .dark on <html> at once (Dark: on, Light: off), System follows page.emulateMedia dark/light live, Discard puts the saved theme back, from / and from /?dark; tile names read 'Light Always light' in the accessibility tree; at 400 the third tile wraps under the first two. Mouse: a click on a tile and on a plain radio's label selects.",
+      "failures": [
+        "At 400x800, Notifications, page scrolled down (focus on 'Quiet hours', scrollY 234): Shift+Tab x4 to 'Desktop banners', then Shift+Tab again: the focus goes to the checked radio 'Mentions and direct messages' and the page does not scroll: the radio's row is at y=26-74, under the sticky top app bar (64px high), 38 of its 48px hidden and elementFromPoint at its centre is the bar. The focused, selected radio cannot be seen; arrows still change it blind. It should be scrolled clear of the bar (a scroll-padding-top would do). At 1280x800 the same step hides 2px only."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 4,
+      "part": "A slider",
+      "works": "yes",
+      "tried": "At 1280 and 400: Tab to 'Notification volume' (input type=range, named by its label, aria-valuetext '60%', the kit's ring drawn round the thumb); ArrowRight/Up +5, ArrowLeft/Down -5, PageUp/PageDown +-10, End 100, Home 0, clamped at both ends; the output beside the label and aria-valuetext follow ('65%'); the change marks the tab unsaved and enables Save. With Sound off the input is disabled, skipped by Tab, keeps its value, and comes back when Sound is on. Mouse: dragging the thumb to 80% of the track gives 80%, a click on the track at 20% gives 20%.",
+      "failures": [],
+      "could_not_exercise": [
+        "A touch drag: no touch emulation; mouse only."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "A destructive action confirmed in a dialog",
+      "works": "partly",
+      "tried": "At 1280 and 400, in Workspace: Tab to 'Delete archived channels', Enter (and Space) opens role=alertdialog named 'Delete 12 archived channels?'; the page behind is inert; focus starts on the dialog, Tab and Shift+Tab cycle Cancel and Delete only. Escape closes and focus is back on the trigger (focus-visible); Cancel with Enter the same; nothing deleted. Delete with Enter: the button shows its spinner, Cancel is disabled, a second Enter and Escape do nothing during the 1.2s; then the dialog closes, the line reads 'No archived channels.', the trigger is disabled, the snackbar '12 archived channels deleted' shows, and the focus is on the status line with a visible 3px ring (the builder's restore-event hook does fire), not on the body. From there Tab goes to the snackbar. Mouse: a click on the scrim does not close it (kept open, as an alert dialog); Delete by click ends with the same focus.",
+      "failures": [
+        "The alert dialog has no description: its attributes are role=alertdialog, aria-label='Delete 12 archived channels?', tabindex=-1 and no aria-describedby, and the focus starts on the dialog itself, so the consequence ('Every message and file in them is deleted for everyone in Northwind Studio. This cannot be undone.') is not tied to what is announced on open. An alertdialog's message should be its aria-describedby.",
+        "unsure: while deleting, the Delete button only becomes aria-disabled with an aria-hidden spinner: no aria-busy, no progress role, no live text. The 1.2s of work is not announced.",
+        "unsure: at 400 the snackbar, for its 5 seconds, lies over the now disabled 'Delete archived channels' button (button at y=734-774, snackbar at y=736-784); the focused status line just above it stays clear."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 6,
+      "part": "A snackbar on save",
+      "works": "partly",
+      "tried": "At 1280 and 400: Discard and Save are disabled and skipped by Tab until a setting changes; changed one, Shift+Tab back up to Save (ring visible), Enter (and Space on another run): spinner for 900ms, both buttons disabled, a second press does nothing; then the unsaved dots clear and the snackbar 'Settings saved' shows (region '1 notification.' > alertdialog 'Settings saved' > role=alert, aria-live polite), 368px wide at 400 and 344px centred at 1280, no sideways overflow, gone after about 5s; it waits while hovered (mouse) or focused. Keyboard reach: F6 focuses the region (ring drawn), Tab the snackbar itself (ring drawn), Escape there dismisses it and gives the focus back to where it was before (checked from the status line after a deletion: it returned there). Discard with Enter/Space puts the draft (and the theme) back. A second save replaces the snackbar, never two.",
+      "failures": [
+        "Save with Enter or Space: when the 900ms end, Save becomes disabled while it holds the focus and document.activeElement is <body>: the focus is lost. It should stay on something (the button kept focusable, or moved to a named place). Both widths.",
+        "Discard with Enter or Space: Discard becomes disabled at once while focused and document.activeElement is <body>, the same loss. Both widths.",
+        "unsure: Escape while the focus is on the snackbar region itself (where F6 lands) does nothing; it dismisses only once Tab has moved onto the snackbar inside it.",
+        "unsure: while saving, the Save button is only aria-disabled with an aria-hidden spinner; the saving state itself is not announced (the result is, by the snackbar)."
+      ],
+      "could_not_exercise": [
+        "What a screen reader actually speaks for the snackbar: only its roles and live attributes were read from the DOM."
+      ]
+    }
+  ]
+}

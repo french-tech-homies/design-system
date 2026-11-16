@@ -1,0 +1,330 @@
+{
+  "screen": "Editor chrome",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A toolbar of toggle buttons and groups",
+      "built": "yes",
+      "kit": [
+        "Toolbar",
+        "ButtonGroup",
+        "IconButton",
+        "Divider",
+        "TooltipTrigger",
+        "Tooltip"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "Overrode the docked Toolbar's layout by className: justify-start, gap-2, px-2, overflow-x-auto and [&>*]:shrink-0, and restated justify-start, gap-2 and px-4 under min-[600px]: to beat the kit's own breakpoint classes.",
+          "why": "The docked Toolbar is drawn for the bottom of a window: full width, items spread evenly, centred 32dp apart from 600dp. An editor's formatting toolbar sits under the app bar, starts at the leading edge and has more controls than a phone is wide. The kit has no leading-aligned or top toolbar, and nothing for a toolbar that overflows (no scroll, no overflow menu)."
+        },
+        {
+          "kind": "option",
+          "what": "ButtonGroup: gap-1 by className on the three standard groups, and w-auto on the connected one.",
+          "why": "A standard group's 12dp between-space made sixteen controls far wider than a desktop toolbar; a connected group is w-full ('span the group's width, which spans its surface'), which in a toolbar would take the whole row. The doc comment names neither className as the way to do it."
+        },
+        {
+          "kind": "option",
+          "what": "Passed variant=\"standard\" on every IconButton in the toolbar, and variant=\"tonal\" on the connected alignment group so its corners are drawn.",
+          "why": "IconButton's default is filled, and the Toolbar paints only standard icon buttons. A standard toggle in a connected group has no container, so the connected shape would not show."
+        },
+        {
+          "kind": "layout",
+          "what": "Vertical Dividers (h-8, self-center) between the groups; the order of the groups.",
+          "why": "Expected: the toolbar's composition is the screen's."
+        },
+        {
+          "kind": "read",
+          "what": "Read Toolbar.tsx, ButtonGroup.tsx (its styles) and IconButton.tsx's prop types past their doc comments.",
+          "why": "To learn which classes the docked variant sets (to override them), that ButtonGroup passes selectedKeys / onSelectionChange / disallowEmptySelection / isDisabled through, and the shape of the isToggle props."
+        }
+      ],
+      "notes": "Not run in a browser: none was allowed. Marks are a multiple-selection group; headings and lists are single-selection groups that may be emptied (React Aria announces them as a radiogroup, though a pressed radio can here be unpressed); alignment always has one. The toggles are controlled from the selection's state, read with queryCommandState and the caret's ancestors. At phone width the toolbar scrolls sideways in one row; I did not see whether the focus ring or the 48dp targets are clipped by that scroll container."
+    },
+    {
+      "n": 2,
+      "part": "Menus with submenus",
+      "built": "yes",
+      "kit": [
+        "Button",
+        "ButtonGroup",
+        "MenuItem",
+        "CheckIcon",
+        "menuStyles (deep import)",
+        "menuRow (deep import)"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "MenuTrigger, Menu, MenuItem, SubmenuTrigger and Popover from react-aria-components, in src/editor/EditorMenu.tsx.",
+          "why": "The kit's Menu takes a flat list of items and dividers: an item cannot open a submenu."
+        },
+        {
+          "kind": "option",
+          "what": "Deep-imported menuStyles and menuRow from components/Menu, which the barrel does not export, to draw the surface and the divider as the kit's Menu does.",
+          "why": "A menu composed outside the kit's Menu has no exported surface or divider to use; the row (MenuItem) is exported, its container is not."
+        },
+        {
+          "kind": "option",
+          "what": "Submenu parents: a chevron passed as trailingIcon, and className bg-surface-container-highest while the submenu is open.",
+          "why": "MenuItem has no 'has a submenu' or 'open' state."
+        },
+        {
+          "kind": "option",
+          "what": "The menu bar is a ButtonGroup of text Buttons (a toolbar: arrows between the four buttons, one tab stop), gap-0 by className.",
+          "why": "The kit has no menu bar. Left and Right do not move from one open menu to the next, as a true menubar's would."
+        },
+        {
+          "kind": "layout",
+          "what": "The row that holds the menu bar and the save status.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read Menu.tsx and MenuItem.tsx whole.",
+          "why": "To find that there is no submenu, how a row gets its focus layer (the `group` class on the React Aria item), and what menuRow and menuStyles are."
+        }
+      ],
+      "notes": "File, Edit, Insert, Format. Submenus: File > Export, Insert > Date and time, Format > Text, Paragraph style, List, Align; the last three are single choices with a check on the current one. Every item runs a real command once the menu has closed (a frame-polling helper waits until no menu or dialog is in the document, then puts the selection back). Not run in a browser; submenu placement at 400px is React Aria's flip and I did not see it."
+    },
+    {
+      "n": 3,
+      "part": "A split button",
+      "built": "yes",
+      "kit": [
+        "SplitButton",
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "At phone width the leading half shows the Save icon alone, with aria-label; the width is read with matchMedia in the project.",
+          "why": "SplitButton's props: \"The leading button's icon. With no children, give `aria-label`.\""
+        },
+        {
+          "kind": "read",
+          "what": "Read SplitButton.tsx whole.",
+          "why": "To see what `items` accepts (MenuItemType only, no divider) and that neither half can carry a tooltip."
+        }
+      ],
+      "notes": "Save (a simulated 700ms save, then a snackbar) with Export as HTML, Export as plain text (both real downloads), Copy as plain text and Print behind the trailing half. The split button has no tooltip: its halves are not reachable to wrap in a TooltipTrigger. Not run in a browser."
+    },
+    {
+      "n": 4,
+      "part": "Tooltips with shortcuts",
+      "built": "yes",
+      "kit": [
+        "TooltipTrigger",
+        "Tooltip"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "Lifted the plain tooltip's 150px cap with className=\"max-w-none\", and wrote the shortcut as a <kbd> beside the label in children.",
+          "why": "Tooltip has no shortcut part, and at 150px 'Strikethrough Ctrl+Shift+X' wraps."
+        },
+        {
+          "kind": "use",
+          "what": "placement=\"bottom\" on each tooltip: the toolbar is under the app bar, at the top of the window.",
+          "why": "Tooltip's `placement`: \"Material's defaults: `\"top\"` for a plain tooltip, `\"bottom start\"` for a rich one. The tooltip flips to stay on screen.\""
+        },
+        {
+          "kind": "control",
+          "what": "A document keydown listener that runs each command's shortcut (src/editor/keys.ts, EditorScreen.tsx), with ⌘ on a Mac and Ctrl elsewhere.",
+          "why": "The kit shows a shortcut (MenuItem's `shortcut`, a tooltip's text) and binds none: nothing registers a key against an action."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tooltip.tsx whole.",
+          "why": "To find the 150px maximum and that children take any node."
+        }
+      ],
+      "notes": "Shortcuts shown and bound: bold, italic, underline (mod+B/I/U), strikethrough (mod+Shift+X), paragraph and headings (mod+Alt+0..3), lists (mod+Shift+7/8), clear formatting (mod+\\), link (mod+Shift+K), save (mod+S), palette (mod+K). Undo, redo and select all show the browser's own shortcut and are left to the browser. The alignment and colour buttons have a tooltip with no shortcut. A browser may keep some combinations for itself (Ctrl+Shift+K in Firefox): not tested, no browser was allowed. Disabled buttons (while loading) show no tooltip."
+    },
+    {
+      "n": 5,
+      "part": "A colour picker in a popover",
+      "built": "yes",
+      "kit": [
+        "PopoverTrigger",
+        "Popover",
+        "ColorArea",
+        "ColorSlider",
+        "ColorField",
+        "ColorSwatch",
+        "IconButton",
+        "Button",
+        "Label",
+        "TooltipTrigger",
+        "Tooltip",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "Did not use the kit's ColorPicker: composed PopoverTrigger, an IconButton and Popover around the kit's colour parts instead.",
+          "why": "ColorPicker's trigger is fixed (a 32px swatch and a visible label): it cannot be an icon button in a toolbar, takes no tooltip, has no controlled open state and no way to add Apply and Cancel that close it. Its popover is also React Aria's own, not the kit's Popover."
+        },
+        {
+          "kind": "component",
+          "what": "ColorPicker (as the state the parts share), ColorSwatchPicker and ColorSwatchPickerItem from react-aria-components.",
+          "why": "The kit's colour parts read React Aria's ColorPicker context and the kit exports only its own whole ColorPicker; it has no row of preset swatches."
+        },
+        {
+          "kind": "hook",
+          "what": "parseColor from react-aria-components, to hold the draft colour in HSB.",
+          "why": "The kit re-exports no colour utility."
+        },
+        {
+          "kind": "value",
+          "what": "Seven preset hex values and the default text colour (#1565c0), and an inline background-color on the bar under the button's letter.",
+          "why": "They are the document's content, the colour a person gives their text, not the interface's; no role names them. They do not change in dark."
+        },
+        {
+          "kind": "layout",
+          "what": "The popover's insides: presets, area, hue, hex and preview, Cancel and Apply.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read Popover.tsx and the five files of components/color whole.",
+          "why": "The colour parts' doc comments say only 'a part of ColorPicker': whether they work outside it, what they take and their fixed sizes are in the source."
+        }
+      ],
+      "notes": "Apply colours the selected text (execCommand foreColor with styleWithCSS) after the popover has closed, and the button's bar then shows that colour. With a collapsed caret it colours what is typed next, as the browser's command does. The kit's ColorSwatch and ColorArea take no className (32px round, 192px square): used at those sizes. ColorField's label and ColorSlider's label are unstyled text in the kit; left as they are. Not run in a browser."
+    },
+    {
+      "n": 6,
+      "part": "A command palette",
+      "built": "yes",
+      "kit": [
+        "SearchView",
+        "SearchViewItem",
+        "SearchViewSection",
+        "TopAppBar"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "The palette is the search bar of the TopAppBar (its `search` slot), opened also by mod+K and by Edit > Search commands through the controlled `isOpen`.",
+          "why": "SearchView always draws its closed bar as its trigger: there is no palette that is only an overlay. Putting the bar in the app bar hides the document's title (it stays as the visually hidden heading)."
+        },
+        {
+          "kind": "option",
+          "what": "Enter with nothing highlighted runs the first command that matches, computed in `onSubmit`.",
+          "why": "SearchView sets disableAutoFocusFirst and hands Enter to `onSubmit` with the query: right for a search, wrong for a palette, where Enter runs the top result."
+        },
+        {
+          "kind": "hook",
+          "what": "useFilter from react-aria-components, to find that first match with the same 'contains' the view filters with.",
+          "why": "The view does not say which items its filter kept."
+        },
+        {
+          "kind": "option",
+          "what": "The closed bar's own shortcut hint (Ctrl+K) is a <kbd> passed as the view's `trailing`.",
+          "why": "`trailing` is documented as \"The closed bar's trailing icon buttons or avatar\": a text hint is neither, and the bar has no place for one."
+        },
+        {
+          "kind": "use",
+          "what": "Each command's shortcut is a <kbd> in the item's `trailing`.",
+          "why": "SearchViewItem: \"At the end: an icon, a count, an action's glyph.\""
+        },
+        {
+          "kind": "use",
+          "what": "layout is full-screen under 600px and docked above, chosen with matchMedia in the project.",
+          "why": "SearchView: \"Material swaps from full screen in a compact window to docked from a medium one; the app chooses, by the window it knows.\""
+        },
+        {
+          "kind": "read",
+          "what": "Read Search.tsx's SearchView, Results, SearchViewItem and SearchViewSection.",
+          "why": "To learn that the bar is always rendered, what Enter does, and that a chosen item closes the view before the command can run."
+        }
+      ],
+      "notes": "26 commands in four sections (Format, Insert, Edit, Document), each with its icon and shortcut. A chosen command runs once the view has closed, on the selection the document had. Dismissed with no command after mod+K from the document, the focus goes back to the document; otherwise to the bar, as the kit does. Not run in a browser: I did not see whether a section whose items are all filtered out still shows its title, nor the docked popover's width under a narrow bar. The bar is live during the 900ms load (SearchView has no disabled state): commands then do nothing, and the link dialog is held back."
+    },
+    {
+      "n": 7,
+      "part": "The editing surface, rich text with headings, lists, links and marks",
+      "built": "yes",
+      "kit": [
+        "Skeleton",
+        "SkeletonGroup",
+        "ModalDialog",
+        "TextField",
+        "Button",
+        "Headline",
+        "Body",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "control",
+          "what": "A contentEditable element (role=textbox, aria-multiline, named) driven with document.execCommand, in src/editor/useEditor.ts: marks, formatBlock for headings, the two lists, alignment, links, colour, rule, undo and redo, with the selection saved on selectionchange and put back before every command.",
+          "why": "The kit has no rich text surface, React Aria has none, and no editor library is installed (and none could be fetched)."
+        },
+        {
+          "kind": "layout",
+          "what": "The document's look by descendant selectors on the surface ([&_h1]:text-headline-large [&_h1]:font-headline-large, [&_ul]:list-disc, [&_a]:text-primary …), the sheet (bg-surface, rounded-shape-medium, max-w-3xl) and the footer with the word count.",
+          "why": "Expected. Tailwind's reset strips headings, lists and links, and the content is the browser's own markup, so the type primitives cannot be used inside it."
+        },
+        {
+          "kind": "use",
+          "what": "The sheet carries focusRing() and shows it while the surface has the focus (has-[[data-editor]:focus-visible]:outline-solid).",
+          "why": "ds-build: \"The ring is `focusRing` from `<kit>/utils.ts`; extend it, do not invent another.\""
+        },
+        {
+          "kind": "use",
+          "what": "The link dialog is a ModalDialog with children: a form of two TextFields and its own buttons, the headline written by hand.",
+          "why": "Dialog: \"with them the dialog shows what you pass and nothing else, so write the headline yourself (`<Headline size=\"medium\">`).\""
+        },
+        {
+          "kind": "layout",
+          "what": "The loading placeholder: a SkeletonGroup of lines shaped like the document, for 900ms.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read Modal.tsx, ModalDialog.tsx, Dialog.tsx and DialogContent.tsx past their doc comments.",
+          "why": "To learn that a dialog with children draws no title and no actions, what `actions` accepts, and the margins and width ModalDialog sets (a first w-screen className would have overflowed a phone; removed)."
+        }
+      ],
+      "notes": "Headings, lists, links and marks are all built, on document.execCommand, which browsers still ship and have deprecated. None of it was run: no browser was allowed, so every behaviour here is reasoned, not seen. Known limits: the markup is the browser's (b/i/u/strike; what counts as bold differs between engines); an edited link's address bypasses the undo stack; a heading asked for inside a list item nests in it; Tab leaves the surface (it does not indent a list), so the keyboard is never trapped; a link is followed with mod+click, a plain click places the caret; a picked text colour is a fixed value and does not follow dark. A real product would put a maintained editor library here."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "option",
+      "what": "afterOverlays() in src/editor/useEditor.ts: polls by animation frame until no [role=dialog], [role=menu] or [data-exiting] is in the document, then runs the command and moves the focus to the document. Used after every menu item, palette command, colour and link.",
+      "why": "A kit overlay holds the focus while open and gives it back to its trigger as it closes; nothing says 'closed, and the focus is back' (no callback after the exit). A command that must end with the focus elsewhere has to wait by itself."
+    },
+    {
+      "kind": "layout",
+      "what": "The page: a sticky chrome (TopAppBar, menu row, toolbar) over a scrolling sheet and a footer; useIsCompact (matchMedia at 600px) for the split button's label and the palette's layout.",
+      "why": "Expected. The kit has no hook for Material's window size classes outside the app-shell block."
+    },
+    {
+      "kind": "use",
+      "what": "Icons from lucide-react, passed as `icon`; one icon of the project's own for the text colour (a letter over a coloured bar).",
+      "why": "ds-build: \"Icons are any component taking `{ size, className }`. The kit ships no icon library.\""
+    },
+    {
+      "kind": "read",
+      "what": "Read TopAppBar's, DialogContent's, Skeleton's, TextField's and Divider's prop types, and the head of each file in kit-blocks/.",
+      "why": "To choose the app bar's search slot and the dialog's children form, and to see that no block serves this screen (none was used)."
+    },
+    {
+      "kind": "value",
+      "what": "The arbitrary breakpoint min-[600px]: (and a max-width: 599px media query) wherever the layout changes between a phone and wider.",
+      "why": "Material's compact/medium boundary is 600dp; the kit writes min-[600px] itself (Toolbar) and its theme offers no breakpoint token, so Tailwind's sm (640px) would disagree with the kit's own components."
+    },
+    {
+      "kind": "read",
+      "what": "One oversized command output (the kit's Menu, SplitButton, Tooltip, Popover and colour sources) was saved by the harness outside the project and read from there; a scratch folder was briefly created beside the project for a render check and removed.",
+      "why": "Not a kit matter: said because the brief's boundary was crossed."
+    }
+  ],
+  "friction": "No guess failed: the build was green at the first run, because every prop was read in the source first, and that is the friction. (1) Menus: the Menu doc comment never says 'no submenu'; I learned it from the items' type, then had to deep-import menuStyles and menuRow to draw one that matches. A `children`/`items` key on a menu item, or an exported MenuSurface and MenuDivider with a line in ds-build's 'What comes straight from React Aria' table (SubmenuTrigger), would have made it a five-minute part. (2) Toolbar: its doc describes only bottom-docked and floating; an editor or table toolbar under an app bar needs the docked classes undone one by one, including the min-[600px] ones, which I could only know by reading the tv() block. A third variant (inline or top, leading-aligned, scrolling) would cover it. (3) ColorPicker: its parts are documented as 'a part of ColorPicker' and nothing says they work alone or need React Aria's ColorPicker context; the kit's Popover doc says it can hold 'a colour picker' while the kit's ColorPicker does not use that Popover and fixes its trigger. A `trigger` prop on ColorPicker and a swatch-picker part would do. (4) SearchView as a command palette works well once found (isOpen, sections, trailing), but nothing in ds-build or its doc mentions the use, and Enter-runs-first-match is not offered. (5) Shortcuts: MenuItem and SearchViewItem draw a shortcut, Tooltip has no place for one, and nothing binds one; a small Kbd primitive and a note on where the binding belongs would help. (6) Focus after an overlay closes: every chrome command that acts on a document needs it, and there is no after-close hook; I polled the DOM. (7) ds-spec could not be run here, so Material's own word on toolbars, menus and split buttons came only from the doc comments. (8) The whole screen is unverified at run time: with no browser, the log's 'yes' means built and type-checked, not seen."
+}

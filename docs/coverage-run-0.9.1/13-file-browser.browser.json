@@ -1,0 +1,97 @@
+{
+  "screen": "File browser",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A folder tree",
+      "works": "partly",
+      "tried": "1280: Tab to the \"Folders\" treegrid, ArrowDown/Up, ArrowRight/Left to expand and collapse four levels (Team drive > Design > Brand > Logos), Home, End, typeahead \"Fin\", Enter and Space to open a folder: the list, its label (\"Items of Finance\"), the breadcrumbs and aria-selected follow after the 450 ms skeleton; focus stays on the row. 400: Enter on \"Open the folders\" opens the modal sheet \"Folders\" (rest of the page inert), Tab to the tree, arrows, Enter on Finance and on Finance > Invoices > 2025: the sheet closes, the folder opens, focus returns to \"Open the folders\". Mouse: right click, file drop and item drop on tree rows.",
+      "failures": [
+        "400 wide, sheet \"Folders\" open, focus on a tree row (Team drive, then Design): pressed Escape, twice. The sheet stayed open and focus stayed on the row. It should close. Escape does close it while focus is on the sheet itself (just after it opens) or on its \"Close\" button, and Enter on \"Close\" does; focus then returns to \"Open the folders\"."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 2,
+      "part": "A grid and a list of the same items, toggled",
+      "works": "partly",
+      "tried": "Tab to the \"View\" radiogroup, ArrowRight then Space (and ArrowLeft then Enter back): aria-checked moves, the same grid \"Items of …\" is laid out as tiles (6 columns at 1280, 2 at 400) or rows, focus stays on the radio, the selection survives the toggle. In both views: Tab into the items, all four arrows, Home, End, PageDown, typeahead; ArrowRight inside a row reaches \"Drag <name>\" and \"Actions for <name>\". In Finance > Invoices > 2025 (420 files, aria-rowcount 420, virtualized) the same keys at both widths; the focused row was always in view. Enter on a folder row opens it.",
+      "failures": [
+        "List view at both widths (Engineering; Finance, Invoices, 2025) and grid view at 1280 (Engineering): Enter on a folder row opens the folder, and document.activeElement is BODY, during the skeleton and after it. Focus should be in the new list (the next Tab does land on its first row)."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 3,
+      "part": "Multiple selection",
+      "works": "partly",
+      "tried": "In the list and in the grid, at both widths: arrows (selection follows focus), Shift+Arrow and Shift+End to extend, Ctrl+Arrow to move without selecting, Ctrl+Space to toggle, Space to replace, Ctrl+A (\"7 items selected\", \"420 items selected\" in 2025), Escape to clear; aria-multiselectable and aria-selected are right, the count text and the \"Selection actions\" toolbar appear (Rename disabled for more than one). Shift+Tab to the toolbar, ArrowLeft/Right/Home between its buttons, \"Move to…\" opens the dialog and Escape returns to the button. \"Select all\" from the app bar's \"Folder actions\" menu. Mouse: Ctrl+click, Shift+click.",
+      "failures": [
+        "Both widths: with 2 rows selected, Enter on \"Clear the selection\" clears it and removes the toolbar; document.activeElement is BODY. Focus should go to the list or stay on a control.",
+        "400 wide, pointer: with nothing selected, a double click on the upper half of a folder row (People, at y=20 and y=30 of its 72px) opened the row above (Marketing). The first click selects, the toolbar wraps to a second line, the list moves down 36px, and the second click lands on the neighbour. At y=50, and at 1280 where nothing wraps, People opens."
+      ],
+      "could_not_exercise": [
+        "Touch selection (long press, then taps): no touch input was driven."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "Moving by drag and drop",
+      "works": "partly",
+      "tried": "Keyboard: ArrowRight to \"Drag <name>\" (described \"Press Enter to start dragging\"), Enter, then ArrowDown/Up through \"Drop on Design … People\" (the target row is highlighted and announced), Tab to the tree's targets at 1280, Escape (\"Drop canceled\", focus back on the handle), Enter to drop: one file and a selection of 2 moved into a list folder and into a tree folder, snackbar \"N items moved to “…”\" with Undo (reached by Tab, Enter restores them), focus lands on the target row. Dragging the folder Design by the keyboard at 1280 offers Engineering, Finance, Marketing and People in the list and in the tree, never Design itself. The other way, \"Move to…\" (context menu, row menu, toolbar): dialog with the \"Destination folder\" tree, the current parent disabled, \"Move here\" disabled until a folder is chosen with Space, then moved; at both widths. Mouse: a row onto a list folder (list and grid, both widths) and onto a tree folder, a Ctrl+click selection of 2 dragged together, the drop-target highlight seen in both views, Escape during the drag leaves everything where it was; onto itself, onto the folder it is already in and onto its own child: refused.",
+      "failures": [
+        "400 wide, keyboard drag: started a drag from \"Drag Team directory.xlsx\", moved to \"Drop on Marketing\" (or stayed on \"Drop on People\"), pressed Tab. document.activeElement and its name did not change (\"Drop on Marketing\" / \"Drop on People\") but the highlighted target became \"Design\", and Enter moved the file to Design (\"1 item moved to “Design”\"); in another run two ArrowDown after that Tab moved 2 items to Finance while the focused element still read \"Drop on People\". The pane's tree, hidden under 768px, is still a drop target collection: Tab goes to targets that cannot be seen or focused. Tab should only reach visible targets, and the focused target's name should be where the drop goes.",
+        "400 wide, same case: after that drop of the whole selection (2 items) document.activeElement was BODY.",
+        "unsure: mouse drag of \"Read me first.md\" over the folder Finance, Escape pressed, button released: nothing moved, but the list keeps an extra nameless role=\"row\" before Finance (a gridcell holding an aria-hidden button \"Drop on Finance\", aria-roledescription \"drop indicator\"), still there 1.5 s later and after a click elsewhere, in both views and at both widths. It may come from the way Playwright emulates a cancelled drag (no dragend); a completed drop leaves no such row."
+      ],
+      "could_not_exercise": [
+        "Touch drag (long press) was not driven.",
+        "The drag preview (\"N items\" pill) is not drawn in headless Chromium's screenshots: not seen."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "A context menu",
+      "works": "partly",
+      "tried": "Keyboard, both widths: the ContextMenu key and Shift+F10 on a list row open the menu \"File actions\" at the row (file: Rename, Move to…, Delete; folder: Open, New folder inside, then the same; 2 selected: Rename disabled and skipped by the arrows), arrows/End move, Escape closes and focus returns to the row. Rename: dialog, field \"Name\" focused, a duplicate name gives aria-invalid and \"This folder already holds that name.\", an empty one \"Give it a name.\", Enter renames, focus returns to the row. F2 and Delete on a list row open the same dialogs. Delete: alertdialog, Cancel/Delete, the row is removed, focus goes to the neighbouring row, snackbar Undo by Tab restores it. New folder inside, Open. The same menu on a tree row at 1280 and inside the sheet at 400 (the root has Rename, Move and Delete disabled), rename from there returns focus to the tree row. Each row's \"Actions for <name>\" button (Enter or Space) and the app bar's \"Folder actions\" (New folder, Select all) open their menus. Mouse: right click on a row (selects it), on empty space (New folder, Select all), on a tree row.",
+      "failures": [
+        "\"Open\" from the context menu of the folder Design: the folder opens and document.activeElement is BODY (the same loss as Enter on a folder row, part 2).",
+        "1280, tree: context menu on Engineering (not the open folder) > Delete > confirm, and again on the open folder Marketing: the folder is deleted and document.activeElement is BODY. Focus should go to a neighbouring tree row, as it does in the list.",
+        "1280, tree: the menu of a tree row shows the shortcuts \"F2\" beside Rename and \"Del\" beside Delete; with focus on the tree row Finance (and, in another run, Marketing) pressed F2, then Delete: nothing happened. They work only on a list row.",
+        "unsure: the popover that holds each menu is a <div role=\"dialog\"> with neither aria-label nor aria-labelledby (the menu inside it is named \"File actions\")."
+      ],
+      "could_not_exercise": [
+        "Touch long press for the menu was not driven.",
+        "The empty-space menu of the pane cannot be asked for by the keyboard (the key always acts on the focused row); its two items are also in the app bar's \"Folder actions\", which was used."
+      ]
+    },
+    {
+      "n": 6,
+      "part": "Breadcrumbs",
+      "works": "partly",
+      "tried": "In Finance > Invoices > 2025: nav \"Path\" > list \"Breadcrumbs\", the last crumb carries aria-current and is not a Tab stop; Tab stops on Team drive, Finance, Invoices in order, both widths (one line at 400, no sideways overflow). Enter on \"Finance\" opens Finance: crumbs, list and tree selection follow. Mouse click on the first crumb returns to the root.",
+      "failures": [
+        "Enter on the crumb \"Finance\": the folder opens, that crumb becomes the current one and stops being focusable, and document.activeElement is BODY. Focus should stay in the path or go to the list."
+      ],
+      "could_not_exercise": [
+        "A path long enough to wrap at 400: the deepest path of the mock drive (4 levels) fits on one line."
+      ]
+    },
+    {
+      "n": 7,
+      "part": "Upload by dropping files",
+      "works": "partly",
+      "tried": "Pointer: real files dropped with trusted drag events (CDP Input.dispatchDragEvent, 2 files) on the list's empty space, on a file row, on a folder row (Finance), on a tree row (People), in grid view, and on the empty folder's drop zone (People > Archive), at both widths: the target is highlighted, the progress bar \"Uploading 2 files\" runs with aria-valuenow, then the files are in that folder (\"2 files uploaded to “…”\"), selected when it is the open one, a name already there kept apart (\"notes (2).txt\"). Keyboard: Enter and Space on the app bar's \"Upload\" open a multiple file chooser, 2 files chosen, same result, focus stays on \"Upload\"; the \"Upload\" button inside the empty folder's zone the same.",
+      "failures": [
+        "Empty folder (People > Archive), both widths: Tab stops on a hidden button \"Upload files to Archive\" (0x0) before the zone's \"Upload\" button. Nothing is drawn for it: the zone gets data-focus-visible but its computed outline-style stays none. Enter on it does nothing. A keyboard user has a Tab stop they cannot see (unsure whether it is meant for paste only).",
+        "Empty folder: Enter on the zone's \"Upload\", one file chosen: once the upload ends the zone is replaced by the list and document.activeElement is BODY."
+      ],
+      "could_not_exercise": [
+        "A drag from the operating system's file manager: the files were dropped with DevTools drag events instead (synthetic DragEvents built in the page were ignored by the screen).",
+        "Dropping a directory, and pasting files into the drop zone."
+      ]
+    }
+  ]
+}

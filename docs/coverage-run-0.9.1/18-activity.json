@@ -1,0 +1,188 @@
+{
+  "screen": "Activity",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A thread of comments with a rich-text field to reply",
+      "built": "yes",
+      "kit": [
+        "Avatar",
+        "Title",
+        "Body",
+        "Label",
+        "Divider",
+        "IconButton",
+        "Button",
+        "Menu",
+        "Tooltip",
+        "TooltipTrigger",
+        "Skeleton",
+        "SkeletonGroup",
+        "Card",
+        "Tag",
+        "TopAppBar",
+        "cn",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "control",
+          "what": "The reply field is written by hand (src/activity/ReplyEditor.tsx): a contenteditable div with role=textbox, aria-multiline, a label, a description and a placeholder, edited with document.execCommand (bold, italic, strikethrough, bulleted and numbered lists), pasted as plain text, posted by a button or Ctrl/Cmd+Enter. What is posted is read back from the DOM into a small model (src/activity/serialize.ts) and drawn from it, never kept as HTML.",
+          "why": "The kit has no rich-text field: index.ts has TextField, NumberField, PhoneField, ImageField and nothing that holds marked text. A multi-line TextField would have dropped the 'rich' of the part."
+        },
+        {
+          "kind": "component",
+          "what": "Toolbar imported from react-aria-components for the formatting bar (one tab stop, arrow keys between its buttons).",
+          "why": "The kit's Toolbar is Material's page toolbar: 'docked to the bottom of the window or floating over the content', 64dp high on surface-container. A field's formatting bar is neither; shrinking it would have meant defeating its height, ground and padding."
+        },
+        {
+          "kind": "option",
+          "what": "The field's last selection is saved on selectionchange and put back before each command, because pressing a toolbar IconButton takes the focus (and the selection) out of the field.",
+          "why": "IconButton (toggle) takes React Aria's ToggleButton props, which have no preventFocusOnPress; the kit says nothing of a button that acts on another element's selection."
+        },
+        {
+          "kind": "use",
+          "what": "The like toggle is given a filled heart when selected, through a small wrapper component passed as `icon`.",
+          "why": "IconButton's doc comment: 'The button draws the `icon` it is given; swap it from the toggle's state.'"
+        },
+        {
+          "kind": "use",
+          "what": "The design's card lays its content in a wrapping row with classNames.content.",
+          "why": "Card's doc comment: 'To lay them out another way ... say so on that part: classNames={{ content: \"flex-row gap-4\" }}'."
+        },
+        {
+          "kind": "option",
+          "what": "TopAppBar made sticky by className (sticky top-0 z-10).",
+          "why": "The bar has no on-scroll behaviour of its own ('No on-scroll behaviour ... the bar renders at one size') and its doc comment does not say how to keep it in view; className is passed through, nothing more."
+        },
+        {
+          "kind": "option",
+          "what": "The vertical Divider in the formatting bar is given its own height by className (h-6).",
+          "why": "Divider's doc comment expects the row to set it ('they stretch to the height of their flex row, so give the row a height'): a rule shorter than its row, between groups of icon buttons, is not described."
+        },
+        {
+          "kind": "use",
+          "what": "The same Divider given its side margin by className (mx-1).",
+          "why": "Divider's doc comment: 'The kit leaves spacing to the layout ... a caller adds `my-2` rather than the divider asserting margin'."
+        },
+        {
+          "kind": "layout",
+          "what": "The page (a centred column), a comment's row (avatar, byline, body, actions) as an article in an ordered list, the comment body's paragraphs and lists (strong, em, s on the type primitives), the field's outlined container and placeholder, and the skeleton rows.",
+          "why": "Expected: the kit has no comment component and no field container that can be put around a foreign input (field-styles.ts belongs to its own fields)."
+        },
+        {
+          "kind": "read",
+          "what": "Read IconButton's and Button's prop types past the doc comment to find that a toggle takes isSelected and onChange and that the default variant is filled.",
+          "why": "The doc comment says 'a toggle with isToggle' and does not show a toggle written out with its two props."
+        }
+      ],
+      "notes": "Not exercised in a browser (none allowed): the build type-checks and bundles, nothing more. Unverified in particular: that the saved selection is restored before each format command; that the toolbar toggles follow the caret (document.queryCommandState); the mention inserted from the '@' menu or from a comment's Reply button (the content is inserted by Range, then the field is focused 80 ms later, after the menu has given the focus back: if that race is lost the mention is still inserted and the focus stays on the button); that every browser's markup for lists and line breaks is read back right (Chrome's div-per-line and b/i/strike tags are what the serializer was written for; nested lists are flattened). document.execCommand is deprecated but still what browsers implement. Mentions cannot be typed with '@' and a suggestion list: they come from the toolbar's menu. A comment of your own is deleted with an Undo snackbar, not the confirming dialog Menu's doc comment asks for. The thread is flat: no nested replies. After a post the focus is put back in the field, since the Post button disables itself when the field empties (unverified)."
+    },
+    {
+      "n": 2,
+      "part": "A popover of notifications from a badged icon button",
+      "built": "yes",
+      "kit": [
+        "PopoverTrigger",
+        "Popover",
+        "IconButton",
+        "Badge",
+        "GridList",
+        "GridListItem",
+        "ListItem",
+        "Avatar",
+        "Button",
+        "Divider",
+        "Title",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "The popover's surface is given its width, a maximum height and no padding by className (flex max-h-128 w-88 max-w-full flex-col p-0), so the list runs to its edges and scrolls inside it.",
+          "why": "Popover's doc comment: '`className` is the surface's: its width (it is as wide as its content, to the screen's edge less 16dp at most), its padding (16dp).'"
+        },
+        {
+          "kind": "use",
+          "what": "An unread row carries the kit's small Badge (color primary) in ListItem's trailingElement, with VisuallyHidden 'Unread' from react-aria-components beside it.",
+          "why": "ListItem: '`leadingElement` and `trailingElement` are whatever a slot holds'. The skill's table lists VisuallyHidden 'For a status, or a name with no visible text'."
+        },
+        {
+          "kind": "layout",
+          "what": "The popover's header row (heading and 'Mark all read'), and the 'all caught up' line.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read GridList.tsx's source to learn what GridList and GridListItem take (React Aria's props whole, onAction on the row, className).",
+          "why": "Their doc comments describe what they are and show no example of a list of rows that are pressed."
+        }
+      ],
+      "notes": "Not exercised in a browser. The badge counts unread notifications and is not drawn at zero; choosing a row marks it read, closes the popover and brings its comment into view with the focus on it (150 ms after the close, so that the focus given back to the bell does not win: unverified). A notification with no comment on this page only says so in a snackbar. The popover is also opened by the 'View' action of an arriving notification's snackbar, through isOpen. The popover's own height is capped at 32rem by a class, not by the window: on a very short window its foot may be out of view. 'Mark all read' stays enabled at zero unread and then only says 'No unread notifications', so the focus is never left on a disabled button."
+    },
+    {
+      "n": 3,
+      "part": "A card previewing a mentioned person",
+      "built": "yes",
+      "kit": [
+        "PreviewTrigger",
+        "PreviewCard",
+        "Link",
+        "Avatar",
+        "Title",
+        "Body",
+        "Tag",
+        "Button"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "PreviewCard given a width by className (w-72) and placement='bottom start'.",
+          "why": "PreviewTrigger's doc comment shows it: '<PreviewCard className=\"w-96\">…</PreviewCard>'."
+        },
+        {
+          "kind": "layout",
+          "what": "The card's insides: avatar beside name and role, a dl of team and local time, a Follow toggle button and a 'View profile' link button.",
+          "why": "Expected: PreviewCard holds any content."
+        }
+      ],
+      "notes": "Not exercised in a browser: opening on hover, on focus and on a long press is React Aria's PreviewTrigger as the kit wraps it. Every mention in a comment body is one, the posted replies' too. The card is operated (Follow, shared across all cards of that person and answered by a snackbar; View profile), which is why it is a PreviewCard and not a rich Tooltip. The mention's link and 'View profile' go to #people/<id>: there is no profile page in this screen."
+    },
+    {
+      "n": 4,
+      "part": "Snackbars queued",
+      "built": "yes",
+      "kit": [
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "A first-in, first-out waiting line is held in the project (src/activity/snackbar-queue.ts): enqueueSnackbar() hands the kit's snackbar() one message at a time and shows the next from its onClose, 250 ms later.",
+          "why": "The kit's snackbar() does not queue: it closes whatever is visible before adding ('a new message replaces the one on screen'). Its snackbarQueue, used directly, shows the newest first (React Aria's ToastQueue unshifts), so neither gives 'each message in turn'."
+        },
+        {
+          "kind": "option",
+          "what": "A snackbar with an action is given timeout 8000 and close: true instead of staying until dismissed.",
+          "why": "The kit's default ('a snackbar with an action stays until acted on or dismissed') would hold every message behind it for ever; the kit has no rule for an action inside a queue."
+        },
+        {
+          "kind": "read",
+          "what": "Read Snackbar.tsx's body (snackbar() and the queue's maxVisibleToasts) and react-stately's ToastQueue in node_modules to learn the order messages are shown in and when a timer starts.",
+          "why": "The doc comment says 'The queue renders one snackbar at a time' and that a new message replaces the one on screen; it does not say what happens to messages added to snackbarQueue directly."
+        }
+      ],
+      "notes": "Not exercised in a browser: the order and the timing are reasoned from the source, not seen. Several arrive together in real use: two notifications land 4 s after the page opens and their two snackbars (each with 'View') are shown one after the other; reply posted, thread resolved or reopened, follow, mark all read, copy link and delete (with Undo) each add one. Nothing shows how many wait. A message behind an 8 s action snackbar waits those 8 s unless the first is closed."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "use",
+      "what": "Icons are lucide-react's, passed as `icon`.",
+      "why": "The skill: 'Icons are any component taking { size, className }. The kit ships no icon library.'"
+    }
+  ],
+  "friction": "No block fits this screen (none of the six is a comment, an editor or a notification list), and none was used. The rich-text field was the whole cost: the kit has nothing for it, no field container that can be put around a foreign input, and no word in the skill on where a project should go for one, so it is a hand-written contenteditable on execCommand that cannot be checked without a browser. A toolbar the size of a field's formatting bar is missing too: the kit's Toolbar is the page's. 'Snackbars queued' reads against the kit's own doc, which says a new message replaces the one on screen: it took reading Snackbar.tsx and React Aria's ToastQueue to learn that the exported snackbarQueue is newest-first and that a real queue has to be the project's; a `queue: true` option on snackbar(), or a line saying 'to show each in turn, do this', would have made it one call. An icon button that acts on another element's selection (preventFocusOnPress) is not reachable through the kit. GridList and GridListItem have no example of a pressed row (onAction) in their doc comments, and IconButton and Button show no toggle written out. What was easy: Popover's doc names 'a list of notifications' and says what className is for; IconButton's badge and badgeLabel; PreviewTrigger's doc, which says when to use it over a rich Tooltip."
+}

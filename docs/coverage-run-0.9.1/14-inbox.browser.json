@@ -1,0 +1,79 @@
+{
+  "screen": "Inbox",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Three panes that fold to one on a phone",
+      "works": "partly",
+      "tried": "1280: Tab through folders (buttons, aria-current=page), list, conversation; Enter/Space on a folder; Enter on a row opens it beside the list; reply by Tab+Enter on Send and by Ctrl+Enter. 900: two panes, folders in the modal drawer. 400: Enter on a row replaces the list (focus on main, named by the subject), Back button and Esc return focus to the row it came from; menu button opens the drawer (Tab cycles inside its four folder buttons, Enter on a folder or Esc closes it, focus back on the menu button); More actions menu; reply. Mouse: row click, Back, drawer scrim click. Light and dark at both widths: draws, no sideways scroll, no low-contrast text found. Focus is drawn where it lands (a halo on the checkboxes and the switch, an outline on rows and buttons: looked at in pictures).",
+      "failures": [
+        "Reply, 1280 and 400: typed a reply, Tab to Send, pressed Enter (and Space): the reply is sent, but Send becomes disabled while it holds the focus and document.activeElement becomes <body>. Focus should stay in the reply form (Ctrl+Enter from the textarea does keep it there).",
+        "400, a conversation open: pressed 3, and in a second run 2, 4 and 1, each after J: the folder changes and the list replaces the conversation, but document.activeElement is <body>. Focus should go to the list.",
+        "400 and 1280: every snackbar (\"1 conversation assigned to you\", \"Reply sent\", ...) is drawn at y 672-720 over the reply field (y 667-763): at 400 it covers the field's whole width and its label, at 1280 the left part of it (snackbar x 468-812, field from x 688), for as long as it shows (up to 8 s). Typing still goes in, the text and label under it are hidden."
+      ],
+      "could_not_exercise": [
+        "Touch gestures and a real phone's on-screen keyboard: headless Chromium with a 400x800 viewport only.",
+        "What a screen reader says when the pane changes: only roles, names and focus were read."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "A selectable list with unread badges",
+      "works": "partly",
+      "tried": "Tab into the grid (one tab stop), ArrowUp/Down, Home/End, Space ticks a row (aria-selected=true, title \"N selected\", role=status says \"N conversations selected\"), Shift+ArrowDown, Ctrl+A, Esc clears, ArrowRight to the row's own checkbox and Space, the header \"Select every conversation\" checkbox (indeterminate with some ticked, disabled in an empty folder), Enter opens a row. Row names carry \", 2 unread\" and lose it once opened (\", open\"); folder counts drop with it. Emptied the Closed folder: empty state shown, focus on the grid. Loading skeleton has role=status \"Loading conversations\". Mouse: clicked two row checkboxes and a row body.",
+      "failures": [
+        "unsure (may be the kit's selection mode): with one row ticked (Space on row 1), ArrowDown to row 2, Enter: nothing happens at all, the row is neither opened nor ticked, at 1280 and at 400. Enter should open the conversation as it does when nothing is ticked (J still opens it; a mouse click on the row body ticks it instead)."
+      ],
+      "could_not_exercise": [
+        "Whether the visual Badge number is hidden from assistive technology or read twice with the sr-only \"N unread\": not checked with a screen reader."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "Bulk actions",
+      "works": "partly",
+      "tried": "1280 and 400: ticked two rows with Space, Tab to the toolbar \"Actions on the selection\" (one tab stop, ArrowLeft/Right between its four named buttons, tooltip \"Mark as read or unread (U)\" on focus); Enter on Mark as read (rows lose \"unread\", focus stays), Space on Assign to me, Enter on Close (rows leave, counts move, focus lands on a row), Enter on Delete (alertdialog \"Delete 2 conversations?\", Esc and Cancel return focus to the Delete button, confirm removes the rows and focus lands on a row). Undo reached by Tab and by F6 in the snackbar and pressed with Enter: everything restored, focus back where it was. Select all + E empties the folder: empty state, focus on the grid. Mouse: clicked checkboxes, hovered and clicked a toolbar button.",
+      "failures": [
+        "400: ticked row 1 (Inès Moreau), pressed J twice so Tom Becker's conversation fills the screen: the selection and its toolbar are now hidden but still in force. Pressed #: \"Delete 1 conversation?\" names nothing; confirmed: the hidden ticked conversation (Inès Moreau) was deleted, the one on screen stayed. Same with U (the hidden ticked row became unread) and with E (\"1 conversation closed\", the conversation on screen still Open). The action should apply to what is on screen, or the selection should not survive being hidden.",
+        "1280: opened row 1 and ticked it, Tab to the toolbar, Enter on \"Mark as read or unread\": it is marked unread and the conversation closes, and focus jumps out of the toolbar to the row; a second Enter then lands on the row and does nothing. Focus should stay on the toolbar button, as it does when the rows were unread."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 4,
+      "part": "A compose dialog with several recipients",
+      "works": "partly",
+      "tried": "1280 and 400: opened with C and with the Compose button (dialog \"New message\", focus in the To combobox, focus trapped, fits the window: 16-384 of 400); Esc and Cancel close it and return focus to where it was opened from; a mouse press on the scrim leaves it open. Recipients: ArrowDown+Enter on several contacts (chips, options aria-selected), typed a name then ArrowDown+Enter, typed new addresses with Enter, comma and semicolon (chips, lower-cased), removed chips with Backspace in the empty field and with Shift+Tab to a chip then Delete/Backspace (focus moves to the previous chip). Sent empty: three errors (role=alert, aria-invalid, described by the message), focus moved to To. Filled and sent: Send shows as disabled, Esc is refused while sending, then the dialog closes, focus returns to the opener, snackbar \"Message sent to 2 recipients\" with View (Tab, Enter) opens the new conversation in Assigned to me. A message was sent, with several recipients, by keyboard alone, but only by avoiding the failures below. Mouse: clicked Compose, the options button, two options and a chip's Remove; with the options open they cover Subject and Message, so a click there picks the option under the pointer.",
+      "failures": [
+        "Picked a contact with ArrowDown then Enter (chip \"Inès Moreau\" appears, the options stay open with that option highlighted), then pressed Tab to go to Subject: the chip is removed (chips: []). With two picked, Tab removes the last one. Tab toggles the highlighted option; it should only move on. A person who picks and tabs sends to one recipient fewer, or gets \"Add at least one recipient\". (Pressing Esc before Tab avoids it, when nothing is typed.) 1280 and 400.",
+        "Typed \"tom\", ArrowDown, Enter: Tom Becker becomes a chip but \"tom\" stays in the field. Typing the next name gives \"tomaiko\" and \"No matches\"; typing an address gave the chip \"tomnew.person@example.org\", and in another run the message went to \"aikosamx.y@example.org\". The field should be emptied after a pick.",
+        "Ctrl+A in the To field does not select its text, with options listed or with \"No matches\" (the options list was open each time, as it is whenever something is typed; selectionStart-End stayed 7-7 with \"tomaiko\" typed; nothing else changes either; the same keys select all in Subject), so the leftover text can only be removed with Backspace or Home, Shift+End.",
+        "Typed \"to\" in To (one option shown, none highlighted) and pressed Esc three times: nothing happens, the options stay open, the text stays, the dialog stays. Then Tab: focus goes to Subject but the options list stays open (aria-expanded=true 1.5 s later) and is drawn over the focused Subject field; Esc in Subject and in Message no longer closes the dialog either. The ways out are Cancel, or going back to To and deleting the text: with the field empty, one Esc closes the options and a second closes the dialog. Esc should close the options, then the dialog, whatever is typed. 1280 and 400.",
+        "Typed a contact's own address in full (\"tom.becker@northwind.example\") and pressed comma, then Enter: nothing, the list says \"No matches\" and no chip is made, though the hint says \"type an address and press Enter or a comma\". (Left in the field, it is sent to Tom Becker on Send.)",
+        "Typed \"notanaddress\" and pressed comma or Enter: nothing happens; the list says \"No matches\" and nothing says the address is not valid."
+      ],
+      "could_not_exercise": [
+        "Pasting several addresses at once: not tried.",
+        "IME composition and a screen reader's announcement of chips being added and removed: no such tool here."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "Keyboard shortcuts",
+      "works": "partly",
+      "tried": "1280 and 400, from the body, from a row, from a folder button and from a checkbox: J/K (next/previous, stops at the ends, Shift+J too), 1-4 (folders), X (ticks the focused or open row), E (close, then reopen), U, A, # (delete dialog), C (compose), R (focus in the reply field), ? (dialog \"Keyboard shortcuts\", focus on Close), Esc (clears the selection, then closes the conversation, focus back on its row). They stand down in the reply textarea, in dialogs, in the drawer, in a menu, and with Ctrl/Alt held. In the ? dialog, Space on the switch \"Single-key shortcuts\" turns them off (J, C, Esc then do nothing, ? still answers) and on again. More actions menu: arrows, Enter on Delete…, Esc returns focus to the menu button. Tooltips name the key (\"Close (E)\").",
+      "failures": [
+        "? dialog, 1280x800 and 400x800: the list is taller than its scroll area (scrollHeight 724 and 808 against 604) and the keyboard cannot scroll it: ArrowDown, PageDown, End with focus on Close and on the switch leave scrollTop at 0. \"Send the reply being written\" and \"Show this list\" are never seen at 1280x800; at 400x800 also \"Compose a message\" and \"Reply to the open conversation\". The mouse wheel scrolls it. The only tab stops are the switch and Close.",
+        "E, U and # act on the ticked rows before the open conversation, also when those rows are hidden (A reads the same targets in the source; not pressed in that state): at 400, ticked row 1, J J to open another conversation, # and confirm deleted the hidden ticked one (see part 3). At 1280 the conversation bar's own button says \"Close (E)\" while E closes the ticked rows instead.",
+        "400, a conversation open: 1, 2, 3 and 4 each change the folder and leave focus on <body> (see part 1).",
+        "unsure (the source says Escape is let through on purpose): 1280, focus on the conversation's Close button with its tooltip showing, Esc: the tooltip goes and the conversation is closed too, focus moving to its row. One Esc should only dismiss the tooltip."
+      ],
+      "could_not_exercise": [
+        "Caps Lock itself, key repeat and IME composition (the code tests for them): only Shift+J was sent.",
+        "Speech input, which the dialog's switch is offered for."
+      ]
+    }
+  ]
+}

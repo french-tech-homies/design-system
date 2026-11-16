@@ -1,0 +1,66 @@
+{
+  "screen": "Schedule",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A month always in view, not in a picker",
+      "works": "partly",
+      "tried": "400x800 and 1280x800, light and dark: the month is on the page at load. Tab reaches Previous month, Next month, the grid (one stop, on the focused day), Today. Enter/Space on the arrows, arrows/Home/End/PageUp/PageDown in the grid (October 2026 to January 2027 and back), Enter on Today from January 2027. Heading, grid label and the live announcement follow; focus stays on the control pressed; focused days are in view with a ring at both widths.",
+      "failures": [
+        "At load, and whenever today (16) is the start or end of what is chosen, today's number is invisible: computed text rgb(81,96,118) on a circle of rgb(81,96,118) in light, rgb(183,200,225) on rgb(183,200,225) in dark. A blank filled circle is drawn where 16 should be (other selected ends draw white on the fill). Seen at both widths, both themes, by keyboard and by mouse.",
+        "unsure: the dot under a day that holds appointments is visual only (aria-hidden); a day's name ('Tuesday, November 17, 2026') does not say it has appointments."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 2,
+      "part": "A range chosen on it",
+      "works": "partly",
+      "tried": "In the grid: Enter on 18, ArrowRight to 22, Enter: cells 18-22 aria-selected, focused cell named 'Selected Range: Wednesday, November 18 to Sunday, November 22, 2026', heading 'Nov 18 – Nov 22', '5 days chosen', list goes 'Loading…' then '9 appointments' headed day by day. Also a range across months (Space, PageDown, Space: Nov 29 – Dec 30), backwards (Enter, ArrowUp, Enter), Escape mid-way (the earlier range is kept), one day (Enter, ArrowLeft, Enter). Same at 400 wide. Mouse: click then click (Dec 3-9) and a drag (Dec 10-13) both choose the range.",
+      "failures": [
+        "When today is the first or last day of the range its number is invisible (same fault as part 1): e.g. Enter on 16, Enter on 17 draws a blank circle for 16 beside a white 17.",
+        "unsure: Enter on a day moves focus to the next day (React Aria's keyboard behaviour), so Enter, Enter chooses two days ('Dec 23 – Dec 24', '2 days chosen'), never one. One day by keyboard needs Enter, ArrowLeft, Enter; the hint on the page ('Press a day, then another for a range.') does not say so."
+      ],
+      "could_not_exercise": ["Touch drag (no touch device emulated); the mouse drag stood in for it."]
+    },
+    {
+      "n": 3,
+      "part": "Time fields",
+      "works": "partly",
+      "tried": "In the dialog, Tab to Start and End: three stops each (hour, minute, AM/PM), each a spinbutton named 'hour, Start' etc. with aria-valuetext. Typed 2, 55, p (focus advances by itself: 2:55 PM), ArrowUp/Down on each segment, PageUp, Home, End, ArrowLeft/Right between segments, Backspace. End before Start then Add: 'After the start' under End in the error colour, the three segments aria-invalid and described by it, focus on End's hour. All segments cleared (incl. Backspace on AM/PM) then Add: 'Enter a start time', focus on Start's hour. Choosing a Visit moves End (Physiotherapy: 9:20 to 10:05). Same at 400 wide, both fields side by side and whole.",
+      "failures": [
+        "A half-cleared time is saved as the old time, with no error: Backspace on Start's hour shows '––:20 AM' (hidden value still 09:20:00, the field's description says 'Selected Time: 12:20 AM'), Tab to Add, Enter: the dialog saves and the list gains '9:20 AM, Ada Lovelace'. It should refuse with 'Enter a start time', or not show an empty hour. The same with hour and minute both cleared ('––:–– AM' still holds the old value until AM/PM is cleared too).",
+        "unsure: Enter in a time segment does nothing (it does not submit the form, where Enter in Patient does)."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 4,
+      "part": "An event's dialog",
+      "works": "partly",
+      "tried": "Enter on 'New appointment' (and on the empty day's 'Add appointment'): dialog named 'New appointment', focus in Patient, the page behind hidden, Tab and Shift+Tab stay inside (15 stops, all in view at 400 and 1280), Escape and Cancel close and give focus back to the opener. Enter in empty Patient: 'Enter the patient's name', aria-invalid, focus kept. Both selects by Enter/Space/ArrowDown, arrows, End, Enter, Escape (closes the list only). Day by typing 11202026 and by 'Open calendar' (arrows, Enter, OK; Escape returns to its button). Notes takes Enter as a new line. Add by Enter in Patient and by Enter/Space on Add: buttons lock for 600 ms, Escape is ignored meanwhile, dialog closes, snackbar 'Added: …', the row is in the list in time order, focus back on 'New appointment'. Enter on a row: dialog 'Appointment' prefilled, focus on the dialog; changed times, Save: row re-sorted, focus on the saved row. Delete: row gone, 'Deleted: … Undo', focus on a neighbouring row; Undo reached by Tab or F6 and Enter restores the row. Saved onto Dec 3: snackbar 'Saved: … Show', Enter on Show moves the month and the list to Thursday, December 3. Light and dark at both widths; no sideways scroll.",
+      "failures": [
+        "Focus lost to <body> when the row that opened the dialog is no longer listed: Enter on the only row of Nov 16, Tab to Delete, Enter: the list becomes the empty state and document.activeElement is BODY. Should land on something (the heading, 'Add appointment').",
+        "Same when an edit moves the appointment to a day not shown: change Day to 12/03/2026, Save: activeElement is BODY.",
+        "Same when adding from the empty state: Enter on 'Add appointment', type a name, Enter: the empty state is replaced by the list and activeElement is BODY (should be the new row or 'New appointment').",
+        "Enter on the snackbar's 'Show' (and on 'Undo' after the only row was deleted): the snackbar closes and activeElement is BODY, at both widths.",
+        "At 400x800 the snackbar covers what is focused after the dialog closes: after Save the focused row sat at y 720-792 and after Delete at y 703-775, under the snackbar at y 736-784; after deleting the only row the empty state's 'Add appointment' button (y 755-795) is under it too, for as long as the snackbar stays (8 s for Deleted).",
+        "unsure: while saving or deleting, the pressed button gets aria-disabled and a spinner icon; I found no aria-busy, progressbar role or status text announcing it.",
+        "unsure: the dialog changes width with its content (319 px to 341 px at 1280 when Visit becomes Physiotherapy; 448 px in edit mode), so fields shift under the user."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 5,
+      "part": "A list of the day's events",
+      "works": "partly",
+      "tried": "Tab into the list (one stop; role grid named 'Appointments', rows named e.g. '9:00 AM, Priya Raman, Follow-up'), ArrowDown/Up, Home, End through 13 rows in five day groups (each rowgroup labelled by its day): the page scrolls to keep the focused row in view, ring drawn. Enter on a row opens its dialog and Escape returns focus to that row; a mouse click opens it too. Choosing days shows a skeleton with role=status 'Loading appointments' and 'Loading…' in an aria-live line for 700 ms, then the count. A day with nothing (Sat Nov 21): 'No appointments', 'Nothing is booked on this day.', an 'Add appointment' button reached by Tab that opens the dialog on that day. Same at 400 wide.",
+      "failures": [
+        "At 400 wide the second line of most rows is cut before the visit's length: 'Dr. Amara Okafor · 20 min' is drawn as 'Dr. Amara Okafor ·…' (15 truncated lines in a 13-row list, two patient names among them: 'Hannah Schmidt', 'Samuel Adeyemi'). The length is not in the row's accessible name either; it is only found by opening the dialog and reading Start and End."
+      ],
+      "could_not_exercise": []
+    }
+  ]
+}

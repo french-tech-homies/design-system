@@ -1,0 +1,106 @@
+{
+  "screen": "Editor chrome",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A toolbar of toggle buttons and groups",
+      "works": "partly",
+      "tried": "At 1280 and 400: Shift+Tab from the document into the toolbar (one Tab stop, role=toolbar), ArrowRight/ArrowLeft/Home/End over all 17 controls, Space and Enter on Bold, Italic, Heading 2/3, Numbered/Bulleted list, Align left/centre/right, Clear formatting, Undo, Redo, with a selection in the document; read aria-pressed / aria-checked and the document's HTML after each. Every press changed the document and the pressed state, the selection was kept, the focus went to the document and Shift+Tab came back to the same button. At 400 the toolbar scrolls sideways and each focused button was scrolled into view, its focus ring inside the toolbar.",
+      "failures": [
+        "Underline reads pressed (aria-pressed=true) whenever the caret is in a link, though the text is not underlined by the mark: Left-arrow into \"the docs\" link, or a plain click on \"shared agenda\" -> pressed toggles: Underline, Align left, Link. It should be pressed only for underlined text.",
+        "Heading and List groups are role=radiogroup with role=radio buttons, but Space on the checked radio unchecks it (Heading 3 checked=true -> Space -> checked=false, paragraph). A radio cannot be unchecked; the state announced is not the behaviour. (The builder's log says so too.)",
+        "Unsure whether a failure: every press in the toolbar moves the focus to the document, so a second toggle needs Shift+Tab again each time (it does return to the same button)."
+      ],
+      "could_not_exercise": [
+        "Touch scrolling of the toolbar at 400 (no touch device emulated); only keyboard focus scrolling and the mouse were tried."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Menus with submenus",
+      "works": "partly",
+      "tried": "At 1280 and 400: Shift+Tab to the menu row (one Tab stop, arrows between File/Edit/Insert/Format), opened each with Enter, Space and ArrowDown, walked every item with ArrowDown (wraps), opened every submenu with ArrowRight and Enter, closed with ArrowLeft and Escape (only the submenu closes; Escape again returns focus to the menu button). Ran by Enter: File > Save, Export > HTML and Plain text (two downloads), Copy as plain text (clipboard read back, snackbar), Print (window.print stubbed, called once); Edit > Undo, Redo, Select all, Clear formatting, Search commands…; Insert > Link…, Horizontal rule, Date and time > Today's date, Current time; Format > Text > Bold, Strikethrough, Paragraph style > Heading 3, Paragraph (menuitemradio, aria-checked follows the caret), List > Numbered list, Align > Right, Left. All applied to the document's selection and ended with the focus in the document (or on the menu button for Save/Export/Copy/Print).",
+      "failures": [
+        "At 400 wide the submenus Format > Text, Format > Paragraph style, Format > List and Insert > Date and time open to the left of the window: ArrowRight on \"Text\" -> the submenu sits at left = -86px (Paragraph style -70, List -63, Date and time -5), so the focused item's icon and label are cut off (\"Bold\" is not readable, only \"Ctrl+B\"; \"Strikethrough\" shows as \"ethrough\"). They should be drawn inside the window. Format > Align and File > Export fit.",
+        "Stuck tooltip (headless Chromium, keyboard focus only; a mouse hover never left one; why it sticks: unsure): when Tab or Shift+Tab takes the focus out of the Formatting toolbar, or a toolbar press sends the focus to the document, the tooltip of the button left often stays in the DOM for good as [role=tooltip][data-exiting] at opacity 0 with no animation running (seen for Undo, Bold, Italic, Clear formatting; still there 10 s later; it goes when the toolbar is entered and left again by Shift+Tab). While one is stuck, every menu command runs about 1.5 s after Enter instead of at once (Format > Text > Italic: 52 ms clean, 1553 / 1508 / 1552 ms with a stuck tooltip; File > Export > HTML downloaded about 1.5 s late), the focus sitting on the menu button meanwhile and then jumping to the document. Keys pressed in that 1.5 s go to the menu button.",
+        "Unsure (drawing only): a row's shortcut touches its label where the row is tight: \"Clear formattingCtrl+\\\" in Format, \"ParagraphCtrl+Alt+0\" when it carries the check."
+      ],
+      "could_not_exercise": [
+        "The real print dialog (window.print was replaced by a counter).",
+        "The clipboard refusal path of Copy as plain text (clipboard permission was granted)."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "A split button",
+      "works": "yes",
+      "tried": "At 1280 (\"Save\" label) and 400 (icon only, aria-label \"Save\"): Tab to Save, Enter and Space -> status \"Saving…\" then \"Saved\" and a \"Document saved\" snackbar, focus stays on Save. Tab to \"More ways to save and export\" (aria-haspopup, aria-expanded), opened with Enter, Space, ArrowDown; Escape returns focus to it; ran Export as HTML, Export as plain text (downloads planning-notes.html / .txt), Copy as plain text (clipboard read back, snackbar), Print (stub called); focus returned to the trailing button each time; the menu stays inside the window at 400.",
+      "failures": [],
+      "could_not_exercise": [
+        "The real print dialog (stubbed).",
+        "The clipboard refusal path."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "Tooltips with shortcuts",
+      "works": "partly",
+      "tried": "Keyboard focus on each of the 17 toolbar buttons at 1280 and 400, and a mouse hover on each: read the tooltip's text, its <kbd>, its place in the window and that aria-describedby of the button is the tooltip. All 17 show on hover at both widths and inside the window (\"Bold Ctrl+B\", \"Heading 1 Ctrl+Alt+1\", \"Insert link Ctrl+Shift+K\" / \"Edit link\" in a link, …; alignment and Text colour carry no shortcut, as built). Escape hides it, focus stays. Then pressed every shortcut shown, in the document at about 200 ms a key: Ctrl+B/I/U, Ctrl+Shift+X, Ctrl+Alt+0..3, Ctrl+Shift+7/8, Ctrl+\\, Ctrl+Z, Ctrl+Shift+Z, Ctrl+A, Ctrl+Shift+K, Ctrl+S, Ctrl+K: each did what its tooltip says when the page was entered without Tabbing through the toolbar.",
+      "failures": [
+        "Stuck tooltip (headless Chromium, keyboard focus only; a mouse hover never left one; why it sticks: unsure): when Tab or Shift+Tab takes the focus out of the Formatting toolbar, or a toolbar press sends the focus to the document, the tooltip of the button left often stays in the DOM for good as [role=tooltip][data-exiting] at opacity 0 with no animation running (seen for Undo, Bold, Italic, Clear formatting; still there 10 s later; it goes when the toolbar is entered and left again by Shift+Tab). Repro at 1280 and at 400, at 400 ms a key: load, Tab x6 (search bar, Save, More, File, Undo, Document) -> \"Undo Ctrl+Z\" tooltip is stuck. Then: type a letter (status \"Unsaved changes\"), Ctrl+S -> nothing, status stays \"Unsaved changes\" (should save); Ctrl+K -> nothing, no palette (should open it); the same 10 s later. The screen's own overlayOpen() counts any [data-exiting] element as an open overlay. Entering the document by a mouse click instead: Ctrl+S saves and Ctrl+K opens.",
+        "Ctrl+Shift+K, the shortcut the Link tooltip shows, pressed in the document with \"Decisions\" selected: the dialog opens, type example.org/y, Enter -> a new link \"https://example.org/y\" is inserted at the very start of the document (inside the h1), and \"Decisions\" is not linked. It should link the selection (the toolbar's Link button and Insert > Link… do).",
+        "At 400, no tooltip on keyboard focus for the buttons whose focus scrolls the toolbar: ArrowRight onto \"Bulleted list\" (toolbar scrolls 0 -> 267) and onto \"Link\" (267 -> 457) -> no tooltip after 1.5 s; the neighbours show theirs. Hover shows both.",
+        "Unsure (automation speed only): with keys sent with no delay, Ctrl+B right after Ctrl+Shift+ArrowRight collapsed the selection and bolded nothing; at 200-500 ms a key it works."
+      ],
+      "could_not_exercise": [
+        "The ⌘ / ⌥ forms of the shortcuts (Linux Chromium: only the Ctrl forms are shown and bound).",
+        "A touch long-press."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "A colour picker in a popover",
+      "works": "yes",
+      "tried": "At 1280 and 400, with text selected: Shift+Tab to the toolbar, arrows to \"Text colour\", Enter and Space open the popover (role=dialog \"Text colour\", aria-expanded=true, inside the window at both widths), Escape closes and returns focus to the button. Tab order: dialog, presets (listbox \"Presets\"), saturation/brightness area (2D slider), Hue slider, Hex field, Cancel, Apply, and round again. Presets: arrows, Home, Space/Enter select (Grey, Green -> hex and \"The colour picked\" follow). Area: arrows, Shift+arrow, PageUp, Home change the hex and aria-valuetext. Hue: arrows, PageUp, Home, End. Hex: \"zzz\" is refused, \"#00aa55\" + Enter commits. Apply -> <span style=\"color: rgb(0,170,85)\"> on the selection in 2 ms, focus and selection back in the document, the button's bar takes the colour, status \"Unsaved changes\"; reopened at that colour; Cancel closes with focus on the button; with a collapsed caret the next typed text is coloured. Mouse: click opens, drag in the area, click on the hue track, click a preset, click outside closes (focus to the button).",
+      "failures": [
+        "Unsure: the presets listbox says aria-orientation=vertical while its swatches are in a row; ArrowRight/ArrowLeft move, ArrowDown does nothing.",
+        "Unsure: the \"Text colour\" button's name never says which colour is current (it is drawn only, as the bar under the letter)."
+      ],
+      "could_not_exercise": [
+        "A touch drag in the colour area and on the hue slider (mouse only)."
+      ]
+    },
+    {
+      "n": 6,
+      "part": "A command palette",
+      "works": "partly",
+      "tried": "At 1280 (docked) and 400 (full screen, 400x800, nothing off the window): opened from the search bar with Enter and Space, with Ctrl+K from the document and from the toolbar, and by Edit > Search commands…. Dialog \"Search commands\", search input with aria-controls, listbox \"Commands\", groups Format 14 / Insert 4 / Edit 3 / Document 5 = 26 options with their shortcuts; Tab goes input <-> Back only. ArrowDown/Up/Home/End/PageDown move aria-activedescendant and keep it in view; typing \"head\" leaves 3, \"zzzz\" shows \"No command matches\" (Enter then just closes); \"sav\" + Enter with nothing highlighted runs Save; Escape closes with focus back on the bar (or the document after Ctrl+K), the query cleared on reopen. Ran bold, italic, heading 2, paragraph, bulleted, align centre, clear, undo, rule, today's date, link through it; clicked an option with the mouse. During the 900 ms load Ctrl+K opens it while toolbar and menus are disabled.",
+      "failures": [
+        "Ctrl+K from the document loses the place in the document. Entered by Shift+Tab (no tooltip touched), \"Decisions\" selected, Ctrl+K, \"bold\", ArrowDown, Enter -> focus returns to the document but the selection is gone, the caret is at the very start of the h1 and nothing is bold; it should bold \"Decisions\". With a caret in the first list item, Ctrl+K, \"today\", Enter -> the date is inserted at the start of the h1 (\"November 16, 2026Quarterly planning notes\"), not at the caret. Ctrl+K then Escape then typing \"ZZ\" -> \"ZZ\" lands at the start of the h1, not where the caret was. Opened by Edit > Search commands…, from the search bar by keyboard, or by a mouse click on the bar, the same command applies to the selection.",
+        "Stuck tooltip (headless Chromium, keyboard focus only; a mouse hover never left one; why it sticks: unsure): when Tab or Shift+Tab takes the focus out of the Formatting toolbar, or a toolbar press sends the focus to the document, the tooltip of the button left often stays in the DOM for good as [role=tooltip][data-exiting] at opacity 0 with no animation running (seen for Undo, Bold, Italic, Clear formatting; still there 10 s later; it goes when the toolbar is entered and left again by Shift+Tab). While one is stuck, Ctrl+K does nothing at all, from the document or anywhere (load, Tab x6 into the document, Ctrl+K -> no palette, at 1280 and 400, still 10 s later). That is the plain keyboard way into the document. The bar (Enter) and Edit > Search commands… still open it, and a command chosen then runs about 1.5 s late (italic from the bar: 1548 ms).",
+        "Unsure: the empty state \"No command matches\" is exposed as a role=option in the listbox."
+      ],
+      "could_not_exercise": [
+        "The on-screen keyboard over the full-screen layout on a real phone."
+      ]
+    },
+    {
+      "n": 7,
+      "part": "The editing surface, rich text with headings, lists, links and marks",
+      "works": "partly",
+      "tried": "At 1280 and 400, keyboard only at about 200 ms a key: entered the document (role=textbox, aria-multiline, \"Document\"; the sheet shows a 3px focus outline), typed a paragraph (word count 106 -> 111, status \"Unsaved changes\"), Ctrl+Alt+2 + typing -> h2 and Enter gives a p, Ctrl+Shift+8 -> ul with Enter for the next item and Enter Enter to leave it, Ctrl+Shift+7 -> ol, Ctrl+B/I/U and Ctrl+Shift+X while typing -> b/i/u/strike, Ctrl+\\ clears them, Ctrl+Z / Ctrl+Shift+Z undo and redo. Links by the toolbar's Link button: no selection -> dialog \"Insert link\" with Text and Address (focus on Address, Tab is trapped, empty Address + Enter -> aria-invalid and \"Give the link an address.\"), filled -> <a href=\"https://example.com/docs\">the docs</a>; caret in the link -> Link pressed, tooltip \"Edit link\", dialog prefilled, new address saved, \"Remove link\" unlinks; a selected word + mailto: address -> linked; Escape and Cancel return to the document with the selection; Insert > Link… likewise. Tab leaves the surface. Mouse: plain click on a link places the caret, Ctrl+click opened https://example.com/agenda in a new page.",
+      "failures": [
+        "Ctrl+Shift+K in the document with \"Decisions\" selected, address typed, Enter -> the link is inserted as new text \"https://example.org/y\" at the start of the h1; the selection is not linked. Ctrl+K from the document does the same to every command (see part 6): an overlay opened by a shortcut from inside the document puts the caret at the document's start when it closes.",
+        "The lists the surface makes are nested inside paragraphs, and paragraphs inside paragraphs: Ctrl+Shift+8 in an empty paragraph, two items, Enter Enter, \"after list\" -> <p><ul><li>first</li><li>second</li></ul><p>after list</p></p>; the toolbar's Numbered list on a paragraph -> <p><ol><li>…</li></ol></p>. It reads and edits, but Export as HTML writes that markup (invalid HTML). Unsure how much it matters.",
+        "Link edits and removals by the toolbar or the menu run about 1.5 s after Enter when a tooltip is stuck (Save of an edited address: 1600 ms; Remove link: 1604 ms; 207 ms clean), the focus on the Link button meanwhile, then jumping to the document: keys typed in between go to the toolbar (see part 4).",
+        "Unsure whether within the part: a link can be followed only with Ctrl+click (the footer says so); there is no keyboard way to open the link the caret is in."
+      ],
+      "could_not_exercise": [
+        "Spell-check, IME composition and paste of rich content.",
+        "Touch selection and a phone's on-screen keyboard."
+      ]
+    }
+  ]
+}

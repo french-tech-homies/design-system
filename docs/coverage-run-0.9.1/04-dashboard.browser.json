@@ -1,0 +1,93 @@
+{
+  "screen": "Dashboard",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Figure cards",
+      "works": "yes",
+      "tried": "Read the four cards (a ul of four li, each an h3, the figure, a tag '+10.8%, better' / '−1.5%, worse' with the word for screen readers, 'vs previous N days') at 400 and 1280, light and dark; changed the range by keyboard (typed dates, calendar, period toggle) and checked the figures and the 'N days' follow. Measured that no figure is clipped at 400 (two columns, 142px inside a card; the widest seen, $149,024 for Quarter, is 134px of text on one line, ending 25px inside the card's edge) and that no text is under 4.5:1.",
+      "failures": [],
+      "could_not_exercise": [
+        "Nothing in a card takes focus or a press: there is nothing to work by keyboard, only to read."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Meters and progress",
+      "works": "partly",
+      "tried": "Read the three meters (role=meter, named, aria-valuenow/min/max and aria-valuetext such as '1,085,323 of 1,000,000' on the one over the plan) and the invoice progress bar, which advanced by itself (428 -> 436 in 1.3s) to '640 of 640' with its label changing to 'November invoices sent'. Tab to 'Export report' (the 9th stop), Enter: a progressbar 'Exporting the report' appeared (15%, 25%...), the button became aria-disabled with a spinner and kept focus, a second Enter did not restart it, and after about 3s the bar went and the role=status line read 'The report is ready.', focus still on the button. Space started it again. Same at 400.",
+      "failures": [
+        "unsure: Enter on 'Export report', wait 2.5s, Shift+Tab to the period toggle, ArrowRight, Space: the targets card went back to its skeleton, the Export button, its progress bar and its status line were removed, and the export ended while they were gone. When the card came back the role=status node was inserted already holding 'The report is ready.' (seen with a MutationObserver), not changed from empty to that text, so a screen reader is likely not told the export finished. It should be announced when it ends."
+      ],
+      "could_not_exercise": [
+        "Whether a screen reader actually speaks the status line, the progress values or the meters: no screen reader here, only the roles and attributes were read."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "A date-range filter",
+      "works": "partly",
+      "tried": "Typing: Tab to the start month, typed 11052026 (focus moved segment to segment and on to the end month), the line under the toggle read 'Nov 5 – 16, 2026, 12 days', the cards reloaded, no period stayed checked; ArrowUp/ArrowDown on a segment changed it. Calendar: Tab to 'Open calendar', Enter (and Space): a full-screen dialog, focus on the selected start day, the page behind inert; ArrowLeft x7, Enter, ArrowRight x9, Enter gave 'Nov 3 – Nov 13', arrows would not go past today, Tab stayed inside the dialog (Close, Save, Switch to text input, the grid), Save applied it ('11/3/2026 – 11/13/2026', 11 days) and focus returned to 'Open calendar', visible. Escape after picking another range, and the Close button (Enter) after picking another, each closed it with nothing changed, focus back on the button. 'Switch to text input', typed a start date, OK: applied (Oct 20 – Nov 16, 28 days), focus back on the button; Cancel there after typing left the range unchanged, focus back on the button. All of it again at 400, same results. With the mouse: opened, clicked Nov 2 and Nov 9, clicked Save: applied.",
+      "failures": [
+        "In the calendar, the day that is both today and the end of the selected range has its number in the colour of its own filled circle: light, color rgb(81, 96, 118) on background rgb(81, 96, 118); dark, rgb(183, 200, 225) on rgb(183, 200, 225). The '16' is invisible (a plain disc in the screenshot). This is the state the calendar opens in for Week, Month and Quarter, since each ends today. Its number should be readable (white on the disc, as the start day's is).",
+        "Typed an end date after today, 11202026 (the field's maxValue is today, 11/16/2026, and the calendar disables those days): while focus was in the field no error was shown and no segment had aria-invalid, and the page took the range at once: 'Nov 10 – 20, 2026, 11 days', the chart card and the figures reloading for it. Only on Tab out of the segments did the field turn invalid with 'Value must be 11/16/2026 or earlier.'; the page kept showing the future range. A range the field refuses should not reach the figures.",
+        "The error is only refreshed when focus leaves the segments, so it also goes stale the other way: back in the field, typed a valid end date 11102026 ('Nov 10, 2026, 1 day', inside the limit) and 'Value must be 11/16/2026 or earlier.' stayed, with aria-invalid, until Tab out.",
+        "A reversed range reaches the figures. Typed a start after the end (start 11122026, end 11/10/2026): the field said 'Start date must be before end date.' and set aria-invalid, but the page read 'Nov 12 – 10, 2026, -1 days' and the figures 'vs previous -1 days'.",
+        "Every keystroke's half-edited date reaches the figures the same way. On the end day (16), one Backspace made it 1 and the page read 'Nov 10 – 1, 2026, -8 days'; on the end month (11), one Backspace made it 1 and the page read 'Nov 10 – Jan 10, 2026, -303 days', the cards reloading for it, with no error while focus stayed in the field. A second Backspace emptied the segment ('mm') and the page kept that reversed range. Typing the digits again put it right.",
+        "unsure: the dialog's accessible name is its trigger's, 'Open calendar Date range', and it has no aria-modal (the page behind is inert, so focus is held all the same). A dialog named 'Open calendar' reads wrong; 'Select range' is its visible title.",
+        "unsure: the calendar's group is named 'November 2016 to November 2026' (its h2 says the same) while the months drawn run from November 2025 to November 2026."
+      ],
+      "could_not_exercise": [
+        "Scrolling the calendar's months by touch on a phone: only keys and mouse clicks were used.",
+        "What a screen reader says in the segments and the grid."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "A period toggle",
+      "works": "partly",
+      "tried": "Tab from 'Open calendar' lands on the checked radio (role=radiogroup 'Period', three role=radio; one Tab stop, the next Tab goes to 'Export report'). ArrowRight/ArrowLeft move focus without selecting; Space on Quarter, and Enter on Month, selected it: aria-checked moved, the date field became 8/19/2026 – 11/16/2026, the line under it 'Aug 19 – Nov 16, 2026, 90 days', the cards reloaded, focus stayed on the radio with a 3px ring. Space and Enter on the selected one left it selected. After a custom range no radio is checked and Tab lands on Week. Same at 400 (full width, under the date field). A mouse click on Month selected it.",
+      "failures": [
+        "unsure: in the radiogroup, ArrowDown, ArrowUp, Home and End do nothing (focus stayed on Month); only ArrowLeft and ArrowRight move. A radio group is expected to take Up and Down as well."
+      ],
+      "could_not_exercise": [
+        "How a radiogroup with no radio checked (after a custom range) reads in a screen reader."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "A slot for a chart",
+      "works": "yes",
+      "tried": "Read the card 'Revenue over time' (a section named by its h2, the range under it following every range change): a dashed-bordered area 782x320 at 1280 and 334x256 at 400, holding 'Chart slot' and 'The charting library draws revenue for this range here.', readable light and dark. No chart is drawn, as asked.",
+      "failures": [],
+      "could_not_exercise": [
+        "Nothing to work by keyboard: the slot is not interactive."
+      ]
+    },
+    {
+      "n": 6,
+      "part": "A list of recent activity",
+      "works": "yes",
+      "tried": "Read the card 'Recent activity' (a section named by its h2) once loaded: a ul of 8 li, each with who and what, the amount, a <time datetime> and a tag (Upgrade, New, Failed, Canceled, Refund, Downgrade) in text; the avatars' initials are aria-hidden. At 400 the headline wraps to two or three lines and nothing is cut or pushed out of the row. It does not change with the range, as its builder says. Tab passes it by: no row is focusable.",
+      "failures": [],
+      "could_not_exercise": [
+        "Nothing to press: the rows are read, not operated."
+      ]
+    },
+    {
+      "n": 7,
+      "part": "A state for each card while it loads",
+      "works": "partly",
+      "tried": "At load, and after every range change made by keyboard (typed date, calendar Save, period toggle): each of the four figure cards, the chart card and the targets card had aria-busy=true and a role=status skeleton named for it ('Loading Revenue collected', 'Loading the revenue chart', 'Loading targets and usage'), then came back one by one (0.5s, 0.75s, 1s, 1.25s; targets 1s; chart 1.4s) with aria-busy=false; the activity card loads once (1.7s, 'Loading recent activity') and is not sent back. Focus was never lost while cards swapped (it stayed on the radio or the field). Skeletons are visible in light and dark.",
+      "failures": [
+        "The activity card jumps when it loads: its skeleton has 5 rows and the list 8, so the card grows from 438px to 661px at 1280 and from 438px to 781px at 400.",
+        "At 400 each figure card grows by 20px when its figure arrives (150 -> 170 and 130 -> 150), at load and at every range change: the tag and 'vs previous N days' wrap to two lines where the skeleton keeps one. At 1280 the heights hold (130, 414, 414)."
+      ],
+      "could_not_exercise": [
+        "Whether a screen reader announces the skeletons' status text when they are inserted."
+      ]
+    }
+  ]
+}

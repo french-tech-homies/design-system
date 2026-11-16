@@ -1,0 +1,220 @@
+{
+  "screen": "Checkout",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Steps",
+      "built": "yes",
+      "kit": [
+        "stepper-block",
+        "Stepper",
+        "Button",
+        "TopAppBar",
+        "Headline",
+        "ArrowBackIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Held the current step in state and passed `current` and `onStepPress` so a done step goes back; four steps: Address, Delivery, Payment, Review.",
+          "why": "The block's comment: \"A step before the current one is done: it shows a check, and with `onStepPress` it is a button that goes back to it.\""
+        },
+        {
+          "kind": "use",
+          "what": "Edited the block (`src/components/Stepper.tsx`): narrower than 32rem the connectors are hidden and the steps take 8px of side padding (`px-2 @lg:px-4` passed to the done step's Button, `px-2 @lg:px-3` on the others).",
+          "why": "The skill: \"It is the project's from then on: edit it freely, an update of the kit never replaces it.\" As copied, four steps sum to about 425px on a 400px phone (368px inside the page's gutters): markers, paddings, three 24px connectors and the current label; the block's example has three steps."
+        },
+        {
+          "kind": "option",
+          "what": "Wrote the step's gate myself: Continue runs react-hook-form's `trigger` on the fields of the step and only then moves on; Enter in a field does the same through the form's onSubmit. Continue is the only way forward, so Review is reached with every step checked (Place order does not check again: react-hook-form skips the fields of steps that are not mounted).",
+          "why": "The Stepper shows where a person is and nothing else: it has no notion of a step's content, of a step being valid, or of next and back. Neither the block nor the skill says how a stepped form is put together with the adapter."
+        },
+        {
+          "kind": "option",
+          "what": "Moved the focus to the step's section (a `section` with tabIndex -1 and an aria-label \"Step 2 of 4: Delivery\") each time the step changes.",
+          "why": "Nothing in the block or the skill says what takes the focus when the step changes; without it the focus stays on a Continue button whose step is gone."
+        },
+        {
+          "kind": "layout",
+          "what": "The page: app bar, stepper, a three-column grid at lg (step in two, summary in one), the step's heading and its Back / Continue row.",
+          "why": "A page is the project's."
+        }
+      ],
+      "notes": "Type-checked and rendered once on the server; not seen running in a browser. The phone fit is by sum, not by sight: about 305px of 368 after the edit, with the current label (\"2 of 4: Delivery\") estimated at 105px. Below 32rem only the current label is drawn, as the block does. Future steps cannot be pressed, by the block's design."
+    },
+    {
+      "n": 2,
+      "part": "An address form with autocomplete",
+      "built": "yes",
+      "kit": [
+        "ComboBox",
+        "ComboBoxItem",
+        "FormTextField",
+        "FormPhoneField"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Bound the street ComboBox by hand with `Controller`, on its text: `allowsCustomValue`, `inputValue` / `onInputChange`, `validationBehavior=\"aria\"`, `isInvalid`, `errorMessage`. `onChange` (the picked key) fills postcode and city with `setValue`.",
+          "why": "The adapter's comment above FormComboBox: \"For a field whose value is the text itself, with options as suggestions (an address that fills other fields, a tag to be created), bind the kit's `ComboBox` yourself, on its text\"."
+        },
+        {
+          "kind": "option",
+          "what": "Wrote `src/checkout/FieldAnchor.tsx`, a copy of the adapter's hidden focus marker, and passed `field.ref` to it, so a refused Continue puts the focus in the street field.",
+          "why": "The binding the adapter's comment shows passes no `field.ref`, so `trigger(..., { shouldFocus: true })` skips the field; the adapter's own `FocusAnchor` is not exported."
+        },
+        {
+          "kind": "option",
+          "what": "Said \"Looking for addresses…\" in the field's supporting text while the simulated lookup runs.",
+          "why": "ComboBox has no loading state: while suggestions are on their way its menu says \"No matches\", which is not true yet."
+        },
+        {
+          "kind": "option",
+          "what": "Kept each suggestion's `label` to the street line alone (postcode and city in `supportingText`) and made the lookup match on the street only.",
+          "why": "ComboBox always applies React Aria's own contains-filter to the option's text on top of the items it is given (`defaultItems`), so results a service matched another way (by postcode, by city) would be filtered out again; and the option's text is what is written into the input on a pick. There is no prop to turn the filter off for suggestions a service already filtered."
+        },
+        {
+          "kind": "read",
+          "what": "Read ComboBox.tsx past its doc comment (the props type, the body at 168-235, EmptyOptions), Select.tsx for SelectItem's props, and the whole adapter file.",
+          "why": "To learn that `items` become `defaultItems`, what the empty menu says, what an option row takes, and that FocusAnchor is private."
+        },
+        {
+          "kind": "read",
+          "what": "Read react-stately's useComboBoxState.d.ts in node_modules.",
+          "why": "To learn which callback fires on a pick: `onSelectionChange` is deprecated there in favour of `onChange`; the kit's comment names `value` / `onChange` but not what a pick does to `inputValue`."
+        },
+        {
+          "kind": "layout",
+          "what": "A two-column grid of fields from sm, one column on a phone.",
+          "why": "A form's layout is the project's."
+        }
+      ],
+      "notes": "Type-checked and server-rendered; not seen running. Not verified in a browser: that picking a suggestion writes its street into the controlled input and then fires `onChange` with the key (I rely on React Aria doing both), and that the menu reopens as items arrive 400 ms after typing. Suggestions are mock French addresses from three typed characters (try \"mart\", \"rep\", \"ober\"). Text that matches nothing stays as the street."
+    },
+    {
+      "n": 3,
+      "part": "A choice of payment by radio, beside a slot for payment fields",
+      "built": "yes",
+      "kit": [
+        "radio-tile-block",
+        "RadioTile",
+        "FormRadioGroup",
+        "Label",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Edited the block (`src/components/RadioTile.tsx`): added `FormRadioTileGroup`, the block's group around the adapter's `FormRadioGroup` instead of the kit's `RadioGroup`, so the choice is a field of the one form.",
+          "why": "The skill: \"It is the project's from then on: edit it freely, an update of the kit never replaces it.\""
+        },
+        {
+          "kind": "layout",
+          "what": "The slot: a dashed, labelled placeholder box (\"Slot: payment fields\") written by hand, beside the radios from md and under them on a phone.",
+          "why": "A marked placeholder is the project's; nothing is built in it."
+        }
+      ],
+      "notes": "Type-checked and server-rendered; not seen running. Card is preselected. The slot is a `div` with role=group and an aria-label; it holds no fields, as asked. The block is edited (see the leave); FormRadioGroup is the react-hook-form adapter's."
+    },
+    {
+      "n": 4,
+      "part": "A delivery day and time",
+      "built": "yes",
+      "kit": [
+        "radio-tile-block",
+        "RadioTile",
+        "FormRadioGroup",
+        "Skeleton",
+        "SkeletonGroup"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Edited the block: a disabled tile's title and description take `on-surface` at 38% (`group-data-disabled/rd:text-on-surface/38`), for a window that is full.",
+          "why": "The skill: \"It is the project's from then on: edit it freely\". As copied, the tile's title sets `text-on-surface` itself, so a disabled tile's radio fades and its text does not."
+        },
+        {
+          "kind": "option",
+          "what": "Kept the time's RadioGroup mounted while a day's windows load (disabled, with the Skeletons as its children) and cleared the chosen time in an effect when the day changes.",
+          "why": "Nothing in the kit pairs two dependent choices; the loading of a group's options is the project's to stage."
+        },
+        {
+          "kind": "read",
+          "what": "Read Radio.tsx past its doc comment (RadioGroupProps, the group's body, the `group/rd` name) and the first screens of DatePicker.tsx and TimePicker.tsx.",
+          "why": "To learn the group's `label` / `supportingText` / `errorMessage`, the group name the disabled style hangs on, and that TimePicker picks a clock time on a dial: not a two-hour window with a price and a \"Full\" state, so I did not use it."
+        },
+        {
+          "kind": "layout",
+          "what": "Two groups stacked; the tiles wrap two to a row on a phone.",
+          "why": "Layout."
+        }
+      ],
+      "notes": "Type-checked and server-rendered; not seen running. Five days from tomorrow and five windows a day, to stay within the radio guideline of five options. The first day is preselected, the time is not: Continue without one shows \"Choose a delivery time\". The windows reload (700 ms) each time the step is opened again; the chosen time is kept. The skeleton row is nested in the block's flex row: its exact widths are unseen."
+    },
+    {
+      "n": 5,
+      "part": "An order summary",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Disclosure",
+        "DisclosureHeader",
+        "DisclosurePanel",
+        "ListItem",
+        "Divider",
+        "Skeleton",
+        "SkeletonGroup",
+        "Title",
+        "Body",
+        "Label"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "`isUnstyled` on DisclosurePanel, since the list rows and the totals bring their own 16dp.",
+          "why": "Its prop comment: \"Drop the panel's own 16dp padding when the content brings its own.\""
+        },
+        {
+          "kind": "use",
+          "what": "Text Skeletons put inside `Title` and `Body` while the basket loads (1.2 s timer).",
+          "why": "Skeleton's comment: \"Put it inside the type primitive it replaces (`<Title><Skeleton className=\"w-32\" /></Title>`) and the row keeps its height.\""
+        },
+        {
+          "kind": "use",
+          "what": "ListItem rows in a plain `ul` / `li`, the quantity as leading and the line price as trailing element.",
+          "why": "ListItem's comment: \"In a plain `ul` or `li` it is a row that is read: no hover, no pointer's hand, nothing to press.\""
+        },
+        {
+          "kind": "option",
+          "what": "Controlled the Disclosure's `isExpanded` from `window.matchMedia('(min-width: 64rem)')` at mount, and opened it on reaching Review.",
+          "why": "The summary must be one row with the total on a phone and open on a desktop; Disclosure has no way to be open from a width, so the script reads the width once (a resize does not follow)."
+        },
+        {
+          "kind": "option",
+          "what": "Passed `className=\"-outline-offset-3\"` to DisclosureHeader (its trigger), so the focus ring is drawn inside the row.",
+          "why": "The kit's focus ring is an outline 3px wide, 2px outside the element; the trigger fills the Card edge to edge and Card is `overflow-hidden`, so the ring would be cut on all four sides. The kit's own `outlined` Disclosure clips the same way, so it was no way out."
+        },
+        {
+          "kind": "layout",
+          "what": "The totals as a `dl` of dt/dd rows written by hand with the type primitives; the card's insides.",
+          "why": "The kit has no description list or price breakdown."
+        }
+      ],
+      "notes": "Type-checked and server-rendered; not seen running. The inset focus ring is reasoned from the classes, not seen. Amounts use Tailwind's `tabular-nums`, not `font-mono`. The delivery line says \"Choose a time\" until a window is chosen, then its fee joins the total. The summary sits above the step on a phone (closed) and in a sticky third column at lg."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "read",
+      "what": "Read past the doc comment in Card.tsx, Button.tsx, Chip.tsx, TopAppBar.tsx, Disclosure.tsx, ListItem.tsx, Typography.tsx, Skeleton.tsx, EmptyState.tsx, TextField.tsx, PhoneField.tsx and utils.ts (focusRing), mostly their props types and size classes.",
+      "why": "The first comment block of a file is often not the component's (ComboBox, Card, Chip, TopAppBar and Button open on a comment about styles or a helper type), and the doc comments seldom list the props."
+    },
+    {
+      "kind": "layout",
+      "what": "The Review step (three outlined Cards, Address / Delivery / Payment, each with a text Button \"Edit\" back to its step) and the \"Order placed\" confirmation (a check in a `primary-container` circle, Headline, Body, a tonal Button).",
+      "why": "Compositions of the project's; EmptyState is for something with nothing to show, not for a confirmation."
+    }
+  ],
+  "friction": "No guess was needed: the build was green on the first run. What cost time: (1) finding a component's real doc comment and its props: the skill says \"doc comment first\", but in ComboBox, Card, Chip, TopAppBar and Button the first comment is about styles or a helper type, and props are only in the type further down; a short props table in each main comment, or the main comment first in the file, would do. (2) The address case is documented well, in the adapter and in ComboBox, but stops short of three things I had to work out or leave unverified: the hand-bound field cannot take react-hook-form's focus because FocusAnchor is private (export it, or show `field.ref` in the example); which callback a pick fires and what it does to `inputValue`; and that the built-in contains-filter still runs over suggestions a service already filtered, with no loading state for the menu. (3) Nothing says how a multi-step form is put together: Stepper + the adapter + `trigger` per step + where the focus goes on a step change; a paragraph in the stepper block's comment would cover it. (4) RadioTile's group wraps the kit's RadioGroup only: a form-bound variant, and a disabled tile whose text fades, had to be added. (5) For a delivery slot the kit offers DatePicker and TimePicker by name, and neither says it is for a free date or clock time rather than a choice among offered slots; one line pointing to the radio tile block for that would save the detour. (6) `npx shadcn@latest add @ds/stepper-block @ds/radio-tile-block -y` was refused by this session's permission layer before it ran; the two blocks were copied from kit-blocks/, which made that harmless. (7) The stepper block overflows a 400px phone with four steps, and a Disclosure inside a Card (or the kit's own outlined Disclosure) has its focus ring clipped: both were found by reading classes and summing widths, not by anything the comments say. Nothing could be seen running: no browser was allowed, so every part is type-checked and rendered once on the server only."
+}
