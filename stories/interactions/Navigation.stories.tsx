@@ -178,6 +178,10 @@ export const TabsArrowKeysMoveSelection: Story = {
     await expect(week).toHaveFocus();
     await expect(week).toHaveAttribute("aria-selected", "true");
     await expect(canvas.getByRole("tabpanel")).toHaveTextContent("310 orders");
+    // The ring is inside the tab: the tab is as tall as its list, which
+    // cuts what is drawn outside it when it scrolls.
+    await expect(getComputedStyle(week).outlineStyle).toBe("solid");
+    await expect(getComputedStyle(week).outlineOffset).toBe("-3px");
 
     await userEvent.keyboard("{End}");
     await expect(month).toHaveAttribute("aria-selected", "true");

@@ -476,6 +476,29 @@ export const MenuKeyboardNavigation: Story = {
   },
 };
 
+/** A letter typed in an open menu goes to the item that starts with it. */
+export const MenuTypeAheadGoesToAnItem: Story = {
+  render: () => (
+    <Menu
+      triggerButton={<Button variant="outlined">Open menu</Button>}
+      items={[
+        { id: "edit", label: "Edit" },
+        { id: "copy", label: "Copy link" },
+        { id: "delete", label: "Delete" },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    within(canvasElement).getByRole("button", { name: "Open menu" }).focus();
+    await userEvent.keyboard("{Enter}");
+    const menu = await screen.findByRole("menu");
+    await userEvent.keyboard("d");
+    await waitFor(() =>
+      expect(within(menu).getByRole("menuitem", { name: "Delete" })).toHaveFocus(),
+    );
+  },
+};
+
 /** A disabled item is announced as one and the arrow keys pass it; a
     divider is a separator, not an item. */
 export const MenuSkipsDisabledAndDividers: Story = {
@@ -995,6 +1018,8 @@ export const PreviewOpensOnFocus: Story = {
 
     const item = await screen.findByRole("button", { name: /margherita/i });
     await expect(item).toBeVisible();
+    // The card is a dialog, and a dialog has a name.
+    await expect(screen.getByRole("dialog")).toHaveAccessibleName("Preview");
 
     await userEvent.keyboard("{Escape}");
     await waitFor(() =>

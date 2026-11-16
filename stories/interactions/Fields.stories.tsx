@@ -712,6 +712,40 @@ export const ComboBoxChipsBackspace: Story = {
   },
 };
 
+/** In multiple mode a choice made with the arrow keys and Enter stays when
+    Tab leaves the field: the list is still open on that option, and Tab
+    used to commit it a second time, which took it back out. */
+export const ComboBoxMultipleKeepsAChoiceOnTab: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <ComboBox
+        label="Categories"
+        selectionMode="multiple"
+        items={categories}
+        className="w-80"
+      >
+        {(item: (typeof categories)[number]) => (
+          <ComboBoxItem id={item.id} label={item.name} />
+        )}
+      </ComboBox>
+      <Button>Save</Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("combobox", { name: /categories/i });
+    input.focus();
+    await userEvent.keyboard("ma");
+    await screen.findByRole("option", { name: "Mains" });
+    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await waitFor(() => expect(canvas.getByText("Mains")).toBeVisible());
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Save" })).toHaveFocus();
+    await expect(canvas.getByText("Mains")).toBeVisible();
+    await expect(screen.queryByRole("listbox")).toBeNull();
+  },
+};
+
 /* ---- DropZone and FileTrigger ------------------------------------------ */
 
 const filesTaken = fn();
