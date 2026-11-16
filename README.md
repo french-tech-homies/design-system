@@ -295,6 +295,9 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 - [What this kit is](docs/what-this-kit-is.md): Material 3's implementation,
   how a component joins the kit's own, what a project may change, why there
   is no npm package, and what is not included.
+- [The coverage corpus](docs/coverage-corpus.md): the screens the kit's
+  coverage is counted against, how one is run, and what counts as leaving the
+  kit.
 - [Installing](docs/installing.md): the registry and its namespace, the Vite
   setup, what the one install brings, what an install and an update ask of
   your project, coming from `@md3`, and copying the folder instead.

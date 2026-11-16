@@ -23,8 +23,10 @@ and a named group of eleven the kit ships that Material does not describe. They 
 of the catalog.
 
 The group is named there and nowhere else, and it joins on need: a React Aria
-component that Material 3 does not describe joins it when a project needs it,
-by a change to that list that names that project and its need. A member is
+component that Material 3 does not describe joins it when a screen of
+[the coverage corpus](coverage-corpus.md) needs it, or when a project asks
+the kit for it. No project is named: the pull request that adds the component
+says which screen's part it serves, or what was asked. A member is
 Material-derived. It is built on Material's foundations (the colour roles, the
 type scale, shape, state layers, motion, the 48dp target, the accessibility
 rules), its anatomy is borrowed from the nearest Material component, and its
@@ -37,7 +39,8 @@ component file that neither says so nor cites a page of m3.material.io.
 
 A part that neither Material nor React Aria describes is a project's: it is
 written in the project, beside the kit, and does not come here. So is a React
-Aria component no project has yet asked the kit for.
+Aria component that no screen of the corpus needs and no project has asked
+the kit for.
 
 **What a project may change.** An edit of a kit file is allowed, priced and
 rarely needed: an update overwrites every kit file that differs, and the
@@ -80,7 +83,8 @@ added to the kit itself cites its Material page and clears that file's
 [quality bar](../conventions.md#the-quality-bar--what-a-new-component-must-ship).
 
 What Material 3 does not describe is not waiting to be included. A React Aria
-component of that kind joins the kit's own group when a project needs it,
-Material-derived, by the rule the README writes in
+component of that kind joins the kit's own group when a screen of the
+coverage corpus or a project needs it, Material-derived, by the rule the
+README writes in
 [The kit's own](../README.md#the-kits-own). Until then, and for what neither
 Material nor React Aria describes, it is a project's.
