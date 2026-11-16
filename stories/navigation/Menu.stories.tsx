@@ -17,8 +17,9 @@ import { Menu } from "@french-tech-homies/design-system/components/Menu";
 
 /**
  * A menu in a popover, opened from any trigger. Items are data
- * (`MenuItemType`): label, optional leading/trailing icon, shortcut and
- * `onAction`. Rows render with `MenuItem`.
+ * (`MenuItemType`): label, optional leading/trailing icon, shortcut,
+ * `onAction` and `isDisabled`, with `{ id, type: "divider" }` between groups.
+ * `selectionMode` makes the items choices. Rows render with `MenuItem`.
  */
 const meta = {
   title: "MD3/Navigation/Menu",
@@ -117,6 +118,60 @@ export const WithHeaderAndLinks: Story = {
       { id: "settings", label: "Settings", href: "#settings" },
       { id: "logout", label: "Log out", href: "#logout" },
       { id: "theme", label: "Toggle theme", onAction: () => undefined },
+    ],
+  },
+};
+
+/** A disabled item stays in the menu, at 38% and skipped by the arrow keys,
+ *  when it tells the user the action exists. A divider sets a group apart:
+ *  here the one action that cannot be undone. */
+export const WithDisabledItemAndDivider: Story = {
+  args: {
+    triggerButton: <Button variant="outlined">Order #1042</Button>,
+    items: [
+      { id: "edit", label: "Edit", leadingIcon: Pencil },
+      { id: "copy", label: "Duplicate", leadingIcon: Copy },
+      {
+        id: "open",
+        label: "Open storefront",
+        leadingIcon: ExternalLink,
+        isDisabled: true,
+      },
+      { id: "divider", type: "divider" },
+      { id: "delete", label: "Delete", leadingIcon: Trash2 },
+    ],
+  },
+};
+
+/** `selectionMode="single"`: the items are choices, one selected at a time,
+ *  announced as radio items. The selected row takes the selected container
+ *  and a trailing check. */
+export const SingleSelection: Story = {
+  args: {
+    triggerButton: <Button variant="text">25 per page</Button>,
+    selectionMode: "single",
+    defaultSelectedKeys: ["25"],
+    items: [
+      { id: "10", label: "10 per page" },
+      { id: "25", label: "25 per page" },
+      { id: "50", label: "50 per page" },
+    ],
+  },
+};
+
+/** `selectionMode="multiple"`: any number selected, announced as checkbox
+ *  items. A click or Space toggles one and the menu stays open; Enter toggles
+ *  and closes. */
+export const MultipleSelection: Story = {
+  args: {
+    triggerButton: <Button variant="text">Columns</Button>,
+    selectionMode: "multiple",
+    defaultSelectedKeys: ["customer", "total"],
+    items: [
+      { id: "customer", label: "Customer" },
+      { id: "date", label: "Date" },
+      { id: "status", label: "Status" },
+      { id: "total", label: "Total" },
     ],
   },
 };
