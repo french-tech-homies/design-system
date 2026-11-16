@@ -32,7 +32,12 @@
    ========================================================================== */
 
 import React from "react";
-import { useHref, useNavigate, type NavigateOptions } from "react-router";
+import {
+  useHref,
+  useLocation,
+  useNavigate,
+  type NavigateOptions,
+} from "react-router";
 import { RouterProvider } from "react-aria-components";
 
 /**
@@ -44,9 +49,31 @@ import { RouterProvider } from "react-aria-components";
  *   </RouterProvider>
  *
  * `useHref` is what makes an app mounted under a basename produce correct
- * `href`s. TanStack Router is the same shape: swap the two hooks for
+ * `href`s.
+ *
+ * A link to a fragment (`href="#pricing"`, `href="/#pricing"`) scrolls to the
+ * element with that id, as the browser does for a link it follows itself: a
+ * client-side navigation sets the address and moves nothing. The element's
+ * `scroll-margin-top` is honoured, for a page with a header that sticks. The
+ * focus is not moved: move it yourself where the target should take it. TanStack Router is the same shape: swap the two hooks for
  * `useRouter().buildLocation` / `useRouter().navigate`.
  */
+/** After a navigation that names a fragment, brings its element into view. */
+function ScrollToFragment() {
+  const { hash, key } = useLocation();
+  React.useEffect(() => {
+    if (!hash) return;
+    let id: string;
+    try {
+      id = decodeURIComponent(hash.slice(1));
+    } catch {
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView();
+  }, [hash, key]);
+  return null;
+}
+
 export function AriaRouterProvider({
   children,
 }: {
@@ -61,6 +88,7 @@ export function AriaRouterProvider({
       }
       useHref={useHref}
     >
+      <ScrollToFragment />
       {children}
     </RouterProvider>
   );

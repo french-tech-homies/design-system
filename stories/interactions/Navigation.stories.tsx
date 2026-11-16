@@ -11,6 +11,7 @@ import {
   Utensils,
 } from "lucide-react";
 import React from "react";
+import { MemoryRouter } from "react-router";
 import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 
 import { BottomNavigation } from "@french-tech-homies/design-system/components/BottomNavigation";
@@ -21,6 +22,7 @@ import Button from "@french-tech-homies/design-system/components/Button";
 import { TopAppBar } from "@french-tech-homies/design-system/components/TopAppBar";
 import IconButton from "@french-tech-homies/design-system/components/IconButton";
 import { Link } from "@french-tech-homies/design-system/components/Link";
+import { AriaRouterProvider } from "@french-tech-homies/design-system/adapters/react-router";
 import { Toolbar } from "@french-tech-homies/design-system/components/Toolbar";
 import {
   SearchBar,
@@ -946,5 +948,47 @@ export const LinkIsReachedAndPressedByKeyboard: Story = {
     await userEvent.tab();
     await expect(help).toHaveFocus();
     await expect(help).toHaveAttribute("href", "#help");
+  },
+};
+
+/* ---- Router adapter ---------------------------------------------------- */
+
+/** With the React Router adapter mounted, a link to a fragment of the page
+    brings its element into view: the navigation is the router's, and the
+    router alone would set the address and move nothing. */
+export const RouterLinkToAFragmentScrolls: Story = {
+  render: () => (
+    <MemoryRouter>
+      <AriaRouterProvider>
+        <div className="h-64 overflow-auto" data-testid="page">
+          <p className="text-body-medium font-body-medium text-on-surface">
+            <Link href="#pricing">Go to pricing</Link>
+          </p>
+          <div className="h-[200vh]" />
+          <h2
+            id="pricing"
+            className="text-title-large font-title-large text-on-surface"
+          >
+            Pricing
+          </h2>
+          <div className="h-64" />
+        </div>
+      </AriaRouterProvider>
+    </MemoryRouter>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = canvas.getByTestId("page");
+    const target = canvas.getByRole("heading", { name: "Pricing" });
+    const inView = () => {
+      const box = page.getBoundingClientRect();
+      const top = target.getBoundingClientRect().top;
+      return top >= box.top - 1 && top < box.bottom;
+    };
+    await expect(inView()).toBe(false);
+
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(inView()).toBe(true));
   },
 };
