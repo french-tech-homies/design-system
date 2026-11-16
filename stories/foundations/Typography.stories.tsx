@@ -718,3 +718,44 @@ export const InContext: Story = {
     </div>
   ),
 };
+
+/**
+ * A role sets how text looks; `component` says what it is. A description
+ * list's terms and values, a list's items and a figure's caption are drawn
+ * by the primitives as those elements.
+ */
+export const AsDocumentElements: Story = {
+  render: () => (
+    <div className="bg-surface text-on-surface w-80 p-4">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+        <Label component="dt" colorRole="on-surface-variant">
+          Status
+        </Label>
+        <Body component="dd">Shipped</Body>
+        <Label component="dt" colorRole="on-surface-variant">
+          Placed
+        </Label>
+        <Body component="dd">
+          <time dateTime="2026-03-04">4 March</time>
+        </Body>
+      </dl>
+      <ul className="mt-4 list-disc pl-5">
+        <Body component="li">Kafta, twice</Body>
+        <Body component="li">Baklava</Body>
+      </ul>
+      <Title component="p" size="small" className="mt-4">
+        A title that is a paragraph
+      </Title>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("term")).toHaveLength(2);
+    await expect(canvas.getAllByRole("definition")).toHaveLength(2);
+    await expect(canvas.getAllByRole("listitem")).toHaveLength(2);
+    await expect(canvas.getByText("Status").tagName).toBe("DT");
+    await expect(canvas.getByText("A title that is a paragraph").tagName).toBe(
+      "P",
+    );
+  },
+};
