@@ -250,8 +250,11 @@ type BaseButtonProps = {
    *  the button draws the icon alone, and takes an `aria-label`. */
   icon?: IconComponent;
   /** The action this button started is running: a spinner takes the icon's
-   *  place, and the button takes no press and submits no form until it is
-   *  false again. It stays in the tab order and keeps its look. */
+   *  place, and the button takes no press and is no longer a submit button
+   *  until it is false again. It stays in the tab order and keeps its look.
+   *  That holds for a button; a link (`href`) and a toggle (`isToggle`)
+   *  draw the spinner and still act. A form with one text field is still
+   *  submitted by Enter in that field: guard `onSubmit` there. */
   isLoading?: boolean;
   /**
    * `round` (default) or `square`, Material's two shapes. A FAB keeps its

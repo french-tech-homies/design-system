@@ -315,6 +315,9 @@ function RulesAndFocus() {
       <Button variant="text" onPress={() => form.setFocus("budget")}>
         Go to the budget
       </Button>
+      <Button variant="text" onPress={() => form.setFocus("opensOn")}>
+        Go to the date
+      </Button>
     </form>
   );
 }
@@ -354,5 +357,20 @@ export const RulesAndFocusOnTheFirstError: Story = {
     await waitFor(() =>
       expect(canvas.getByRole("textbox", { name: /Budget/ })).toHaveFocus(),
     );
+
+    await userEvent.click(canvas.getByRole("button", { name: "Go to the date" }));
+    await waitFor(() =>
+      expect(
+        document.activeElement?.closest("[data-slot=date-picker]"),
+      ).not.toBeNull(),
+    );
+
+    // Ticking the invalid box clears its message, and the box is the same
+    // element after: it keeps the focus.
+    consent.focus();
+    await userEvent.keyboard(" ");
+    await waitFor(() => expect(consent).toBeChecked());
+    await waitFor(() => expect(consent).toHaveAccessibleDescription(""));
+    await expect(consent).toHaveFocus();
   },
 };

@@ -55,3 +55,14 @@ export const FillsItsContainer: Story = {
     </div>
   ),
 };
+
+/** A handle at an end: its side of the track is gone, and its stop with it. */
+export const AtItsEnds: Story = {
+  render: (args) => (
+    <div className="flex flex-col gap-4">
+      <Slider {...args} label="Empty" defaultValue={0} />
+      <Slider {...args} label="Full" defaultValue={100} />
+      <Slider {...args} label="Whole range" defaultValue={[0, 100]} />
+    </div>
+  ),
+};
