@@ -9,6 +9,13 @@ animations that never play.** An `@import` is sitting below a `@source` or
 not, so the same CSS can build fine in one pipeline and fail in the other —
 typically Next builds, Storybook doesn't). Move every `@import` to the top.
 
+**`Cannot apply unknown utility class \`border-border\`` straight after
+`shadcn init @ds/base`.** The theme is not imported yet. `init` writes an
+entry CSS that applies `border-border` and installs the theme files, and
+neither it nor `add @ds/ds` writes an `@import` of them. Add the two lines
+[Install from the registry](installing.md#install-from-the-registry) gives,
+`tokens/theme.css` and `tokens/theme.v4.css`, under `@import "tailwindcss";`.
+
 **Two `@custom-variant dark` rules after a registry install.** Expected, not a
 bug: shadcn's React Aria base writes `@custom-variant dark (&:is(.dark *))` and
 the MD3 `theme` item appends `@custom-variant dark (&:where(.dark, .dark *))`
