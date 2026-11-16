@@ -150,7 +150,11 @@ installed with `npx skills add https://react-aria.adobe.com`.
 at the first install or at any update: no palette value, no variable, no
 `@import`. The theme is whatever that file imports, so a fresh install is
 unthemed until these lines are there (the CLI prints them after `add @ds/ds`,
-with the release it took):
+with the release it took). After `init @ds/base` it does not build until
+then: the entry CSS `init` wrote applies `border-border`, a utility
+`theme.v4.css` defines, and the build stops on "Cannot apply unknown utility
+class `border-border`". The two theme lines, added under
+`@import "tailwindcss";` in the file as `init` left it, are enough:
 
 ```css
 @import "tailwindcss";
