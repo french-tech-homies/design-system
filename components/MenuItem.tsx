@@ -87,6 +87,13 @@ export type MenuItemProps = VariantProps<typeof styles> & {
  * (new shapes, standard / vibrant colour styles, gaps) for new designs and
  * keeps this baseline menu available; the kit follows the baseline token
  * set, and the vertical menu would be a new variant.
+ *
+ * It draws the row and holds no state of its own: hover is CSS, and the
+ * focus and pressed state layers read `data-focus-visible` and
+ * `data-pressed` from the nearest ancestor that carries the class `group`.
+ * Render it inside a React Aria item (`MenuItem`, `ListBoxItem`) whose
+ * `className` includes `group`, as `Menu` and `SelectItem` do. `isFocused`,
+ * `isHovered` and `isPressed` are accepted and not read.
  */
 export function MenuItem(props: MenuItemProps) {
   const {

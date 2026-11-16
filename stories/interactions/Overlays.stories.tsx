@@ -236,6 +236,16 @@ export const MenuKeyboardNavigation: Story = {
     await userEvent.keyboard("{ArrowDown}");
     await waitFor(() => expect(items[1]).toHaveFocus());
 
+    // The row the arrow keys reached shows it: its state layer is drawn, and
+    // the row left behind has none. A menu has no focus ring, so this layer
+    // is the only focus indicator a keyboard user gets.
+    const layer = (item: HTMLElement | undefined) =>
+      getComputedStyle(
+        item!.querySelector<HTMLElement>('[data-slot="state-layer"]')!,
+      ).opacity;
+    await waitFor(() => expect(Number(layer(items[1]))).toBeGreaterThan(0));
+    await expect(Number(layer(items[0]))).toBe(0);
+
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
     await waitFor(() => expect(trigger).toHaveFocus());

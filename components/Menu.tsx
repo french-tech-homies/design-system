@@ -80,7 +80,10 @@ export function Menu(props: MenuProps) {
               id={item.id}
               onAction={item.onAction}
               href={item.href}
-              className="outline-hidden"
+              // `group`: MenuItem's state layer reads this element's
+              // `data-focus-visible` and `data-pressed`. Without it a row
+              // reached by the arrow keys shows no focus at all.
+              className="group outline-hidden"
             >
               {({ isDisabled, isFocused, isPressed }) => (
                 <MenuItem
