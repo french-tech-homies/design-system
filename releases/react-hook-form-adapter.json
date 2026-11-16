@@ -3,8 +3,8 @@
   "version": "0.8.0",
   "kit": {
     "adapters/react-hook-form.tsx": {
-      "exact": "4ba91e5fbb4b145ae223f3880d699dcbcb1bcf21c778c6088cd84c497c939cec",
-      "loose": "9ad9b828ee3f70fb445a8d4a1a5b4d81b60352593417c33233a3f3de24eec73d"
+      "exact": "7c9ca5d54e180193376827cb71f1488acc4400c1fd60a2f78ab247195381b337",
+      "loose": "77e47e4682ca4141f7470b8d25884f824b9ba2e7739176333fda0b52dfd01b52"
     }
   }
 }

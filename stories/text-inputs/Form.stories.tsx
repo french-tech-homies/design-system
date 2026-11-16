@@ -324,6 +324,9 @@ export const RulesAndFocusOnTheFirstError: Story = {
 
     await userEvent.click(send);
     await expect(await canvas.findByText("Enter your name")).toBeVisible();
+    // A box alone shows its own message, and is described by it.
+    const consent = canvas.getByRole("checkbox", { name: "You may contact me" });
+    await expect(consent).toHaveAccessibleDescription("Agree to be contacted");
     await expect(canvas.getByText("Choose a topic")).toBeVisible();
     await waitFor(() =>
       expect(canvas.getByRole("textbox", { name: /Name/ })).toHaveFocus(),

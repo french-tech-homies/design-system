@@ -283,6 +283,7 @@ export function FormCheckbox<TValues extends FieldValues>({
             onChange={field.onChange}
             onBlur={field.onBlur}
             isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
           />
         </>
       )}
