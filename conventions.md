@@ -266,7 +266,7 @@ and cites, beside it, the page of each thing it borrows from Material. `npm
 run registry:check-install` (`scripts/check-components.mjs`) refuses a
 component file that does neither, and a list and files that differ.
 
-Then five things, and CI (`.github/workflows/checks.yml`) enforces all
+Then six things, and CI (`.github/workflows/checks.yml`) enforces all
 of them:
 
 1. **A story** in `stories/<Category>/<Component>.stories.tsx`, titled
@@ -291,7 +291,13 @@ of them:
    `on-surface/38`, which WCAG 1.4.3 exempts as an inactive component) or that
    it is a real defect with an issue number. Never a blanket disable in
    `.storybook/preview.ts`. An unexplained suppression is worse than no check.
-5. **Its screenshots.** Every story is compared to its committed pictures,
+5. **Its focus, shown.** Every tab stop of every story is reached by the
+   keyboard and must be drawn differently while it holds the focus. A part
+   that exists only while something is open (a row of a menu, an option of a
+   list) needs a test in `stories/interactions/Focus.stories.tsx` that opens
+   it by the keyboard and calls `expectVisibleFocus` on it. See
+   `docs/catalog-and-tests.md`, "Focus".
+6. **Its screenshots.** Every story is compared to its committed pictures,
    light and dark under both presets (`screenshots/`). A new story, or one
    changed on purpose, is baselined with
    `npm run screenshots:update -- <story file>`, and the pictures are

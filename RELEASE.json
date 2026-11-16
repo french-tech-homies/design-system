@@ -206,8 +206,8 @@
       "loose": "2a533222653ebfac6cd286e3e02b6457733c3b8605e4943dce0da10df1174f1b"
     },
     "components/Tabs.tsx": {
-      "exact": "7bf3016c7eeb6f26fdb44844d124f290f5fe1556e4f32c1571c805eb705ac69a",
-      "loose": "1505144f29758f7adaa5dd2ea6a48f40f9a807c89fed1df5b705ab39135ded0b"
+      "exact": "7809bdc06759dddc4a1bafcfbcc8acda7175b439811790c68d1e2e276db72c83",
+      "loose": "760c106353694d478656d005fa891398739a91fb89840853e53125778dcd6537"
     },
     "components/Tag.tsx": {
       "exact": "c4cf1ebafe1b00690c2715d9a431a165e168a8dcd670ea6fad92ef0fabaaf501",
@@ -242,8 +242,8 @@
       "loose": "8ad43319af1da793683bd9efa799cb94dcb4860c3a592875f21986dbe2885c1f"
     },
     "components/color/ColorPicker.tsx": {
-      "exact": "0ca5e40bf04d14936ce56f22a3e9f296478fe07017f56249fdb7c70e8d17e21c",
-      "loose": "4deb20ec11c9bad40ad1e68a8dbebc33c56ec0caee75f224c6e057013b478a2a"
+      "exact": "0d84a444ae95f0b2a262634d5c5873daa567a83fe5a0a4a8a0c3b029b1f8b48a",
+      "loose": "7b52439030d6a8ec9e641dcc14e9968272735cad2c74d4941dcf3084945a1ef7"
     },
     "components/color/ColorSlider.tsx": {
       "exact": "63c77fef91c5d47190368894336d40f9b7f6ad2cf96c7952572e87e1baa8e746",
