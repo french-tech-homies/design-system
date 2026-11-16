@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import React from "react";
+import React, { useRef } from "react";
+import Button from "@french-tech-homies/design-system/components/Button";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 
 import Chip, {
@@ -203,6 +204,88 @@ export const SelectEscapeCloses: Story = {
     await waitFor(() => expect(trigger).toHaveFocus());
     await expect(trigger).toHaveAttribute("aria-expanded", "false");
     await expect(trigger).not.toHaveTextContent(/1 day|1 week|1 month/);
+  },
+};
+
+const clock = (seconds: number) =>
+  `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+
+/** A value a number does not say, a time here, is written and spoken
+    through `formatValue`: the output and the handle agree. */
+export const SliderSaysItsValueInWords: Story = {
+  render: () => (
+    <Slider
+      label="Position"
+      defaultValue={65}
+      maxValue={200}
+      step={5}
+      formatValue={clock}
+      className="w-80"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const handle = canvas.getByRole("slider", { name: "Position" });
+    await expect(canvas.getByRole("status")).toHaveTextContent("1:05");
+    await waitFor(() => expect(handle).toHaveAttribute("aria-valuetext", "1:05"));
+    handle.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await waitFor(() => expect(handle).toHaveAttribute("aria-valuetext", "1:10"));
+    await expect(canvas.getByRole("status")).toHaveTextContent("1:10");
+  },
+};
+
+function ScrollingChips() {
+  const group = useRef<HTMLDivElement>(null);
+  return (
+    <div className="flex w-64 flex-col gap-4">
+      <ChipGroup
+        ref={group}
+        aria-label="Days"
+        selectionMode="multiple"
+        isScrollable
+      >
+        {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => (
+          <Chip key={day} id={day} variant="filter">
+            {day}
+          </Chip>
+        ))}
+      </ChipGroup>
+      <Button
+        onPress={() =>
+          group.current
+            ?.querySelector<HTMLElement>('[data-slot="chip"]')
+            ?.focus()
+        }
+      >
+        Go to the days
+      </Button>
+    </div>
+  );
+}
+
+/** A row of chips that scrolls sideways where it does not fit, in place of
+    wrapping, and a group reached through its `ref`. */
+export const ChipGroupIsOneScrollingRow: Story = {
+  render: () => <ScrollingChips />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = canvas.getByRole("toolbar", { name: "Days" });
+    const chips = within(row).getAllByRole("button");
+    await expect(row.scrollWidth).toBeGreaterThan(row.clientWidth);
+    const tops = new Set(chips.map((c) => Math.round(c.getBoundingClientRect().top)));
+    await expect(tops.size).toBe(1);
+    await userEvent.click(canvas.getByRole("button", { name: "Go to the days" }));
+    await expect(chips[0]).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}");
+    const last = chips[chips.length - 1];
+    if (!last) throw new Error("no chip");
+    await expect(last).toHaveFocus();
+    await waitFor(() =>
+      expect(last.getBoundingClientRect().right).toBeLessThanOrEqual(
+        row.getBoundingClientRect().right + 1,
+      ),
+    );
   },
 };
 

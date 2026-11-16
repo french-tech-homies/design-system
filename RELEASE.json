@@ -66,8 +66,8 @@
       "loose": "f75ad04eb6f5458245432a29baa08285e2590c64fdc80e96938f8cce33b06b53"
     },
     "components/Chip.tsx": {
-      "exact": "7249d5249b3f87192cbae597b67b8cd850a512451bb2cc964431e52e36be0fce",
-      "loose": "f5ef3b2a329efcdd204582ace4f06c758ebed1a84af9684367de9120b39e299d"
+      "exact": "f5c2477645c7a544e6cd27908dc48a48e954365ecc42beb97543ab43df828bfb",
+      "loose": "4a94e4fab306af25143c98b9ee07d7a24941bd8c486950ce8fcab45b0c94fcc2"
     },
     "components/ComboBox.tsx": {
       "exact": "b3bc2d57d31717e5040ac1016be39e6c0a8a3dc63aa490a34f936fbab91f0b82",
@@ -210,8 +210,8 @@
       "loose": "07891fcd929df18fda03df60f6c4dfbbaa2501665d6e39bb879e48cbe5002b2c"
     },
     "components/Slider.tsx": {
-      "exact": "980f734dfbfe1df1e7aff15a48cfc9d20a7b5068d540726a7a090f94e816e975",
-      "loose": "6a74cce8fbc07ad8aa078326b20b24c2c1658add1ac797c19bf29efd9abffee4"
+      "exact": "5b740806c70623b4c3b0b615ed18ef5809ecbe4689013250653adbf0d5eb9912",
+      "loose": "538877bd296b5cd6bddc7537e83095f999d6d3f3d20231a064abcf2b635f0b39"
     },
     "components/Snackbar.tsx": {
       "exact": "9dc137813948faf676c941e937ac25ca780b4fa325e318b4324be54dca46649b",
