@@ -145,11 +145,13 @@ export const WithDisabledItemAndDivider: Story = {
 
 /** `selectionMode="single"`: the items are choices, one selected at a time,
  *  announced as radio items. The selected row takes the selected container
- *  and a trailing check. */
+ *  and a trailing check. A page size always has a value, so
+ *  `disallowEmptySelection` keeps the selected row from being unchecked. */
 export const SingleSelection: Story = {
   args: {
     triggerButton: <Button variant="text">25 per page</Button>,
     selectionMode: "single",
+    disallowEmptySelection: true,
     defaultSelectedKeys: ["25"],
     items: [
       { id: "10", label: "10 per page" },
@@ -160,8 +162,8 @@ export const SingleSelection: Story = {
 };
 
 /** `selectionMode="multiple"`: any number selected, announced as checkbox
- *  items. A click or Space toggles one and the menu stays open; Enter toggles
- *  and closes. */
+ *  items. The menu stays open while they are toggled, until Escape or a press
+ *  outside dismisses it. */
 export const MultipleSelection: Story = {
   args: {
     triggerButton: <Button variant="text">Columns</Button>,

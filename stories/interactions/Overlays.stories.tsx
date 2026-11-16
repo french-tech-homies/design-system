@@ -305,6 +305,7 @@ export const MenuSingleSelection: Story = {
       <Menu
         triggerButton={<Button variant="text">{size} per page</Button>}
         selectionMode="single"
+        disallowEmptySelection
         selectedKeys={[size]}
         onSelectionChange={(keys) => {
           if (keys !== "all" && keys.size > 0) setSize(String([...keys][0]));
@@ -340,9 +341,9 @@ export const MenuSingleSelection: Story = {
   },
 };
 
-/** With `selectionMode="multiple"` the items are checkbox items, Space
-    toggles one without closing, and an uncontrolled selection is still there
-    when the menu is opened again. */
+/** With `selectionMode="multiple"` the items are checkbox items, Space and
+    Enter each toggle one without closing, and an uncontrolled selection is
+    still there when the menu is opened again. */
 export const MenuMultipleSelectionSurvivesClosing: Story = {
   render: () => (
     <Menu
@@ -373,6 +374,14 @@ export const MenuMultipleSelectionSurvivesClosing: Story = {
     await userEvent.keyboard("{ArrowDown}");
     await userEvent.keyboard(" ");
     await waitFor(() => expect(date()).toHaveAttribute("aria-checked", "true"));
+    await expect(menu).toBeVisible();
+
+    // Enter toggles too, and the menu stays: Material's multi-select menu is
+    // open until the person dismisses it.
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
+    const total = within(menu).getByRole("menuitemcheckbox", { name: "Total" });
+    await waitFor(() => expect(total).toHaveAttribute("aria-checked", "true"));
     await expect(menu).toBeVisible();
 
     await userEvent.keyboard("{Escape}");

@@ -45,10 +45,10 @@ type MenuProps = {
   /** The rows, in order: items, and dividers between groups of them. */
   items: (MenuItemType | MenuDividerType)[];
   /** Makes the items choices instead of actions: `"single"` keeps one
-   *  selected (announced as radio items), `"multiple"` any number (checkbox
-   *  items: a click or Space toggles one and the menu stays open, Enter
-   *  toggles and closes). A selected row takes the selected container and a
-   *  trailing check. Left out, items are actions. */
+   *  selected (announced as radio items, and choosing closes the menu),
+   *  `"multiple"` any number (checkbox items, and the menu stays open until
+   *  it is dismissed, as Material asks). A selected row takes the selected
+   *  container and a trailing check. Left out, items are actions. */
   selectionMode?: "single" | "multiple";
   /** The selected items' ids, controlled. */
   selectedKeys?: Iterable<string>;
@@ -56,6 +56,10 @@ type MenuProps = {
    *  selection itself from then on, closed or open. */
   defaultSelectedKeys?: Iterable<string>;
   onSelectionChange?: (keys: Selection) => void;
+  /** Keeps a selection from being emptied: pressing the selected item of a
+   *  single choice then leaves it selected. For a choice that always has a
+   *  value, such as a page size or a sort order. */
+  disallowEmptySelection?: boolean;
   triggerButton: React.ReactNode;
   placement?: Placement;
   /** The space between the trigger and the menu, in pixels. Left out, React
@@ -103,6 +107,9 @@ const dividerStyles = tv({
  * Material describes no destructive item, and the kit draws none: confirm a
  * destructive action in a dialog.
  *
+ * Deviation: Material lets a disabled item take focus. React Aria's menu
+ * passes it, and so does this one.
+ *
  * Spec: https://m3.material.io/components/menus/{overview,specs,guidelines,accessibility}
  */
 export function Menu(props: MenuProps) {
@@ -118,6 +125,7 @@ export function Menu(props: MenuProps) {
     selectedKeys,
     defaultSelectedKeys,
     onSelectionChange,
+    disallowEmptySelection,
   } = props;
   // The list is unmounted while the menu is closed, so a selection React
   // Aria held inside it would be lost at every close. Uncontrolled, it is
@@ -146,6 +154,7 @@ export function Menu(props: MenuProps) {
           {...(selectionMode
             ? {
                 selectionMode,
+                disallowEmptySelection,
                 selectedKeys: selectedKeys ?? ownKeys,
                 onSelectionChange: (keys: Selection) => {
                   setOwnKeys(keys);
@@ -169,6 +178,11 @@ export function Menu(props: MenuProps) {
                 onAction={item.onAction}
                 href={item.href}
                 isDisabled={item.isDisabled}
+                // Material: a multi-select menu stays open until the person
+                // dismisses it. Left to itself, React Aria closes it on Enter.
+                {...(selectionMode === "multiple"
+                  ? { shouldCloseOnSelect: false }
+                  : {})}
                 // `group`: MenuItem's state layer reads this element's
                 // `data-focus-visible` and `data-pressed`. Without it a row
                 // reached by the arrow keys shows no focus at all.
