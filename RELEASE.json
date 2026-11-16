@@ -66,8 +66,8 @@
       "loose": "be6dfbb4d7315adddc75cc9e6e7f5d54aa5fd9878ec75873e0c49355ebecd958"
     },
     "components/Chip.tsx": {
-      "exact": "64198ca8e51a555b787f16c1f8de51ad52561f5bab1e38161ac70b251da65853",
-      "loose": "30f0e4cd07e028f29fa2fd53cd30c9b114773ff3ed22e6ca0e96f92329c9a097"
+      "exact": "7249d5249b3f87192cbae597b67b8cd850a512451bb2cc964431e52e36be0fce",
+      "loose": "f5ef3b2a329efcdd204582ace4f06c758ebed1a84af9684367de9120b39e299d"
     },
     "components/ComboBox.tsx": {
       "exact": "0db1061cd3d35eab1e47e4573ed8b6e2faca6b0c368f8070389abf36adc42a91",
