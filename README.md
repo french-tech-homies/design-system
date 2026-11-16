@@ -248,6 +248,13 @@ on, and an update of the kit never replaces it. What a block is:
 
 - `pager-block`: the pages of a list or a table: the range shown, previous
   and next, a page-size menu.
+- `stepper-block`: where a person is in a sequence of steps, with the steps
+  done to go back to.
+- `radio-tile-block`: a choice of one among a few, each drawn as a tile.
+- `reading-carousel-block`: a row of things that are read, a few in view at
+  a time.
+- `site-header-block`: the header of a public page, its links folding into
+  a menu on a phone.
 
 [color]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-color--roles
 [typography]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-typography--scale

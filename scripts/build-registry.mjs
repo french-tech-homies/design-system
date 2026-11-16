@@ -1113,6 +1113,34 @@ const blocks = [
       "The pages of a list or a table: the range shown, previous and next, and a page-size menu. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's IconButton, Button, Menu and Body.",
     path: "blocks/pager/Pager.tsx",
   }),
+  blockItem({
+    name: "stepper-block",
+    title: "Stepper (block)",
+    description:
+      "Where a person is in a sequence of steps: done steps with a check, buttons to go back to them, the current step named. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's Button, CheckIcon and Label.",
+    path: "blocks/stepper/Stepper.tsx",
+  }),
+  blockItem({
+    name: "radio-tile-block",
+    title: "RadioTile (block)",
+    description:
+      "A choice of one among a few, each drawn as a tile around the kit's radio. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's RadioGroup, Radio, Title and Body.",
+    path: "blocks/radio-tile/RadioTile.tsx",
+  }),
+  blockItem({
+    name: "reading-carousel-block",
+    title: "ReadingCarousel (block)",
+    description:
+      "A row of things that are read (quotes, cards of text), a few in view, scrolled by touch, by its buttons and by the arrow keys. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's IconButton, chevron icons and Body.",
+    path: "blocks/reading-carousel/ReadingCarousel.tsx",
+  }),
+  blockItem({
+    name: "site-header-block",
+    title: "SiteHeader (block)",
+    description:
+      "The header of a public page: a brand link, a row of links that folds into a menu on a phone, and actions that stay in view. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's Link, IconButton, Menu and Title.",
+    path: "blocks/site-header/SiteHeader.tsx",
+  }),
 ];
 
 const registry = {

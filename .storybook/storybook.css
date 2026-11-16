@@ -17,6 +17,7 @@
 @source "../primitives";
 @source "../adapters";
 @source "../icons.tsx";
+@source "../blocks";
 @source "../stories";
 
 @custom-variant dark (&:where(.dark, .dark *));

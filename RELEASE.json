@@ -352,8 +352,8 @@
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "abbc8e4c701e72099055018f8f1833aa69e28674c9c68afa8a3dac92166d411c",
-      "loose": "875b8ed1bc9769b126e9a0b8389c6b41b5594b458c93f5247e476016fad85d90"
+      "exact": "742a2863c579ea4cc38866a99557062663a1be47372946b27e1206ae9459aae7",
+      "loose": "74fa0b750ceb32290c25c5757a9df771841e99ed50998b5d29c260ef76371d06"
     },
     ".claude/skills/ds-spec/SKILL.md": {
       "exact": "96df5b9d9585d4dfb4f5ef97d0baa936a5d7176111ef5247d29a04670d8fd25e",
