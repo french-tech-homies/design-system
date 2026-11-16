@@ -1498,6 +1498,28 @@
       }
     },
     {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "A placeholder the shape of content that is loading (a line of text, a rectangle, a circle), and the group that says \"Loading\" once for a region.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Skeleton.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Skeleton.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.9.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "divider",
       "type": "registry:ui",
       "title": "Divider",
@@ -2260,6 +2282,7 @@
         "@ds/navigation-drawer",
         "@ds/slider",
         "@ds/empty-state",
+        "@ds/skeleton",
         "@ds/divider",
         "@ds/progress-indicator",
         "@ds/loading-indicator",

@@ -701,6 +701,14 @@ const components = [
     deps: ["utils", "typography"],
   }),
   item({
+    name: "skeleton",
+    title: "Skeleton",
+    description:
+      "A placeholder the shape of content that is loading (a line of text, a rectangle, a circle), and the group that says \"Loading\" once for a region.",
+    files: [file("components/Skeleton.tsx")],
+    deps: ["utils"],
+  }),
+  item({
     name: "divider",
     title: "Divider",
     description:
@@ -1228,6 +1236,34 @@ for (const found of registry.items) {
   const path = itemRecord(found.name);
   writeFileSync(path, JSON.stringify(own, null, 2) + "\n");
   found.files.push({ path, type: "registry:file", target: `${UI}/${path}` });
+}
+
+// The barrel names nothing the one install does not bring. `index.ts` lands
+// in every project: a module it exports from that no item reached from `ds`
+// carries is a file missing there, and a kit that does not type-check.
+// (0.9.0 was published with `Skeleton` exported and in no item.)
+{
+  const brought = new Set(
+    registry.items
+      .filter((i) => reached.has(i.name))
+      .flatMap((i) => i.files ?? [])
+      .map((f) => f.path),
+  );
+  const missing = [];
+  for (const [, spec] of readFileSync("index.ts", "utf8").matchAll(
+    /from\s+"(\.\/[^"]+)"/g,
+  )) {
+    const path = spec.slice(2);
+    const found = [`${path}.tsx`, `${path}.ts`, `${path}/index.ts`].some((c) =>
+      brought.has(c),
+    );
+    if (!found) missing.push(spec);
+  }
+  if (missing.length) {
+    throw new Error(
+      `index.ts exports from ${missing.join(", ")}, which \`shadcn add @ds/ds\` does not bring: add an item for it`,
+    );
+  }
 }
 
 // What `changed.mjs` reads in a project: this version, the digests of
