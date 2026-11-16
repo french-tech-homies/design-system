@@ -49,6 +49,8 @@ import {
  * `stories/interactions/Fields.stories.tsx` for why these live apart from the
  * component stories.
  */
+import { expectVisibleFocus } from "./visible-focus";
+
 const meta = {
   title: "MD3/Interactions/Containment",
   parameters: { layout: "padded" },
@@ -875,6 +877,11 @@ export const GridListRowIsMovedByTheKeyboard: Story = {
     await userEvent.keyboard("{ArrowRight}");
     const handle = canvas.getByRole("button", { name: "Drag Starters" });
     await expect(handle).toHaveFocus();
+    // A stop only the arrow keys reach: it shows the focus, and is given it
+    // back to go on.
+    await expectVisibleFocus(handle, () => userEvent.keyboard("{ArrowLeft}"));
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(handle).toHaveFocus();
 
     await userEvent.keyboard("{Enter}");
     await userEvent.keyboard("{ArrowDown}");
@@ -935,6 +942,14 @@ export const TableColumnIsResizedByTheKeyboard: Story = {
     // where the focus is on its label: Enter there sorts.
     await userEvent.tab();
     await userEvent.keyboard("{ArrowUp}");
+    await expect(heading.contains(document.activeElement)).toBe(true);
+    // The heading's label and its handle are stops only the arrow keys
+    // reach: each shows the focus.
+    const label = document.activeElement as HTMLElement;
+    await expectVisibleFocus(label, () => userEvent.keyboard("{ArrowRight}"));
+    const resizer = within(heading).getByRole("slider");
+    await expect(resizer).toHaveFocus();
+    await expectVisibleFocus(resizer, () => userEvent.keyboard("{ArrowLeft}"));
     await expect(heading.contains(document.activeElement)).toBe(true);
     await userEvent.keyboard("{Enter}");
     await waitFor(() =>
