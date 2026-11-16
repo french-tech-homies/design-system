@@ -161,6 +161,10 @@
       "exact": "6ac73fc2cc7aa28c527c3c8a8d646bead7c368e35c30d21a4ed44eb87a50835f",
       "loose": "13bd9e9b55323c657873d7ddc93b75320e20d2126d41bc105e4478d9b7ef70df"
     },
+    "components/Popover.tsx": {
+      "exact": "1cc34ae45c46f53b51a35400fb5de3ad5034770a5ed3eb27c8bf5efadea0b29b",
+      "loose": "48f916dd54b0385a480a4c01810a762568fed3e4921efe3dcfb06591f4f54a62"
+    },
     "components/PreviewTrigger.tsx": {
       "exact": "79fc16ffb0dee2cbe64de2b5c626f0aa3d574661b0331144d2bb45b79378c4d8",
       "loose": "cfba2df1d4ff047cc0a69fa86307970b066a28ac5e6757e5666ab47deb174cf6"
@@ -274,11 +278,11 @@
       "loose": "f53873012a0ccb6815603ab3e49154577deef31809651d1b1b6ad7c74045c38f"
     },
     "index.ts": {
-      "exact": "2838e6d53bb044e37f531d130b53baa1e4366314155a8785ee330fe019ba91a8",
-      "loose": "146404667df727b1795e415c2e6805c8c70763c940e1b660737184007571058c",
+      "exact": "0b17f33c0a52448a184838eac122d43c40d76268116f56697167c4f0976b37bb",
+      "loose": "6da7543c26699d786c78137d2d5135316ec6bf96574f773b3ffec59a0721772f",
       "landed": {
-        "exact": "0202dac49e3047fce4f812bb7c6a76fe21ad895c5a9d67449022caf3b3d65046",
-        "loose": "2a74e81ccd960311d5e56c98490068e3eaa9dee93b039474eacc60319336193b"
+        "exact": "5d00577bd15615d4d1836304f47f41205947028f066e332af685b7e176fa4d21",
+        "loose": "fe6c05eeaf4d984861a73769c37ad5a1db297a5ccf8c710cc99911f659fc5f9c"
       }
     },
     "primitives/StateLayer.tsx": {

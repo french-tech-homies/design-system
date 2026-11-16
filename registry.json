@@ -708,6 +708,32 @@
       }
     },
     {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "A surface for any content beside its trigger, on React Aria Popover and Dialog: not modal, focus kept in, closed by Escape or a press outside. The rich tooltip's container.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Popover.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Popover.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.7.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "breadcrumbs",
       "type": "registry:ui",
       "title": "Breadcrumbs",
@@ -2120,6 +2146,7 @@
         "@ds/table",
         "@ds/tag",
         "@ds/link",
+        "@ds/popover",
         "@ds/breadcrumbs",
         "@ds/badge",
         "@ds/avatar",

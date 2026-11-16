@@ -12,6 +12,10 @@ import FabMenu from "@french-tech-homies/design-system/components/FabMenu";
 import { Menu } from "@french-tech-homies/design-system/components/Menu";
 import { PhoneField } from "@french-tech-homies/design-system/components/PhoneField";
 import {
+  Popover,
+  PopoverTrigger,
+} from "@french-tech-homies/design-system/components/Popover";
+import {
   SearchView,
   SearchViewItem,
 } from "@french-tech-homies/design-system/components/Search";
@@ -201,5 +205,34 @@ export const FabMenuItem: Story = {
     await waitFor(() =>
       expect(canvas.queryByRole("button", { name: "Playlist" })).toBeNull(),
     );
+  },
+};
+
+/** A control inside an open popover. */
+export const PopoverControl: Story = {
+  render: () => (
+    <PopoverTrigger>
+      <Button variant="outlined">Rename</Button>
+      <Popover aria-label="Rename the file">
+        <div className="flex gap-2">
+          <Button variant="text">Cancel</Button>
+          <Button variant="filled">Rename</Button>
+        </div>
+      </Popover>
+    </PopoverTrigger>
+  ),
+  play: async () => {
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    const dialog = await screen.findByRole("dialog");
+    const cancel = within(dialog).getByRole("button", { name: "Cancel" });
+    await waitFor(() => expect(dialog.contains(focused())).toBe(true));
+    if (focused() !== cancel) await userEvent.tab();
+    await waitFor(() => expect(cancel).toHaveFocus());
+
+    await expectVisibleFocus(cancel, () => userEvent.tab());
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   },
 };

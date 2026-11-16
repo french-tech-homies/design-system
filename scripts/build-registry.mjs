@@ -441,6 +441,15 @@ const components = [
     deps: ["utils", "render-props"],
   }),
   item({
+    name: "popover",
+    title: "Popover",
+    description:
+      "A surface for any content beside its trigger, on React Aria Popover and Dialog: not modal, focus kept in, closed by Escape or a press outside. The rich tooltip's container.",
+    files: [file("components/Popover.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
     name: "breadcrumbs",
     title: "Breadcrumbs",
     description:
