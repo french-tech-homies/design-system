@@ -1498,6 +1498,29 @@
       }
     },
     {
+      "name": "pressable",
+      "type": "registry:ui",
+      "title": "Pressable",
+      "description": "A button, or a link, that holds anything (an avatar, a card's content, a line of text), with the state layer and the focus ring.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Pressable.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Pressable.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.10.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "skeleton",
       "type": "registry:ui",
       "title": "Skeleton",
@@ -2282,6 +2305,7 @@
         "@ds/navigation-drawer",
         "@ds/slider",
         "@ds/empty-state",
+        "@ds/pressable",
         "@ds/skeleton",
         "@ds/divider",
         "@ds/progress-indicator",

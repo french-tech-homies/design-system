@@ -172,6 +172,10 @@ file, `<kit>/tokens/bridge-shadcn.css`, where the entry CSS imports it. `bg-prim
 Every pressable shows a state layer: an overlay in the content colour whose
 opacity follows the state.
 
+- Something pressed that no kit control holds (an avatar that opens a menu,
+  a card pressed whole, a line of a list of your own): `Pressable`, a button
+  or with `href` a link around any content, with the state layer and the
+  ring. Do not import React Aria's `Button` or `Link` for it.
 - Use `StateLayer` from the kit with React Aria's render props (`isHovered`,
   `isFocusVisible`, `isPressed`), or the utilities
   `state-opacity-hover`, `state-opacity-focus`, `state-opacity-pressed`,
