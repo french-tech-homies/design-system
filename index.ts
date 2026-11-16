@@ -101,6 +101,7 @@ export {
 } from "./components/Badge";
 export {
   Table,
+  ResizableTableContainer,
   TableHeader,
   TableBody,
   TableFooter,
