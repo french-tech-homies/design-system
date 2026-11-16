@@ -42,6 +42,26 @@ export const AtTheStart: Story = { render: () => <Checkout start={0} /> };
 /** Midway: the steps done are buttons that go back to them. */
 export const Midway: Story = { render: () => <Checkout start={2} /> };
 
+/** Where only the current step's label is drawn, each other step still has
+    its name: a step ahead is not an empty item of the list. */
+export const EveryStepIsNamed: Story = {
+  render: () => (
+    <div className="w-72">
+      <Stepper aria-label="Checkout" steps={steps} current={1} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const nav = within(canvasElement).getByRole("navigation", { name: "Checkout" });
+    const items = within(nav).getAllByRole("listitem");
+    await expect(items.map((item) => item.textContent)).toEqual([
+      expect.stringContaining("Address"),
+      expect.stringContaining("Delivery"),
+      expect.stringContaining("Payment"),
+      expect.stringContaining("Review"),
+    ]);
+  },
+};
+
 /** Without `onStepPress` the steps done are not pressed. */
 export const NotPressed: Story = {
   render: () => <Stepper aria-label="Checkout" steps={steps} current={3} />,

@@ -107,6 +107,22 @@ export function ReadingCarousel({
     el.scrollBy({ left: by * width * (rtl ? -1 : 1), behavior: "smooth" });
   };
 
+  // A button pressed up to an end is disabled under the focus and would
+  // drop it: the other one takes it.
+  const previous = useRef<HTMLButtonElement>(null);
+  const next = useRef<HTMLButtonElement>(null);
+  const pressed = useRef<"previous" | "next" | null>(null);
+  useEffect(() => {
+    if (pressed.current === "previous" && ends.start) {
+      next.current?.focus();
+      pressed.current = null;
+    }
+    if (pressed.current === "next" && ends.end) {
+      previous.current?.focus();
+      pressed.current = null;
+    }
+  }, [ends.start, ends.end]);
+
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.target !== row.current) return;
     const rtl = getComputedStyle(row.current).direction === "rtl";
@@ -156,16 +172,24 @@ export function ReadingCarousel({
           variant="standard"
           icon={ChevronLeftIcon}
           aria-label="Previous"
+          ref={previous}
           isDisabled={ends.start}
-          onPress={() => step(-1)}
+          onPress={() => {
+            pressed.current = "previous";
+            step(-1);
+          }}
           className="rtl:-scale-x-100"
         />
         <IconButton
           variant="standard"
           icon={ChevronRightIcon}
           aria-label="Next"
+          ref={next}
           isDisabled={ends.end}
-          onPress={() => step(1)}
+          onPress={() => {
+            pressed.current = "next";
+            step(1);
+          }}
           className="rtl:-scale-x-100"
         />
       </div>

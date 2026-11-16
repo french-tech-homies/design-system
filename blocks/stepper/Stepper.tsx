@@ -80,7 +80,8 @@ export function Stepper({
               size="large"
               component="span"
               className={`${isCurrent ? "text-on-surface" : "text-on-surface-variant"} ${
-                isCurrent ? "" : "hidden @lg:inline"
+                // Unseen where there is no room, and still the step's name.
+                isCurrent ? "" : "sr-only @lg:not-sr-only"
               }`}
             >
               {/* On a phone the one label drawn says where it stands. */}
