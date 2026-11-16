@@ -208,7 +208,7 @@ where every variant is drawn, in light and dark.
 
 ### The kit's own
 
-Sixteen the kit ships that Material 3 does not describe, each built on
+Seventeen the kit ships that Material 3 does not describe, each built on
 Material's foundations and saying so in its doc comment. How one joins the
 group is in [What this kit is](docs/what-this-kit-is.md).
 
@@ -220,6 +220,8 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 - [`Breadcrumbs`][breadcrumbs]: the path to the current page, each level above it a link.
 - [`Popover`][popover]: a surface for any content, opened beside its trigger.
 - [`Tree`][tree]: a hierarchy opened level by level, such as folders and files.
+- [`ContextMenu`][contextmenu]: the menu asked for on something itself, by a right click, a long
+  press or the keyboard.
 - [`DropZone`][dropzone]: an area files are dropped onto, with `FileTrigger`, which opens the
   file chooser from a button.
 - [`Avatar`][avatar]: a person's picture or initials.
@@ -290,6 +292,7 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 [breadcrumbs]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-breadcrumbs--path
 [popover]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-popover--filters
 [tree]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-tree--folders-and-files
+[contextmenu]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-contextmenu--on-a-card
 [dropzone]: https://french-tech-homies.github.io/design-system/?path=/story/md3-text-inputs-dropzone--outlined
 [avatar]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-avatar--image
 [disclosure]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-disclosure--single

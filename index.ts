@@ -92,6 +92,10 @@ export { default as ListItem, type ListItemProps } from "./components/ListItem";
 export { Tag, type TagProps } from "./components/Tag";
 export { Link, type LinkProps } from "./components/Link";
 export {
+  ContextMenu,
+  type ContextMenuProps,
+} from "./components/ContextMenu";
+export {
   Tree,
   TreeItem,
   type TreeProps,

@@ -708,6 +708,31 @@
       }
     },
     {
+      "name": "context-menu",
+      "type": "registry:ui",
+      "title": "ContextMenu",
+      "description": "The kit's menu asked for on something itself: an area that opens it at the pointer on a right click or a long press, and at the focused element from the keyboard.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/menu",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/ContextMenu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/ContextMenu.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.7.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "tree",
       "type": "registry:ui",
       "title": "Tree",
@@ -2205,6 +2230,7 @@
         "@ds/table",
         "@ds/tag",
         "@ds/link",
+        "@ds/context-menu",
         "@ds/tree",
         "@ds/drop-zone",
         "@ds/popover",

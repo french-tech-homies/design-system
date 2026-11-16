@@ -1,10 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Settings, Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { expect, screen, userEvent, waitFor, within } from "storybook/test";
+import {
+  expect,
+  fireEvent,
+  fn,
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from "storybook/test";
 
 import Button from "@french-tech-homies/design-system/components/Button";
 import { Dialog } from "@french-tech-homies/design-system/components/Dialog";
+import { ContextMenu } from "@french-tech-homies/design-system/components/ContextMenu";
 import { Menu } from "@french-tech-homies/design-system/components/Menu";
 import {
   Popover,
@@ -1115,5 +1124,69 @@ export const PopoverOpensKeepsFocusAndReturnsIt: Story = {
     await userEvent.click(within(again).getByRole("button", { name: "Cancel" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     await waitFor(() => expect(trigger).toHaveFocus());
+  },
+};
+
+/* ---- ContextMenu ------------------------------------------------------- */
+
+const renamed = fn();
+
+/** A right click opens the menu where the pointer is; from the keyboard it
+    opens at the focused element. The arrows move, Enter acts, Escape closes,
+    and the focus goes back to where it was. */
+export const ContextMenuOpensByPointerAndByKeyboard: Story = {
+  render: () => (
+    <ContextMenu
+      aria-label="File actions"
+      items={[
+        { id: "rename", label: "Rename", onAction: renamed },
+        { id: "delete", label: "Delete" },
+      ]}
+    >
+      <Button variant="outlined">Roadmap.pdf</Button>
+    </ContextMenu>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    renamed.mockClear();
+    const file = canvas.getByRole("button", { name: "Roadmap.pdf" });
+    const box = file.getBoundingClientRect();
+
+    // By the pointer: at the pointer.
+    await fireEvent.contextMenu(file, {
+      clientX: box.left + 20,
+      clientY: box.top + 10,
+    });
+    let menu = await screen.findByRole("menu", { name: "File actions" });
+    const at = menu.getBoundingClientRect();
+    await expect(Math.abs(at.left - (box.left + 20))).toBeLessThan(12);
+    await expect(Math.abs(at.top - (box.top + 10))).toBeLessThan(12);
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+
+    // By the keyboard: the event has no place, and the menu opens under the
+    // focused element, on its first entry.
+    await userEvent.tab();
+    await expect(file).toHaveFocus();
+    await fireEvent.contextMenu(file, { clientX: 0, clientY: 0 });
+    menu = await screen.findByRole("menu");
+    await expect(
+      Math.abs(menu.getBoundingClientRect().top - box.bottom),
+    ).toBeLessThan(12);
+    const rename = within(menu).getByRole("menuitem", { name: "Rename" });
+    await waitFor(() => expect(rename).toHaveFocus());
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(
+      within(menu).getByRole("menuitem", { name: "Delete" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    await waitFor(() => expect(file).toHaveFocus());
+
+    await fireEvent.contextMenu(file, { clientX: 0, clientY: 0 });
+    await screen.findByRole("menu");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(renamed).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   },
 };

@@ -1,13 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Folder, History, Music, Plus } from "lucide-react";
 import React from "react";
-import { expect, screen, userEvent, waitFor, within } from "storybook/test";
+import {
+  expect,
+  fireEvent,
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from "storybook/test";
 
 import Button from "@french-tech-homies/design-system/components/Button";
 import {
   ComboBox,
   ComboBoxItem,
 } from "@french-tech-homies/design-system/components/ComboBox";
+import { ContextMenu } from "@french-tech-homies/design-system/components/ContextMenu";
 import FabMenu from "@french-tech-homies/design-system/components/FabMenu";
 import { Menu } from "@french-tech-homies/design-system/components/Menu";
 import { PhoneField } from "@french-tech-homies/design-system/components/PhoneField";
@@ -234,5 +242,33 @@ export const PopoverControl: Story = {
 
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  },
+};
+
+/** A row of a context menu. */
+export const ContextMenuRow: Story = {
+  render: () => (
+    <ContextMenu
+      aria-label="File actions"
+      items={[
+        { id: "rename", label: "Rename" },
+        { id: "delete", label: "Delete" },
+      ]}
+    >
+      <Button variant="outlined">Roadmap.pdf</Button>
+    </ContextMenu>
+  ),
+  play: async ({ canvasElement }) => {
+    const file = within(canvasElement).getByRole("button");
+    await userEvent.tab();
+    await fireEvent.contextMenu(file, { clientX: 0, clientY: 0 });
+    const menu = await screen.findByRole("menu");
+    const first = within(menu).getByRole("menuitem", { name: "Rename" });
+    await waitFor(() => expect(first).toHaveFocus());
+
+    await expectVisibleFocus(first, arrowDown);
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   },
 };
