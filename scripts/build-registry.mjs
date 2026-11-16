@@ -441,6 +441,15 @@ const components = [
     deps: ["utils", "render-props"],
   }),
   item({
+    name: "context-menu",
+    title: "ContextMenu",
+    description:
+      "The kit's menu asked for on something itself: an area that opens it at the pointer on a right click or a long press, and at the focused element from the keyboard.",
+    files: [file("components/ContextMenu.tsx")],
+    dependencies: [RAC],
+    deps: ["menu"],
+  }),
+  item({
     name: "tree",
     title: "Tree",
     description:
