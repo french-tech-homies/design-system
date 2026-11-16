@@ -68,12 +68,12 @@ test("the shipped docs hold the ranges this check is for", () => {
 test("a wrong range in the install command is refused, naming file, line, package and the range to write", () => {
   const docs = planted(
     "docs/installing.md",
-    '"tailwind-variants@^1.0.0"',
-    '"tailwind-variants@^4.0.0"',
+    '"tailwind-variants@^4.0.2"',
+    '"tailwind-variants@^5.0.0"',
   );
-  const line = lineOf("docs/installing.md", '"tailwind-variants@^1.0.0"');
+  const line = lineOf("docs/installing.md", '"tailwind-variants@^4.0.2"');
   assert.deepEqual(checkDocRanges(docs, pkg), [
-    `docs/installing.md:${line}: tailwind-variants@^4.0.0, write tailwind-variants@^1.0.0, the range the kit is tested on`,
+    `docs/installing.md:${line}: tailwind-variants@^5.0.0, write tailwind-variants@^4.0.2, the range the kit is tested on`,
   ]);
 });
 

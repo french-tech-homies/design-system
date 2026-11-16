@@ -132,8 +132,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** `tailwind-variants` bound to the MD3 merge config. Use for all kit styles. */
-export const tv = createTV({ twMergeConfig });
+/** `tailwind-variants` bound to the MD3 merge config. Use for all kit styles.
+    It is given the merge function `cn` uses, so a class is merged the same
+    way whether a component writes it through `tv` or through `cn`.
+    (`tailwind-variants` 4 takes a function here; through 3 it took the
+    config, as `createTV({ twMergeConfig })`.) */
+export const tv = createTV({ twMerge });
 
 /** The MD3 focus indicator — a 3px `secondary` ring offset 2px (Material's
     md.comp.focus-ring) — extended or inlined by every control. Drawn as an

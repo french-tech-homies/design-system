@@ -124,14 +124,15 @@ test("a dependency declared at another range than the kit's own is refused", () 
 });
 
 test("every registry dependency carries the kit's own range", () => {
-  // `shadcn add` installs a name with no range at its latest version: a
-  // fresh install took tailwind-variants 4, and `tsc -b` failed in utils.ts.
+  // `shadcn add` installs a name with no range at its latest version: while
+  // the kit was on tailwind-variants 1, a fresh install took 4, and `tsc -b`
+  // failed in utils.ts.
   for (const found of kit.registry.items) {
     for (const d of [...(found.dependencies ?? []), ...(found.devDependencies ?? [])]) {
       assert.match(d, /.@[^@]+$/, `item "${found.name}" declares "${d}" with no range`);
     }
   }
-  assert.ok(item(kit, "utils").dependencies.includes("tailwind-variants@^1.0.0"));
+  assert.ok(item(kit, "utils").dependencies.includes("tailwind-variants@^4.0.2"));
   assert.ok(item(kit, "ds").dependencies.includes("tw-animate-css@^1.4.0"));
 });
 
@@ -143,7 +144,7 @@ test("a registry dependency with no range is refused, naming the range to write"
         d.startsWith("tailwind-variants@") ? "tailwind-variants" : d,
       );
     }),
-    /item "utils" declares "tailwind-variants" with no range: write tailwind-variants@\^1\.0\.0/,
+    /item "utils" declares "tailwind-variants" with no range: write tailwind-variants@\^4\.0\.2/,
   );
   refuses(
     changed((k) => {
@@ -170,10 +171,10 @@ test("a registry dependency at another range than the kit's own is refused", () 
     changed((k) => {
       const utils = item(k, "utils");
       utils.dependencies = utils.dependencies.map((d) =>
-        d.startsWith("tailwind-variants@") ? "tailwind-variants@^4.0.0" : d,
+        d.startsWith("tailwind-variants@") ? "tailwind-variants@^5.0.0" : d,
       );
     }),
-    /item "utils" declares tailwind-variants@\^4\.0\.0, but the kit's package\.json has tailwind-variants@\^1\.0\.0: write tailwind-variants@\^1\.0\.0/,
+    /item "utils" declares tailwind-variants@\^5\.0\.0, but the kit's package\.json has tailwind-variants@\^4\.0\.2: write tailwind-variants@\^4\.0\.2/,
   );
   refuses(
     changed((k) => {
