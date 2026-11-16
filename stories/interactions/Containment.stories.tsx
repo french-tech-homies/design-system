@@ -862,6 +862,35 @@ function OrderedList() {
   );
 }
 
+/** A row's focus ring is drawn inside it, where the list cannot cut it,
+    and over what the row holds: a selected item's colour does not hide it. */
+export const GridListRingIsInsideTheRow: Story = {
+  render: () => (
+    <GridList
+      aria-label="Folders"
+      selectionMode="single"
+      defaultSelectedKeys={["finance"]}
+      className="w-72"
+    >
+      {["finance", "design"].map((id) => (
+        <GridListItem key={id} id={id} textValue={id}>
+          {({ isSelected }) => <ListItem headline={id} isSelected={isSelected} />}
+        </GridListItem>
+      ))}
+    </GridList>
+  ),
+  play: async ({ canvasElement }) => {
+    await userEvent.tab();
+    const row = within(canvasElement).getByRole("row", { name: "finance" });
+    await expect(row).toHaveFocus();
+    // The ring is the row's last layer, a pseudo-element over its content.
+    const ring = getComputedStyle(row, "::after");
+    await expect(ring.outlineStyle).toBe("solid");
+    await expect(ring.outlineOffset).toBe("-3px");
+    await expect(ring.position).toBe("absolute");
+  },
+};
+
 /** A row is moved by the keyboard alone: the arrow keys reach its handle,
     Enter picks the row up, the arrows choose a place, Enter drops it. */
 export const GridListRowIsMovedByTheKeyboard: Story = {

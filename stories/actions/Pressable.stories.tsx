@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 
 import { Avatar } from "@french-tech-homies/design-system/components/Avatar";
+import { Menu } from "@french-tech-homies/design-system/components/Menu";
 import { Pressable } from "@french-tech-homies/design-system/components/Pressable";
 import { Body, Title } from "@french-tech-homies/design-system/primitives/Typography";
 
@@ -44,6 +45,37 @@ export const AroundAnAvatar: Story = {
     const box = button.getBoundingClientRect();
     await expect(box.width).toBeGreaterThanOrEqual(48);
     await expect(box.height).toBeGreaterThanOrEqual(48);
+  },
+};
+
+/** As a menu's trigger: the avatar opens the account's menu, and takes the
+    focus back when it closes. */
+export const OpensAMenu: Story = {
+  render: () => (
+    <Menu
+      triggerButton={
+        <Pressable
+          aria-label="Account"
+          className="rounded-shape-full min-h-12 min-w-12 justify-center"
+        >
+          <Avatar fallback="AM" />
+        </Pressable>
+      }
+      items={[
+        { id: "profile", label: "Profile" },
+        { id: "out", label: "Sign out" },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole("button", { name: "Account" });
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await expect(await screen.findByRole("menu")).toBeVisible();
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
   },
 };
 

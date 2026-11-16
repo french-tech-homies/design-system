@@ -172,6 +172,10 @@ file, `<kit>/tokens/bridge-shadcn.css`, where the entry CSS imports it. `bg-prim
 Every pressable shows a state layer: an overlay in the content colour whose
 opacity follows the state.
 
+- A setting in a list of settings: `<Switch labelPosition="start"
+  supportingText="…">`, the label first and the switch at the row's end.
+  A row of filter chips on a phone: `<ChipGroup isScrollable>`. A slider
+  whose value is a time or a word: `formatValue`.
 - Something pressed that no kit control holds (an avatar that opens a menu,
   a card pressed whole, a line of a list of your own): `Pressable`, a button
   or with `href` a link around any content, with the state layer and the
@@ -228,6 +232,10 @@ body, where the next Tab starts from the top:
   took its place (`tabIndex={-1}`, a ref, `focusRing`).
 - **The page changed** (a route, a step, a tab of the app): give the focus
   to the new page's heading, and say its name in a `role="status"` line.
+- **Escape in a list inside a dialog or a sheet** clears the list's
+  selection and goes no further. A `GridList`, a `Tree` or a `Table` whose
+  selection is where the app is, and is never cleared, takes
+  `escapeKeyBehavior="none"`, or Escape never closes what is around it.
 - **A sticky bar** hides what takes the focus beneath it: give the scrolling
   box `scroll-pt-*` of the bar's height.
 - **A snackbar** is drawn over the window's bottom edge: place its region

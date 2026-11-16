@@ -94,7 +94,9 @@ export type SwitchProps = Omit<AriaSwitchProps, "className" | "children"> & {
  *
  * The label is its children. `supportingText` is a second line under it and
  * the switch's description; `labelPosition="start"` makes the whole a
- * settings row, the label first and the switch at the end.
+ * settings row, the label first and the switch at the end: Material's
+ * guidelines give switches for "standalone or more verbose options in a
+ * list, like settings", and describe no row; this one is the kit's.
  *
  * Spec: https://m3.material.io/components/switch/{overview,specs,guidelines,accessibility}
  * Deviation: the spec lists Enter as a toggle key; React Aria's switch (a
@@ -159,7 +161,7 @@ export function Switch({
                 <span
                   id={descriptionId}
                   data-slot="supporting-text"
-                  className="text-on-surface-variant"
+                  className="text-on-surface-variant group-data-disabled/sw:text-on-surface/38"
                 >
                   {supportingText}
                 </span>
