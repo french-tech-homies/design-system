@@ -17,6 +17,12 @@
  *   <FormTextField control={form.control} name="email" label="Email"
  *     rules={{ required: "Enter your email", pattern: { value: /@/, message: "Not an email" } }} />
  *
+ * Each `Form*` field is given `validationBehavior="aria"`: the form decides
+ * what is valid, so a field marked `isRequired` shows its asterisk and says
+ * so, and the browser's own validation does not stop the submit before the
+ * form's rules have run. Pass `validationBehavior="native"` to hand a field
+ * back to the browser.
+ *
  * A refused submit puts the focus in the first invalid field, as
  * react-hook-form does by default (`shouldFocusError`), and
  * `form.setFocus(name)` reaches a field: each `Form*` renders a hidden
@@ -75,8 +81,11 @@ import { TextField, type TextFieldProps } from "../components/TextField";
  * the control: focusing the field focuses the first thing in the control a
  * keyboard reaches. With it `shouldFocusError` (on by default) and
  * `form.setFocus(name)` work.
+ *
+ * Exported for a field of the project's own, bound with `Controller`: put
+ * `<FocusAnchor fieldRef={field.ref} />` just before its control.
  */
-function FocusAnchor({ fieldRef }: { fieldRef: (instance: unknown) => void }) {
+export function FocusAnchor({ fieldRef }: { fieldRef: (instance: unknown) => void }) {
   return (
     <span
       hidden
@@ -147,6 +156,7 @@ export function FormTextField<TValues extends FieldValues>({
         <>
           <FocusAnchor fieldRef={field.ref} />
           <TextField
+            validationBehavior="aria"
             {...props}
             name={field.name}
             value={field.value ?? ""}
@@ -182,6 +192,7 @@ export function FormNumberField<TValues extends FieldValues>({
         <>
           <FocusAnchor fieldRef={field.ref} />
           <NumberField
+            validationBehavior="aria"
             {...props}
             name={field.name}
             value={typeof field.value === "number" ? field.value : NaN}
@@ -233,6 +244,7 @@ export function FormDatePicker<TValues extends FieldValues>({
         <>
           <FocusAnchor fieldRef={field.ref} />
           <DatePicker
+            validationBehavior="aria"
             {...props}
             name={field.name}
             value={toDate(field.value)}
@@ -270,6 +282,7 @@ export function FormPhoneField<TValues extends FieldValues>({
         <>
           <FocusAnchor fieldRef={field.ref} />
           <PhoneField
+            validationBehavior="aria"
             {...props}
             name={field.name}
             value={typeof field.value === "string" ? field.value : ""}
@@ -331,6 +344,7 @@ export function FormCheckbox<TValues extends FieldValues>({
         <>
           <FocusAnchor fieldRef={field.ref} />
           <Checkbox
+            validationBehavior="aria"
             {...props}
             name={field.name}
             isSelected={!!field.value}
@@ -364,6 +378,7 @@ export function FormCheckboxGroup<TValues extends FieldValues>({
         <>
           <FocusAnchor fieldRef={field.ref} />
           <CheckboxGroup
+            validationBehavior="aria"
             {...props}
             name={field.name}
             value={Array.isArray(field.value) ? field.value : []}
@@ -422,6 +437,7 @@ export function FormRadioGroup<TValues extends FieldValues>({
         <>
           <FocusAnchor fieldRef={field.ref} />
           <RadioGroup
+            validationBehavior="aria"
             {...props}
             name={field.name}
             // "" is how a form holds no choice. Given to the group as a
@@ -457,6 +473,7 @@ export function FormSelect<TValues extends FieldValues, T extends object>({
         <>
           <FocusAnchor fieldRef={field.ref} />
           <Select<T>
+            validationBehavior="aria"
             {...props}
             name={field.name}
             selectedKey={field.value ?? null}
@@ -564,6 +581,7 @@ export function FormComboBox<
         <>
           <FocusAnchor fieldRef={field.ref} />
           <ComboBox<T, M>
+            validationBehavior="aria"
             {...props}
             name={field.name}
             value={
