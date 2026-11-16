@@ -194,7 +194,10 @@ opacity follows the state.
   never by a class name.
 - Anything backed by React Aria is a client component. `Card`, `ListItem`,
   `MenuItem`, `Tag`, `Badge`, `Divider`, `TopAppBar`, `EmptyState`,
-  `DialogContent` and the type primitives render on the server.
+  `Skeleton`, `DialogContent` and the type primitives render on the server.
+- Content that is loading and whose shape is known: `Skeleton`, in a
+  `SkeletonGroup` that says "Loading" once. An action in progress:
+  `LoadingIndicator` or `ProgressIndicator`.
 - Icons are any component taking `{ size, className }`. The kit ships no icon
   library.
 

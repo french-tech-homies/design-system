@@ -232,6 +232,7 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 - [`PhoneField`][phonefield]: a text field for a phone number, with a country picker.
 - [`ImageField`][imagefield]: choosing, previewing and removing one image.
 - [`EmptyState`][emptystate]: what a list or a page shows when it has nothing to show.
+- [`Skeleton`][skeleton]: a placeholder the shape of content that is loading.
 - [`Meter`][meter]: a quantity within a known range, such as a quota or a disk's use.
 - [`ColorPicker`][colorpicker]: editing a colour, with its four parts `ColorArea`,
   `ColorField`, `ColorSlider` and `ColorSwatch`.
@@ -319,6 +320,7 @@ on, and an update of the kit never replaces it. What a block is:
 [phonefield]: https://french-tech-homies.github.io/design-system/?path=/story/md3-text-inputs-phone-field--outlined
 [imagefield]: https://french-tech-homies.github.io/design-system/?path=/story/md3-text-inputs-image-field--empty
 [emptystate]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-empty-state--default
+[skeleton]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-skeleton--list
 [meter]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-meter--default
 [colorpicker]: https://french-tech-homies.github.io/design-system/?path=/story/md3-selection-color-picker--picker
 
