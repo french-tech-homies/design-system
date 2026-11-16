@@ -8,70 +8,75 @@ was released. Each run's log, as its builder wrote it, is in
 
 ## The figure
 
-A part is the kit's when it was built with no `component`, `feature`,
+A part is the kit's when it was built with no `component`, `option`,
 `control` or `edit` leave: the corpus's rule.
 
-**41 parts of 119, 34%**, where the corpus aims at 95%.
+**52 parts of 119, 44%**, where the corpus aims at 95%.
 
-That figure hides what moved. The same logs, read for a part that needed no
-control from outside the kit (no `component`, `control` or `edit` leave,
-whatever its `feature` leaves): **93 parts of 119, 78%**.
+| #  | Screen             | Parts | The kit's | No control from outside the kit |
+| :- | :----------------- | ----: | --------: | ------------------------------: |
+| 1  | Application shell  |     6 |         2 |                               5 |
+| 2  | Data table         |     8 |         7 |                               8 |
+| 3  | Record form        |     4 |         0 |                               3 |
+| 4  | Dashboard          |     7 |         5 |                               6 |
+| 5  | Settings           |     6 |         3 |                               6 |
+| 6  | People and roles   |     5 |         2 |                               4 |
+| 7  | Sign in and up     |     5 |         2 |                               4 |
+| 8  | Feed               |     7 |         2 |                               6 |
+| 9  | Product            |     6 |         3 |                               4 |
+| 10 | Checkout           |     5 |         3 |                               5 |
+| 11 | Account            |     3 |         0 |                               2 |
+| 12 | Search             |     4 |         0 |                               4 |
+| 13 | File browser       |     7 |         3 |                               4 |
+| 14 | Inbox              |     5 |         2 |                               5 |
+| 15 | Board              |     4 |         3 |                               3 |
+| 16 | Editor chrome      |     7 |         1 |                               4 |
+| 17 | Schedule           |     5 |         0 |                               1 |
+| 18 | Activity           |     4 |         2 |                               3 |
+| 19 | Landing page       |     6 |         6 |                               6 |
+| 20 | Pricing            |     5 |         2 |                               3 |
+| 21 | Contact            |     3 |         0 |                               3 |
+| 22 | Article            |     7 |         4 |                               4 |
+|    | **All**            | **119** |  **52** |                          **93** |
 
-| #  | Screen             | Parts | The kit's, by the rule | No control from outside the kit |
-| :- | :----------------- | ----: | ---------------------: | ------------------------------: |
-| 1  | Application shell  |     6 |                      2 |                               5 |
-| 2  | Data table         |     8 |                      5 |                               8 |
-| 3  | Record form        |     4 |                      0 |                               3 |
-| 4  | Dashboard          |     7 |                      4 |                               6 |
-| 5  | Settings           |     6 |                      2 |                               6 |
-| 6  | People and roles   |     5 |                      2 |                               4 |
-| 7  | Sign in and up     |     5 |                      1 |                               4 |
-| 8  | Feed               |     7 |                      2 |                               6 |
-| 9  | Product            |     6 |                      3 |                               4 |
-| 10 | Checkout           |     5 |                      1 |                               5 |
-| 11 | Account            |     3 |                      0 |                               2 |
-| 12 | Search             |     4 |                      0 |                               4 |
-| 13 | File browser       |     7 |                      3 |                               4 |
-| 14 | Inbox              |     5 |                      1 |                               5 |
-| 15 | Board              |     4 |                      2 |                               3 |
-| 16 | Editor chrome      |     7 |                      0 |                               4 |
-| 17 | Schedule           |     5 |                      0 |                               1 |
-| 18 | Activity           |     4 |                      2 |                               3 |
-| 19 | Landing page       |     6 |                      6 |                               6 |
-| 20 | Pricing            |     5 |                      2 |                               3 |
-| 21 | Contact            |     3 |                      0 |                               3 |
-| 22 | Article            |     7 |                      3 |                               4 |
-|    | **All**            | **119** |               **41** |                          **93** |
+The last column reads the same logs for a part that took no `component`,
+`control` or `edit` leave, whatever else it took: 93 parts of 119, 78%.
 
 Every screen built, in each builder's hands and again here. No kit file was
 edited in any run.
 
-Leaves over the 22 runs: 117 `feature`, 22 `component`, 14 `control`, no
-`edit`; and beside the figure 125 `layout`, 115 `read`, 29 `guess`, 22
-`value`, 10 `hook`.
+Leaves over the 22 runs: 89 `option`, 22 `component`, 14 `control`, no
+`edit`; and beside the figure 125 `layout`, 115 `read`, 29 `guess`, 28 `use`,
+22 `value`, 10 `hook`.
 
-## What the two figures say
+## How the figure was read
+
+The builders logged one kind, `feature`, for anything a kit component did
+not do by itself: 117 leaves. That kind counted two things alike: an option
+the kit lacks (a dialog whose actions cannot be destructive) and the kit
+used as it means to be (a width passed to that dialog by `className`). By
+the rule as it then stood the figure was 41 parts of 119, 34%.
+
+The corpus now has two kinds in its place, `option` and `use`, as `hand`
+became `control` and `layout` after the pilot. The 117 were read one by one
+afterwards and split: 89 `option`, 28 `use`. The split, with each leave and,
+for a `use`, why it is one, is
+[`coverage-baseline/feature-split.json`](coverage-baseline/feature-split.json).
+One reader made it: a second would move a few.
+
+## What the figures say
 
 **The kit now has most of the controls.** A builder took a component from
 React Aria 22 times in 22 screens, and wrote a control by hand 14 times. In
 the pilot's four screens alone a component was taken 12 times. The landing
-page, none of whose
-six parts was the kit's in the pilot, is the kit's whole: its header and its
-carousel are two of the new blocks, its links the kit's `Link`.
+page, none of whose six parts was the kit's in the pilot, is the kit's
+whole: its header and its carousel are two of the new blocks, its links the
+kit's `Link`.
 
-**What a builder meets now is a component that lacks an option.** 117
-`feature` leaves, in every screen but one. They are not one kind of thing:
-
-- some are a gap a project cannot fill well: a dialog whose actions cannot
-  be destructive, an avatar that cannot be decorative, a checkbox alone
-  that cannot show an error;
-- some are the kit working as it means to, logged because a class was
-  passed: a width on a dialog, a column hidden on a phone.
-
-The corpus's rule counts both against the kit. Splitting `feature` as
-`hand` was split after the pilot, into an option the kit lacks and a class
-the kit expects, is the next change the corpus needs, and it is the owner's
-to decide.
+**What a builder meets now is a component that lacks an option**: 89 times,
+in 21 screens of 22. Forty-one parts took no control from outside the kit
+and still are not the kit's, each for an option. They repeat: the table
+below is short, and its first five lines are met by seven screens or more.
 
 **The kit is still read through its source.** 115 reads and 29 wrong guesses
 in 22 screens. Ten screens' logs name the same guess: a type primitive
