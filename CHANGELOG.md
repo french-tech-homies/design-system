@@ -43,6 +43,56 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-11-16
+
+### Action needed
+
+#### The kit moves to tailwind-variants 4 ([#43](https://github.com/french-tech-homies/design-system/pull/43))
+
+**Action needed if you call `tailwind-variants` yourself.** The update installs `tailwind-variants@^4.0.2` and the kit's `utils.ts` written for it. A project that only uses the kit's `tv`, `cn` and `focusRing` has nothing to do.
+
+Version 4 no longer takes `twMergeConfig`, in `createTV` or as the second argument of `tv`: it takes a merge function, `twMerge`. Search your own source, outside `<ui>/ds/`, for `twMergeConfig` and for `createTV`. For each use, import the kit's `tv` instead, or pass a merge function: `createTV({ twMerge })`, with `twMerge` built by `extendTailwindMerge(twMergeConfig)` as the kit's `utils.ts` does.
+
+The new `utils.ts` does not type-check on `tailwind-variants` 3 or older: take 4 with it. A project that must stay on an older one for now keeps its copy of `<ui>/ds/utils.ts` from before this release, and `node <ui>/ds/changed.mjs` will go on naming that file.
+
+#### ListItem's headline is Material's label text: body-large ([#45](https://github.com/french-tech-homies/design-system/pull/45))
+
+Nothing to run. A list drawn with the kit's `ListItem` is shorter and its headline smaller after this update: 16px text where it was 22px. A project that wants the larger text back passes its own node as `headline` (`<Title size="large" component="span">`).
+
+#### ListItem: Material's selected colours and its two-line height ([#58](https://github.com/french-tech-homies/design-system/pull/58))
+
+Nothing to run. A list drawn with the kit's `ListItem` changes look: a row with supporting text is 72dp high where it was 60dp, and a selected row is on `secondary-container` where it was on `primary-container`.
+
+### Breaking
+
+- The kit moves to tailwind-variants 4 ([#43](https://github.com/french-tech-homies/design-system/pull/43))
+
+### Added
+
+- GridListDragHandle: a row of a dragged list is picked up by the keyboard ([#47](https://github.com/french-tech-homies/design-system/pull/47))
+- Table: columns a person resizes ([#48](https://github.com/french-tech-homies/design-system/pull/48))
+- Breadcrumbs: the path to the current page ([#49](https://github.com/french-tech-homies/design-system/pull/49))
+- Popover: a surface for any content, opened beside its trigger ([#50](https://github.com/french-tech-homies/design-system/pull/50))
+- DropZone and FileTrigger: files dropped onto an area, or chosen from a button ([#51](https://github.com/french-tech-homies/design-system/pull/51))
+- Tree: a hierarchy opened level by level ([#52](https://github.com/french-tech-homies/design-system/pull/52))
+- ContextMenu: the kit's menu, asked for on something itself ([#53](https://github.com/french-tech-homies/design-system/pull/53))
+- Blocks: parts neither Material nor React Aria describes, copied into a project to edit; a pager ([#55](https://github.com/french-tech-homies/design-system/pull/55))
+- Blocks: a stepper, a radio tile, a reading carousel, a site header ([#56](https://github.com/french-tech-homies/design-system/pull/56))
+
+### Fixed
+
+- Tab panels and the colour picker's button show keyboard focus, and every story is checked for it ([#42](https://github.com/french-tech-homies/design-system/pull/42))
+- A link to a fragment scrolls under the React Router adapter, and the empty state takes a Material corner ([#44](https://github.com/french-tech-homies/design-system/pull/44))
+- ListItem's headline is Material's label text: body-large ([#45](https://github.com/french-tech-homies/design-system/pull/45))
+- ContextMenu opens under the focused element from the keyboard ([#54](https://github.com/french-tech-homies/design-system/pull/54))
+- ListItem: Material's selected colours and its two-line height ([#58](https://github.com/french-tech-homies/design-system/pull/58))
+- ListItem: a long name can be cut to one line ([#60](https://github.com/french-tech-homies/design-system/pull/60))
+
+### Docs
+
+- The kit says what its builders opened the source to learn ([#46](https://github.com/french-tech-homies/design-system/pull/46))
+- Docs: the coverage baseline, all 22 screens run once ([#61](https://github.com/french-tech-homies/design-system/pull/61))
+
 ## [0.7.0] — 2026-11-16
 
 ### Added
