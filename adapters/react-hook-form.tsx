@@ -25,6 +25,7 @@
  *   <FormNumberField control={form.control} name="price" label="Price"
  *     formatOptions={{ style: "currency", currency: "EUR" }} />
  *   <FormPhoneField control={form.control} name="phone" label="Phone" defaultCountry="FR" />
+ *   <FormDatePicker control={form.control} name="opensOn" label="Opens on" />
  *   <FormImageField control={form.control} name="image" label="Photo" maxSize={2_000_000} />
  *   <FormSelect control={form.control} name="tableId" label="Table" items={tables}>
  *     {(t) => <SelectItem id={t.id} label={t.name} />}
@@ -41,6 +42,7 @@
  *   </FormComboBox>
  */
 
+import { type CalendarDate, parseDate } from "@internationalized/date";
 import type { Key } from "react-aria-components";
 import {
   Controller,
@@ -58,6 +60,7 @@ import {
 } from "../components/Checkbox";
 import { ChipGroup, type ChipGroupProps } from "../components/Chip";
 import { ComboBox, type ComboBoxProps } from "../components/ComboBox";
+import { DatePicker, type DatePickerProps } from "../components/DatePicker";
 import { NumberField, type NumberFieldProps } from "../components/NumberField";
 import { ImageField, type ImageFieldProps } from "../components/ImageField";
 import { PhoneField, type PhoneFieldProps } from "../components/PhoneField";
@@ -184,6 +187,57 @@ export function FormNumberField<TValues extends FieldValues>({
             value={typeof field.value === "number" ? field.value : NaN}
             onChange={(value) =>
               field.onChange(Number.isNaN(value) ? undefined : value)
+            }
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
+      )}
+    />
+  );
+}
+
+/** A calendar date from the form's ISO string; nothing for anything else. */
+function toDate(value: unknown): CalendarDate | null {
+  if (typeof value !== "string" || !value) return null;
+  try {
+    return parseDate(value);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Date picker. The form value is the ISO date string (`"2026-06-15"`), the
+ * form a server and `z.iso.date()` take, or `undefined` while no date is
+ * picked. Every prop of the kit's `DatePicker` passes through (`layout`,
+ * `minValue`, `isDateUnavailable`), given as calendar dates.
+ */
+export function FormDatePicker<TValues extends FieldValues>({
+  control,
+  name,
+  rules,
+  ...props
+}: Bound<TValues> &
+  Omit<
+    DatePickerProps<CalendarDate>,
+    "value" | "defaultValue" | "onChange" | "onBlur" | "name"
+  >) {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      rules={rules}
+      render={({ field, fieldState }) => (
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <DatePicker
+            {...props}
+            name={field.name}
+            value={toDate(field.value)}
+            onChange={(date) =>
+              field.onChange(date ? date.toString() : undefined)
             }
             onBlur={field.onBlur}
             isInvalid={fieldState.invalid}
