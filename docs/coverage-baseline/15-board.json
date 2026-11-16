@@ -1,0 +1,159 @@
+{
+  "screen": "Board",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Columns of cards",
+      "built": "yes",
+      "kit": [
+        "TopAppBar",
+        "GridList",
+        "GridListItem",
+        "Card",
+        "Title",
+        "Body",
+        "Label",
+        "LoadingIndicator"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The page (app bar over a row of four columns that scrolls sideways under 64rem and is a four-column grid from there), a column (a section with a heading, a count and its list) and a card's insides, written by hand on role utilities.",
+          "why": "Expected: the kit has no board or column, and none of the five blocks is one."
+        },
+        {
+          "kind": "read",
+          "what": "Read GridList.tsx and Card.tsx whole.",
+          "why": "To learn that a Card inside a GridListItem follows the row's hover, focus, press and drag through group classes, that Card refuses event handlers, and how its `content` part is padded (classNames.content)."
+        },
+        {
+          "kind": "value",
+          "what": "`w-72` for a column's width on a phone, `min-h-28` for an empty column's drop area: Tailwind's spacing scale, no token.",
+          "why": "The kit has no size token for a column or a pane; the guidance names none."
+        }
+      ],
+      "notes": "Each column is one GridList named by its heading; the whole board scrolls, a column does not scroll by itself. Loading is a 900 ms timer behind a LoadingIndicator. Not looked at in a browser: layout at 400px and in dark is by reading the classes only."
+    },
+    {
+      "n": 2,
+      "part": "A card moved within and between columns by drag and by keyboard",
+      "built": "yes",
+      "kit": [
+        "GridList",
+        "GridListItem",
+        "GridListDragHandle",
+        "Card (isDragged)",
+        "Select",
+        "SelectItem",
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "hook",
+          "what": "`useDragAndDrop` and `isTextDropItem` from react-aria-components, one per column: a custom drag type, move only, `onReorder` (same column), `onInsert` (from another column), `onRootDrop` (a column's end, or an empty column).",
+          "why": "The guidance says this is the way and not a leave of the kit; logged because the brief's kinds ask for it. The guidance's table shows one list reordered: nothing says how two kit GridLists exchange rows (onInsert, onRootDrop, a custom type) and that came from the .d.ts and from memory. The option names were grepped in react-aria-components' useDragAndDrop.d.ts."
+        },
+        {
+          "kind": "component",
+          "what": "`DropIndicator` from react-aria-components, passed through `renderDropIndicator`, drawn as a 4px `primary` bar between two cards.",
+          "why": "The kit has no drop indicator and GridList draws none: without it the place a card will land is not shown."
+        },
+        {
+          "kind": "feature",
+          "what": "Styled the list's own `data-drop-target` (a `primary` outline and `bg-primary/8`) by className on GridList.",
+          "why": "The kit's GridList has no look for being a drop target; copied DropZone's classes, found by grep."
+        },
+        {
+          "kind": "value",
+          "what": "`bg-primary/8` on the column that is a drop target: a numeric opacity for a state.",
+          "why": "The guidance forbids a numeric opacity for a state, but there is no state utility for a drop target and the kit's own DropZone writes exactly this."
+        },
+        {
+          "kind": "feature",
+          "what": "GridListDragHandle takes no `size`: it is a 40px icon button on every card, pulled into the corner with negative margins.",
+          "why": "A dense card wants the 32px (xsmall) icon button; the handle passes only aria-label and className."
+        },
+        {
+          "kind": "guess",
+          "what": "`isDragging` from GridListItem's render props passed to a `boolean` prop: type error, it is `boolean | undefined`. Fixed with `?? false`.",
+          "why": "Guessed the render prop's type; one extra tsc round."
+        }
+      ],
+      "notes": "Three ways to move: pointer or touch drag from anywhere on the card; the handle by keyboard (arrow right to it, Enter, Tab or arrows between drop places across all four lists, Enter drops, Escape cancels); and the Column select in the card's sheet, which puts the card at the end of the chosen column and says so in a snackbar. None of this was exercised in a browser: the build proves the types only. Unsure: whether a touch drag on a phone scrolls the board sideways to reach a column out of view (the keyboard drag and the sheet's select reach it in any case); how the default drag preview looks. No undo on a move."
+    },
+    {
+      "n": 3,
+      "part": "Tags and avatars on a card",
+      "built": "yes",
+      "kit": [
+        "Tag",
+        "Avatar",
+        "Label",
+        "ScheduleIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A wrapping row of Tags, and a stack of 24px Avatars overlapped with a negative margin and a ring in the card's surface colour, by hand.",
+          "why": "The kit has no avatar group."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tag.tsx and Avatar.tsx whole.",
+          "why": "Short files; to see the colour variants and that Avatar without `alt` is still role=img (wrapped in aria-hidden where the name is written beside it)."
+        },
+        {
+          "kind": "value",
+          "what": "The ring that separates overlapped avatars restates the surface under them by hand (`ring-surface-container-low` on a card, `ring-surface` in the app bar).",
+          "why": "No way to say 'the surface I am on'; if the card's variant changes the ring is wrong. That the app bar's ground is `surface` was read in TopAppBar's styles."
+        }
+      ],
+      "notes": "Each avatar is named by `alt` (the person's name), initials as fallback, no pictures in the mock data. Tag colours are the kit's five; a tag's meaning is its text, not its colour. The comment count's icon is `MessageSquare` from lucide-react: the kit's set has none, and the guidance says icons are the project's."
+    },
+    {
+      "n": 4,
+      "part": "A card's detail in a side sheet",
+      "built": "yes",
+      "kit": [
+        "SideSheet (modal)",
+        "Select",
+        "SelectItem",
+        "Tag",
+        "Avatar",
+        "Divider",
+        "Title",
+        "Body",
+        "Label",
+        "ScheduleIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The sheet's insides (id and tags, the Column select, description, due date, assignees, comments) by hand.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read SideSheet.tsx whole.",
+          "why": "It has no doc comment per prop: that the Close button only exists with a `title`, that `variant` defaults to the inline standard sheet, and that `isOpen`/`onClose` are the whole control, are in the source."
+        },
+        {
+          "kind": "feature",
+          "what": "Kept 'which card' and 'is open' as two states so the content stays while the sheet slides out.",
+          "why": "SideSheet renders its children during the exit animation; nothing in its comment says to keep them, only a note about a nameless dialog."
+        }
+      ],
+      "notes": "Opens by a click or Enter on a card (GridList `onAction`); Escape, the scrim and Close close it, and React Aria should return focus to the card; after a move through the Column select the card is remounted in another list, so focus is probably lost on close in that case. Read-only apart from the Column select. On a 400px phone the sheet is 360px wide (its min-width wins over calc(100% - 56px)). Not exercised in a browser. Unsure: `selectedKey`/`onSelectionChange` on Select type-check, but may be the older names in this React Aria release."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "read",
+      "what": "Read index.ts, and the doc comments and prop types of Menu, Select, IconButton, TopAppBar, LoadingIndicator, Snackbar and Typography.",
+      "why": "To choose parts; Menu was read and not used."
+    }
+  ],
+  "friction": "No block serves a board, and none was used. The kit has the pieces (GridList, GridListItem, GridListDragHandle, a Card whose state layer follows the row, isDragged elevation) and the guidance's React Aria table points at useDragAndDrop, but stops at one list: a short example of two GridLists exchanging rows (custom type, onReorder + onInsert + onRootDrop, an empty list's drop area) would have saved the trip to the .d.ts. The kit draws neither a drop indicator nor a drop-target state for GridList, so every project draws its own; a kit DropIndicator, or classes on GridList, would make the dragged list complete. GridListDragHandle has no size. SideSheet's props carry no comments (title is what brings the Close button; variant defaults to standard). There is no avatar group, and no token for a pane's width. I could not run ds-spec (it reads the web), so nothing was held against Material's pages. Text for screen readers only is written with Tailwind's `sr-only` inside the type primitives; the guidance names `VisuallyHidden` and I noticed too late to swap."
+}

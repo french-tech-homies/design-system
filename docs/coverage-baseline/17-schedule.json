@@ -1,0 +1,194 @@
+{
+  "screen": "Schedule",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A month always in view, not in a picker",
+      "built": "yes",
+      "kit": [
+        "IconButton",
+        "Button",
+        "ChevronLeftIcon",
+        "ChevronRightIcon",
+        "Card",
+        "Body",
+        "datePickerStyles (deep import: components/date-picker-styles)"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "RangeCalendar, CalendarGrid, CalendarGridHeader, CalendarHeaderCell, CalendarGridBody, CalendarCell and Heading from react-aria-components, in src/schedule/MonthRange.tsx",
+          "why": "The kit exports no calendar that stands on the page: its calendar exists only inside DatePicker and DateRangePicker (DockedCalendar, ModalCalendar, RangeMonth are private to DatePicker.tsx)."
+        },
+        {
+          "kind": "read",
+          "what": "Read DatePicker.tsx past its doc comment (RangeMonth, DockedHeader) and date-picker-styles.ts to learn the cell's DOM (cell > band + day > state layer + text), the group/dpi contract, slot=\"previous\"/\"next\" on IconButton and slot={null} on a button that is neither",
+          "why": "The style module is documented as what the pickers draw from, but nothing says how to draw a calendar of one's own with it; the nesting the band and the range ends depend on is only in the picker's source."
+        },
+        {
+          "kind": "feature",
+          "what": "Deep-imported datePickerStyles from <kit>/components/date-picker-styles",
+          "why": "It is not in the barrel (index.ts), though it is the only way to get Material's calendar look outside a picker."
+        },
+        {
+          "kind": "layout",
+          "what": "The calendar's header (month heading, Today, previous, next), a dot under a day that has appointments, the card around it and the hint under it",
+          "why": "Composition of the screen."
+        }
+      ],
+      "notes": "Not seen in a browser (none allowed): checked by the build and one server render (35 grid cells, a selected cell). The dot is aria-hidden: a screen reader is not told which days hold appointments. The grid is 336px wide; it fits a 360px window with the page's 12px gutters, no narrower. Weeks start on the locale's first day. The weekday row is the style module's (body-large, on-surface) with short names ('Mon') where the kit's pickers draw one letter."
+    },
+    {
+      "n": 2,
+      "part": "A range chosen on it",
+      "built": "yes",
+      "kit": [
+        "datePickerStyles({ range: true }) (deep import)"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "The same RangeCalendar: its value is the range, controlled by the page; the range drives the list (one section a day), the heading above it, the count, and the date a new appointment opens on",
+          "why": "The kit's DateRangePicker is always a full-screen dialog behind a field; there is no range calendar to place on a page."
+        }
+      ],
+      "notes": "A single day takes two presses on the same day (React Aria's range selection); the range defaults to today, 'Today' puts it back, and a line under the month says so. By keyboard: arrows, Enter to start, Enter to end, Page Up/Down for months. Saving an appointment outside the range moves the range to its day."
+    },
+    {
+      "n": 3,
+      "part": "Time fields",
+      "built": "yes",
+      "kit": [
+        "fieldStyles({ kind: \"segmented\" }) (deep import: components/field-styles)",
+        "ScheduleIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "TimeField, DateInput, DateSegment, Label, FieldError and Text from react-aria-components, as src/components/TimeField.tsx: a start and an end typed in place in the event's dialog",
+          "why": "The kit has TimePicker only: a button-shaped trigger that opens a modal dial. Nothing is typed in place, and inside the event's dialog it would stack a second modal for each of the two times."
+        },
+        {
+          "kind": "feature",
+          "what": "Did not use TimePicker",
+          "why": "TimePicker has no isInvalid, errorMessage, isRequired or name: 'the end is before the start' and 'the practitioner is busy then' have nowhere to show on it."
+        },
+        {
+          "kind": "read",
+          "what": "Read field-styles.ts (the segmented kind, its slots and compound variants) and DatePicker.tsx's SegmentedField and Supporting to mirror them",
+          "why": "field-styles says a segmented field holds 'hour, minute' segments, but no kit component is a time field and the slots' wiring (base on the root, container, input, label after it, state layer, indicator, supporting) is only in the pickers' source."
+        }
+      ],
+      "notes": "Changing the start moves the end by the same length; choosing a visit sets the end to its usual length. Errors show after the first submit. A press on the field's empty part (right of the segments) may not put the focus in the first segment: not checked in a browser. The trailing clock is decorative, not a button. Hour cycle is the locale's."
+    },
+    {
+      "n": 4,
+      "part": "An event's dialog",
+      "built": "yes",
+      "kit": [
+        "Modal",
+        "Dialog",
+        "Headline",
+        "TextField",
+        "Select",
+        "SelectItem",
+        "DatePicker",
+        "Button",
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Used Modal + Dialog in place of ModalDialog",
+          "why": "ModalDialog passes no class to the modal, and DialogContent is w-full in a modal that has no width: the dialog would be as wide as its content. Modal's className (on the inner modal) gave it 'w-full max-w-140 px-4', which fits 400px and stops at 560px."
+        },
+        {
+          "kind": "feature",
+          "what": "Passed 'max-h-dvh overflow-auto' to the dialog so a form taller than the window scrolls",
+          "why": "DialogContent is overflow-hidden with no maximum height, and with children it has no scrolling body or pinned actions."
+        },
+        {
+          "kind": "value",
+          "what": "[--md3-field-notch:var(--md-sys-color-surface-container-high)] on the form",
+          "why": "The outlined fields' label notch defaults to 'surface'; field-styles.ts documents this arbitrary property as the way to match a dialog's ground. The kit's Dialog does not set it itself."
+        },
+        {
+          "kind": "read",
+          "what": "Read DialogContent's and Modal's bodies to learn that children replace the headline and the actions, and which element className lands on",
+          "why": "Dialog's comment says children replace everything; where a width or a height goes is not said."
+        },
+        {
+          "kind": "layout",
+          "what": "The form: headline, fields in one and two columns, the action row (Cancel appointment at the start, Close and Save at the end), validation in the component's state",
+          "why": "Composition; with children, the dialog's actions are the caller's."
+        },
+        {
+          "kind": "read",
+          "what": "Read Select.tsx's body and React Stately's select types to learn how the chosen option is passed (selectedKey / onSelectionChange, spread onto React Aria's Select) and what SelectItem takes (label, supportingText)",
+          "why": "Select's doc comment shows items and children only, no controlled value."
+        }
+      ],
+      "notes": "One dialog adds (the app bar's and the empty state's button) and opens an existing appointment (a row of the list) to change or cancel it; cancelling shows a snackbar with Undo. Validation: patient, date, times, end after start, and a clash with the same practitioner's other appointments. react-hook-form's adapter was not used: plain state was enough. Not seen in a browser: the docked DatePicker's popover over the modal, the scroll at 400px and the notch colour are unverified. Select uses selectedKey/onSelectionChange, which type-check. A server render of the form (new and existing) shows both selects' chosen options, the date's and the times' segments and the cancel button only on an existing appointment."
+    },
+    {
+      "n": 5,
+      "part": "A list of the day's events",
+      "built": "yes",
+      "kit": [
+        "GridList",
+        "GridListItem",
+        "ListItem",
+        "Tag",
+        "EmptyState",
+        "Button",
+        "PlusIcon",
+        "LoadingIndicator",
+        "Title",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "GridListSection and GridListHeader from react-aria-components: one section a day when the range holds several",
+          "why": "The kit's GridList has no section or header of its own."
+        },
+        {
+          "kind": "hook",
+          "what": "useLocale from react-aria-components, with DateFormatter from @internationalized/date, for the times and the days' names",
+          "why": "The kit formats nothing for the caller; the guidance lists useLocale as React Aria's to use."
+        },
+        {
+          "kind": "layout",
+          "what": "The row's leading time column (start over end, font-mono, label-large), the section header, the heading with the range and the count above the list, the centred loader",
+          "why": "Composition."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tag.tsx's variants for its colour names, and Typography.tsx for colorRole and component",
+          "why": "Tag's comment shows two colours by example and no list; the type primitives' props are in the source's variant table."
+        }
+      ],
+      "notes": "A row opens its appointment by press, Enter or Space; arrows move through rows across days. Each new range 'loads' for 600ms behind a LoadingIndicator; the count line is a polite live region. Days of a range with nothing booked are not listed; a range with nothing at all shows the EmptyState with an add button. The Tag stays beside a long name at 400px and the text wraps: not seen in a browser. The day's header text is a span in React Aria's header row, not a heading element."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page: TopAppBar with the add button in its actions, then the month card and the list in a column, side by side from lg",
+      "why": "Composition. No block served a part: a pager, a stepper, radio tiles, a reading carousel and a site header are none of this screen's five."
+    },
+    {
+      "kind": "read",
+      "what": "Read icons.tsx for an icon's props, TopAppBar's props type, and Snackbar's option types",
+      "why": "Small lookups past the doc comments: what a kit icon accepts when drawn directly, and the shape of snackbar's action."
+    },
+    {
+      "kind": "layout",
+      "what": "Unseen at 400px: the top app bar holds the title, a subtitle and a labelled 'New appointment' button on one row",
+      "why": "No browser was allowed; if it crowds, the button should become an icon button or a FAB on a phone."
+    }
+  ],
+  "friction": "The build was green at the first run and nothing was guessed wrong, but only after reading about 400 lines of DatePicker.tsx and field-styles.ts. (1) The kit has Material's whole calendar, in single and range form, and exports none of it: a Calendar and a RangeCalendar component (or the style module in the barrel with a ten-line example of the cell's DOM) would have made parts 1 and 2 kit parts. (2) There is no TimeField: the segmented field kind is ready for one and its comment names hour and minute, but the only time control is a modal dial with no validation props. A kit TimeField (and isInvalid/errorMessage on TimePicker) would have covered part 3. (3) ModalDialog gives no way to size the dialog or let a long form scroll, and the dialog does not set --md3-field-notch for outlined fields inside it; a 'form in a dialog' example in Dialog's comment (width, scroll, notch, actions with children) would have saved the reading. (4) GridList's comment does not say whether sections exist; a line pointing at React Aria's GridListSection in the 'straight from React Aria' table would do. (5) ds-build's table of what to read is good; a line 'no inline calendar, no typed time field: build on RangeCalendar/TimeField with date-picker-styles and field-styles' under 'Use what exists' would have turned the search into a lookup. Nothing could be looked at: every visual claim rests on the build, the lint and one server render."
+}

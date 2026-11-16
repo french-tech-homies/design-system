@@ -1,0 +1,64 @@
+{
+  "screen": "Record form",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Text, select, combo box, date, number, phone, image, switch",
+      "built": "yes",
+      "kit": [
+        "TextField", "Select", "SelectItem", "ComboBox", "ComboBoxItem", "DatePicker", "NumberField", "PhoneField", "ImageField", "Switch",
+        "adapters/react-hook-form: FormTextField, FormSelect, FormComboBox, FormNumberField, FormPhoneField, FormImageField, FormSwitch",
+        "Card", "Title", "Body", "Button", "TopAppBar", "IconButton", "LoadingIndicator", "EmptyState"
+      ],
+      "leaves": [
+        { "kind": "feature", "what": "Bound DatePicker to the form myself with react-hook-form's Controller, holding the date as an ISO string and converting with parseDate / toString.", "why": "The react-hook-form adapter has no FormDatePicker (nor a time or range one); every other field of this part has a Form* wrapper." },
+        { "kind": "feature", "what": "Wrote the switch's second line (\"Shown in the shop from its date\") as spans inside Switch's children.", "why": "Switch has a label (children) but no supportingText prop, unlike the fields." },
+        { "kind": "layout", "what": "The page, three outlined Cards as sections with a 1 / 2 column grid of fields, a sticky action bar with the save state, Cancel and Save; a loading placeholder for the edit route.", "why": "Expected: the kit has no form layout or section component." },
+        { "kind": "read", "what": "Read ImageField's body (how it rejects a file, that it has no onBlur), TextField's body (error slot, counter), PhoneField's onBlur path and the DatePicker's prop types past their doc comments.", "why": "The doc comments do not say which fields emit onBlur, nor how an ImageField rejection relates to isInvalid / errorMessage." }
+      ],
+      "notes": "Twelve fields: name, SKU, description (multiline with counter), category (Select), brand (ComboBox, 20 options), picture (ImageField), price (currency NumberField), stock (NumberField with steppers), available from (DatePicker, docked), published (Switch), supplier phone (PhoneField), supplier email. Create at / and edit at /products/:id (loaded with a timer). Not run in a browser (the brief forbids one): verified by the type-check, the build, and a server render of the form that drew all twelve fields. Pointer and keyboard behaviour is the kit's and React Aria's, not observed by me."
+    },
+    {
+      "n": 2,
+      "part": "Validation on blur and on submit, from the server too",
+      "built": "yes",
+      "kit": ["adapters/react-hook-form (isInvalid / errorMessage from the field state)", "snackbar", "SnackbarRegion", "Button (isLoading)"],
+      "leaves": [
+        { "kind": "feature", "what": "Wrote a react-hook-form resolver by hand (src/product/validation.ts) that holds every rule.", "why": "The adapter's Form* components take control and name only, no `rules`, and its example assumes zodResolver: neither zod nor @hookform/resolvers is a dependency of the project." },
+        { "kind": "feature", "what": "Passed validationBehavior=\"aria\" to every field by hand and put noValidate on the form.", "why": "The adapter does not set it; the skill says to, for a field bound by hand, and is silent on whether the Form* wrappers need it. Without it isRequired would let the browser stop the submit before the form ran." },
+        { "kind": "feature", "what": "Server refusals are kept beside the form (field, refused value, message) and replayed by the resolver while the field still holds that value, instead of setError.", "why": "Not a kit gap as such: with a resolver, a blur that changes nothing would otherwise wipe a server error. Nothing in the adapter or the skill says how a server's field errors should reach the fields." },
+        { "kind": "feature", "what": "The picture is validated on submit and on change only, never on blur.", "why": "ImageField has no onBlur, and FormImageField passes none. Its own rejections (wrong type, over maxSize) are drawn by the field from local state and never reach the form, so they are not in the error summary either." }
+      ],
+      "notes": "Mode is onTouched: a field is checked when first left, then on every change; a save checks all. The mock server (900 ms) refuses a SKU another product holds (KW-1001, OL-2040, DV-0310) and a supplier email at example.com or test.com; the refusal lands on the field with type \"server\" and clears when the value changes. Unsure: the order of NumberField's commit and its onBlur (a stale 'required' could flash for one validation before the committed value re-validates), and whether DatePicker fires onBlur when focus moves into its calendar popover (the required error could show while the calendar is open, until a date is confirmed). No server check on blur (SKU availability is only known at save)."
+    },
+    {
+      "n": 3,
+      "part": "An error summary",
+      "built": "yes",
+      "kit": ["Title", "Body", "Link"],
+      "leaves": [
+        { "kind": "control", "what": "Wrote the summary by hand (src/product/ErrorSummary.tsx): an error-container box with a count heading and one line a field in form order, each a kit Link (onPress) that moves the focus to its field; the box takes the focus after a failed save, client or server.", "why": "The kit has no error summary, banner or inline alert component." },
+        { "kind": "feature", "what": "Focus a field from the summary by a DOM query inside a data-field wrapper (first input / textarea / spinbutton, else first button).", "why": "The adapter does not hand react-hook-form's field.ref to the kit component, so form.setFocus(name) reaches nothing; and the kit fields expose no focus method or documented input slot for this." },
+        { "kind": "layout", "what": "The summary's own focus outline is written with outline utilities on the error role, not the kit's focusRing.", "why": "focusRing is drawn for controls in the primary role; I did not check that it fits a programmatically focused container on an error surface." }
+      ],
+      "notes": "Shown only after a first save attempt; it then follows the errors live as fields are fixed, and disappears when none is left. Its heading says whether the server refused. Focus hand-off to the summary and from a line to a field is not observed in a browser."
+    },
+    {
+      "n": 4,
+      "part": "A dialog on unsaved changes",
+      "built": "yes",
+      "kit": ["ModalDialog (role=\"alertdialog\")", "Button", "adapters/react-router: AriaRouterProvider"],
+      "leaves": [
+        { "kind": "feature", "what": "Passed the two actions as JSX (text \"Keep editing\", text error-colour \"Discard\") instead of the { confirm, cancel } object.", "why": "The object form always draws confirm as a filled primary button; a destructive answer needed color=\"error\" and a lower emphasis." },
+        { "kind": "layout", "what": "The guard itself is react-router's useBlocker on a data router plus a beforeunload listener, wired to the dialog's isOpen.", "why": "Expected: the kit is router-agnostic; the react-router adapter covers links only." }
+      ],
+      "notes": "Any in-app navigation away from a dirty form (the back icon button, Cancel, the browser's back) opens the dialog; Escape or Keep editing stays, Discard leaves. Closing or reloading the tab gets the browser's own prompt. A successful save resets the form first, so it leaves without asking. Not observed in a browser."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "A small product list at /products (cards with Edit links, a New product button) so that leaving the form has a destination and the edit mode a way in.", "why": "Not asked for by the screen; needed for parts 2 and 4 to be real." },
+    { "kind": "layout", "what": "No block was used.", "why": "None of the five (pager, stepper, radio tile, reading carousel, site header) serves a form's part." }
+  ],
+  "friction": "The react-hook-form adapter is where a form screen starts, and it is the least documented piece: it has no date wrapper, takes no rules, forwards no ref (so setFocus and shouldFocusError do nothing), does not set validationBehavior, and its header example needs zodResolver, which is not installed. One paragraph in ds-build saying 'validation is a resolver; server errors go here; focus a field this way; these fields emit onBlur and these do not (ImageField)' would have saved most of the reading. An error summary / inline alert is the one component a record form needs that the kit lacks. Finding prop types meant opening large files (DatePicker is 1570 lines); a per-component props table near the top, or onBlur / focus behaviour in the doc comment, would have been enough. Nothing could be checked in a browser here, so the blur-order questions in part 2 stay open."
+}

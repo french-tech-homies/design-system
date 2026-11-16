@@ -1,0 +1,81 @@
+{
+  "screen": "Inbox",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Three panes that fold to one on a phone",
+      "built": "yes",
+      "kit": ["NavigationDrawer", "TopAppBar", "IconButton", "ArrowBackIcon", "EmptyState", "Avatar", "TextField", "Button", "Title", "Body", "Label", "snackbar", "SnackbarRegion"],
+      "leaves": [
+        { "kind": "layout", "what": "The three panes are a hand-written flex row: folders (inline from lg, the kit's modal drawer below), list (full width on a phone, 24rem from md), conversation. Below md one pane shows at a time, switched by state and `hidden md:flex`. The message bubbles and the reply row are hand-written too.", "why": "The kit has no list-detail or pane scaffold, and nothing that says which pane shows at which width." },
+        { "kind": "feature", "what": "On a phone the focus is moved by hand: to the conversation's back button when it opens, back to its row on return (a matchMedia test and two refs).", "why": "The pane that held the focus becomes display:none; no kit component owns the fold, so none carries the focus across it." },
+        { "kind": "feature", "what": "NavigationDrawer narrowed and squared with className (`w-64 rounded-none`), and rendered twice (standard in a `hidden lg:block` wrapper, modal beside it).", "why": "It is 360dp wide with rounded trailing corners, too wide for the first of three panes, and its variant is a prop, not something that follows the width." },
+        { "kind": "read", "what": "Read NavigationDrawer's source past its doc comment (its width class, how the modal form renders, what `header` holds) and TopAppBar's slots.", "why": "The doc comment does not say whether className reaches the width or how a badge of 0 is treated." },
+        { "kind": "guess", "what": "`<Title component=\"p\">` refused by the types; changed to `div`.", "why": "The type primitives' allowed elements differ by primitive (Title: div, h1-h6, span; Body: div, p, span) and the list is only in the source." }
+      ],
+      "notes": "Not run in a browser (none allowed): the fold, the focus move and the scroll to the newest message are unverified at runtime. The snackbar sits at the window's bottom centre and can cover the reply row for its five seconds on a phone."
+    },
+    {
+      "n": 2,
+      "part": "A selectable list with unread badges",
+      "built": "yes",
+      "kit": ["GridList", "GridListItem", "ListItem", "Checkbox", "Badge", "Avatar", "Label", "LoadingIndicator", "EmptyState"],
+      "leaves": [
+        { "kind": "feature", "what": "Long names and subjects are cut with `line-clamp-1 break-all` / `line-clamp-2` in the nodes passed to `headline` and `supportingText`.", "why": "ListItem's doc says to pass `block truncate`, but its text column has no `min-w-0`, so a one-line truncated text would push the trailing element out; there is no class hook on that column." },
+        { "kind": "feature", "what": "The unread count is repeated in a VisuallyHidden span beside the Badge.", "why": "Badge is aria-hidden and expects a host (IconButton, a destination) to say its words; a list row is not such a host and ListItem has no `badge` prop." },
+        { "kind": "feature", "what": "The open conversation's row is tinted with a className (`bg-surface-container-highest`) and says \"open\" to a screen reader in hidden text.", "why": "ListItem has `isSelected` only; a list that is both multi-selected (checkboxes) and has one current row needs a second state the kit does not draw." },
+        { "kind": "guess", "what": "`ref` on the kit's GridList refused by the types; wrapped the list in a div that takes the ref.", "why": "The kit's GridList is a plain function over GridListProps and forwards no ref." },
+        { "kind": "guess", "what": "The selection checkbox is the kit's Checkbox with React Aria's `slot=\"selection\"`, written from what I know of React Aria.", "why": "Neither GridList's nor ListItem's doc comment shows a multi-selected list with checkboxes." },
+        { "kind": "read", "what": "Read ListItem's and Badge's source (the styles, the slots, what is announced).", "why": "To learn whether text truncates, how `isSelected` is drawn, and whether Badge says anything." },
+        { "kind": "layout", "what": "The row's trailing column (time over badge), the row hairlines, the centred loading and empty states.", "why": "Expected composition." }
+      ],
+      "notes": "React Aria's behaviour, kept: while nothing is selected a press or Enter opens the row; once something is selected a press on a row toggles it, and Enter still opens. Unverified in a browser."
+    },
+    {
+      "n": 3,
+      "part": "Bulk actions",
+      "built": "yes",
+      "kit": ["Toolbar", "IconButton", "Tooltip", "TooltipTrigger", "Checkbox", "snackbar"],
+      "leaves": [
+        { "kind": "layout", "what": "A select-all row (the kit's Checkbox, indeterminate when some are selected, its label the count) under the bar, and the kit's floating Toolbar positioned by hand at the bottom of the list pane while there is a selection (mark read, mark unread, close or reopen, delete; close and delete undo from the snackbar).", "why": "The toolbar's margin and place are the layout's, as its doc says; the kit has no contextual or selection bar." },
+        { "kind": "read", "what": "Read Toolbar's styles.", "why": "To see whether the docked variant could sit in a pane's header (it is a full-width 64dp bar with its own spacing rules), which decided for the floating one." }
+      ],
+      "notes": "The selection count is also sent to a VisuallyHidden status region. Whether the tooltips' triggers keep the toolbar's arrow-key order was not checked in a browser."
+    },
+    {
+      "n": 4,
+      "part": "A compose dialog with several recipients",
+      "built": "yes",
+      "kit": ["ModalDialog", "ComboBox", "ComboBoxItem", "FormTextField (react-hook-form adapter)", "Button", "Headline"],
+      "leaves": [
+        { "kind": "feature", "what": "An address that is not a contact is made an option while it is typed (\"Add x@y.com\"), kept in a list of the project's so its chip has a name, and committed on comma, semicolon or blur.", "why": "The multiple ComboBox holds options only: `allowsCustomValue` is described for a single text value, and nothing creates a chip from typed text." },
+        { "kind": "feature", "what": "The recipients field is bound with react-hook-form's Controller by hand instead of the adapter's FormComboBox.", "why": "FormComboBox omits `onChange` and `onBlur`, and the field needed both (to remember a typed address, to clear the controlled input, to commit on blur)." },
+        { "kind": "feature", "what": "The dialog's width is a className on its content (`w-screen max-w-xl max-h-dvh overflow-y-auto`): full-bleed on a phone, 36rem on a desktop.", "why": "ModalDialog has no size or width, and its Modal takes a className only for the full-screen variant, so a margin from the window's edge cannot be given without an arbitrary value." },
+        { "kind": "guess", "what": "`rules` on FormTextField refused by the types; the validation moved to a `resolver` function on the form.", "why": "The adapter's Form* components take `control` and `name` only; the comment's example uses a zod resolver and does not say that `rules` is not passed." },
+        { "kind": "read", "what": "Read ComboBox's whole source, the adapter's FormTextField and FormComboBox, ModalDialog, Modal, Dialog and DialogContent, and react-stately's useComboBoxState.", "why": "To learn how the chips are drawn (from the option's textValue), whether the input empties after a choice when both value and inputValue are controlled (it does not: the screen empties it), and where a className lands." },
+        { "kind": "layout", "what": "The form's column, its headline and its row of actions.", "why": "Expected composition." }
+      ],
+      "notes": "Unverified in a browser: the typed-address option relies on the kit passing a changing `items` down as `defaultItems`, and on a controlled `inputValue` with `value` in multiple mode. A chip of a contact reads \"Name <address>\" (the option's textValue, so that typing either finds it), which is long on a phone. Text left in To that is not an address is neither sent nor flagged. Escape or a press outside keeps the draft for the next opening; Discard and Send empty it. Sending is a 900 ms timer; Ctrl or Cmd with Enter sends."
+    },
+    {
+      "n": 5,
+      "part": "Keyboard shortcuts",
+      "built": "yes",
+      "kit": ["KeyboardIcon", "IconButton", "Tooltip", "TooltipTrigger", "ModalDialog", "Switch", "Headline", "Body", "Button"],
+      "leaves": [
+        { "kind": "hook", "what": "A hand-written `useShortcuts` hook: one keydown listener on the document for C, J, K, X, R, E, U, Esc and ?, ignored while text is typed, with a modifier, or while an overlay is open. No React Aria hook is used.", "why": "Neither the kit nor its guidance has anything for page-wide shortcuts; MenuItem's `shortcut` only prints one." },
+        { "kind": "feature", "what": "`disallowTypeAhead` (React Aria's) on the kit's GridList.", "why": "The list's type-ahead would take J, K, X and the rest as a search while the focus is in it; the kit's doc does not mention the conflict or the prop." },
+        { "kind": "layout", "what": "The list of shortcuts in a dialog, with a hand-styled `kbd` and a switch that turns the single-key shortcuts off (\"?\" stays, to turn them back on).", "why": "The kit has no key cap; the type-scale class is written without its family on purpose, with `font-mono`." },
+        { "kind": "guess", "what": "`<Body component=\"dd\">` refused by the types; a `dd` around a `span` instead.", "why": "The allowed elements are only in the primitive's source." }
+      ],
+      "notes": "Unverified in a browser. `aria-keyshortcuts` is passed to the kit's buttons; I did not check that React Aria lets it through to the DOM. Each button's tooltip names its key."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "component", "what": "VisuallyHidden from react-aria-components, for the unread count, the open row and the selection status.", "why": "The skill lists it as coming straight from React Aria; logged for completeness." },
+    { "kind": "read", "what": "No block was used: the first lines of the five were read and none serves an inbox part.", "why": "Pager, stepper, radio tile, reading carousel, site header." },
+    { "kind": "value", "what": "The md breakpoint is repeated in JavaScript as `(min-width: 48rem)` for the focus move.", "why": "No token or helper gives the kit's window classes to script." }
+  ],
+  "friction": "1. No guidance for a list-detail screen: which component is a pane, how panes fold, where focus goes. A block or a short recipe would have settled half of this screen. 2. GridList and ListItem document a plain list; a multi-selected list (checkbox in `slot=\"selection\"`, what a press does once something is selected, a current row beside selected rows, a badge in a row and how it is announced) had to come from memory and the source. ListItem's advice to truncate with `block truncate` does not hold without `min-w-0` on its text column. 3. The multiple ComboBox cannot make a chip from typed text, which is what any recipients field needs; the workaround took reading react-stately. FormComboBox hiding onChange and FormTextField taking no `rules` were each a second attempt. 4. ModalDialog gives no width: a form dialog needs one, with a margin on a phone. 5. Which elements `component` accepts on each type primitive is only in the source. 6. Nothing on keyboard shortcuts, nor on type-ahead taking single keys in a list. A props table at the top of each component file (GridList, ListItem, ModalDialog, the adapter) would have saved most of the source reading. The advisor tool was rate-limited and nothing could be run in a browser, so the screen is type-checked and built, not exercised."
+}
