@@ -424,7 +424,9 @@ export function FormRadioGroup<TValues extends FieldValues>({
           <RadioGroup
             {...props}
             name={field.name}
-            value={field.value ?? null}
+            // "" is how a form holds no choice. Given to the group as a
+            // value, no radio has it and none is a Tab stop.
+            value={field.value === "" ? null : (field.value ?? null)}
             onChange={field.onChange}
             onBlur={field.onBlur}
             isInvalid={fieldState.invalid}
