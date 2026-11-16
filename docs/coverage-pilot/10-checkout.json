@@ -1,0 +1,236 @@
+{
+  "screen": "Checkout",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Steps",
+      "built": "yes",
+      "kit": [
+        "TopAppBar",
+        "IconButton",
+        "ArrowBackIcon",
+        "Button",
+        "CheckIcon",
+        "StateLayer",
+        "focusRing",
+        "cn",
+        "Label",
+        "Headline"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "Wrote a stepper (src/checkout/Stepper.tsx): a <nav> with an <ol>, a numbered marker, a label and a connector line per step; the step on screen is aria-current=\"step\", a step already reached is a button, a step not reached is inert text. Each step carries visually hidden text (step n of 4, completed / current / visited / not available yet).",
+          "why": "The kit has no stepper or progress-through-steps component. Tabs was ruled out: tabs let the user jump anywhere, a checkout step does not."
+        },
+        {
+          "kind": "component",
+          "what": "Imported Button from react-aria-components for the pressable steps, with the kit's StateLayer and focusRing on it.",
+          "why": "The kit's Button draws its own container, sizes and label; a step is a marker over a label, so it needed an unstyled pressable."
+        },
+        {
+          "kind": "read",
+          "what": "Read primitives/StateLayer.tsx in full to learn its props (color, isHovered, isFocusVisible, isPressed) and which colours it takes.",
+          "why": "ds-build names StateLayer and the render props, but not its prop names or that color is a fixed list."
+        },
+        {
+          "kind": "hand",
+          "what": "Wrote the step logic by hand: one useForm above the steps so values survive going back, forward moves validate every earlier step and send the shopper to the first invalid one, focus moves to the new step's heading (tabIndex -1) after each change.",
+          "why": "Not a kit concern, but nothing in the kit or its guidance covers a multi-step form."
+        },
+        {
+          "kind": "hand",
+          "what": "After the first review of my own code: the focus-on-step-change effect compares the previous step and order number in a ref (a first-render flag would have focused the heading on load under StrictMode in dev), and goTo returns early while the order is being placed.",
+          "why": "Two defects found by reading, not by running; recorded because the log is of what happened."
+        }
+      ],
+      "notes": "Ways back: the stepper's completed steps, the back arrow in the top app bar, the 'Back to …' text button under each step, and the Edit buttons on the review step. Not run in a browser. Unsure by eye: the connector line sits behind the markers through `isolate` on the list and `-z-10` on the line, and its vertical position (top-5) assumes the 32px marker under 4px of padding; four labels at 400px were not seen. The heading focus and the scroll to top after a step change were not exercised. Verified by typecheck and a server string render only."
+    },
+    {
+      "n": 2,
+      "part": "Address form with street suggestions",
+      "built": "yes",
+      "kit": [
+        "ComboBox",
+        "ComboBoxItem",
+        "FormTextField (adapter)",
+        "FormPhoneField (adapter)"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read components/ComboBox.tsx in full, source included, and SelectItem in components/Select.tsx.",
+          "why": "The doc comment describes picking one of a list. It says nothing about free text: whether allowsCustomValue, inputValue and onInputChange pass through (they do, by spread), or that an item's textValue (what filters and what lands in the input) is its label when the label is a string. The ComboBox doc comment is also not the first comment in the file; the first one is about its style pieces."
+        },
+        {
+          "kind": "read",
+          "what": "Read React Aria's and React Stately's type definitions in node_modules for ComboBox (value/onChange against the deprecated selectedKey/onSelectionChange, allowsCustomValue, menuTrigger, defaultFilter).",
+          "why": "The kit's ComboBoxProps is an Omit of React Aria's, so the real prop names are only in node_modules; the kit's adapter uses value/onChange while its doc comment shows neither."
+        },
+        {
+          "kind": "feature",
+          "what": "Did not use the adapter's FormComboBox for the street: wrote a react-hook-form Controller around the kit ComboBox that binds inputValue/onInputChange to the form (the typed text) and uses onChange (the chosen key) only to fill street, postcode and city with setValue.",
+          "why": "FormComboBox stores the selected key in the form. An address field's value is the text, and a street that is not among the suggestions must still be accepted."
+        },
+        {
+          "kind": "feature",
+          "what": "Accepted two things the kit ComboBox always does in a free-text field: the 'Show options' chevron button, and a menu that opens to say 'No matches' while the shopper types a street that is not a suggestion.",
+          "why": "The kit hard-codes allowsEmptyCollection and always renders the trigger button; there is no prop to turn either off, and React Aria's own ComboBox would simply close the menu. Left as is rather than editing the kit file."
+        },
+        {
+          "kind": "hand",
+          "what": "Wrote the validation as a plain react-hook-form resolver function (required name, valid phone through react-phone-number-input's isValidPhoneNumber, street with a number and a name, 5-digit postcode, city, note of 200 characters at most), with mode onTouched.",
+          "why": "The adapter's Form* components take control and name and no `rules`, and no schema library is installed; the adapter's doc shows only zodResolver."
+        },
+        {
+          "kind": "read",
+          "what": "Read adapters/react-hook-form.tsx in full, source included.",
+          "why": "To learn that the Form* components take no rules, do not pass the field's ref (so react-hook-form's setFocus cannot focus a kit field) and what FormComboBox stores."
+        },
+        {
+          "kind": "hand",
+          "what": "Focus on the first invalid field after a failed Continue is done with a querySelector on input[aria-invalid=true] inside the form.",
+          "why": "The adapter does not forward react-hook-form's field ref, so form.setFocus and shouldFocusError do nothing with kit fields."
+        }
+      ],
+      "notes": "Every field passes validationBehavior=\"aria\" so React Aria's native validation does not race react-hook-form; this prop was found in React Aria's types, not in the kit's guidance. Suggestions filter on the street text only (React Aria's contains filter on textValue), not on postcode or city. Choosing a suggestion sets street, postcode and city with shouldValidate. Not run in a browser: the open menu, the fill on choice, the behaviour of the controlled input after a choice and after coming back to the step, and the phone field's validity were not exercised. Unsure: what Enter does in the street field while the 'No matches' menu is open (submit the step or nothing); not checked. Verified by typecheck and a server string render only."
+    },
+    {
+      "n": 3,
+      "part": "Payment method by radio",
+      "built": "yes",
+      "kit": [
+        "RadioGroup",
+        "Radio"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read components/Radio.tsx in full, source included.",
+          "why": "To learn that Radio's children are a plain node (two lines and an icon fit), that className is a string merged over an inline-flex base (so `flex w-full` makes a full-width row), and that RadioGroup's gap can be overridden."
+        }
+      ],
+      "notes": "Card is pre-selected, as Material's guidelines ask. Each option is a row: label, a supporting line, a lucide icon. The supporting line is inside the radio's label, so it is part of its accessible name. Not run in a browser; the full-width row layout of a kit Radio was not seen. Verified by typecheck and a server string render only."
+    },
+    {
+      "n": 4,
+      "part": "Slot for the card payment fields",
+      "built": "yes",
+      "kit": [
+        "Title",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "A <section> with a dashed outline border on surface-container-low, a lock icon, the heading 'Card details' and a sentence saying it is a placeholder for the payment provider's fields. It carries id and data-slot \"payment-provider-fields\" as the mount point, is shown only while Card is selected, and holds no input.",
+          "why": "The kit has no placeholder or slot component; EmptyState is for an empty list or page and brings a filled, bordered box with actions."
+        }
+      ],
+      "notes": "A placeholder only, as asked: no card inputs. Not seen in a browser. Verified by typecheck and a server string render only."
+    },
+    {
+      "n": 5,
+      "part": "Delivery day and time",
+      "built": "yes",
+      "kit": [
+        "RadioGroup",
+        "Radio",
+        "StateLayer",
+        "focusRing",
+        "cn",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "The day is five tiles (weekday over day number) built on RadioGroup, Radio and Label imported from react-aria-components, styled with role utilities, the kit's StateLayer and focusRing: one tab stop, arrow keys move the choice, the selected tile is secondary-container.",
+          "why": "The kit's Radio always draws its ring and takes a string className and plain children, so it cannot be a tile. ChipGroup (single) was considered and left: chips are 32dp tall, small for the main choice of a phone screen. SegmentedButton was considered and left: its own doc says Material no longer recommends it, it is 40dp with a one-line truncating label and a check that takes room, tight for five days at 400px."
+        },
+        {
+          "kind": "read",
+          "what": "Read ChipGroup in components/Chip.tsx and components/SegmentedButton.tsx, source included, and ButtonGroup's mention in SegmentedButton's doc, to decide between them.",
+          "why": "Neither doc comment gives enough to judge a five-option single choice on a phone (height, how labels shrink, whether an empty selection can be refused)."
+        },
+        {
+          "kind": "feature",
+          "what": "Added `data-focus-visible:outline-solid` beside focusRing() on the day tiles.",
+          "why": "focusRing shows on `focus-visible:`, which never matches a React Aria Radio: the focus is on a hidden input and the label gets data-focus-visible. The kit's guidance says to extend focusRing but not how for this case."
+        }
+      ],
+      "notes": "The time is the kit's RadioGroup with one kit Radio per window (six fixed windows, the same every day), each a row with its fee; windows fully booked on the chosen day are disabled and say so. Changing the day clears a chosen time that the new day has fully booked. Continue without a time marks the group invalid with a message and focuses its first enabled radio. No time is pre-selected, on purpose (it has a price), which departs from Material's advice to pre-select a radio. ButtonGroup variant=\"connected\", which SegmentedButton's doc recommends, was not read or tried. Not run in a browser: tile sizes at 400px, the focus ring on a tile and arrow-key movement were not seen. Verified by typecheck and a server string render only."
+    },
+    {
+      "n": 6,
+      "part": "Order summary",
+      "built": "yes",
+      "kit": [
+        "Disclosure",
+        "DisclosureHeader",
+        "DisclosurePanel",
+        "Card",
+        "Divider",
+        "Title",
+        "Body",
+        "Label"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "The items are a hand-written <ul> (quantity in a small container, name, detail, line price) and the fees and total two <dl>s (src/checkout/OrderSummary.tsx).",
+          "why": "The kit's ListItem is a pressable row (cursor-pointer, a state layer, made for GridListItem) and Table is a data grid; neither is a static receipt line, and the kit has no description-list or key/value row."
+        },
+        {
+          "kind": "read",
+          "what": "Read components/ListItem.tsx in full, the styles and DisclosureTrigger/DisclosurePanel in components/Disclosure.tsx, and the body of components/Card.tsx.",
+          "why": "To learn that ListItem is interactive by its styles, that DisclosureHeader's `trailing` sits before the chevron and its children are inside a span, what `isUnstyled` leaves, and that Card pads its own content (p-4) and merges `className` on the root (used for `sticky` and `lg:hidden`)."
+        }
+      ],
+      "notes": "Phone, steps 1 to 3: a kit Disclosure (outlined) above the step, closed by default, whose header shows the item count and the running total; so on a phone the lines are one press away, not always on screen. Phone, review step: the whole summary in a Card inside the review. Desktop (lg and up): a sticky Card in a third column on every step and on the confirmation. Totals are integer cents from one function. Until a time is chosen, the delivery row reads 'Set by your slot' and the total is labelled 'Total before delivery'. The summary is rendered twice in the DOM (one copy hidden by display:none per breakpoint). Amounts use font-mono, as ds-build allows. Not seen in a browser. Verified by typecheck and a server string render only."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "hand",
+      "what": "Page layout by hand: a bg-surface root, a max-w-5xl column, a one-column stack on a phone and a three-column grid from lg (steps over two columns, summary in the third), all on Tailwind's own scale.",
+      "why": "The kit has no page, grid or container component; ds-build says nothing about page layout or breakpoints."
+    },
+    {
+      "kind": "hand",
+      "what": "The 'Order placed' confirmation is a kit Card with a lucide icon, a Headline, two Body lines and a tonal Button, composed by hand.",
+      "why": "EmptyState was read and left: it is described for an empty list, table or page, and its base uses `rounded-lg` and a border, not a shape token."
+    },
+    {
+      "kind": "read",
+      "what": "Read primitives/Typography.tsx past its doc comment for the polymorphic `component` prop and the forwarded ref (used to focus headings).",
+      "why": "ds-build shows `size` and `colorRole` only; `component` appears nowhere in the guidance."
+    },
+    {
+      "kind": "read",
+      "what": "Read tokens/theme.css's header comment to find whether the theme paints the page ground.",
+      "why": "ds-build says the theme sets the ambient content colour but not whether it sets a background; the root got bg-surface to be safe."
+    },
+    {
+      "kind": "read",
+      "what": "Read components/Button.tsx past its doc comment: the prop types (variant, size, isLoading, className as string or function) and the head of StandardButton.",
+      "why": "To confirm that `type=\"submit\"`, `isDisabled` and `onPress` pass through from React Aria's props and what isLoading is; the doc comment lists sizes and colours, not these."
+    },
+    {
+      "kind": "read",
+      "what": "Read the body of components/TopAppBar.tsx (where title, leading and className land) and the styles of components/EmptyState.tsx.",
+      "why": "To see that className is on the <header> root (used to centre the bar), and to decide whether EmptyState fits a confirmation (it does not)."
+    },
+    {
+      "kind": "read",
+      "what": "Read render-props.ts (composeTailwindRenderProps), focusRing and twMergeConfig in utils.ts, and the IconComponent type in icons.tsx.",
+      "why": "To confirm that a className passed to a kit component is merged over its base (so `flex` beats `inline-flex`, `gap-1` beats `gap-3`, `sticky` beats `relative`), what focusRing's classes are, and that a lucide icon fits `icon` props."
+    },
+    {
+      "kind": "read",
+      "what": "Read the prop types of TextField and PhoneField in their files, above their doc comments.",
+      "why": "The props (multiline, showCharacterCount, defaultCountry, what PhoneField omits) are in the type, which is what had to be read; the doc comments describe behaviour and deviations."
+    }
+  ],
+  "friction": "VERIFICATION: npm run build (tsc -b && vite build) is green and oxlint reports nothing on the new files. Each step was rendered to a string with react-dom/server as a smoke test (the whole screen on step 1; the delivery, payment, review-section and confirmation components on their own): all rendered without throwing, the delivery step with 11 radios (5 days, 6 times) and its error message, the payment step with 3 inputs, all radios, and the provider slot. Nothing was run in a browser: no click, no key press, no look at the layout at 400px or on a desktop, in light or in dark. FILES: src/App.tsx, src/checkout/Checkout.tsx, src/checkout/Stepper.tsx, src/checkout/OrderSummary.tsx, src/checkout/data.ts. GUESSES: None failed: the first `npm run build` was green, and the one later change (routing to the invalid step from the review's submit) was a logic fix found by re-reading, not a type error. No kit file was edited. No hex value, palette class or arbitrary `[…]` value was written; `text-on-surface/38` is used for not-yet-reachable steps, following the kit's disabled convention. FRICTION: 1. No stepper: a checkout, an onboarding and any wizard need one, and Material 3 has none, so it would belong to the kit's own group. 2. ComboBox as a free-text field with suggestions (an address, a search-as-you-type) is not described: the doc comment covers picking from a list and chips. One paragraph on allowsCustomValue + inputValue/onInputChange, and a way to turn off the chevron and the 'No matches' menu, would have made part 2 a five-minute job; so would an adapter variant that binds the text. 3. The react-hook-form adapter takes no `rules` and forwards no ref, and its doc shows only zodResolver: with no schema library I had to work out that a hand resolver is the only way, and that setFocus/shouldFocusError cannot reach a kit field. A line saying so, and a note to pass validationBehavior=\"aria\" with isRequired, would help. 4. Finding a component's real doc comment is slow: in several files (ComboBox, Card, Button, Chip, Select, Tabs, TopAppBar) the first /** */ block is about a style detail and the component's own comment is hundreds of lines down, after the tv() styles; ds-build says 'doc comment first' but the files do not put it first. 5. Nothing says which component to use for a single choice among a few large options (day tiles, plan cards): Radio is ring-only, chips are 32dp, SegmentedButton is discouraged by its own doc and points to ButtonGroup connected, which I did not have time to assess. A 'selectable card / tile radio' or a className render function and render-prop children on Radio would cover it. 6. focusRing relies on `focus-visible:`; for React Aria controls whose focus is on a hidden input (Radio, Checkbox, Switch) the project has to know to add `data-focus-visible:outline-solid`. 7. No static key/value or receipt row: ListItem looks right by name but is a pressable row. 8. ds-build covers classes well and layout not at all: page container, breakpoints, spacing between sections. 9. The react-aria skill is said not to ship and the web was off, so React Aria's behaviour came from node_modules type definitions and memory. 10. A harness note, not the kit's: one long shell output was saved by the tool outside the project directory and I read it from there; it held only this project's own kit files."
+}
