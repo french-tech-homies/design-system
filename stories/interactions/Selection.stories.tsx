@@ -2,10 +2,21 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import React from "react";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 
-import Chip, { ChipGroup } from "@french-tech-homies/design-system/components/Chip";
-import { Checkbox, CheckboxGroup } from "@french-tech-homies/design-system/components/Checkbox";
-import { Radio, RadioGroup } from "@french-tech-homies/design-system/components/Radio";
-import { Select, SelectItem } from "@french-tech-homies/design-system/components/Select";
+import Chip, {
+  ChipGroup,
+} from "@french-tech-homies/design-system/components/Chip";
+import {
+  Checkbox,
+  CheckboxGroup,
+} from "@french-tech-homies/design-system/components/Checkbox";
+import {
+  Radio,
+  RadioGroup,
+} from "@french-tech-homies/design-system/components/Radio";
+import {
+  Select,
+  SelectItem,
+} from "@french-tech-homies/design-system/components/Select";
 import { Slider } from "@french-tech-homies/design-system/components/Slider";
 import { Switch } from "@french-tech-homies/design-system/components/Switch";
 
@@ -185,6 +196,115 @@ export const SliderArrowsChangeValue: Story = {
 
     await userEvent.keyboard("{Home}");
     await expect(thumb).toHaveValue("8");
+  },
+};
+
+function RemovableChips({ pressable = false }: { pressable?: boolean }) {
+  const [tags, setTags] = React.useState(["Ada", "Grace", "Linus"]);
+  const [opened, setOpened] = React.useState("");
+  const list = React.useRef<HTMLDivElement>(null);
+  // The removed chip held the focus: it goes to the chip that takes its
+  // place, or to the one before it.
+  const remove = (tag: string) => {
+    const at = tags.indexOf(tag);
+    setTags(tags.filter((t) => t !== tag));
+    requestAnimationFrame(() => {
+      const chips =
+        list.current?.querySelectorAll<HTMLElement>("[data-slot=chip]");
+      const next = chips?.[Math.min(at, (chips?.length ?? 1) - 1)];
+      (next?.matches("button") ? next : next?.querySelector("button"))?.focus();
+    });
+  };
+  return (
+    <div className="flex flex-col gap-4">
+      <div ref={list} className="flex gap-2" role="group" aria-label="People">
+        {tags.map((tag) => (
+          <Chip
+            key={tag}
+            variant="input"
+            onPress={pressable ? () => setOpened(tag) : undefined}
+            onRemove={() => remove(tag)}
+          >
+            {tag}
+          </Chip>
+        ))}
+      </div>
+      <p data-testid="opened">{opened}</p>
+    </div>
+  );
+}
+
+/**
+ * A removable input chip is one button, named "Remove <its text>"; Enter,
+ * Backspace and Delete each remove the focused one.
+ */
+export const InputChipRemovedFromKeyboard: Story = {
+  render: () => <RemovableChips />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("button")).toHaveLength(3);
+
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Remove Ada" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(canvas.queryByRole("button", { name: "Remove Ada" })).toBeNull(),
+    );
+
+    await waitFor(() =>
+      expect(
+        canvas.getByRole("button", { name: "Remove Grace" }),
+      ).toHaveFocus(),
+    );
+    await userEvent.keyboard("{Backspace}");
+    await waitFor(() =>
+      expect(
+        canvas.getByRole("button", { name: "Remove Linus" }),
+      ).toHaveFocus(),
+    );
+    await userEvent.keyboard("{Delete}");
+    await waitFor(() =>
+      expect(canvas.queryAllByRole("button")).toHaveLength(0),
+    );
+  },
+};
+
+/**
+ * With an action of its own the chip is two buttons, its own then "Remove
+ * <its text>"; the first does the action, the second removes, and Delete
+ * on either removes too.
+ */
+export const InputChipWithTwoActionsFromKeyboard: Story = {
+  render: () => <RemovableChips pressable />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("button")).toHaveLength(6);
+
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Ada" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.getByTestId("opened")).toHaveTextContent("Ada");
+    await expect(canvas.getAllByRole("button")).toHaveLength(6);
+
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Remove Ada" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(canvas.queryByRole("button", { name: "Remove Ada" })).toBeNull(),
+    );
+
+    await waitFor(() =>
+      expect(canvas.getByRole("button", { name: "Grace" })).toHaveFocus(),
+    );
+    await userEvent.keyboard("{Delete}");
+    await waitFor(() =>
+      expect(canvas.queryByRole("button", { name: "Grace" })).toBeNull(),
+    );
+    await expect(canvas.getAllByRole("button")).toHaveLength(2);
   },
 };
 
