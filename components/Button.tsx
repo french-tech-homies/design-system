@@ -249,6 +249,9 @@ type BaseButtonProps = {
   /** Leading icon component, e.g. any lucide-react icon. With no children
    *  the button draws the icon alone, and takes an `aria-label`. */
   icon?: IconComponent;
+  /** The action this button started is running: a spinner takes the icon's
+   *  place, and the button takes no press and submits no form until it is
+   *  false again. It stays in the tab order and keeps its look. */
   isLoading?: boolean;
   /**
    * `round` (default) or `square`, Material's two shapes. A FAB keeps its
@@ -522,7 +525,24 @@ const StandardButton = React.forwardRef<HTMLButtonElement, StandardButtonProps>(
     }
 
     return (
-      <AriaButton {...dataProps} {...buttonProps} className={baseStyles} ref={ref}>
+      <AriaButton
+        {...dataProps}
+        {...buttonProps}
+        // Loading: the button keeps its place in the tab order and its look,
+        // and takes no press and submits no form. (React Aria's `isPending`
+        // does the same and leaves an unnamed announcer in the page.)
+        {...(isLoading
+          ? {
+              onPress: undefined,
+              onPressStart: undefined,
+              onPressEnd: undefined,
+              type: "button" as const,
+              "aria-disabled": true,
+            }
+          : {})}
+        className={baseStyles}
+        ref={ref}
+      >
         {content}
       </AriaButton>
     );
