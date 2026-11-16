@@ -143,6 +143,71 @@ export const RadioArrowsMoveSelection: Story = {
   },
 };
 
+/** A theme whose shape scale is all 0: every corner of it square. */
+const squareCorners = {
+  "--md-sys-shape-corner-extra-small": "0px",
+  "--md-sys-shape-corner-small": "0px",
+  "--md-sys-shape-corner-medium": "0px",
+  "--md-sys-shape-corner-large": "0px",
+  "--md-sys-shape-corner-large-increased": "0px",
+  "--md-sys-shape-corner-extra-large": "0px",
+  "--md-sys-shape-corner-full": "0px",
+} as React.CSSProperties;
+
+/** The radius a part is drawn with, against half its side: 1 or more is a circle. */
+const roundness = (el: Element) => {
+  const style = getComputedStyle(el);
+  return (
+    parseFloat(style.borderTopLeftRadius) /
+    (el.getBoundingClientRect().width / 2)
+  );
+};
+
+/**
+ * In a theme whose every corner is square, a radio stays round and a
+ * checkbox stays a box: Material gives the radio button no shape token, so
+ * its ring and dot are circles whatever the theme's scale, while what
+ * Material ties to `corner.full` (the checkbox's state layer) follows it.
+ */
+export const RadioStaysRoundWhenCornersAreSquare: Story = {
+  render: () => (
+    <div style={squareCorners} className="flex flex-col gap-4">
+      <RadioGroup label="Service" defaultValue="table">
+        <Radio value="table">Table service</Radio>
+        <Radio value="counter">Counter</Radio>
+      </RadioGroup>
+      <CheckboxGroup label="Allergens" defaultValue={["nuts"]}>
+        <Checkbox value="nuts">Nuts</Checkbox>
+        <Checkbox value="gluten">Gluten</Checkbox>
+      </CheckboxGroup>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const part = (selector: string) => {
+      const el = canvasElement.querySelector(selector);
+      if (!el) throw new Error(`no ${selector} in the story`);
+      return el;
+    };
+
+    // The theme took: what the spec ties to the shape scale is square.
+    await expect(
+      roundness(part('[data-slot="checkbox"] [data-slot="state-layer"]')),
+    ).toBe(0);
+    await expect(roundness(part('[data-slot="checkbox-box"]'))).toBeLessThan(1);
+
+    // The radio's parts are circles all the same.
+    await expect(
+      roundness(part('[data-slot="radio-ring"]')),
+    ).toBeGreaterThanOrEqual(1);
+    await expect(
+      roundness(part('[data-selected] [data-slot="radio-dot"]')),
+    ).toBeGreaterThanOrEqual(1);
+    await expect(
+      roundness(part('[data-slot="radio"] [data-slot="state-layer"]')),
+    ).toBeGreaterThanOrEqual(1);
+  },
+};
+
 const expiry = [
   { id: "1", name: "1 day" },
   { id: "7", name: "1 week" },
