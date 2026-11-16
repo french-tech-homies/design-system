@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import React from "react";
 import { expect } from "storybook/test";
 import ListItem from "@french-tech-homies/design-system/components/ListItem";
+import { GridList, GridListItem } from "@french-tech-homies/design-system/components/GridList";
 import { Checkbox } from "@french-tech-homies/design-system/components/Checkbox";
 
 /** Plain `<img>` so the story has no framework dependency (the Next image component needs the Next runtime). */
@@ -123,5 +124,34 @@ export const LongNameCutToOneLine: Story = {
     await expect(text.getBoundingClientRect().right).toBeLessThanOrEqual(
       row.getBoundingClientRect().right,
     );
+  },
+};
+
+/**
+ * Outside a `GridList` the row is read, not pressed: it shows no pointer's
+ * hand.
+ */
+export const ReadOnlyInAPlainList: Story = {
+  render: () => (
+    <ul className="bg-surface w-80">
+      <li>
+        <ListItem headline="Ada Martin" supportingText="Owner" />
+      </li>
+      <li>
+        <ListItem headline="Grace Hopper" supportingText="Editor" />
+      </li>
+      <li>
+        <GridList aria-label="Pressable" onAction={() => undefined}>
+          <GridListItem id="linus" textValue="Linus Torvalds">
+            <ListItem headline="Linus Torvalds" supportingText="In a GridList" />
+          </GridListItem>
+        </GridList>
+      </li>
+    </ul>
+  ),
+  play: async ({ canvasElement }) => {
+    const rows = canvasElement.querySelectorAll("[data-slot=list-item]");
+    await expect(getComputedStyle(rows[0]!).cursor).not.toBe("pointer");
+    await expect(getComputedStyle(rows[2]!).cursor).toBe("pointer");
   },
 };
