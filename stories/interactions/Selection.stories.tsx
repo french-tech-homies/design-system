@@ -2,10 +2,21 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import React from "react";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 
-import Chip, { ChipGroup } from "@french-tech-homies/design-system/components/Chip";
-import { Checkbox, CheckboxGroup } from "@french-tech-homies/design-system/components/Checkbox";
-import { Radio, RadioGroup } from "@french-tech-homies/design-system/components/Radio";
-import { Select, SelectItem } from "@french-tech-homies/design-system/components/Select";
+import Chip, {
+  ChipGroup,
+} from "@french-tech-homies/design-system/components/Chip";
+import {
+  Checkbox,
+  CheckboxGroup,
+} from "@french-tech-homies/design-system/components/Checkbox";
+import {
+  Radio,
+  RadioGroup,
+} from "@french-tech-homies/design-system/components/Radio";
+import {
+  Select,
+  SelectItem,
+} from "@french-tech-homies/design-system/components/Select";
 import { Slider } from "@french-tech-homies/design-system/components/Slider";
 import { Switch } from "@french-tech-homies/design-system/components/Switch";
 
@@ -144,9 +155,7 @@ export const RadioStaysRoundWhenCornersAreSquare: Story = {
     await expect(
       roundness(part('[data-slot="checkbox"] [data-slot="state-layer"]')),
     ).toBe(0);
-    await expect(roundness(part('[data-slot="checkbox-box"]'))).toBeLessThan(
-      1,
-    );
+    await expect(roundness(part('[data-slot="checkbox-box"]'))).toBeLessThan(1);
 
     // The radio's parts are circles all the same.
     await expect(
