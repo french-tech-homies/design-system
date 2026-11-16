@@ -89,7 +89,7 @@ export type ListItemProps = VariantProps<typeof styles> & {
  *   <ListItem
  *     headline="Design principles"
  *     supportingText="Edited yesterday"
- *     leadingElement={<Avatar name="Ada" />}
+ *     leadingElement={<Avatar alt="Ada Martin" fallback="AM" />}
  *     trailingElement={<Label>12 MB</Label>}
  *   />
  *
