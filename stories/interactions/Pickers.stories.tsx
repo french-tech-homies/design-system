@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { parseDate, Time } from "@internationalized/date";
+import { getLocalTimeZone, parseDate, Time, today } from "@internationalized/date";
 import { I18nProvider } from "react-aria-components";
 import { useLayoutEffect, type ReactNode } from "react";
 import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
@@ -324,6 +324,48 @@ export const RangePicksStartAndEnd: Story = {
       start: parseDate("2026-06-22"),
       end: parseDate("2026-06-25"),
     });
+  },
+};
+
+/** Today, when it is an end of the range or the one date chosen, is still
+    read: its number is not the colour of the disc behind it. */
+export const TodaySelectedIsRead: Story = {
+  tags: ["no-screenshot"],
+  parameters: {
+    screenshot: { reason: "it draws today, which is another day tomorrow" },
+  },
+  render: () => {
+    const now = today(getLocalTimeZone());
+    return (
+      <div className="flex gap-4">
+        <DateRangePicker
+          label="Stay"
+          className="w-80"
+          defaultValue={{ start: now, end: now.add({ days: 2 }) }}
+        />
+        <DatePicker label="Day" layout="modal" className="w-60" defaultValue={now} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const rgb = (el: Element, prop: "color" | "backgroundColor") =>
+      getComputedStyle(el)[prop];
+    for (const index of [0, 1]) {
+      const opener = canvas.getAllByRole("button", { name: /open calendar/i })[index];
+      if (!opener) throw new Error("no calendar button");
+      await userEvent.click(opener);
+      const dialog = await screen.findByRole("dialog");
+      const cell = await waitFor(() => {
+        const found = dialog.querySelector("[data-today][data-selected]");
+        if (!found) throw new Error("today is not drawn as selected");
+        return found;
+      });
+      const day = cell.querySelector("span:not([class*='absolute'])") ?? cell;
+      await expect(rgb(day, "color")).not.toBe(rgb(day, "backgroundColor"));
+      await userEvent.keyboard("{Escape}");
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    }
   },
 };
 

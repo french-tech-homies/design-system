@@ -1,0 +1,99 @@
+{
+  "screen": "Dashboard",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Figure cards",
+      "built": "yes",
+      "kit": ["Card", "Title", "Headline", "Body", "Tag"],
+      "leaves": [
+        { "kind": "layout", "what": "A ul grid (two columns, four from lg) of Card component=\"li\"; each card's insides (label, figure, change against the previous period) composed by hand.", "why": "The kit has no figure or stat card; CardContent's headline-and-supporting-text anatomy puts the big text first and has no place for a trend." },
+        { "kind": "use", "what": "classNames={{ content: \"h-full gap-2\" }} on Card, and component=\"li\".", "why": "Card's doc comment: \"To lay them out another way or to run them to the card's edges, say so on that part\" and \"A card that is one of a list is an `li`.\"" },
+        { "kind": "option", "what": "The change (+4.2%) is a Tag whose children are a hand-made inline-flex span holding a lucide arrow, the number and screen-reader-only text (\"better\" / \"worse\").", "why": "Tag has no icon slot and the kit has no trend or delta indicator; tertiary and error stand in for good and bad because there is no success role." },
+        { "kind": "read", "what": "Read Tag.tsx's variants to learn the names `color` takes.", "why": "Tag's doc comment shows `color=\"error\"` and `color=\"primary\"` and says `<color>-container`, without listing the five colours (neutral among them)." }
+      ],
+      "notes": "Not seen in a browser (none allowed): at 400px the two-column grid leaves about 140px inside a card, and I have not checked that the longest figure fits on one line at headline-medium."
+    },
+    {
+      "n": 2,
+      "part": "Meters and progress",
+      "built": "yes",
+      "kit": ["Card", "Title", "Meter", "ProgressIndicator", "Button", "Body"],
+      "leaves": [
+        { "kind": "layout", "what": "The card's column of three meters, one progress bar and the export row.", "why": "Expected of a screen." },
+        { "kind": "use", "what": "Meter with value, maxValue, valueLabel (\"$312,400 of $400,000\"), showValue, and color=\"error\" with the label saying \"over the plan\".", "why": "Meter's doc comment: \"<Meter label=\\\"Boards this month\\\" value={3} maxValue={5} valueLabel=\\\"3 of 5\\\" showValue />\" and \"say that it is over in the label or in `valueLabel`\"." },
+        { "kind": "option", "what": "Passed React Aria's valueLabel and maxValue to ProgressIndicator for \"412 of 640\".", "why": "ProgressIndicator's doc comment names neither (Meter's does); only its type, Omit<AriaProgressBarProps, \"children\">, says they pass through." },
+        { "kind": "use", "what": "The project's own timers drive the two progress bars (an invoice run that advances by itself, an export the person starts with a Button isLoading), and a role=\"status\" line says when the export is ready.", "why": "Button's doc comment: \"The action this button started is running: a spinner takes the icon's place\"; the skill: \"An action in progress: `LoadingIndicator` or `ProgressIndicator`.\"" }
+      ],
+      "notes": "Both tasks are simulated. The export's progress bar appears while it runs and is removed when it ends; the completion is only the status line (no snackbar)."
+    },
+    {
+      "n": 3,
+      "part": "A date-range filter",
+      "built": "yes",
+      "kit": ["DateRangePicker"],
+      "leaves": [
+        { "kind": "layout", "what": "A wrapper div gives the field its width (full on a phone, 320px from md).", "why": "Expected of a screen." },
+        { "kind": "use", "what": "Controlled value, onChange and maxValue (today); the project keeps two states, what the field holds (null while half typed) and the last whole range the figures are for.", "why": "DatePicker's doc comment: \"the value is an `@internationalized/date` value, as in React Aria's `DatePicker` and `DateRangePicker`, which they are built on\" and \"Typing in the field itself commits as it is typed.\"" },
+        { "kind": "option", "what": "Took the full-screen range picker as it is on a desktop dashboard too.", "why": "\"`DateRangePicker` is always full screen ... there is no docked or modal range picker.\" A filter in a dashboard's toolbar would be better served by a docked range calendar on wide windows; the kit has none." },
+        { "kind": "read", "what": "Read DatePicker.tsx's prop types and where className lands, and field-styles.ts on the outlined label's notch.", "why": "To know whether the field takes its width from className and whether the notch needs a variable on the page's surface (it does not: the page is `surface`)." }
+      ],
+      "notes": "Not operated in a browser. A range that ends today and is 7, 30 or 90 days long selects the matching period; any other clears the toggle."
+    },
+    {
+      "n": 4,
+      "part": "A period toggle",
+      "built": "yes",
+      "kit": ["ButtonGroup", "Button"],
+      "leaves": [
+        { "kind": "use", "what": "ButtonGroup variant=\"connected\" selectionMode=\"single\" with three Button isToggle id=…, controlled by selectedKeys; chosen over SegmentedButton.", "why": "SegmentedButton's doc comment: \"for new work prefer `<ButtonGroup variant=\\\"connected\\\" selectionMode=…>`\"; ButtonGroup's: \"Its children are then `Button`s or `IconButton`s with `isToggle` and an `id`.\"" },
+        { "kind": "option", "what": "The project's onSelectionChange ignores an empty selection, so a press on the selected period leaves it selected, while a custom range still shows none selected.", "why": "disallowEmptySelection forbids both: the group cannot say \"none may be selected by the program, but a person cannot unselect\"." },
+        { "kind": "layout", "what": "A wrapper div bounds the group's width (it spans its surface) and holds a polite live line under it that says the range and its length.", "why": "Expected of a screen." }
+      ],
+      "notes": "The doc comments do not say which Button variant a connected selection group wants; I used tonal. Whether single mode (a radiogroup) reads well with no radio selected after a custom range, I have not heard in a screen reader."
+    },
+    {
+      "n": 5,
+      "part": "A slot for a chart",
+      "built": "yes",
+      "kit": ["Card", "Title", "Body", "Label"],
+      "leaves": [
+        { "kind": "layout", "what": "A dashed, outlined box of fixed height (data-slot=\"chart-slot\") labelled \"Chart slot\", under the card's title and the range it would draw.", "why": "A placeholder is the project's; EmptyState is for \"nothing to show\", which is not what a slot is." }
+      ],
+      "notes": "No chart is drawn, as the screen asks."
+    },
+    {
+      "n": 6,
+      "part": "A list of recent activity",
+      "built": "yes",
+      "kit": ["Card", "ListItem", "Avatar", "Tag", "Title", "Body"],
+      "leaves": [
+        { "kind": "use", "what": "ListItem in a plain ul/li, a list that is read, with a decorative Avatar (no alt) and a Tag in the trailing slot.", "why": "ListItem's doc comment: \"In a plain `ul` or `li` it is a row that is read: no hover, no pointer's hand, nothing to press.\" Avatar's: \"Without it the avatar is decorative and hidden: the form for an avatar beside the person's visible name, in a list row\"." },
+        { "kind": "use", "what": "classNames={{ content: \"p-0\" }} on the Card so the rows run to its edges.", "why": "Card's doc comment: \"to run them to the card's edges, say so on that part: `classNames={{ content: \\\"p-0\\\" }}`\"." },
+        { "kind": "layout", "what": "The card's header and the hairlines between rows (divide-y divide-outline-variant) by hand.", "why": "Expected of a screen; ListItem draws no divider and I did not look for Divider's inset form." }
+      ],
+      "notes": "The rows are read, not pressed: there is no detail screen to go to. The activity does not follow the date range, on purpose."
+    },
+    {
+      "n": 7,
+      "part": "A state for each card while it loads",
+      "built": "yes",
+      "kit": ["Skeleton", "SkeletonGroup", "Card"],
+      "leaves": [
+        { "kind": "use", "what": "Each card (four figures, chart, targets, activity) has its own timer and its own SkeletonGroup with a label naming what loads; text skeletons sit inside the type primitive they replace.", "why": "Skeleton's doc comment: \"Put it inside the type primitive it replaces (`<Title><Skeleton className=\\\"w-32\\\" /></Title>`) and the row keeps its height\"; the skill: \"`Skeleton`, in a `SkeletonGroup` that says \\\"Loading\\\" once.\"" },
+        { "kind": "layout", "what": "The placeholder arrangement of each card (meter rows, list rows, the chart's block) written by hand to match the loaded content.", "why": "SkeletonGroup \"lays out nothing: give it the layout of the content it stands for\"." },
+        { "kind": "option", "what": "rounded-shape-full and rounded-shape-small passed to rectangle skeletons standing for a meter's bar, a button and a tag.", "why": "The doc comment gives className for size only (\"Size it with `className`\"); `rectangle` always takes the medium corner and there is no pill shape." },
+        { "kind": "use", "what": "aria-busy on each Card while it loads.", "why": "Card's doc comment: the root takes \"every `aria-*` and `data-*` attribute\"." },
+        { "kind": "read", "what": "Read Skeleton.tsx's classes.", "why": "To know that a text skeleton is a full-width block and that its fill is surface-container-highest, which is a filled Card's own colour: so the cards are outlined." }
+      ],
+      "notes": "Changing the range or the period sends the figure, chart and targets cards back to their skeletons, each for its own delay (0.5 to 1.4s). Heights of skeleton and content were matched by reasoning, not measured: a small jump is possible."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "The page: a TopAppBar (the h1), a filter row, the figures grid, a chart-and-targets grid, the activity card. No block used: the screen names no navigation, so app-shell-block was left out.", "why": "Expected of a screen." },
+    { "kind": "use", "what": "Icons from lucide-react (arrows, download).", "why": "The skill: \"Icons are any component taking `{ size, className }`. The kit ships no icon library.\"" },
+    { "kind": "value", "what": "None written: every colour, shape and type class is a role utility; sizes are Tailwind's scale.", "why": "" }
+  ],
+  "friction": "Nothing was seen running: no browser was allowed, so layout at 400px, dark mode and the full-screen range picker are unverified beyond the type check and the build. In the kit: (1) a filled Card and a Skeleton share surface-container-highest, which the Skeleton comment hints at (\"reads on surface and on the lower surface containers\") but Card's does not; a line saying \"not on a filled card\" would save the source read. (2) Tag's comment does not list its colours and has no success role or icon slot, and a dashboard's trend chip needs all three. (3) ProgressIndicator's comment does not mention valueLabel/maxValue as Meter's does. (4) The range picker is full screen only; the comment says so clearly, but a toolbar filter on desktop wants a docked one. (5) ButtonGroup's comment does not say which Button variant suits a connected selection group, nor how to keep one always selected while allowing none programmatically. (6) There is no figure/stat card pattern or example in the kit or the skill, though it is the first thing a back-office screen needs. The advisor tool was rate-limited, so no second opinion was taken."
+}

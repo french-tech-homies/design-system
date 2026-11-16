@@ -1,0 +1,186 @@
+{
+  "screen": "Pricing",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A monthly and yearly toggle",
+      "built": "yes",
+      "kit": [
+        "ButtonGroup (variant=\"connected\", selectionMode=\"single\", disallowEmptySelection)",
+        "Button (isToggle)",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read ButtonGroup.tsx whole, and Button.tsx's prop types and layout hook.",
+          "why": "SegmentedButton's doc comment sends new work to ButtonGroup; what its children must be (Button with isToggle and an id, not variant text) and that a connected group is w-full are only in the source and in a doc comment that is not the file's first."
+        },
+        {
+          "kind": "layout",
+          "what": "The group centred at max-w-xs with a caption under it.",
+          "why": "A connected group spans its surface; the page decides its width."
+        }
+      ],
+      "notes": "Yearly is selected at first. Every price follows it: the three cards, the line under each price, and the table's price row. A visually hidden role=status says which billing is shown. Not seen in a browser: keyboard (arrows, Space) is React Aria's ToggleButtonGroup as the kit's comment describes, taken on trust."
+    },
+    {
+      "n": 2,
+      "part": "Plan cards with one emphasised",
+      "built": "yes",
+      "kit": [
+        "Card (component=\"li\", outlined and filled)",
+        "Tag",
+        "Title",
+        "Body",
+        "Display",
+        "Button",
+        "CheckIcon",
+        "snackbar",
+        "SnackbarRegion",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "The emphasised card is a filled Card with className=\"bg-primary-container text-on-primary-container\", plus a filled primary Tag \"Most popular\" and the only filled button.",
+          "why": "Card has three Material variants and no colour or emphasis prop; a role pair on className is the only way to a card that stands out by its container."
+        },
+        {
+          "kind": "feature",
+          "what": "CardContent not used: the card's insides are composed as children.",
+          "why": "CardContent draws headline-medium in text-on-surface and supporting text in on-surface-variant, which would not follow a primary-container card, and has no place for a price or a feature list."
+        },
+        {
+          "kind": "layout",
+          "what": "The card's insides (name, tag, price, billing line, button, feature list with checks) and the three-column grid that stacks to one on a phone.",
+          "why": "Expected of the screen."
+        },
+        {
+          "kind": "layout",
+          "what": "A hand-written placeholder (a pulsing surface-container-highest block, motion-safe) for the cards and the table while the timer runs, with aria-busy on the list.",
+          "why": "The kit has no skeleton; ProgressIndicator and LoadingIndicator do not hold a layout's place."
+        },
+        {
+          "kind": "read",
+          "what": "Read Card.tsx's styles and CardContent's body.",
+          "why": "To learn whether a className colour wins over the variant's (it does, through tv) and what CardContent hard-codes."
+        },
+        {
+          "kind": "guess",
+          "what": "First imported Check and Minus from lucide-react, then replaced them with the kit's CheckIcon and MinusIcon.",
+          "why": "The skill says the kit ships no icon library; the barrel's small icon set is easy to miss."
+        },
+        {
+          "kind": "read",
+          "what": "Read icons.tsx past its comment.",
+          "why": "To learn that the kit's icons set aria-hidden themselves and take only size and className."
+        }
+      ],
+      "notes": "The buttons go nowhere real: each shows a snackbar naming the plan and the billing chosen, since there is no sign-up route (an href would be a full page load to nothing). On the emphasised card the supporting text inherits on-primary-container instead of on-surface-variant. Emphasis does not rest on colour: the tag says it. Not seen in a browser."
+    },
+    {
+      "n": 3,
+      "part": "A table comparing plans",
+      "built": "yes",
+      "kit": [
+        "Table (showLastRowDivider={false})",
+        "TableHeader",
+        "Column (isRowHeader, align)",
+        "TableBody",
+        "Row",
+        "Cell",
+        "Card (outlined, content p-0)",
+        "Label",
+        "CheckIcon",
+        "MinusIcon",
+        "Headline"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "VisuallyHidden from react-aria-components for \"Included\" and \"Not included\" beside the check and the dash.",
+          "why": "The skill lists it as coming straight from React Aria; the kit has no included/excluded mark."
+        },
+        {
+          "kind": "layout",
+          "what": "A div with overflow-x-auto around the table and min-w-md on the table, inside an outlined Card; the feature column pinned (sticky start-0 z-1 bg-surface on its Column and on the first Cell of every row), w-36 on a phone and w-2/5 from sm.",
+          "why": "Four columns do not fit 400px. The kit's own scrolling box is ResizableTableContainer, which is for resized columns; Table says nothing about a narrow screen."
+        },
+        {
+          "kind": "read",
+          "what": "Read Table.tsx's styles (the table, container, row and cell slots, TableAlign) and the bodies of Column, Cell and CellElement.",
+          "why": "To learn that the table is w-full and overflow-clip (so it is no scroll container and a pinned cell sticks to the box around it), that a className on Table, Column and Cell lands on the table, th and td and wins, and how a column's align reaches its cells."
+        }
+      ],
+      "notes": "The kit's Table is a grid, and it was kept for what it gives: column and row headers, one tab stop, the arrow keys cell by cell. Its price: grid semantics on a table that is only read, and a term in a row header reached by the arrows rather than by Tab (a plain <table> would leave each term a tab stop). On a phone the table is 28rem wide and scrolls sideways under a pinned 9rem feature column, so about two plans show beside each row's name; labels wrap. The price row follows the toggle. Rows are flat (no group headings). None of it seen in a browser: unsure the pinned cells stick and cover cleanly (border-collapse draws the row's line on the tr, and the sticky cell's bg-surface is opaque), and unsure how the cell's focus ring looks on a pinned cell."
+    },
+    {
+      "n": 4,
+      "part": "Questions that open and close",
+      "built": "yes",
+      "kit": [
+        "DisclosureGroup (allowsMultipleExpanded)",
+        "Disclosure",
+        "DisclosureHeader (level 3)",
+        "DisclosurePanel",
+        "Headline"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read Disclosure.tsx whole.",
+          "why": "Its first doc comment is one line about a context; the component's real comment is 150 lines down, after the styles."
+        },
+        {
+          "kind": "layout",
+          "what": "The section's heading and a max-w-3xl column.",
+          "why": "Expected of the screen."
+        }
+      ],
+      "notes": "Six questions, the first open, several may be open at once. Used exactly as the doc comment shows. Not seen in a browser."
+    },
+    {
+      "n": 5,
+      "part": "Tooltips on terms",
+      "built": "yes",
+      "kit": [
+        "Tooltip (variant=\"rich\", headline)",
+        "TooltipTrigger (isOpen, onOpenChange)",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "The term is React Aria's Button, unstyled but for a dotted underline and the kit's focus ring (src/pricing/Term.tsx), in place of the kit's Focusable around a span.",
+          "why": "A tooltip opens on hover and keyboard focus only, and a public pricing page is read on phones. The kit has no term or toggletip, its Button is a Material button and cannot sit in a line of text, and its Link is drawn as a link. A real button gives a press: a tap shows the definition and the next tap, or a tap elsewhere, puts it away."
+        },
+        {
+          "kind": "feature",
+          "what": "TooltipTrigger is controlled (isOpen, onOpenChange) with a ref that remembers whether the tooltip showed before the press, and a document pointerdown listener that closes it on a touch outside.",
+          "why": "The kit's tooltip has no way to open on a press (its comment names the persistent rich tooltip as not built), and React Aria closes a tooltip when its trigger is pressed."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tooltip.tsx's body, and in node_modules React Aria's useTooltipTrigger, useTooltipTriggerState and Focusable's role check.",
+          "why": "To learn what a press does to a tooltip, how a controlled one behaves, and which roles Focusable accepts (it only warns at run time)."
+        },
+        {
+          "kind": "read",
+          "what": "Read utils.ts for focusRing.",
+          "why": "To learn it is a tv function called as focusRing({ className })."
+        }
+      ],
+      "notes": "Seven terms, used in the cards' feature lists and the table's row headers; one definition each, in data.ts. Hover and keyboard focus are the kit's as documented. The press-to-toggle path (touch, Enter, Space) is reasoned from React Aria's source and was NOT run in a browser: unsure that a touch tap opens and stays open on iOS and Android, and that the 1.5s close delay never fights the toggle. The definition is tied to the term by aria-describedby only while it shows, so a screen reader hears it after focus or a press, not before. The rich tooltip's 280px maximum holds each definition."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page: a 64dp line with the product's name, a centred heading, three sections in a max-w-6xl column.",
+      "why": "Expected of the screen. The site-header block was not used: the screen names no header part, and its links would go to pages that do not exist."
+    }
+  ],
+  "friction": "No part was seen running: there is no browser here, so everything beyond types is taken from the kit's comments and React Aria's source. (1) The doc comment that matters is not the first in Card, Disclosure, Table, Button and Badge: a reader told to read 'the doc comment first' meets a one-line comment about a context or a type and must read the file to find the real one. A file header, or the main comment at the top, would fix it. (2) SegmentedButton is the name one looks for; its comment says to use ButtonGroup instead, and the toggle recipe (Button isToggle with an id, direct children, no text variant, w-full to be constrained) is spread over two files. One example of a single-select connected group in ButtonGroup's comment would do. (3) Nothing says how to emphasise a card: whether a role pair on className is the intended way, or whether CardContent survives it (it does not: it asserts on-surface). (4) Tooltips on touch: the Tooltip comment says a touch screen gets nothing only in Table's cut-cell paragraph, and offers no term/toggletip; a page read on phones has to build one. (5) Table gives no guidance for a narrow screen or for a table that is read rather than operated. (6) No skeleton or placeholder. (7) The kit's CheckIcon and MinusIcon are exported but the skill says 'the kit ships no icon library', which reads as 'bring lucide'. No hex, palette class or arbitrary size was written anywhere on the screen."
+}

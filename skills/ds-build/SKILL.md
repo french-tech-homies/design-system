@@ -50,11 +50,23 @@ The kit holds what Material 3's specification describes, and a named group
 of components of its own: each of those says "Material 3 does not describe
 this component." in its doc comment and cites, beside it, the Material page
 of each thing it borrows. A React Aria component that Material 3 does not
-describe joins that group when a project needs it, asked of the kit and
-built there from Material's foundations and the nearest Material component.
+describe joins that group when one of the screens the kit measures itself
+on needs it, or when a project asks the kit for it: it is built there, from
+Material's foundations and the nearest Material component.
 Until then, and for anything neither Material nor React Aria describes, a
 component the kit does not have is the project's: it is written beside the
 kit, not inside it, on `react-aria-components`, following the rules below.
+
+For some of those the kit has a block to start from: a pager, a stepper, a
+radio drawn as a tile, a carousel of content that is read, a public page's
+header, an application's frame whose navigation follows its width
+(`pager-block`, `stepper-block`, `radio-tile-block`,
+`reading-carousel-block`, `site-header-block`, `app-shell-block`). `npx shadcn add @ds/pager-block`
+copies one into the project's components, outside `<kit>`. It is the
+project's from then on: edit it freely, an update of the kit never replaces
+it. It imports the kit's components from `<kit>`'s barrel, so it needs the
+kit at a release that has them: if it does not type-check, update the kit
+first.
 
 What the project's own component follows:
 
@@ -76,6 +88,33 @@ What the project's own component follows:
   and refresh it with `npx skills update`. Without it, every page of React
   Aria's documentation is served as markdown at its own address with `.md`
   added (`https://react-aria.adobe.com/Button.md`).
+
+### What comes straight from React Aria
+
+The kit wraps React Aria's components and leaves its hooks and utilities
+where they are. Import these from `react-aria-components`, beside the kit's
+components: using them is not leaving the kit.
+
+| For                                              | Import                                         | With the kit                                                                                              |
+| :----------------------------------------------- | :--------------------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| Moving items by drag and drop, by pointer and by keyboard | `useDragAndDrop`, `isFileDropItem`             | Pass its `dragAndDropHooks` to the kit's `GridList` or `Table`: both hand React Aria's props down.          |
+| A list of hundreds of rows                       | `Virtualizer`, `ListLayout`, `GridLayout`      | Around the kit's `GridList`. The layout takes sizes in pixels: a row's height is the kit row's.            |
+| A list that is edited, or loaded as it is scrolled | `useListData`, `useAsyncList`, `useTreeData` | Their `items` go to the kit's `GridList`, `Table`, `Select` or `ComboBox`.                                 |
+| Filtering what a field suggests                  | `useFilter`                                    | The kit's `ComboBox` filters by itself: only for a rule of your own.                                       |
+| Text only a screen reader gets                   | `VisuallyHidden`                               | For a status, or a name with no visible text.                                                             |
+| A page in another language, or right to left     | `I18nProvider`, `useLocale`                    | Once, around the app: the kit's dates, numbers and directions follow.                                      |
+
+**With react-hook-form**, the kit's adapter (`@ds/react-hook-form-adapter`,
+added beside the kit) binds each field, and passes the
+form's errors to it. A field you bind yourself with `Controller` takes
+`isInvalid` and `errorMessage` from the form's state, and
+`validationBehavior="aria"` where the form decides what is valid: the field
+is then marked invalid for assistive technology and the browser's own
+validation does not stop the submit before the form has run. The adapter's
+`Form*` fields set it themselves, and its `FocusAnchor` gives a field of your
+own the focus on a refused submit. The adapter's
+`FormComboBox` holds the chosen option; for a field whose value is the typed
+text, the comment above it shows the binding.
 
 ## Colour: role utilities, in pairs
 
@@ -107,7 +146,10 @@ file, `<kit>/tokens/bridge-shadcn.css`, where the entry CSS imports it. `bg-prim
 ## Type, shape, elevation, motion
 
 - **Type**: prefer the primitives, `<Title size="medium">`,
-  `<Body size="small">`. They carry the role's family and follow the theme's
+  `<Body size="small">`. A role sets how text looks and `component` says
+  what it is: any of them draws a heading, `p`, `span`, `div`, `label`, `li`,
+  `dt`, `dd`, `legend` or `figcaption` (`<Body component="dd">`,
+  `<Title component="p">`). They carry the role's family and follow the theme's
   roles, weight included: a role's weight or family set in `DESIGN.md` is
   the one they draw. A raw `text-title-medium` sets size, line height,
   tracking and weight, and no family: write `font-title-medium` beside it,
@@ -130,6 +172,14 @@ file, `<kit>/tokens/bridge-shadcn.css`, where the entry CSS imports it. `bg-prim
 Every pressable shows a state layer: an overlay in the content colour whose
 opacity follows the state.
 
+- A setting in a list of settings: `<Switch labelPosition="start"
+  supportingText="…">`, the label first and the switch at the row's end.
+  A row of filter chips on a phone: `<ChipGroup isScrollable>`. A slider
+  whose value is a time or a word: `formatValue`.
+- Something pressed that no kit control holds (an avatar that opens a menu,
+  a card pressed whole, a line of a list of your own): `Pressable`, a button
+  or with `href` a link around any content, with the state layer and the
+  ring. Do not import React Aria's `Button` or `Link` for it.
 - Use `StateLayer` from the kit with React Aria's render props (`isHovered`,
   `isFocusVisible`, `isPressed`), or the utilities
   `state-opacity-hover`, `state-opacity-focus`, `state-opacity-pressed`,
@@ -155,7 +205,41 @@ opacity follows the state.
   never by a class name.
 - Anything backed by React Aria is a client component. `Card`, `ListItem`,
   `MenuItem`, `Tag`, `Badge`, `Divider`, `TopAppBar`, `EmptyState`,
-  `DialogContent` and the type primitives render on the server.
+  `Skeleton`, `DialogContent` and the type primitives render on the server.
+- Content that is loading and whose shape is known: `Skeleton`, in a
+  `SkeletonGroup` that says "Loading" once. Its size is a `className`, and
+  so is another corner (`rounded-shape-full` for what stands for a button).
+  An action in progress: `LoadingIndicator` or `ProgressIndicator`.
+- A button whose action runs takes `isLoading`: it takes no second press
+  and says "Loading" to a screen reader, or its `loadingLabel` ("Saving").
+  What comes of the action is the page's to say: a snackbar, or a
+  `role="status"` line.
+- A dialog that holds a form or a list is still a `ModalDialog` with
+  `actions`: give it `children` too, and they sit between the headline and
+  the two buttons. `type: "submit"` and `form: "<the form's id>"` on the
+  confirm make it submit the form; while it `isLoading` the dialog is not
+  dismissed.
+
+## Where the focus goes
+
+React Aria returns the focus to what opened an overlay. The rest is the
+page's, and a page that leaves it out drops the focus on the document's
+body, where the next Tab starts from the top:
+
+- **What was pressed is gone or disabled** (a row deleted, a filter chip
+  removed, "Clear" that empties the list it sat in, Next at the last page):
+  give the focus to what follows it, to the list, or to the heading of what
+  took its place (`tabIndex={-1}`, a ref, `focusRing`).
+- **The page changed** (a route, a step, a tab of the app): give the focus
+  to the new page's heading, and say its name in a `role="status"` line.
+- **Escape in a list inside a dialog or a sheet** clears the list's
+  selection and goes no further. A `GridList`, a `Tree` or a `Table` whose
+  selection is where the app is, and is never cleared, takes
+  `escapeKeyBehavior="none"`, or Escape never closes what is around it.
+- **A sticky bar** hides what takes the focus beneath it: give the scrolling
+  box `scroll-pt-*` of the bar's height.
+- **A snackbar** is drawn over the window's bottom edge: place its region
+  above a bottom bar, a FAB or a sheet's actions with `className`.
 - Icons are any component taking `{ size, className }`. The kit ships no icon
   library.
 

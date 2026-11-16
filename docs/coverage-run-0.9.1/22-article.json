@@ -1,0 +1,359 @@
+{
+  "screen": "Article",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Long-form type: headings, lists, quotes, code",
+      "built": "yes",
+      "kit": [
+        "Headline",
+        "Title",
+        "Body",
+        "Link",
+        "focusRing",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "src/components/prose.tsx: Prose (the column), H2, H3, P, UL, OL, LI, Quote (figure + blockquote + figcaption), Code, Kbd, Note, each a type primitive drawn as the element the document needs, with list markers, the quote's bar and the spacing written by hand.",
+          "why": "The kit has type primitives and no prose component: nothing lays out running text, a list, a quotation or code."
+        },
+        {
+          "kind": "read",
+          "what": "Read primitives/Typography.tsx past the doc comments to find that `blockquote` is in `TextElement`.",
+          "why": "Every doc comment lists 'a heading, `p`, `span`, `div`, `label`, `li`, `dt`, `dd`, `legend`, `figcaption` among them': blockquote, strong, em, time are in the union and not named."
+        },
+        {
+          "kind": "use",
+          "what": "`font-mono` on inline code, kbd and the code blocks.",
+          "why": "Skill: \"`font-mono` is the project's mono face ... write it where the project wants one (an identifier, a time, an amount). No kit component uses it.\""
+        },
+        {
+          "kind": "use",
+          "what": "The h1 is `<Headline size=\"medium\" className=\"md:text-display-small md:font-display-small\">`.",
+          "why": "Display's doc comment: \"`size` is the size on the narrowest screen; name a larger one from a breakpoint with the two utilities a role is made of, its text and its font\"."
+        },
+        {
+          "kind": "use",
+          "what": "Headings take `tabIndex={-1}` and `focusRing({ className })`, so the table of contents can move the focus to them.",
+          "why": "Skill: \"The ring is `focusRing` from `<kit>/utils.ts`; extend it, do not invent another.\""
+        },
+        {
+          "kind": "value",
+          "what": "`max-w-prose` (Tailwind's 65ch) as the measure of the text column.",
+          "why": "The kit has no token or utility for a line length of running text."
+        }
+      ],
+      "notes": "Type-checked and rendered to a string, not seen in a browser. Emphasis inside a paragraph is a plain <strong>, at the browser's weight. A block of code has no syntax colours (no highlighter in the project, and no colour roles for one)."
+    },
+    {
+      "n": 2,
+      "part": "Breadcrumbs",
+      "built": "yes",
+      "kit": [
+        "Breadcrumbs",
+        "Breadcrumb",
+        "adapters/react-router AriaRouterProvider"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The `nav aria-label=\"Path\"` around it, as the doc comment shows, and two routes (/help, /help/:category) with a small list screen so the two upper levels lead somewhere.",
+          "why": "Expected of a screen: the kit draws the path, the project supplies where it goes."
+        }
+      ],
+      "notes": "Used as documented, with no class passed. Not seen in a browser."
+    },
+    {
+      "n": 3,
+      "part": "A table of contents that follows the scroll",
+      "built": "yes",
+      "kit": [
+        "Link",
+        "Label",
+        "Title",
+        "Disclosure",
+        "DisclosureTrigger",
+        "DisclosurePanel",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "control",
+          "what": "src/components/TableOfContents.tsx: `useActiveSection`, a scroll and resize listener (one read a frame) that takes the last heading above a line 112px under the top of the window, and the last heading of all at the page's end; and the list of links that marks it (`aria-current=\"location\"`, a bar at its start, the primary colour).",
+          "why": "The kit has no table of contents, no anchor navigation and nothing that follows the scroll."
+        },
+        {
+          "kind": "layout",
+          "what": "Wide (lg): a `nav` that sticks beside the text. Narrow: a bar that sticks to the top, names the section being read and opens the list. One of the two is `display: none` at any width.",
+          "why": "Expected of a screen."
+        },
+        {
+          "kind": "option",
+          "what": "The phone's bar is the kit's `Disclosure`, controlled, with its panel taken out of the flow by `className=\"absolute inset-x-0 top-full ...\"` on `DisclosurePanel` and `relative` on the root; closing on Escape (focus back to the trigger, found by its `data-slot`), on a press outside, on the focus leaving the bar and on a link followed is written by hand around it.",
+          "why": "A Disclosure's panel pushes the page down: opened in a bar that sticks, closing it after a link is followed would move the text under the reader. The kit has no disclosure that lays its panel over the page, and `Popover`/`Menu` would make the list a dialog or a menu instead of a `nav` of links."
+        },
+        {
+          "kind": "read",
+          "what": "Read Disclosure.tsx past its doc comments: that `className` reaches the panel's root (the element that carries the height), that the root is `group/disclosure` with `data-expanded`, and the trigger's `data-slot`.",
+          "why": "The doc comment names `contentClassName` and `isUnstyled`, and not what `className` styles, nor the group name the chevron itself keys on."
+        },
+        {
+          "kind": "option",
+          "what": "The link of the section being read is drawn by `className` on the kit's `Link`: `border-s-4 border-primary text-primary`, against `border-transparent`.",
+          "why": "`Link` takes `aria-current` and has no look for it; `color` is `primary` or `inherit` and there is no selected or current state."
+        },
+        {
+          "kind": "use",
+          "what": "`aria-current` and `onPress` on `Link`; `onPress` moves the focus to the heading (`focus({ preventScroll: true })`) while the adapter scrolls to the fragment.",
+          "why": "Link's doc comment: \"It takes React Aria's `Link` props (`href`, `target`, `rel`, `download`, `routerOptions`, `onPress`, `isDisabled`, `aria-current`)\". The adapter's: \"The focus is not moved: move it yourself where the target should take it.\""
+        },
+        {
+          "kind": "option",
+          "what": "Two type primitives (`Label` \"On this page\" over a `Title` with the section's name, each `block`) are put inside `DisclosureTrigger`'s children, which the trigger wraps in its own `title-medium` span.",
+          "why": "The trigger has one label and a `trailing` slot, no supporting line under the label; the classes of the inner primitives win over the span's."
+        }
+      ],
+      "notes": "NOT RUN IN A BROWSER: no browser tool was allowed. The scroll-following, the fragment scroll through the router adapter, the focus move, the overlay panel of the bar and its closing were type-checked and rendered to a string (the links' hrefs, `aria-current`, the panel's classes are in the markup), never scrolled or pressed. Unsure: whether the absolute panel's height transition and `hidden` behave as in the flow; whether the heading's `scroll-mt-24` clears the bar exactly on a phone. Following a link drops `?dark` from the address (the class stays on <html>). Known limit: at the page's end the last entry is the one marked, so a link followed to a late section that cannot reach the top of the window marks the last entry, not the one pressed."
+    },
+    {
+      "n": 4,
+      "part": "Tabs of code samples",
+      "built": "yes",
+      "kit": [
+        "Tabs",
+        "TabList",
+        "Tab",
+        "TabPanel",
+        "IconButton",
+        "Tooltip",
+        "TooltipTrigger",
+        "Label",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "src/components/CodeSamples.tsx: `CodeBlock`, a `surface-container-high` box with the language's name, a copy button and a `pre` that scrolls sideways and takes the focus (`tabIndex={0}`, a name, the focus ring drawn inside).",
+          "why": "The kit has no code block."
+        },
+        {
+          "kind": "use",
+          "what": "`isScrollable` on `TabList`, so four languages fit a phone.",
+          "why": "TabList's doc comment: \"`isScrollable` sizes each tab to its label and scrolls the row sideways, for a set that cannot fit.\""
+        },
+        {
+          "kind": "use",
+          "what": "`selectedKey` / `onSelectionChange` on `Tabs`, held in a context and in localStorage: the language picked in one set of samples is the one every set shows.",
+          "why": "Tabs' doc comment: \"Behaviour is React Aria's `Tabs`\"; `TabsProps` is React Aria's with `variant`."
+        },
+        {
+          "kind": "option",
+          "what": "`className=\"pt-3 pb-0\"` on `TabPanel`, against its own `py-4`.",
+          "why": "TabPanel \"draws 16dp of space above and below its content and nothing else\": the space under the panel doubled the article's own gap. There is no prop for it; the class was found by reading the source."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tabs.tsx whole.",
+          "why": "To learn the panel's padding class and that a panel with a focusable child is not itself a tab stop (so the `pre` needed its own)."
+        },
+        {
+          "kind": "use",
+          "what": "`VisuallyHidden role=\"status\"` from react-aria-components says \"Copied\".",
+          "why": "Skill's table: \"Text only a screen reader gets | `VisuallyHidden` | For a status, or a name with no visible text.\""
+        },
+        {
+          "kind": "use",
+          "what": "lucide-react's `Copy` and `Check` as the IconButton's icon; a `TooltipTrigger` around it.",
+          "why": "Skill: \"Icons are any component taking `{ size, className }`. The kit ships no icon library.\" IconButton: \"Tooltip on hover ... Not built in; wrap the button in a `TooltipTrigger`.\""
+        }
+      ],
+      "notes": "Not run in a browser: copying (navigator.clipboard, with a spoken failure) and the kept language are type-checked only. One set of primary tabs appears twice on the page (create, send): Material says primary tabs are the only set on a screen, and secondary ones sit under a primary set; neither fits two sets of samples in running text, and I kept primary. No syntax colours."
+    },
+    {
+      "n": 5,
+      "part": "An audio player with captions",
+      "built": "yes",
+      "kit": [
+        "IconButton",
+        "Slider",
+        "Menu",
+        "Button",
+        "Tooltip",
+        "TooltipTrigger",
+        "Disclosure",
+        "DisclosureHeader",
+        "DisclosurePanel",
+        "StateLayer",
+        "Title",
+        "Body",
+        "Label",
+        "focusRing",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "control",
+          "what": "src/components/AudioPlayer.tsx: an `<audio>` element with no controls, its state (loading, ready, error, playing, time, length, speed, volume, mute) read from its events and written back by hand; the caption being spoken is found from the cues and the time and drawn in a box of fixed minimum height; the transcript lists every cue.",
+          "why": "The kit has no media player, no caption display and nothing that binds a media element."
+        },
+        {
+          "kind": "layout",
+          "what": "The player's card (`surface-container-low`, large corner), the row of controls that wraps on a phone, the times under the track, the caption box.",
+          "why": "Expected of a screen."
+        },
+        {
+          "kind": "option",
+          "what": "The seek `Slider` has `showOutput={false}` and the times are drawn by hand as m:ss under it; the handle's spoken value is made sensible with `formatOptions={{ style: \"unit\", unit: \"second\", unitDisplay: \"long\" }}` (\"12 seconds\").",
+          "why": "The Slider writes its value only as a formatted number beside a label: there is no way to give the output or the handle's `aria-valuetext` a text of one's own (a time as 0:12 of 0:45), and no output under the track."
+        },
+        {
+          "kind": "use",
+          "what": "`aria-label` on both sliders, with no visible label.",
+          "why": "Slider's doc comment: \"with no `label`, pass `aria-label`.\""
+        },
+        {
+          "kind": "option",
+          "what": "The volume `Slider` is hidden on a phone with `className=\"hidden w-24 sm:grid\"`: the class has to restate the root's own `grid` to bring it back.",
+          "why": "Hiding a kit component at a width means knowing its root's display; read from the source."
+        },
+        {
+          "kind": "read",
+          "what": "Read Slider.tsx past its doc comment.",
+          "why": "For its props' types (`showOutput`, `thumbLabels` are in an interface with no comments) and its root's `grid`."
+        },
+        {
+          "kind": "read",
+          "what": "Read IconButton.tsx's types and implementation.",
+          "why": "The doc comment names `variant`, `size`, `href`, `isToggle`, `badge`; that the icon is the `icon` prop (a component), that `aria-label` is required, that the default variant is `filled`, and that a toggle takes `isSelected`/`onChange` are only in the code."
+        },
+        {
+          "kind": "use",
+          "what": "Play/pause, captions and mute swap their icon from state (`Play`/`Pause`, `Captions`/`CaptionsOff`, `Volume2`/`VolumeX`, lucide-react); the two skip buttons and the two toggles sit in `TooltipTrigger`s.",
+          "why": "IconButton: \"The button draws the `icon` it is given; swap it from the toggle's state.\" and \"Tooltip on hover ... wrap the button in a `TooltipTrigger`.\""
+        },
+        {
+          "kind": "use",
+          "what": "Speed is the kit's `Menu` with `selectionMode=\"single\"`, opened by a text `Button`.",
+          "why": "Menu's doc comment: \"With `selectionMode` the items are choices (`selectedKeys` / `defaultSelectedKeys`, `onSelectionChange`), as for a sort order or a page size.\""
+        },
+        {
+          "kind": "read",
+          "what": "Read Menu.tsx's props for `disallowEmptySelection` and the type `onSelectionChange` is called with.",
+          "why": "Neither is in the doc comment."
+        },
+        {
+          "kind": "component",
+          "what": "`Button` from react-aria-components for a line of the transcript: a full-width row (time, then text) that moves the recording to it, with the kit's `StateLayer` and `focusRing`.",
+          "why": "The kit's `Button` is Material's pill; `ListItem` is \"a row that is read\" unless a `GridListItem` is around it, and a grid list of rows is not a list of timestamps to press. There is no pressable row."
+        },
+        {
+          "kind": "use",
+          "what": "The transcript is a kit `Disclosure` with `DisclosureHeader level={3}` and `isUnstyled` on the panel.",
+          "why": "Disclosure's doc comments: \"`isUnstyled` drops that for content that brings its own\"; \"Heading level for the row, so the page's outline stays sane.\""
+        },
+        {
+          "kind": "read",
+          "what": "Read primitives/StateLayer.tsx for its props (`color` from a fixed list, `isHovered`, `isPressed`, `isFocusVisible`).",
+          "why": "The skill names `StateLayer` \"with React Aria's render props\"; the required `color` and its allowed values are in the source."
+        },
+        {
+          "kind": "use",
+          "what": "`font-mono` on the two times under the track and on the transcript's time stamps, by `className` on `Label`.",
+          "why": "Skill: \"`font-mono` is the project's mono face ... write it where the project wants one (an identifier, a time, an amount).\""
+        }
+      ],
+      "notes": "NOT RUN IN A BROWSER: playing, seeking, the speed, the volume, the caption timing and the error path are type-checked and rendered to a string only; none was heard or pressed. THE RECORDING IS A MOCK: there is no speech synthesis on this machine, so public/audio/send-your-first-invoice.mp3 (45 s, generated with node and ffmpeg) is eight soft tones, one a caption, at the cues' times; the captions hold the words a narration would say. The captions are drawn from the cue data in the client, not from a WebVTT `<track>` (a browser draws no cues for an <audio> element, so the page must draw them either way; a real one would parse the .vtt). The caption box is not a live region, on purpose. The seek slider's keyboard step is one second. The mock file was made with node and ffmpeg (a temporary .wav, removed)."
+    },
+    {
+      "n": 6,
+      "part": "Tags",
+      "built": "yes",
+      "kit": [
+        "Chip",
+        "Tag",
+        "Title"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "An article's tags are assist `Chip`s with `href` (/tags/:tag, which lists the articles with that tag), in a `ul` under a heading \"Tags\". The kit's `Tag` is used for what is only read: the article's kind beside its date, and the tags on the list screen's cards.",
+          "why": "Tag's doc comment: \"not a chip (chips are actions and filters, this never reacts to the pointer)\". Chip's: \"With `href` it is a React Aria `Link` ... MD3's assist chips may open a destination\". Unclear all the same: the kit's component named Tag is the one that cannot be what a help centre calls a tag, a link to a topic."
+        },
+        {
+          "kind": "read",
+          "what": "Read Chip.tsx's `AssistChipProps`.",
+          "why": "To confirm `variant` is optional for an assist chip and that `href` is taken; the doc comment's example is a filter chip in a group."
+        },
+        {
+          "kind": "layout",
+          "what": "The list of chips and its heading; the /tags/:tag route and its list.",
+          "why": "Expected of a screen."
+        }
+      ],
+      "notes": "Not seen in a browser. A chip is 32dp high with no larger target, as the kit's doc comment says of chips."
+    },
+    {
+      "n": 7,
+      "part": "Previous and next links",
+      "built": "yes",
+      "kit": [
+        "StateLayer",
+        "Label",
+        "Title",
+        "focusRing",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "`Link` from react-aria-components, drawn as an outlined card pressed whole (medium corner, `outline-variant` border, the kit's `StateLayer` from its render props, `focusRing`), with \"Previous\"/\"Next\", an arrow and the article's title; `rel=\"prev\"`/`\"next\"`, in a named `nav`.",
+          "why": "The kit's `Link` is a text link (underline, no container, no state layer), and `Card` \"holds actions (buttons, links) and is not one itself\": its doc comment lists the directly actionable card as not built, and refuses handlers at the type. `pager-block` is \"the pages of a list or a table\", not two articles."
+        },
+        {
+          "kind": "layout",
+          "what": "The two-column grid (one column on a phone), the next link kept in the second column when there is no previous.",
+          "why": "Expected of a screen."
+        },
+        {
+          "kind": "read",
+          "what": "The same read of primitives/StateLayer.tsx as part 5, for `color=\"on-surface\"` and the three state props.",
+          "why": "The props are not in the skill."
+        }
+      ],
+      "notes": "They lead to two more mock articles on the same template (three in all), so the first shows only Next and the last only Previous. Moving to another article loads it afresh (skeleton, then its title takes the focus). Not pressed in a browser."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page: `BrowserRouter` + the kit's `AriaRouterProvider`, the routes (/articles/:slug, /help, /help/:category, /tags/:tag, anything else to the main article), the two-column article layout, the loading skeleton (kit `Skeleton` in `SkeletonGroup`, each inside the type primitive it replaces, as its doc comment asks) on a 900 ms timer, and src/screens/HelpIndex.tsx (kit `Card`, `Link`, `Tag`, `Breadcrumbs`).",
+      "why": "Expected of a screen; the list screen exists so the breadcrumbs, tags and site links lead somewhere."
+    },
+    {
+      "kind": "read",
+      "what": "Read EmptyState.tsx's destructured props (`title`, `description`, `action`) for the unknown-article page.",
+      "why": "Its doc comment describes the parts in words and not the props' names."
+    }
+  ],
+  "friction": "The build was green at the first `npm run build`: no prop was guessed wrong, but only because I read sources. What was hard: (1) Props are often not in the doc comment. IconButton's `icon`, the required `aria-label`, the default variant and a toggle's `isSelected`/`onChange` are only in the types; Slider's props sit in an uncommented interface; EmptyState and Menu name behaviours, not every prop. A one-line usage example with the props, as Tabs and Breadcrumbs have, would have saved each read. (2) The type primitives' comments list ten elements 'among them' while the union has more (blockquote, time, strong, em): an article needs exactly those. (3) Long-form writing has nothing: no prose rhythm, no measure token, no code block, no inline code, no list or quote style. The skill could say so in one line and name `font-mono` and a surface tier for code. (4) `Tag` is the static one and the thing a site calls a tag is a `Chip` with `href`: clear once both doc comments are read, not from the names. (5) Nothing in the kit is a pressable container: `Card` refuses, `ListItem` is read unless in a grid list, `Link` is text. A previous/next link, a transcript row, a result card all need a raw React Aria `Link`/`Button` plus `StateLayer` and `focusRing`; a documented recipe (or a `Pressable` surface) would make that one obvious step. (6) `Link` takes `aria-current` and has no look for it; any navigation list (a table of contents, a side menu of a doc site) needs one. (7) `Disclosure` cannot lay its panel over the page; I reached around with `absolute` on the panel after reading where `className` lands. (8) `Slider` cannot show or speak a value that is not a number (a time). (9) Material's primary/secondary tabs rule does not say what two sets of tabs in running text should be. (10) `npx shadcn@latest add @ds/site-header-block -y` was refused by this session's permissions (the command was denied before it ran), so the block was copied from kit-blocks/ as the brief allows. (11) With no browser I could not see any of it: the skill has nothing for checking a screen without one, so scroll-following, playback and captions are unverified beyond types and a server render.",
+  "general_kit": [
+    "site-header-block (src/components/SiteHeader.tsx, copied from kit-blocks/, not edited: the page's header, not one of the seven parts)",
+    "adapters/react-router AriaRouterProvider",
+    "Skeleton",
+    "SkeletonGroup",
+    "Divider",
+    "EmptyState",
+    "Button",
+    "Card",
+    "Link",
+    "Tag",
+    "Breadcrumbs",
+    "Breadcrumb",
+    "Headline",
+    "Body",
+    "Title"
+  ]
+}

@@ -21,7 +21,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -61,6 +61,11 @@ const landing = (target) =>
     ? `${UI}/${target.slice("@ui/ds/".length)}`
     : target.replace(/^~\//, "");
 
+/** A block's file names no target: the CLI lands it in the project's
+    components, outside the kit's folder, under its own name. */
+const BLOCK = "registry:block";
+const blockLanding = (path) => `src/components/${basename(path)}`;
+
 /** A project holding the files of these items (every item when none is
     named, but the ones in `without`), as the CLI lands them. Removed when
     the test ends. `without: OPTIONAL` is `add @ds/ds` alone. */
@@ -74,7 +79,10 @@ function install(t, { only, without = [], config = { rsc: true, tsx: true } } = 
     if (only && !only.includes(item.name)) continue;
     if (without.includes(item.name)) continue;
     for (const { path, target } of item.files ?? []) {
-      const to = join(root, landing(target));
+      const to = join(
+        root,
+        item.type === BLOCK && !target ? blockLanding(path) : landing(target),
+      );
       mkdirSync(dirname(to), { recursive: true });
       writeFileSync(to, readFileSync(join(kit, path)));
     }
@@ -160,6 +168,26 @@ test("a file the project wrote beside the kit is not listed, exit 0", (t) => {
   const { status, files, stdout } = project.run();
   assert.deepEqual(files, NOTHING);
   assert.ok(!stdout.includes("Timeline"));
+  assert.equal(status, 0);
+});
+
+test("a block landed, and edited, is the project's: not listed, exit 0", (t) => {
+  const blocks = registry.items.filter((i) => i.type === BLOCK);
+  assert.ok(blocks.length > 0, "the registry holds no block");
+  const project = install(t);
+  for (const item of blocks) {
+    for (const { path } of item.files.filter((f) => !f.target)) {
+      const landed = blockLanding(path);
+      assert.ok(
+        !landed.startsWith(`${UI}/`),
+        `${item.name} lands inside the kit's folder`,
+      );
+      project.edit(landed, (text) => `${text}// ours now\n`);
+    }
+  }
+  const { status, files, stdout } = project.run();
+  assert.deepEqual(files, NOTHING);
+  for (const item of blocks) assert.ok(!stdout.includes(item.name));
   assert.equal(status, 0);
 });
 
@@ -713,7 +741,9 @@ const isItemRecord = (path) => OPTIONAL.some((item) => path === itemRecord(item)
 
 test("RELEASE.json is what the build computes for every file the registry carries", () => {
   const expected = { kit: {}, project: {} };
-  for (const { path, target } of registry.items.flatMap((i) => i.files ?? [])) {
+  for (const { path, target } of registry.items
+    .filter((i) => i.type !== BLOCK)
+    .flatMap((i) => i.files ?? [])) {
     if (path === RECORD || isItemRecord(path)) continue;
     const [group, to] = target.startsWith("@ui/ds/")
       ? ["kit", target.slice("@ui/ds/".length)]
@@ -781,7 +811,10 @@ function built(t, change = () => {}) {
   const written = JSON.parse(readFileSync(join(copy, RECORD), "utf8"));
   const index = JSON.parse(readFileSync(join(copy, "registry.json"), "utf8"));
   const expected = { kit: {}, project: {} };
-  for (const { path, target } of index.items.flatMap((i) => i.files ?? [])) {
+  // A block carries no record and is in none: it is the project's.
+  for (const { path, target } of index.items
+    .filter((i) => i.type !== BLOCK)
+    .flatMap((i) => i.files ?? [])) {
     if (path === RECORD || isItemRecord(path)) continue;
     const [group, to] = target.startsWith("@ui/ds/")
       ? ["kit", target.slice("@ui/ds/".length)]
@@ -798,6 +831,7 @@ test("the build here writes the record the check expects, for every file the reg
   assert.deepEqual(Object.keys(written), ["version", "kit", "project", "optional"]);
   // Every file of every item is in it, but itself and the items' own records.
   const named = index.items
+    .filter((i) => i.type !== BLOCK)
     .flatMap((i) => i.files ?? [])
     .filter((f) => f.path !== RECORD && !isItemRecord(f.path));
   assert.ok(named.length > 60);
@@ -814,7 +848,8 @@ test("the build here writes the record the check expects, for every file the reg
     );
   }
   // The optional items are the ones `ds` does not reach, derived; each has
-  // a record of its own: its name, this version, its files' digests.
+  // a record of its own: its name, this version, its files' digests. A block
+  // is not one of them: it is not updated, so it has no record.
   const reached = new Set();
   const reach = (name) => {
     if (reached.has(name)) return;
@@ -825,7 +860,10 @@ test("the build here writes the record the check expects, for every file the reg
   reach("ds");
   assert.deepEqual(
     Object.keys(written.optional),
-    index.items.filter((i) => !reached.has(i.name) && i.files?.length).map((i) => i.name).sort(),
+    index.items
+      .filter((i) => !reached.has(i.name) && i.files?.length && i.type !== BLOCK)
+      .map((i) => i.name)
+      .sort(),
   );
   for (const [name, paths] of Object.entries(written.optional)) {
     assert.deepEqual(JSON.parse(readFileSync(join(copy, itemRecord(name)), "utf8")), {

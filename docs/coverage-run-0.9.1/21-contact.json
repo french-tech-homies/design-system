@@ -1,0 +1,163 @@
+{
+  "screen": "Contact",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Text fields, a multi-line field, a select, a consent checkbox",
+      "built": "yes",
+      "kit": [
+        "FormTextField",
+        "FormSelect",
+        "FormCheckbox",
+        "TextField",
+        "Select",
+        "SelectItem",
+        "Checkbox",
+        "Button",
+        "Title",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Bound every field with the react-hook-form adapter (FormTextField, FormSelect, FormCheckbox) and each field's own `rules`; no schema library.",
+          "why": "Adapter's comment: \"Validation is a resolver's (`zodResolver(schema)` above) or, with no schema library, each field's own `rules`, react-hook-form's\"."
+        },
+        {
+          "kind": "option",
+          "what": "Passed `validationBehavior=\"aria\"` with `isRequired` on every field, the select and the checkbox, and `noValidate` on the form, so the browser does not stop the submit before the form's rules run.",
+          "why": "The adapter's Form* fields do not set it. ds-build names it only for a field bound by hand with Controller: \"`validationBehavior=\"aria\"` where the form decides what is valid: ... the browser's own validation does not stop the submit before the form has run.\" So it was added on each field. That the browser would otherwise pre-empt the rules is reasoned from that line, not observed."
+        },
+        {
+          "kind": "use",
+          "what": "Multi-line field is `FormTextField multiline maxLength={1000} showCharacterCount`.",
+          "why": "TextField prop comments: \"Render a `<textarea>` instead of an `<input>`.\" and \"Show `n / maxLength` under the field. Needs `maxLength`.\""
+        },
+        {
+          "kind": "option",
+          "what": "Wrote \"Every field is needed, except the company.\" above the form and labelled the one optional field \"Company (optional)\", instead of relying on the asterisk.",
+          "why": "TextField draws a required asterisk on its label when `isRequired`; Select draws none (its Trigger renders the label alone), so a form of both marks some required fields and not others. Select has no way to show it short of putting \"*\" in the label string, which would be read aloud."
+        },
+        {
+          "kind": "option",
+          "what": "Wrote the retention note as a `Body` under the consent box and tied it to the box with `aria-describedby` (the Checkbox passes it through and joins its error id to it).",
+          "why": "A Checkbox that stands alone takes `errorMessage` but no `supportingText`; only CheckboxGroup has one."
+        },
+        {
+          "kind": "read",
+          "what": "Read TextField, Select and Checkbox past their doc comments, and field-styles.ts.",
+          "why": "To learn whether the required mark is drawn (TextField yes, Select no), whether a field fills its column (base is `flex flex-col`, so yes in a grid), how the Checkbox wraps itself when `errorMessage` is given, and whether Checkbox passes `aria-describedby`. None of this is in the doc comments."
+        },
+        {
+          "kind": "read",
+          "what": "Read the whole react-hook-form adapter, not only its header.",
+          "why": "To learn what value FormSelect gives the form (the key, `null` while empty), that FormCheckbox always passes `errorMessage`, and that `setFocus` and `setError(..., { shouldFocus: true })` work through the hidden anchor."
+        },
+        {
+          "kind": "layout",
+          "what": "The form's column, the two-column row for name and email from `sm`, the full-width submit button on a phone. No arbitrary value here.",
+          "why": "Expected of a screen."
+        },
+        {
+          "kind": "use",
+          "what": "`VisuallyHidden role=\"status\"` says \"Sending your message…\" while the send runs.",
+          "why": "ds-build's table of what comes straight from React Aria: \"Text only a screen reader gets | `VisuallyHidden` | For a status, or a name with no visible text.\""
+        }
+      ],
+      "notes": "Not seen in a browser (none allowed here): the 400px layout, dark, keyboard order and the floating labels are from the code, not from looking. The fields stay editable while a send is running; what was submitted is what is sent. A long consent label wraps beside a box the kit centres vertically (`items-center`), not top-aligned: I left it. Empty-topic value is `null`; the server gets the topic's id."
+    },
+    {
+      "n": 2,
+      "part": "The state after sending",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Headline",
+        "Body",
+        "Button",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A receipt composed by hand in an outlined Card, which replaces the form: a check mark, a heading that takes the focus, where the answer will come, a `dl` of the reference, time, topic and the message as sent, and \"Write another message\". The `dl` uses an arbitrary grid template, `sm:grid-cols-[auto_minmax(0,1fr)]`.",
+          "why": "The kit has nothing for a confirmation. EmptyState is the nearest in shape but its doc says it is \"What a list, a table or a page shows when it has nothing to show\", its title is a plain string that cannot take a ref or `tabIndex`, and it has no place for the summary. Not bent."
+        },
+        {
+          "kind": "use",
+          "what": "`classNames={{ content: \"gap-6 p-6\" }}` on Card for the receipt's spacing.",
+          "why": "Card doc: \"To lay them out another way or to run them to the card's edges, say so on that part: `classNames={{ content: \"p-0\" }}`\"."
+        },
+        {
+          "kind": "use",
+          "what": "The heading gets `ref`, `tabIndex={-1}` and `focusRing({ className: \"rounded-shape-extra-small\" })`, and is focused in an effect when the receipt mounts; on \"Write another message\" the focus goes to the topic select with `form.setFocus(\"topic\")`.",
+          "why": "ds-build: \"The ring is `focusRing` from `<kit>/utils.ts`; extend it, do not invent another.\" Adapter: \"`form.setFocus(name)` reaches a field: each `Form*` renders a hidden marker before its control for that.\" Passing `ref` and `tabIndex` to Headline rests on Typography's comment: \"these primitives are prop-forwarding targets\"."
+        },
+        {
+          "kind": "read",
+          "what": "Read Typography.tsx past the doc comment.",
+          "why": "To learn that a type primitive forwards `ref` and the element's own attributes (`tabIndex`, `id`); the doc comment speaks of `component`, `size` and `colorRole` only."
+        },
+        {
+          "kind": "use",
+          "what": "`font-mono` on the reference number.",
+          "why": "ds-build: \"`font-mono` is the project's mono face ... write it where the project wants one (an identifier, a time, an amount).\""
+        }
+      ],
+      "notes": "The receipt stays until \"Write another message\"; that keeps name, email and company and clears topic, message and consent. Focus moves are untested in a browser. A programmatic focus on the heading may or may not draw the ring, depending on the browser's `:focus-visible` rule for it."
+    },
+    {
+      "n": 3,
+      "part": "An error from the server",
+      "built": "yes",
+      "kit": [
+        "Title",
+        "Body",
+        "Button",
+        "FormTextField"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "An inline message with `role=\"alert\"` on `bg-error-container text-on-error-container`, medium corner, an icon, a title, the server's reason and its status, placed just above the submit button, whose label becomes \"Send again\". It stays until the next send; the form and everything typed stay.",
+          "why": "The kit has no inline alert or banner. Snackbar is the only message component, and its doc says \"A brief message about a process the app performed ... that never interrupts\", auto-dismissing after 5 s and clamped to two lines: wrong for a failure the person must act on, so it was not used."
+        },
+        {
+          "kind": "use",
+          "what": "`isLoading` on the submit Button during the send, and a ref guard in `onSubmit` against a second send by Enter in a field.",
+          "why": "Button's `isLoading` comment: \"a spinner takes the icon's place, and the button takes no press and is no longer a submit button until it is false again. It stays in the tab order ... guard `onSubmit` there.\""
+        },
+        {
+          "kind": "use",
+          "what": "A refusal of one field by the server (422) is put on that field with `form.setError(field, { type: \"server\", message }, { shouldFocus: true })`: the kit's field shows it as its error message and takes the focus.",
+          "why": "Adapter: \"maps the field state onto the control's React Aria props (`value`/`onChange`/`onBlur`, `isInvalid`, `errorMessage`)\" and \"A refused submit puts the focus in the first invalid field\"."
+        }
+      ],
+      "notes": "The mock server (src/lib/contact-server.ts) answers after 1.4 s and fails about one send in three at random (503). To reach it on purpose: an address at `fail.test` always gets the 503 banner; an address at `example.com` always gets a 422 on the email field. First draft had a second \"Try again\" submit button inside the banner; removed before the log because the banner unmounts when the retry starts and the focus would have fallen to the page. Not seen in a browser. A resubmit refused by the form's own rules clears the banner (second callback of handleSubmit)."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "use",
+      "what": "The page's header is the `site-header-block` (src/components/SiteHeader.tsx), unedited, with two in-page links (#write, #reach) and no `actions`. Copied from kit-blocks/SiteHeader.tsx.",
+      "why": "`npx shadcn@latest add @ds/site-header-block -y` was refused by this session's permission system, so the file was copied as the brief allows. Block comment: \"The kit's `TopAppBar` is Material's: an app's bar ... A public page's header is a row of links to its sections and pages.\""
+    },
+    {
+      "kind": "layout",
+      "what": "The page: a `max-w-5xl` grid, form column and a 20rem aside from `lg`, one column below; an \"Other ways to reach us\" filled Card with a list written by hand (icon, small title, body) and a `Link` to a mailto. The grid template is an arbitrary value, `lg:grid-cols-[minmax(0,1fr)_20rem]`: no token for a column width.",
+      "why": "Expected of a screen."
+    },
+    {
+      "kind": "use",
+      "what": "Icons are lucide-react's (Send, CircleAlert, CircleCheck, Mail, Clock, MapPin).",
+      "why": "ds-build: \"Icons are any component taking `{ size, className }`. The kit ships no icon library.\""
+    },
+    {
+      "kind": "read",
+      "what": "Read Snackbar, EmptyState, Card and Button past their doc comments while choosing parts.",
+      "why": "To decide whether Snackbar or EmptyState could serve the error and the sent state, and to find `isLoading` (documented on the prop type, not in Button's doc comment)."
+    }
+  ],
+  "friction": "No type error and no second attempt: the build was green at the first run, so there is no `guess`. What cost time: (1) Nothing in ds-build or the kit says what to use for a message that stays on the page (a server error, a success): there is Snackbar and EmptyState, and both docs had to be read to see that neither fits; one line in the skill (\"an error the person must act on is written inline, on error-container, with role=alert; the kit has no banner\") or a small Banner/InlineAlert would settle it. (2) The adapter does not set `validationBehavior=\"aria\"`, and the skill mentions it only for a field bound by hand: with `isRequired` on a Form* field the browser's own bubble would, as I read the skill, pre-empt the form's rules unless one knows to add it (reasoned, not observed: I also put `noValidate` on the form and saw nothing run). The adapter's header should say so, or do it. (3) Required marking is uneven: TextField draws an asterisk, Select does not, Checkbox does not. (4) A lone Checkbox has `errorMessage` but no `supportingText`. (5) That the type primitives forward `ref` and `tabIndex` is only in the source. (6) The adapter is not in the barrel; its import path (`<kit>/adapters/react-hook-form`) is given in the brief but not in ds-build. (7) The shadcn add command for the block was refused here; kit-blocks/ covered it. Nothing was seen in a browser, so phone width, dark and keyboard behaviour are reasoned from the code and the kit's docs, not observed."
+}

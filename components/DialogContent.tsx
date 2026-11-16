@@ -6,7 +6,10 @@ import Button from "./Button";
 
 export const styles = tv({
   slots: {
-    base: "bg-surface-container-high rounded-shape-extra-large p-6 min-w-[280px] w-full shadow-elevation-3 outline-hidden relative overflow-hidden",
+    // Material's basic dialog: at least 280dp wide, at most 560dp.
+    // An outlined field's label is cut into its outline with the colour of
+    // what is behind it: here, the dialog's.
+    base: "[--md3-field-notch:var(--md-sys-color-surface-container-high)] bg-surface-container-high rounded-shape-extra-large p-6 min-w-[280px] max-w-[560px] w-full shadow-elevation-3 outline-hidden relative overflow-hidden",
     header: "mb-4",
     icon: "text-secondary",
     // No weight here: the headline this styles is `Headline`, and its weight
@@ -34,7 +37,20 @@ export type { IconProp };
 type ActionConfig = {
   label: string;
   onPress?: () => void;
+  /** The request this action started is running: it draws a spinner and
+   *  takes no second press. While `confirm` is loading, `cancel` is
+   *  disabled, and `ModalDialog` is not dismissed. */
   isLoading?: boolean;
+  isDisabled?: boolean;
+  /** `"error"` for an action that destroys something: "Delete", "Discard". */
+  color?: "primary" | "error";
+  /** `"submit"` with `form`, the `id` of a form among the dialog's
+   *  `children`: the action then submits that form, as Enter in a field
+   *  of it does. */
+  type?: "button" | "submit";
+  form?: string;
+  /** What a screen reader hears when the action starts loading. */
+  loadingLabel?: string;
 };
 
 type Actions = {
@@ -63,13 +79,54 @@ type ChildrenDialogContentProps = BaseDialogContentProps & {
   children: React.ReactNode;
 };
 
+/** Content of your own between the headline and the actions. */
+type ContentDialogContentProps = BaseDialogContentProps & {
+  icon?: IconProp;
+  supportingText?: string | React.ReactNode;
+  actions: JSX.Element | Actions;
+  children: React.ReactNode;
+};
+
 export type DialogContentProps =
   | StructuredDialogContentProps
-  | ChildrenDialogContentProps;
+  | ChildrenDialogContentProps
+  | ContentDialogContentProps;
 
 /**
  * What an MD3 dialog holds: an optional icon, the headline, supporting text
- * and the actions, or children of your own under the headline.
+ * and the actions, or children of your own in their place. With `children`
+ * alone nothing else is drawn, the `title` included: write the headline
+ * yourself (`<Headline size="medium">`).
+ *
+ * With `children` and `actions` together, the children are the dialog's
+ * content, between the headline and the actions: a form, a list, a tree.
+ * The kit still draws the headline and the two buttons, and `ModalDialog`
+ * still holds the dialog open while one of them is loading:
+ *
+ *   <ModalDialog
+ *     title="Rename"
+ *     actions={{
+ *       cancel: { label: "Cancel", onPress: close },
+ *       confirm: { label: "Rename", type: "submit", form: "rename", isLoading: saving },
+ *     }}
+ *   >
+ *     <form id="rename" onSubmit={save}>
+ *       <TextField label="Name" autoFocus />
+ *     </form>
+ *   </ModalDialog>
+ *
+ * `actions` is two buttons, `{ confirm, cancel }`, each a `label`, an
+ * `onPress`, and `isLoading`, `isDisabled` and `color` where needed, or an
+ * element of your own:
+ *
+ *   actions={{
+ *     cancel: { label: "Cancel", onPress: close },
+ *     confirm: { label: "Delete", color: "error", isLoading: deleting, onPress: remove },
+ *   }}
+ *
+ * The dialog is between 280dp and 560dp wide, Material's measures: it takes
+ * the width its content asks for up to 560dp, and text wraps there. Another
+ * maximum is a `className` (`max-w-sm`, `max-w-none`).
  *
  * Spec: https://m3.material.io/components/dialogs/{overview,specs,guidelines,accessibility}
  */
@@ -97,12 +154,25 @@ export function DialogContent(props: DialogContentProps) {
         <>
           <Button
             variant="text"
-            onPress={cancel.onPress}
+            color={cancel.color}
+            onPress={cancel.isLoading ? undefined : cancel.onPress}
             isLoading={cancel.isLoading}
+            loadingLabel={cancel.loadingLabel}
+            isDisabled={cancel.isDisabled || confirm.isLoading}
+            type={cancel.type}
+            form={cancel.form}
           >
             {cancel.label}
           </Button>
-          <Button onPress={confirm.onPress} isLoading={confirm.isLoading}>
+          <Button
+            color={confirm.color}
+            onPress={confirm.isLoading ? undefined : confirm.onPress}
+            isLoading={confirm.isLoading}
+            loadingLabel={confirm.loadingLabel}
+            isDisabled={confirm.isDisabled || cancel.isLoading}
+            type={confirm.type}
+            form={confirm.form}
+          >
             {confirm.label}
           </Button>
         </>
@@ -113,7 +183,7 @@ export function DialogContent(props: DialogContentProps) {
 
   return (
     <div data-slot="dialog-content" className={base({ className })}>
-      {"children" in props ? (
+      {props.children !== undefined && !props.actions ? (
         props.children
       ) : (
         <>
@@ -129,6 +199,11 @@ export function DialogContent(props: DialogContentProps) {
             <Body className={supportingTextStyles()}>
               {props.supportingText}
             </Body>
+          )}
+          {props.children !== undefined && (
+            <div data-slot="dialog-body" className="mt-4">
+              {props.children}
+            </div>
           )}
           {props.actions && (
             <div className={actionsStyles()}>{renderActions()}</div>

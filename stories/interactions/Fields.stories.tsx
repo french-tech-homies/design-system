@@ -1,9 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
+import KitCard from "@french-tech-homies/design-system/components/Card";
 import type { UserEvent } from "@vitest/browser-playwright/context";
 import React, { useState } from "react";
-import { expect, screen, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 
+import Button from "@french-tech-homies/design-system/components/Button";
 import { ComboBox, ComboBoxItem } from "@french-tech-homies/design-system/components/ComboBox";
+import { DropZone } from "@french-tech-homies/design-system/components/DropZone";
+import { FileTrigger } from "@french-tech-homies/design-system/components/FileTrigger";
 import { NumberField } from "@french-tech-homies/design-system/components/NumberField";
 import { PhoneField } from "@french-tech-homies/design-system/components/PhoneField";
 import { Select, SelectItem } from "@french-tech-homies/design-system/components/Select";
@@ -162,6 +167,34 @@ export const TextFieldErrorStaysErrorOnFocus: Story = {
     // it is the settled one, not the resting `error` it started from.
     await waitFor(() => expect(getComputedStyle(indicator).height).toBe("2px"));
     await expect(getComputedStyle(indicator).backgroundColor).toBe(error);
+  },
+};
+
+/**
+ * A required `Select` draws the asterisk a required text field draws, and
+ * says "required" in its trigger's name: a button has no `aria-required`.
+ * Its error is the trigger's description.
+ */
+export const SelectRequiredIsMarkedAndNamed: Story = {
+  render: () => (
+    <Select
+      label="Topic"
+      isRequired
+      isInvalid
+      errorMessage="Choose a topic"
+      className="w-80"
+    >
+      <SelectItem id="billing" label="Billing" />
+      <SelectItem id="other" label="Something else" />
+    </Select>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: /Topic\s*, required/ });
+    await expect(
+      canvasElement.querySelector('[data-slot="label"]'),
+    ).toHaveTextContent("Topic*");
+    await expect(trigger).toHaveAccessibleDescription(/Choose a topic/);
   },
 };
 
@@ -457,6 +490,42 @@ export const PhoneFieldFormatting: Story = {
   },
 };
 
+/** Reached by Tab, the field holds the country's calling code alone, and
+    the browser has selected it: the digits typed go after the code, not in
+    its place. */
+export const PhoneFieldTabKeepsTheCallingCode: Story = {
+  render: () => (
+    <PhoneField label="Phone" defaultCountry="FR" className="w-80" />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole<HTMLInputElement>("textbox", { name: /phone/i });
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(field).toHaveFocus();
+    await waitFor(() => expect(field.selectionStart).toBe(field.value.length));
+    await userEvent.keyboard("612345678");
+    await expect(field.value).toMatch(/^\+33\s?6\s?12\s?34\s?56\s?78/);
+  },
+};
+
+/** The zone holds an unseen button, React Aria's, for a paste or a drop by
+    the keyboard: when Tab stops on it the zone draws the focus ring. */
+export const DropZoneShowsWhereTheFocusIs: Story = {
+  render: () => (
+    <DropZone aria-label="Upload files" className="w-80">
+      Drop files here
+    </DropZone>
+  ),
+  play: async ({ canvasElement }) => {
+    const zone = canvasElement.querySelector<HTMLElement>('[data-slot="drop-zone"]');
+    if (!zone) throw new Error("no drop zone");
+    await userEvent.tab();
+    await expect(zone.contains(document.activeElement)).toBe(true);
+    await expect(getComputedStyle(zone).outlineStyle).toBe("solid");
+  },
+};
+
 const categories = [
   { id: "starters", name: "Starters" },
   { id: "mains", name: "Mains" },
@@ -642,5 +711,140 @@ export const ComboBoxChipsBackspace: Story = {
     await userEvent.keyboard("{Backspace}");
     await expect(canvas.queryByText("Mains")).toBeNull();
     await expect(canvas.getByText("Starters")).toBeVisible();
+  },
+};
+
+/** In multiple mode a choice made with the arrow keys and Enter stays when
+    Tab leaves the field: the list is still open on that option, and Tab
+    used to commit it a second time, which took it back out. */
+export const ComboBoxMultipleKeepsAChoiceOnTab: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <ComboBox
+        label="Categories"
+        selectionMode="multiple"
+        items={categories}
+        className="w-80"
+      >
+        {(item: (typeof categories)[number]) => (
+          <ComboBoxItem id={item.id} label={item.name} />
+        )}
+      </ComboBox>
+      <Button>Save</Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("combobox", { name: /categories/i });
+    input.focus();
+    await userEvent.keyboard("ma");
+    await screen.findByRole("option", { name: "Mains" });
+    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await waitFor(() => expect(canvas.getByText("Mains")).toBeVisible());
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Save" })).toHaveFocus();
+    await expect(canvas.getByText("Mains")).toBeVisible();
+    await expect(screen.queryByRole("listbox")).toBeNull();
+  },
+};
+
+/** An outlined field's label is cut into its outline with the colour of
+    what is behind it. On each of the kit's cards that is the card's own
+    colour, not the page's. */
+export const OutlinedLabelTakesItsCardsColour: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {(["filled", "elevated", "outlined"] as const).map((variant) => (
+        <KitCard key={variant} variant={variant} className="w-80">
+          <TextField variant="outlined" label={`Name on a ${variant} card`} defaultValue="Ada" />
+        </KitCard>
+      ))}
+      <SideSheet isOpen title="Details">
+        <TextField variant="outlined" label="Name in a side sheet" defaultValue="Ada" />
+      </SideSheet>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const cards = canvasElement.querySelectorAll(
+      '[data-slot="card"], [data-slot="side-sheet"]',
+    );
+    await expect(cards).toHaveLength(4);
+    // The Editorial preset stacks the label above the field: no notch.
+    if (canvasElement.closest(".preset-editorial")) return;
+    for (const card of cards) {
+      const label = card.querySelector('[data-slot="label"]');
+      if (!label) throw new Error("no label");
+      await expect(getComputedStyle(label).backgroundColor).toBe(
+        getComputedStyle(card).backgroundColor,
+      );
+    }
+  },
+};
+
+/* ---- DropZone and FileTrigger ------------------------------------------ */
+
+const filesTaken = fn();
+
+/** The zone shows itself while a file is over it; the button in it takes
+    files from the chooser; and both are stops for
+    the keyboard, the zone by its name. What a real drop hands over is React
+    Aria's and the browser's: a drop made by a script does not reach it, so
+    it is not asked here. */
+export const DropZoneMarksItselfAndTheButtonTakesFiles: Story = {
+  render: () => (
+    <DropZone aria-label="Upload files" className="w-80">
+      Drop files here, or
+      <FileTrigger
+        onSelect={(list) => {
+          filesTaken([...(list ?? [])].map((f) => f.name));
+        }}
+      >
+        <Button variant="tonal">Choose files</Button>
+      </FileTrigger>
+    </DropZone>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    filesTaken.mockClear();
+    const zone = canvasElement.querySelector<HTMLElement>(
+      '[data-slot="drop-zone"]',
+    )!;
+
+    const over = new DataTransfer();
+    over.items.add(new File(["a"], "dropped.txt", { type: "text/plain" }));
+    const drag = (type: string) =>
+      zone.dispatchEvent(
+        new DragEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: over,
+        }),
+      );
+    await expect(zone).not.toHaveAttribute("data-drop-target");
+    drag("dragenter");
+    drag("dragover");
+    await waitFor(() => expect(zone).toHaveAttribute("data-drop-target"));
+    // The drag ends: React Aria takes the mark off on a real leave or drop.
+    drag("drop");
+
+    // Chosen: the button's file input takes it.
+    const input = canvasElement.querySelector<HTMLInputElement>(
+      'input[type="file"]',
+    )!;
+    await userEvent.upload(
+      input,
+      new File(["b"], "chosen.txt", { type: "text/plain" }),
+    );
+    await waitFor(() => expect(filesTaken).toHaveBeenCalledWith(["chosen.txt"]));
+
+    // By the keyboard: the zone is a named button, then the button in it.
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Upload files" }),
+    ).toHaveFocus();
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Choose files" }),
+    ).toHaveFocus();
   },
 };

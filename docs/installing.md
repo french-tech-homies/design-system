@@ -150,7 +150,11 @@ installed with `npx skills add https://react-aria.adobe.com`.
 at the first install or at any update: no palette value, no variable, no
 `@import`. The theme is whatever that file imports, so a fresh install is
 unthemed until these lines are there (the CLI prints them after `add @ds/ds`,
-with the release it took):
+with the release it took). After `init @ds/base` it does not build until
+then: the entry CSS `init` wrote applies `border-border`, a utility
+`theme.v4.css` defines, and the build stops on "Cannot apply unknown utility
+class `border-border`". The two theme lines, added under
+`@import "tailwindcss";` in the file as `init` left it, are enough:
 
 ```css
 @import "tailwindcss";
@@ -353,17 +357,19 @@ as `ds/` (e.g. `src/ds`, `app/ui/ds`).
 **2. Install the peer dependencies.**
 
 ```bash
-npm install "react-aria-components@^1.20.0" "tailwind-variants@^1.0.0" "tailwind-merge@^3.6.0" "clsx@^2.1.1" "tw-animate-css@^1.4.0"
+npm install "react-aria-components@^1.20.0" "tailwind-variants@^4.0.2" "tailwind-merge@^3.6.0" "clsx@^2.1.1" "tw-animate-css@^1.4.0"
 ```
 
 Each at the range the kit is tested on, the one the registry declares: a
-bare name installs the latest version, and `tailwind-variants` 4 does not
-type-check with the kit's `utils.ts`. `PhoneField` additionally needs
+bare name installs the latest version, which the kit may not have been run
+on. (The kit moved to `tailwind-variants` 4, where `createTV` takes another
+argument than through 3: a copy of the kit's `utils.ts` from before the move
+does not type-check on 4.) `PhoneField` additionally needs
 `react-phone-number-input@^3.4.9` (parsing,
 formatting, flags); skip it — and delete the component — if you have no
 phone input.
 
-Tested against: `react-aria-components` ^1.20.0, `tailwind-variants` ^1.0.0,
+Tested against: `react-aria-components` ^1.20.0, `tailwind-variants` ^4.0.2,
 `tailwind-merge` ^3.6.0, `tailwindcss` ^4.1.4, `react` ^19.2.0. No Tailwind plugin is
 needed: interaction states use Tailwind's own variants (`hover:`,
 `focus-visible:`, `disabled:`) and the bare data-attribute variants React Aria

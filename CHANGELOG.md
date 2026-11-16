@@ -43,6 +43,221 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-11-16
+
+### Action needed
+
+#### An outlined field's label sits right on a card, a sheet and a popover, and a bottom sheet's handle says its height ([#94](https://github.com/french-tech-homies/design-system/pull/94))
+
+A project that set `--md3-field-notch` on a kit `Card`, `SideSheet`, `BottomSheet` or `Popover` to make a label sit right no longer needs to: the class can go.
+
+#### The form adapter's fields validate through the form, and its focus anchor is exported ([#95](https://github.com/french-tech-homies/design-system/pull/95))
+
+A `Form*` field of the react-hook-form adapter no longer checks itself: the form does. Before, a field with `isRequired`, a number or a date with `minValue` or `maxValue`, or a `pattern`, and no rule of the form's for it, was stopped by the browser at submit with the field's own message. Now that submit goes through unless the form has a rule. For each such field, give the form the rule (`rules={{ required: "…" }}`, or the schema's), or pass `validationBehavior="native"` to that field to keep the old behaviour. Put `noValidate` on the `form`: the browser still judges an input's `type` (`email`, `url`). A `validationBehavior="aria"` written on a `Form*` field by hand can go.
+
+#### Switch takes a supporting line and a settings-row form, and a list row's focus ring is whole ([#96](https://github.com/french-tech-homies/design-system/pull/96))
+
+A `GridListItem`'s focus ring is now drawn by the kit inside the row, over its content. An outline class passed to a `GridListItem` to move or restyle its ring (`-outline-offset-3`, `outline-*`) no longer does anything and can go.
+
+### Breaking
+
+- The form adapter's fields validate through the form, and its focus anchor is exported ([#95](https://github.com/french-tech-homies/design-system/pull/95))
+
+### Added
+
+- Switch takes a supporting line and a settings-row form, and a list row's focus ring is whole ([#96](https://github.com/french-tech-homies/design-system/pull/96))
+- Slider says its value in words, and ChipGroup can be one scrolling row ([#97](https://github.com/french-tech-homies/design-system/pull/97))
+- Pressable: a button or a link that holds anything, with the state layer and the focus ring ([#98](https://github.com/french-tech-homies/design-system/pull/98))
+
+### Fixed
+
+- Menu typeahead works, a multiple ComboBox keeps a choice on Tab, a tab's focus ring is whole, and PreviewCard has a name ([#93](https://github.com/french-tech-homies/design-system/pull/93))
+- An outlined field's label sits right on a card, a sheet and a popover, and a bottom sheet's handle says its height ([#94](https://github.com/french-tech-homies/design-system/pull/94))
+- A list row's focus ring shows on a selected row, and a list can leave Escape to the sheet around it ([#99](https://github.com/french-tech-homies/design-system/pull/99))
+
+## [0.10.0] — 2026-11-16
+
+### Action needed
+
+#### The pager and carousel blocks keep the focus, and the stepper names every step ([#83](https://github.com/french-tech-homies/design-system/pull/83))
+
+A block is copied into a project and never updated: a project that already added `pager-block`, `reading-carousel-block` or `stepper-block` keeps the file it has. To take these fixes, compare the project's copy with the block's new file and carry the change over by hand: in the pager and the carousel, the two refs and the effect that moves the focus; in the stepper, `sr-only @lg:not-sr-only` in place of `hidden @lg:inline` on a step's label.
+
+#### A required Select draws the required mark, and says so in its name ([#86](https://github.com/french-tech-homies/design-system/pull/86))
+
+A project that wrote the mark into a required `Select`'s label by hand ("Topic *") now shows two: take it out of the label. A required `Select`'s accessible name now ends in ", required", in English: a test that finds one by its exact name must take that in.
+
+### Added
+
+- A dialog takes content of its own and keeps the kit's actions ([#90](https://github.com/french-tech-homies/design-system/pull/90))
+
+### Fixed
+
+- A loading Button says so to a screen reader ([#82](https://github.com/french-tech-homies/design-system/pull/82))
+- The pager and carousel blocks keep the focus, and the stepper names every step ([#83](https://github.com/french-tech-homies/design-system/pull/83))
+- Skeleton is seen on a filled Card ([#84](https://github.com/french-tech-homies/design-system/pull/84))
+- Today's number is read when today is an end of a date range ([#85](https://github.com/french-tech-homies/design-system/pull/85))
+- A required Select draws the required mark, and says so in its name ([#86](https://github.com/french-tech-homies/design-system/pull/86))
+- DropZone shows its focus, PhoneField keeps its calling code, and a mailto link works through the router adapter ([#87](https://github.com/french-tech-homies/design-system/pull/87))
+- A radio group bound to an empty form field is reached by Tab ([#88](https://github.com/french-tech-homies/design-system/pull/88))
+- The modal SideSheet fits a phone, at its own edge ([#89](https://github.com/french-tech-homies/design-system/pull/89))
+- A loading button is heard inside a modal dialog, and the carousel takes no focus that left it ([#91](https://github.com/french-tech-homies/design-system/pull/91))
+
+### Docs
+
+- Docs: the coverage run on 0.9.1, measured ([#80](https://github.com/french-tech-homies/design-system/pull/80))
+- The build skill says where the focus goes, and names the dialog, loading and placeholder options ([#92](https://github.com/french-tech-homies/design-system/pull/92))
+
+## [0.9.1] — 2026-11-16
+
+### Action needed
+
+#### Skeleton comes with the install: 0.9.0's barrel named a file it did not bring ([#78](https://github.com/french-tech-homies/design-system/pull/78))
+
+**If you installed 0.9.0, update to this release:** 0.9.0's `index.ts` exports `Skeleton` from a file the install did not bring, and does not type-check. This release brings the file. Nothing else to do.
+
+### Fixed
+
+- Skeleton comes with the install: 0.9.0's barrel named a file it did not bring ([#78](https://github.com/french-tech-homies/design-system/pull/78))
+
+## [0.9.0] — 2026-11-16
+
+### Action needed
+
+#### Input chip: the remove is reached from the keyboard and named ([#63](https://github.com/french-tech-homies/design-system/pull/63))
+
+**Action needed if you draw `<Chip variant="input" onRemove={…}>`.** Two things change:
+
+- A press anywhere on a chip that has `onRemove` and no `onPress` now removes it, where only the icon did.
+- A chip given both `onPress` and `onRemove` is now two buttons. If your `onPress` was itself the removal (a way round the old icon), drop `onPress` and any `aria-label` you wrote for it: the chip names itself "Remove <its text>".
+
+After a removal, move the focus yourself, to the next chip or to the field the chips belong to.
+
+#### Dialog: Material's 560dp maximum, a destructive confirm, and a hold while a request runs ([#66](https://github.com/french-tech-homies/design-system/pull/66))
+
+**Action needed if a dialog of yours is wider than 560dp.** Every dialog is now at most 560dp wide, Material's maximum, and its text wraps there. That holds for a dialog given a width class too: `className="w-[720px]"` is now capped. To keep a wider one, pass a maximum beside it: `className="w-[720px] max-w-none"`, or `max-w-3xl`. Search your source for `ModalDialog`, `Dialog` and `DialogContent` given a `w-` class.
+
+A `ModalDialog` now keeps 16dp from the window's edges, and is dismissed by neither the scrim nor Escape while one of its `actions` is loading.
+
+#### react-hook-form adapter: rules on each field, and focus on the first invalid one ([#67](https://github.com/french-tech-homies/design-system/pull/67))
+
+**Every form built on the adapter's `Form*` fields now puts the focus in its first invalid field after a refused submit.** That is react-hook-form's default (`shouldFocusError`), which had nothing to focus before. A form that did it by hand can drop that code; a form that must not move the focus passes `shouldFocusError: false` to `useForm`.
+
+The adapter is its own item and comes with the update when you name it, as `docs/updating.md` writes the command.
+
+#### Button: while loading it takes no press and submits no form ([#70](https://github.com/french-tech-homies/design-system/pull/70))
+
+Nothing to run. A handler that guarded against a second press while `isLoading` can drop the guard. If you relied on a loading button still being pressable, pass the spinner as `icon` and leave `isLoading` off.
+
+#### Slider: Material's slider, with a filled track and no width cap ([#71](https://github.com/french-tech-homies/design-system/pull/71))
+
+**Action needed if you draw `Slider`.** Two things change:
+
+- It is as wide as what holds it, where it stopped at 300px. Give it or its container a width: `className="max-w-xs"`. A `max-w-none` you wrote to lift the cap can go.
+- It looks different: a thick filled track and a slim tall handle, 44dp high where the old track row was 32dp.
+
+#### Checkbox: a box that stands alone shows its own error message ([#72](https://github.com/french-tech-homies/design-system/pull/72))
+
+**Action needed if you wrote an error message under a `FormCheckbox` yourself.** `FormCheckbox` now draws the field's message under the box, so a form that also writes its own shows it twice: remove yours. A plain `Checkbox` is unchanged unless you pass `errorMessage`.
+
+#### EmptyState's media follows its size, and a list row outside a list is not pressable ([#73](https://github.com/french-tech-homies/design-system/pull/73))
+
+Nothing to run. Two things look different:
+
+- An `EmptyState` with media: the media is 128dp at the default size where it grew to 256dp on a wide window; pass `size="lg"` for 192dp. A media wrapper written to shrink it can go.
+- A `ListItem` that is not inside a `GridListItem` no longer shows the pointer's hand. If you draw one inside something else that is pressed (a link, a button, a row of your own), add `className="cursor-pointer"` to it.
+
+### Added
+
+- Type primitives draw any text element: p, li, dt, dd and more ([#64](https://github.com/french-tech-homies/design-system/pull/64))
+- Dialog: Material's 560dp maximum, a destructive confirm, and a hold while a request runs ([#66](https://github.com/french-tech-homies/design-system/pull/66))
+- react-hook-form adapter: rules on each field, and focus on the first invalid one ([#67](https://github.com/french-tech-homies/design-system/pull/67))
+- Skeleton: a placeholder the shape of content that is loading ([#69](https://github.com/french-tech-homies/design-system/pull/69))
+- Slider: Material's slider, with a filled track and no width cap ([#71](https://github.com/french-tech-homies/design-system/pull/71))
+- Checkbox: a box that stands alone shows its own error message ([#72](https://github.com/french-tech-homies/design-system/pull/72))
+- Blocks: an app shell whose navigation follows its width ([#74](https://github.com/french-tech-homies/design-system/pull/74))
+- Lists and trees draw where a drop will land, and the form adapter binds a date picker ([#75](https://github.com/french-tech-homies/design-system/pull/75))
+
+### Fixed
+
+- Input chip: the remove is reached from the keyboard and named ([#63](https://github.com/french-tech-homies/design-system/pull/63))
+- Avatar with no alt is decorative, where it was an image with no name ([#65](https://github.com/french-tech-homies/design-system/pull/65))
+- Button: while loading it takes no press and submits no form ([#70](https://github.com/french-tech-homies/design-system/pull/70))
+- EmptyState's media follows its size, and a list row outside a list is not pressable ([#73](https://github.com/french-tech-homies/design-system/pull/73))
+- A checkbox keeps the focus when its error message clears ([#77](https://github.com/french-tech-homies/design-system/pull/77))
+
+### Docs
+
+- Docs: the coverage rule tells an option the kit lacks from the kit used as meant; the baseline is 52 of 119 ([#62](https://github.com/french-tech-homies/design-system/pull/62))
+- Docs: what the kit was given since the baseline, and what it should be worth ([#76](https://github.com/french-tech-homies/design-system/pull/76))
+
+## [0.8.0] — 2026-11-16
+
+### Action needed
+
+#### The kit moves to tailwind-variants 4 ([#43](https://github.com/french-tech-homies/design-system/pull/43))
+
+**Action needed if you call `tailwind-variants` yourself.** The update installs `tailwind-variants@^4.0.2` and the kit's `utils.ts` written for it. A project that only uses the kit's `tv`, `cn` and `focusRing` has nothing to do.
+
+Version 4 no longer takes `twMergeConfig`, in `createTV` or as the second argument of `tv`: it takes a merge function, `twMerge`. Search your own source, outside `<ui>/ds/`, for `twMergeConfig` and for `createTV`. For each use, import the kit's `tv` instead, or pass a merge function: `createTV({ twMerge })`, with `twMerge` built by `extendTailwindMerge(twMergeConfig)` as the kit's `utils.ts` does.
+
+The new `utils.ts` does not type-check on `tailwind-variants` 3 or older: take 4 with it. A project that must stay on an older one for now keeps its copy of `<ui>/ds/utils.ts` from before this release, and `node <ui>/ds/changed.mjs` will go on naming that file.
+
+#### ListItem's headline is Material's label text: body-large ([#45](https://github.com/french-tech-homies/design-system/pull/45))
+
+Nothing to run. A list drawn with the kit's `ListItem` is shorter and its headline smaller after this update: 16px text where it was 22px. A project that wants the larger text back passes its own node as `headline` (`<Title size="large" component="span">`).
+
+#### ListItem: Material's selected colours and its two-line height ([#58](https://github.com/french-tech-homies/design-system/pull/58))
+
+Nothing to run. A list drawn with the kit's `ListItem` changes look: a row with supporting text is 72dp high where it was 60dp, and a selected row is on `secondary-container` where it was on `primary-container`.
+
+### Breaking
+
+- The kit moves to tailwind-variants 4 ([#43](https://github.com/french-tech-homies/design-system/pull/43))
+
+### Added
+
+- GridListDragHandle: a row of a dragged list is picked up by the keyboard ([#47](https://github.com/french-tech-homies/design-system/pull/47))
+- Table: columns a person resizes ([#48](https://github.com/french-tech-homies/design-system/pull/48))
+- Breadcrumbs: the path to the current page ([#49](https://github.com/french-tech-homies/design-system/pull/49))
+- Popover: a surface for any content, opened beside its trigger ([#50](https://github.com/french-tech-homies/design-system/pull/50))
+- DropZone and FileTrigger: files dropped onto an area, or chosen from a button ([#51](https://github.com/french-tech-homies/design-system/pull/51))
+- Tree: a hierarchy opened level by level ([#52](https://github.com/french-tech-homies/design-system/pull/52))
+- ContextMenu: the kit's menu, asked for on something itself ([#53](https://github.com/french-tech-homies/design-system/pull/53))
+- Blocks: parts neither Material nor React Aria describes, copied into a project to edit; a pager ([#55](https://github.com/french-tech-homies/design-system/pull/55))
+- Blocks: a stepper, a radio tile, a reading carousel, a site header ([#56](https://github.com/french-tech-homies/design-system/pull/56))
+
+### Fixed
+
+- Tab panels and the colour picker's button show keyboard focus, and every story is checked for it ([#42](https://github.com/french-tech-homies/design-system/pull/42))
+- A link to a fragment scrolls under the React Router adapter, and the empty state takes a Material corner ([#44](https://github.com/french-tech-homies/design-system/pull/44))
+- ListItem's headline is Material's label text: body-large ([#45](https://github.com/french-tech-homies/design-system/pull/45))
+- ContextMenu opens under the focused element from the keyboard ([#54](https://github.com/french-tech-homies/design-system/pull/54))
+- ListItem: Material's selected colours and its two-line height ([#58](https://github.com/french-tech-homies/design-system/pull/58))
+- ListItem: a long name can be cut to one line ([#60](https://github.com/french-tech-homies/design-system/pull/60))
+
+### Docs
+
+- The kit says what its builders opened the source to learn ([#46](https://github.com/french-tech-homies/design-system/pull/46))
+- Docs: the coverage baseline, all 22 screens run once ([#61](https://github.com/french-tech-homies/design-system/pull/61))
+
+## [0.7.0] — 2026-11-16
+
+### Added
+
+- Menu: disabled items, dividers, and items that are choices ([#38](https://github.com/french-tech-homies/design-system/pull/38))
+- Link: a text link, in a sentence or in a list of links ([#40](https://github.com/french-tech-homies/design-system/pull/40))
+
+### Fixed
+
+- Menu: a row reached by the arrow keys shows its focus ([#37](https://github.com/french-tech-homies/design-system/pull/37))
+
+### Docs
+
+- Docs: the screens the kit's coverage is counted against, and a pilot of four ([#35](https://github.com/french-tech-homies/design-system/pull/35))
+- Docs: a fresh init does not build until the theme is imported ([#36](https://github.com/french-tech-homies/design-system/pull/36))
+- A component joins the kit's own on a corpus screen's need, with no project named ([#39](https://github.com/french-tech-homies/design-system/pull/39))
+
 ## [0.6.0] — 2026-11-04
 
 ### Action needed

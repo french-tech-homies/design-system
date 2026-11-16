@@ -1,0 +1,96 @@
+{
+  "screen": "Article",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Long-form type: headings, lists, quotes, code",
+      "built": "yes",
+      "kit": ["Headline", "Title", "Body", "Link", "cn", "focusRing"],
+      "leaves": [
+        { "kind": "layout", "what": "src/components/prose.tsx: H2, H3, P, UL, OL, LI, Quote, Code, Note and A written on plain elements with the kit's type and colour utilities (text-body-large font-body-large, border-primary, bg-surface-container-high, font-mono).", "why": "The kit has type primitives and no prose: no list, blockquote, inline code or callout, and no rhythm between blocks." },
+        { "kind": "guess", "what": "Title component=\"p\" (twice), Body component=\"figcaption\": three type errors, fixed with a raw <p> carrying text-title-large font-title-large, a <figcaption> around a Body span, and component=\"div\".", "why": "Each primitive takes its own short list of elements (Title: div, h1-h6, span; Body: div, p, span; Label: div, label, span). Nothing in the doc comment says so; the type is the only place." },
+        { "kind": "guess", "what": "ref passed to Headline to focus the article's title: the prop is omitted from the type. Replaced by an id and document.getElementById.", "why": "The type primitives take no ref." },
+        { "kind": "read", "what": "primitives/Typography.tsx read to its props to find `component`, `size`, `colorRole`.", "why": "The doc comment describes colour, weight and family, not the props or the elements allowed." }
+      ],
+      "notes": "Headings carry tabIndex=-1 and the kit's focusRing so a contents link can hand them the focus. The article's h1 is headline-small on a phone and sm:text-headline-large above, a responsive class on the primitive. Not seen in a browser: no browser was allowed."
+    },
+    {
+      "n": 2,
+      "part": "Breadcrumbs",
+      "built": "yes",
+      "kit": ["Breadcrumbs", "Breadcrumb", "AriaRouterProvider (adapters/react-router)"],
+      "leaves": [
+        { "kind": "layout", "what": "A <nav aria-label=\"Breadcrumb\"> around it, and a useTo() helper that keeps the page's query (?dark) on every internal href.", "why": "The doc comment asks for the nav; a client-side navigation to a bare path drops ?dark from the address." }
+      ],
+      "notes": "Help centre > topic > the article. The two levels above are real routes (/articles, /topics/:topic) drawn by a small index page, so the links go somewhere."
+    },
+    {
+      "n": 3,
+      "part": "A table of contents that follows the scroll",
+      "built": "yes",
+      "kit": ["Link", "Title", "Disclosure", "DisclosureHeader", "DisclosurePanel", "cn"],
+      "leaves": [
+        { "kind": "control", "what": "src/components/TableOfContents.tsx: useToc() reads the headings marked data-toc from the article, and on scroll (one animation frame at a time) marks the last one that reached its scroll-margin line; the list is an <ol> of kit Links with aria-current=\"location\", a primary start border and primary text on the section in view.", "why": "The kit has no table of contents, no scroll-spy and no list of in-page links with a current item (NavigationDrawer and Tabs are destinations, not anchors)." },
+        { "kind": "layout", "what": "Two placements of the same list: a sticky column beside the article from lg up; below it a sticky bar under the header, a kit Disclosure whose header shows the section being read and whose panel holds the list, closed when a link is followed.", "why": "A side column does not fit a phone." },
+        { "kind": "value", "what": "max-h-[calc(100dvh-8rem)] on the sticky column so a long list scrolls inside the window.", "why": "No token or utility gives 'the window less the header'." },
+        { "kind": "read", "what": "components/Disclosure.tsx read (its styles and DisclosureTrigger's body) to learn that `trailing` sits after a flex-1 label and that the trigger's ring is an outline 2px outside it.", "why": "To place the current section's name in the bar and to know that an overflow-hidden parent would clip the focus ring." },
+        { "kind": "read", "what": "adapters/react-router.tsx read in full.", "why": "To learn what a fragment link does under the adapter (it scrolls, honours scroll-margin-top, does not move focus)." }
+      ],
+      "notes": "Following a contents link scrolls (the adapter) and then focuses the heading (the page's own effect). At the very end of the page the last section is marked even if its heading never reaches the line. Not exercised in a browser: the scroll thresholds (scroll-mt-36 on a phone, lg:scroll-mt-24) are computed from the header's 64px and the bar's 56px, not measured."
+    },
+    {
+      "n": 4,
+      "part": "Tabs of code samples",
+      "built": "yes",
+      "kit": ["Tabs", "TabList", "Tab", "TabPanel", "Button", "Label", "CheckIcon", "snackbar", "SnackbarRegion", "focusRing"],
+      "leaves": [
+        { "kind": "layout", "what": "src/components/CodeBlock.tsx: the box (bg-surface-container, medium corner), a caption row with a Copy text button, and a <pre> in font-mono that scrolls sideways and takes the focus (tabIndex=0, role=group, a name) so the keyboard can scroll it. A context keeps the language chosen so every set of tabs on the page opens on it.", "why": "The kit has no code block; a tab panel draws only padding." },
+        { "kind": "feature", "what": "variant=\"secondary\" chosen for tabs that are not a screen's navigation, and isScrollable used only to size tabs to their labels.", "why": "Material's two variants are both navigation levels (primary: the only set on a screen; secondary: under a primary set). Neither is 'tabs inside content, several sets a page'. Fixed tabs stretch three short labels across the column; there is no 'hug the labels' option apart from isScrollable." }
+      ],
+      "notes": "No syntax colouring. Copy uses navigator.clipboard and says so in a snackbar, or says it failed. The box clips (overflow-hidden) to keep its corners, so the first tab's focus ring, which the kit draws outside the tab, is cut at the box's top and start edge; the tab's focus state layer still shows. Unverified in a browser."
+    },
+    {
+      "n": 5,
+      "part": "An audio player with captions",
+      "built": "partly",
+      "kit": ["Card", "IconButton", "Button", "Menu", "Tooltip", "TooltipTrigger", "Disclosure", "DisclosureHeader", "DisclosurePanel", "Title", "Body", "cn"],
+      "leaves": [
+        { "kind": "control", "what": "src/components/AudioPlayer.tsx: a player around a real <audio> element: play/pause, back and forward 10 seconds, a seek bar, a speed menu (single selection), captions on/off, mute, the position as m:ss, the caption of the moment, and a transcript whose times seek and play.", "why": "The kit has no media player." },
+        { "kind": "feature", "what": "The seek bar is React Aria's Slider, SliderTrack and SliderThumb, not the kit's Slider.", "why": "The kit's Slider draws no active track (nothing shows how much has played), is capped at max-w-[300px], and its doc comment is two lines. Its thumb also adds -translate-y-1/2 to React Aria's own translate(-50%, -50%), which by reading should lift it half its height off the line: not checked on screen." },
+        { "kind": "component", "what": "Slider, SliderTrack, SliderThumb imported from react-aria-components.", "why": "See the leave above." },
+        { "kind": "read", "what": "components/Slider.tsx read whole, and React Aria's useSliderThumb in node_modules for how the thumb is placed.", "why": "The Slider's doc comment names no prop and no part." },
+        { "kind": "read", "what": "components/Card.tsx, Menu.tsx and IconButton.tsx read past the doc comment for the prop types (Card's root is overflow-hidden; Menu's item and selection types; IconButton's toggle props).", "why": "To know what clips and what the toggle and the selection take." },
+        { "kind": "layout", "what": "The card's insides: title and time, the bar, two groups of controls that wrap, the caption on inverse-surface at a fixed minimum height so the controls do not move, the transcript list with the current line on secondary-container.", "why": "Composition." }
+      ],
+      "notes": "PARTLY, for one reason: the recording is not speech. No narration could be recorded here (no text-to-speech on the machine, no web), so public/audio/payment-reminders.mp3 is a 66-second synthesized placeholder (a soft tone with a chime where each caption starts), made with node and ffmpeg. The player, the captions' timing and the transcript are real and are driven by the file's own clock; the words in the captions are not in the audio. Captions are rendered by the player from the cue data (a browser draws no <track> for an <audio>), deliberately not a live region. The slider announces its value as seconds ('13 seconds'), the only wording React Aria's formatOptions gives. Not played in a browser."
+    },
+    {
+      "n": 6,
+      "part": "Tags",
+      "built": "yes",
+      "kit": ["Chip", "Title", "Tag"],
+      "leaves": [
+        { "kind": "layout", "what": "A section named by a 'Tags' heading, a <ul> that wraps, one assist Chip with href per tag, leading to /tags/:tag, an index page of the articles that carry it (where the same tags are static kit Tags).", "why": "The kit's Tag is a static label by its own doc comment, and an article's tags are links to more of the same; the Chip that navigates is the nearest thing. ChipGroup is for filter chips, so the list is plain." }
+      ],
+      "notes": "An assist chip as a link to a tag is a stretch of Material's 'assist' meaning; the kit has no link-tag."
+    },
+    {
+      "n": 7,
+      "part": "Previous and next links",
+      "built": "yes",
+      "kit": ["StateLayer", "Label", "Title", "ArrowBackIcon", "focusRing", "cn"],
+      "leaves": [
+        { "kind": "component", "what": "Link imported from react-aria-components for a link that is a whole box (label, arrow, the article's title), with the kit's StateLayer and focusRing and an outlined card's container.", "why": "The kit's Card refuses to be pressed (its doc comment: the directly actionable card is not built), its Link is a text link, and the pager-block is for pages of a list, not two named articles." },
+        { "kind": "layout", "what": "A <nav> with two columns from sm up, the next link on the end side; rel=prev/next.", "why": "Composition." }
+      ],
+      "notes": "They navigate between three mock articles; each arrives after a 700ms timer behind a placeholder, then its title takes the focus. The kit ships ArrowBackIcon and no forward arrow: lucide's ArrowRight is used for 'Next'."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "The page: Shell (header, main at max-w-6xl, footer), the article column at max-w-3xl beside the contents, the loading placeholder (bars on surface-container-high, motion-safe pulse), a small index page for the breadcrumbs' and tags' targets, and the routes in App.tsx.", "why": "Expected of a screen." },
+    { "kind": "layout", "what": "site-header-block used for the help centre's header, copied from kit-blocks/SiteHeader.tsx to src/components/SiteHeader.tsx, unedited (made sticky through its className).", "why": "`npx shadcn@latest add @ds/site-header-block -y` was refused by this session's permission layer, so the brief's fallback was taken." },
+    { "kind": "read", "what": "components/Chip.tsx, Button.tsx, Tabs.tsx (styles), Tag.tsx (variants) read past their doc comments for prop names: Button's `icon`, the sizes' names, Chip's href on the assist variant, Tag's `neutral` colour.", "why": "The doc comments describe measures and deviations more than props; the props are in the types above them." }
+  ],
+  "friction": "Nothing was seen in a browser (not allowed here), so every visual claim above is from reading. What cost time: (1) the type primitives' `component` takes a different short list per primitive and no ref, and only the type says so: five type errors on the first build; one line in the doc comment ('Title: div, h1-h6, span; no ref') would have saved them. (2) Slider has a two-line doc comment, no active track, a 300px cap and what reads like a doubled vertical translate on its thumb; a seek bar had to leave it. (3) The kit has nothing for prose: a `Prose` wrapper or a documented recipe for lists, quotes, inline code and code blocks on the type roles would make every article, changelog and legal page the same. (4) Tabs' two variants are both navigation; tabs inside content (code samples) have no stated home, and the ring drawn outside a tab is clipped by any rounded, clipping box and by the kit's own scrollable list. (5) Focus rings are outlines 2px outside the control, and Card, DisclosurePanel and the scrollable TabList clip: it took reading three sources to learn where a ring would be cut. (6) There is no actionable card and no block-level link; previous/next, and any 'card that is a link', is rebuilt by hand on React Aria's Link with StateLayer. (7) Tag is static and Chip is an action: a tag that is a link has no component. (8) The adapter's note that a navigation drops nothing but the fragment's focus is good; it does not say that the query (?dark) is dropped by a bare path, which every internal link then has to carry. (9) The icon set has ArrowBackIcon and no forward arrow, and nothing for media (play, pause, captions, volume): lucide filled in, which works because IconComponent accepts it."
+}

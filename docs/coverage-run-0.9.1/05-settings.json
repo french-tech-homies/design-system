@@ -1,0 +1,213 @@
+{
+  "screen": "Settings",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Sections by tabs or by list and detail",
+      "built": "yes",
+      "kit": [
+        "Tabs",
+        "TabList",
+        "Tab",
+        "TabPanel",
+        "TopAppBar",
+        "Divider",
+        "Title",
+        "Body",
+        "Skeleton",
+        "SkeletonGroup"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "TabList isScrollable for the four sections (Notifications, Appearance, Privacy, Workspace), each Tab with an icon at iconPosition=\"start\" and a dot badge while its section holds unsaved changes.",
+          "why": "TabList's doc comment: \"`isScrollable` sizes each tab to its label and scrolls the row sideways, for a set that cannot fit.\" Four labelled tabs do not fit 400px as fixed tabs."
+        },
+        {
+          "kind": "option",
+          "what": "TabPanel given className=\"py-2\" to replace its own 16dp of space, since each group inside brings its own padding.",
+          "why": "TabPanel's doc comment says it \"draws 16dp of space above and below its content\" and does not say a className may change it."
+        },
+        {
+          "kind": "option",
+          "what": "TopAppBar given className=\"sticky top-0 z-10\" so Save and Discard stay in reach while a section scrolls.",
+          "why": "TopAppBar's doc comment says there is \"No on-scroll behaviour\" and says nothing of pinning the bar; className is in its props but its use for this is not described."
+        },
+        {
+          "kind": "layout",
+          "what": "The page (surface ground, a 672px column), a Group (section, h2 Title, supporting Body) per set of controls, and the loading placeholder's rows.",
+          "why": "Expected of every screen. The kit's theme sets the ambient text colour but paints no page background, so the root carries bg-surface itself."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tabs.tsx whole, its styles included.",
+          "why": "To learn whether a vertical set (list and detail on desktop) is drawn as one: the answer is at the very end of the Tabs doc comment (\"a vertical set gets the behaviour but keeps the horizontal anatomy\"), so horizontal scrollable tabs were chosen for both widths."
+        },
+        {
+          "kind": "read",
+          "what": "Read tokens/theme.css's header comment and grepped it for a body background.",
+          "why": "Neither the skill nor a component says whether the page's ground is painted by the theme."
+        },
+        {
+          "kind": "option",
+          "what": "In the loading placeholder, the bar that stands for a switch is a rectangle Skeleton with className=\"rounded-shape-full h-8 w-13\": the rectangle's medium corner replaced.",
+          "why": "Skeleton has text, rectangle and circle; its doc comment invites a size by className, not a corner. A pill is none of its shapes."
+        },
+        {
+          "kind": "read",
+          "what": "Read TopAppBar.tsx's styles and props, and Skeleton.tsx's body.",
+          "why": "To judge whether `sticky` by className would hold against the bar's own classes (it paints bg-surface and sets no position), and how a text skeleton takes its line height."
+        }
+      ],
+      "notes": "Not seen in a browser: no browser tool was allowed. React Aria unmounts the panels that are not selected, so every control is controlled from one draft object held above the tabs. The loading state replaces the tabs for 900ms."
+    },
+    {
+      "n": 2,
+      "part": "Switches",
+      "built": "yes",
+      "kit": [
+        "Switch",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "A settings row made of the kit's Switch by className (\"flex w-full flex-row-reverse justify-between gap-4 py-2\"): the name and a second line at the start, the track at the end, the whole row pressable. The name and the description are tied by hand with aria-labelledby and aria-describedby so the description is not part of the name.",
+          "why": "Switch draws its track first and its label after it, inline, with no supporting text and no label-leading or full-width form. Its doc comment does not speak of layout by className."
+        },
+        {
+          "kind": "layout",
+          "what": "The two-line label inside the switch (Body large, Body medium on on-surface-variant).",
+          "why": "Expected: a card's insides."
+        },
+        {
+          "kind": "read",
+          "what": "Read Switch.tsx's styles, render-props.ts and Typography.tsx's component.",
+          "why": "Switch.tsx: the root is inline-flex with the track before the children, and a disabled switch fades its inherited text (so the description drops its colorRole when disabled). render-props.ts: className is merged with cn, so `flex` replaces `inline-flex`. Typography.tsx: the primitives spread the rest of their props, so `id` (the switch's name and description) reaches the element."
+        }
+      ],
+      "notes": "Eleven switches over the four sections. Unverified by eye: that flex-row-reverse keeps the 48dp target and that the two-line label aligns with the track. Whether React Aria's Switch hands aria-describedby to its input was accepted by the types, not checked in a browser."
+    },
+    {
+      "n": 3,
+      "part": "Radio groups",
+      "built": "yes",
+      "kit": [
+        "RadioGroup",
+        "Radio",
+        "radio-tile-block (RadioTileGroup, RadioTile)"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "Four plain vertical groups (notify about, density, who can message, retention), each preselected, with the group's label and supporting text from the kit; the theme as three tiles.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read Radio.tsx whole.",
+          "why": "To see that RadioGroup's onChange gives a string (cast to each setting's union) and what the label and supportingText draw."
+        }
+      ],
+      "notes": "The block is kit-blocks/RadioTile.tsx copied to src/components/RadioTile.tsx, unedited: `npx shadcn@latest add @ds/radio-tile-block -y` was refused by this session's permissions. The theme tiles really switch the theme: the draft choice toggles `.dark` on <html> at once (System follows prefers-color-scheme and listens for its change), and Discard puts the saved one back. The tile group has aria-label=\"Theme\" beside a visible h2 of the same words. Unverified by eye."
+    },
+    {
+      "n": 4,
+      "part": "A slider",
+      "built": "yes",
+      "kit": [
+        "Slider"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Notification volume, 0 to 100 by 5, written as a percentage with React Aria's formatOptions, disabled while Sound is off, className=\"max-w-md py-2\".",
+          "why": "Slider's doc comment: \"It is as wide as what holds it: give it, or its container, a width (`className=\\\"max-w-xs\\\"`). `label` names it and `showOutput` writes the value beside the label\". formatOptions, step and isDisabled are React Aria's props, passed through."
+        },
+        {
+          "kind": "read",
+          "what": "Read Slider.tsx whole.",
+          "why": "To confirm that React Aria's props (step, formatOptions, isDisabled) reach the slider and that the output uses the formatted value; the doc comment names only label, showOutput and thumbLabels."
+        }
+      ],
+      "notes": "The doc comment lists \"the stops of a stepped slider\" as a gap: the 5% steps are therefore not drawn, only felt. Unverified by eye."
+    },
+    {
+      "n": 5,
+      "part": "A destructive action confirmed in a dialog",
+      "built": "yes",
+      "kit": [
+        "Button",
+        "ModalDialog",
+        "Body",
+        "snackbar"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The \"Archived channels\" group: what is kept and that deleting cannot be undone, beside an outlined error Button; after the deletion the text says \"No archived channels.\" (aria-live) and the button is disabled.",
+          "why": "Expected."
+        },
+        {
+          "kind": "option",
+          "what": "Where the focus goes when the dialog closes after the deletion: a listener on the row for React Aria's cancelable `react-aria-focus-scope-restore` event, which cancels the restore to the (now disabled) button and focuses the status line (tabIndex -1, the kit's focusRing).",
+          "why": "ModalDialog has no way to name what takes the focus on close, and the element that opened it is disabled by the very action it confirmed."
+        },
+        {
+          "kind": "read",
+          "what": "Read Dialog.tsx, ModalDialog.tsx, Modal.tsx and DialogContent.tsx whole.",
+          "why": "The export is spread over four files; the actions' shape ({ confirm, cancel } with color and isLoading) is in DialogContent's doc comment, role=\"alertdialog\" in Dialog's props, isOpen and onClose in ModalDialog's."
+        },
+        {
+          "kind": "read",
+          "what": "Read node_modules/react-aria/dist/private/focus/FocusScope.mjs (the restore on unmount) and Button.tsx's loading branch.",
+          "why": "To learn how the focus is given back and that it can be taken (the event's name is not in any type), and that a loading Button already takes no second press."
+        }
+      ],
+      "notes": "ModalDialog role=\"alertdialog\" with a trash icon, the question as title, the consequence as supporting text, Cancel and an error-coloured Delete that shows its spinner for 1.2s, then closes, empties the count and shows a snackbar. Cancel and Escape give the focus back to the button. After a deletion the button is disabled, so the focus is sent to the status line through React Aria's restore event: this rests on an event read in React Aria's built source, not on a documented API, and was not run in a browser. If it does not fire, the focus falls to the page's body. Unverified by eye."
+    },
+    {
+      "n": 6,
+      "part": "A snackbar on save",
+      "built": "yes",
+      "kit": [
+        "SnackbarRegion",
+        "snackbar",
+        "Button",
+        "TopAppBar"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "Save and Discard in the top app bar's actions, enabled only while the draft differs from what was saved; Save shows isLoading for 900ms, commits, then snackbar(\"Settings saved\"). One SnackbarRegion at the screen's root.",
+          "why": "Expected: the project's own logic around the kit's parts. The buttons are at the top so the snackbar's place at the bottom stays free."
+        },
+        {
+          "kind": "read",
+          "what": "Read Snackbar.tsx past its doc comment.",
+          "why": "To confirm snackbar() replaces the one on screen and what the options default to; the doc comment already said enough to use it."
+        }
+      ],
+      "notes": "Two text buttons as the app bar's actions, not icon buttons: Material's app bar shows icons there, the kit's TopAppBar takes any node. main has pb-24 so the last row is not under a snackbar. Unverified by eye."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "use",
+      "what": "lucide-react icons (Bell, Palette, Shield, Building2, Trash2) passed as the icon of Tab, Button and ModalDialog.",
+      "why": "ds-build: \"Icons are any component taking `{ size, className }`. The kit ships no icon library.\""
+    },
+    {
+      "kind": "layout",
+      "what": "No app shell: the screen is the settings alone. The app-shell block was read and left out, since its destinations would have been fakes.",
+      "why": "The screen names no navigation beyond its own sections."
+    },
+    {
+      "kind": "use",
+      "what": "focusRing from the kit on the one element the project makes focusable itself (the status line).",
+      "why": "ds-build: \"The ring is `focusRing` from `<kit>/utils.ts`; extend it, do not invent another.\""
+    }
+  ],
+  "friction": "No type error and no second attempt: the build was green at the first run, so there is no `guess`. What cost time: (1) a settings row, the commonest use of a switch (label and supporting text at the start, switch at the end, full width, the row pressable), is not a form of Switch and not shown anywhere; I bent it with flex-row-reverse and wired aria-labelledby/aria-describedby by hand, unsure the kit means that. A `Switch` doc line or a `labelPosition`/`supportingText` prop would settle it. (2) Whether the page's background is painted: theme.css sets the ambient colour and no ground, and the skill does not say the root must carry bg-surface. (3) The dialog is four files; ModalDialog's doc comment does not show one whole example with isOpen, role and actions together. (4) Slider's doc comment does not say React Aria's props (step, formatOptions, isDisabled) pass through. (5) Tabs' note on vertical orientation is the last line of a long comment; a line near the top on 'settings by list and detail' would have saved the search. (6) A dialog whose confirmed action removes or disables its own trigger leaves the focus nowhere; neither ModalDialog nor the skill says what to do, and the answer was in React Aria's built source. (7) The shadcn command was refused by this session's permission classifier (bundled with other reads in one shell call), so the block came from kit-blocks/. Nothing was run in a browser: every claim about pointer, keyboard, phone width and dark is from the code and the kit's doc comments."
+}

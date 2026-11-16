@@ -1,0 +1,81 @@
+{
+  "screen": "Application shell",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Rail on desktop, drawer on tablet, bottom navigation on phone",
+      "built": "yes",
+      "kit": ["NavigationRail", "NavigationDrawer", "BottomNavigation", "NavigationItem", "IconButton", "Title"],
+      "leaves": [
+        { "kind": "feature", "what": "Wrote useMediaQuery / useWindowClass (window.matchMedia through useSyncExternalStore) and render exactly one of the three navigations by window class.", "why": "The kit has the three components and nothing that switches between them by window size; neither the skill nor a doc comment says how a shell should." },
+        { "kind": "value", "what": "The two breakpoints are written as raw media queries: (min-width: 40rem) and (min-width: 64rem).", "why": "The kit has no window-class tokens (Material's compact / medium / expanded); I took Tailwind's sm and lg." },
+        { "kind": "layout", "what": "Rail in a sticky full-height column with an outline-variant edge; bottom bar fixed to the bottom with padding under main; a rail header of my own (expand/collapse IconButton with aria-expanded, plus the product name when expanded).", "why": "Page composition is the project's." },
+        { "kind": "read", "what": "Read NavigationRail, NavigationDrawer and BottomNavigation in full.", "why": "To learn that the rail's header is centred (so the expanded header needs self-start), that a modal drawer calls onClose itself when a destination is pressed, and that an item with href is a React Aria Link." }
+      ],
+      "notes": "Not seen in a browser (none allowed): verified by tsc, the build and a server render of the shell. On a tablet no navigation landmark is in the page until the drawer is opened (the modal drawer is not mounted while closed). The drawer closes on a destination press through the kit's onClose and, as a second path, because its open state is tied to the address. The rail does not scroll in a window shorter than about 420px: I left it unclipped so that the kit's focus ring, which reaches outside the full-width destination, is not cut."
+    },
+    {
+      "n": 2,
+      "part": "Top app bar",
+      "built": "yes",
+      "kit": ["TopAppBar", "IconButton", "TooltipTrigger", "Tooltip", "ArrowBackIcon"],
+      "leaves": [
+        { "kind": "layout", "what": "Made the bar sticky (className) and chose its leading action by window: the drawer's menu button on a tablet, a back link on a phone's sub-page, none on a desktop.", "why": "Composition is the project's." },
+        { "kind": "feature", "what": "No elevation or colour change when content scrolls under the sticky bar.", "why": "The kit documents that it has no on-scroll behaviour; I did not write one." },
+        { "kind": "control", "what": "Light/dark toggle: a kit IconButton whose handler toggles the .dark class on <html>, state held in the shell.", "why": "The kit has no theme switch; the button itself is the kit's." }
+      ],
+      "notes": "The title is the page's h1, inside the banner, as the kit draws it: main therefore holds no h1. The brand name shows only in the expanded rail, the drawer's headline and the document title."
+    },
+    {
+      "n": 3,
+      "part": "Breadcrumbs",
+      "built": "yes",
+      "kit": ["Breadcrumbs", "Breadcrumb"],
+      "leaves": [
+        { "kind": "layout", "what": "The <nav aria-label=\"Breadcrumb\"> around it and the function that derives the path from the address (describePage).", "why": "The doc comment asks for the nav; the path is the project's data." }
+      ],
+      "notes": "On Home the path is one level (\"Home\", the current page). A long path wraps on a phone, as the kit does."
+    },
+    {
+      "n": 4,
+      "part": "Account menu",
+      "built": "yes",
+      "kit": ["Menu", "IconButton", "Avatar", "Title", "Body"],
+      "leaves": [
+        { "kind": "feature", "what": "The trigger is a kit IconButton whose `icon` is a small component that ignores `size` and draws a 32px Avatar inside an aria-hidden span.", "why": "No kit button takes an avatar: IconButton takes only an icon component, Avatar is not pressable. The icon slot is structural, so this type-checks, but it is a bend; the aria-hidden span is there because Avatar without `alt` still renders role=\"img\" with no name." },
+        { "kind": "layout", "what": "The menu's header (avatar, name, email) composed by hand in the `header` slot.", "why": "The slot takes any node." },
+        { "kind": "read", "what": "Read Menu.tsx in full.", "why": "To see the item type (href, leadingIcon, divider) and that the popover takes className for a width." }
+      ],
+      "notes": "\"Account settings\" is a routed menu item; \"Sign out\" really leaves the shell for a signed-out screen with a way back in (state in App). Material's menu has no destructive item, so Sign out is a plain one."
+    },
+    {
+      "n": 5,
+      "part": "Skip link and landmarks",
+      "built": "yes",
+      "kit": ["Link", "TopAppBar", "NavigationRail", "NavigationDrawer", "BottomNavigation", "Breadcrumbs"],
+      "leaves": [
+        { "kind": "feature", "what": "Skip link made from the kit's Link: href=\"#main-content\", classes sr-only / focus:not-sr-only on inverse-surface, and an onPress that focuses <main tabIndex={-1}> myself.", "why": "The kit has no skip link, and its router adapter says a fragment link scrolls but does not move focus." },
+        { "kind": "layout", "what": "The landmarks: banner (TopAppBar's header, at document level), navigation \"Primary\" (the kit's default name), navigation \"Breadcrumb\", and a hand-written <main> with scroll-mt-16 for the sticky bar.", "why": "The page's skeleton is the project's." }
+      ],
+      "notes": "Unsure without a browser: the skip link goes through React Router (a history entry with the fragment, and the query string, ?dark included, is dropped from the address; the theme class stays). main hides its own focus outline (outline-hidden), being a container and not a control."
+    },
+    {
+      "n": 6,
+      "part": "Routed links",
+      "built": "yes",
+      "kit": ["AriaRouterProvider (adapters/react-router)", "NavigationItem.href", "Breadcrumb href", "Menu item href", "IconButton href", "Button href", "Link", "Table Row href"],
+      "leaves": [
+        { "kind": "read", "what": "Read adapters/react-router.tsx in full.", "why": "To see where it mounts (inside the router) and what it does with a fragment." }
+      ],
+      "notes": "BrowserRouter with the adapter around the routes: every destination, crumb, menu item, back button, empty-state button, table row and text link is a real <a> that navigates on the client. The active destination is derived from the address (controlled selectedKey), so the back button and a typed address mark it too. Focus is not moved on navigation; the document title is set."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "The two sample pages (Home, Clients with a client's page), the account page and the placeholders: grids, definition lists inside Card, a deadlines list as plain <li> rows.", "why": "Page insides are the project's. The kit's ListItem only draws inside a GridListItem, which is a selectable grid and not a plain read-only list, so the rows are by hand." },
+    { "kind": "feature", "what": "Clients table drops two columns on a phone by rendering fewer Column/Cell (and re-keying the Table).", "why": "The kit's Table has no responsive column behaviour; the alternative was sideways scroll." },
+    { "kind": "hook", "what": "Own hooks, not React Aria's: useMediaQuery, useWindowClass, useLoaded (the mock loading timer).", "why": "None in the kit." },
+    { "kind": "value", "what": "Tailwind's own scale used for layout sizes: max-w-6xl, min-h-64, w-64, pb-28, scroll-mt-16.", "why": "Spacing and widths have no kit tokens; no colour, type, shape or arbitrary value was written." }
+  ],
+  "friction": "The three navigation components are well documented one by one, but nothing says how they make one adaptive shell: which window widths, where the rail sits beside TopAppBar, who owns the menu button, whether to mount one or hide two. A short 'application shell' recipe (or a block: none of the five blocks serves an app's frame; site-header-block is a public page's header) would have removed most of the hand work, with window-class breakpoints as tokens or a hook. No skip link exists, and the adapter's note that a fragment link does not move focus is the only hint of how to make one. An account button needs a pressable avatar: IconButton accepts only an icon component, and Avatar renders role=img with no name when given no alt, so it had to be hidden by hand. The rail's header slot centres its content, which is wrong for the expanded rail and is only visible in the source. TopAppBar puts the page's h1 in the banner, which leaves main without a heading: the doc comment says the title is the page's but not what main should then hold. ListItem cannot be used outside GridListItem, so a read-only list of rows is hand-made. I could not run ds-spec (no web), so Material's breakpoints and rail guidance came from memory."
+}

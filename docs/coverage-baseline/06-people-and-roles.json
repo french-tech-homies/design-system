@@ -1,0 +1,225 @@
+{
+  "screen": "People and roles",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A table whose row opens a side sheet",
+      "built": "yes",
+      "kit": [
+        "Table",
+        "TableHeader",
+        "TableBody",
+        "Column",
+        "Row",
+        "Cell",
+        "Card",
+        "SideSheet",
+        "SearchBar",
+        "EmptyState",
+        "LoadingIndicator",
+        "TopAppBar",
+        "Button",
+        "Snackbar (snackbar, SnackbarRegion)",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The page (app bar, search and count line, the table in an outlined Card), the member cell (avatar, name over email), the sheet's insides (header block, a dl of facts, the footer's buttons), the loading and empty placeholders inside renderEmptyState.",
+          "why": "Expected: the kit has no page or cell composition."
+        },
+        {
+          "kind": "read",
+          "what": "Read Table.tsx past its doc comment: Row's body, Cell and CellElement, the row and cell style slots.",
+          "why": "The doc comment says an interactive row is one with the table's `onRowAction`, but Row sets `data-interactive` (the state layer) only from its own `onAction` or `href`; and I needed to know that a Cell's `className` reaches the `td`, to hide a column on a phone."
+        },
+        {
+          "kind": "read",
+          "what": "Read SideSheet.tsx whole.",
+          "why": "Its doc comment names no prop: `variant`, `isOpen`, `onClose`, `title`, `footer`, `modalProps` and the modal's width (calc(100% - 56px), min 360px) are only in the source."
+        },
+        {
+          "kind": "feature",
+          "what": "Hid the Team and Last active columns under `sm` with `max-sm:hidden` on both the Column and each of its Cells.",
+          "why": "Table has no way to say a column is dropped at a narrow width; nothing in the doc says the className route is supported."
+        },
+        {
+          "kind": "feature",
+          "what": "Row given `className=\"h-16\"` for a two-line cell with a 40dp avatar.",
+          "why": "Table has 52dp and 40dp rows only; no two-line row measure."
+        },
+        {
+          "kind": "feature",
+          "what": "The sheet's header is a generic string title (\"Member\" / \"Invitation\") and the person's name, avatar and tags are composed in the body as an h3.",
+          "why": "SideSheet's header takes a title and a close button only; no slot for a leading avatar or supporting text in the header."
+        },
+        {
+          "kind": "read",
+          "what": "Read past the doc comment: Search.tsx (the bar's prop types and style slots), Card.tsx (prop types, style slots), TopAppBar.tsx, EmptyState.tsx and LoadingIndicator.tsx (prop types).",
+          "why": "To learn the props each takes (Card's `classNames.content`, EmptyState's `action`, the bar's own width classes): the doc comments describe the look and name few props."
+        }
+      ],
+      "notes": "Not seen in a browser (none allowed): built and type-checked only. Row opens the sheet by click and by Enter on the focused row (React Aria's row action); focus should return to the row when the sheet closes (React Aria's overlay restore), unverified. Sorting on four columns and the search filter are wired. A member removed from the sheet is kept as a snapshot so the sheet still shows them while it slides out; unseen. Whether `max-sm:hidden` cells leave the grid's arrow-key navigation sound on a phone is unverified (hidden cells remain in React Aria's collection). The sheet is 360px minimum, so at a 400px phone it covers all but 40px."
+    },
+    {
+      "n": 2,
+      "part": "An invitation dialog taking several email addresses",
+      "built": "yes",
+      "kit": [
+        "Modal",
+        "Dialog",
+        "TextField",
+        "Select",
+        "SelectItem",
+        "Button",
+        "Headline",
+        "Body",
+        "XIcon",
+        "focusRing",
+        "cn",
+        "snackbar"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "`TagGroup`, `TagList`, `Tag`, `Label` and `Button` (slot=\"remove\") from react-aria-components for the list of addresses, drawn as Material's input chips (32dp, small corner, outline-variant, label-large, 18dp remove icon).",
+          "why": "The kit has no set of removable chips: `ChipGroup` is a toggle group for filter chips, and nothing holds input chips with arrow keys and Backspace/Delete removal."
+        },
+        {
+          "kind": "feature",
+          "what": "Did not use the kit's input `Chip`.",
+          "why": "Its remove affordance is a `div` with `onClick` inside the chip's button: no keyboard path, no accessible name, not a separate target for a screen reader."
+        },
+        {
+          "kind": "feature",
+          "what": "The chips sit under the TextField, not inside it; splitting on comma, semicolon, space, Enter and paste, validation, duplicates and 'already a member' are written by hand around `TextField` (`onChange`, `onPaste`, `onKeyDown`, `onBlur`).",
+          "why": "The kit has no multi-value text field (Material's input chips inside a field); TextField has no slot for content before the input."
+        },
+        {
+          "kind": "control",
+          "what": "The remove button's state layer is a hand-written span (`bg-current opacity-0`, `state-opacity-hover/pressed` from the group's data attributes) on React Aria's Button.",
+          "why": "The kit's IconButton has no 24dp size to sit in a 32dp chip (its smallest is 32)."
+        },
+        {
+          "kind": "layout",
+          "what": "The dialog's insides: headline, supporting line, the field, the role select, the action row; `mx-4 w-full max-w-140` on Modal for its width, `max-h-dvh overflow-y-auto` on Dialog.",
+          "why": "With `children`, DialogContent draws nothing of its own, and a basic dialog has no width beyond `min-w-[280px]`: the width that fits a phone and a desktop is the caller's."
+        },
+        {
+          "kind": "feature",
+          "what": "Composed `Modal` + `Dialog` in place of `ModalDialog`.",
+          "why": "ModalDialog passes no `className` to the Modal in its basic variant and does not expose `isDismissable` / `isKeyboardDismissDisabled`: I needed a width and to stop dismissal while the invitations are being sent."
+        },
+        {
+          "kind": "read",
+          "what": "Read Dialog.tsx, DialogContent.tsx, ModalDialog.tsx, Modal.tsx whole, and Chip.tsx's prop types and InputChip.",
+          "why": "To learn which of the four takes which `className`, that children replace headline and actions, and how an input chip removes."
+        },
+        {
+          "kind": "guess",
+          "what": "`autoCapitalize=\"none\"` on TextField: a type error, removed.",
+          "why": "React Aria's TextField does not take it; TextField has no pass-through to the input's attributes."
+        },
+        {
+          "kind": "layout",
+          "what": "A hand-written `role=\"status\"` span (`sr-only`) announces added and removed addresses.",
+          "why": "The kit has no announcer for a change that moves no focus."
+        },
+        {
+          "kind": "read",
+          "what": "Read past the doc comment: TextField.tsx (prop types, how the rest of the props reach React Aria's TextField), Button.tsx and IconButton.tsx (prop types and sizes), primitives/StateLayer.tsx, utils.ts (`focusRing`), tokens/theme.v4.css (the `state-opacity-*` utilities).",
+          "why": "To know which events TextField forwards, that IconButton's smallest size is 32, and how to write a state layer and focus ring on a hand-made chip."
+        },
+        {
+          "kind": "guess",
+          "what": "`onKeyDown` on TextField swallowed every other key: React Aria stops propagation of a key event a caller handles, so Escape would not have closed the dialog from the autofocused field. Caught on review, fixed with `e.continuePropagation()`.",
+          "why": "Nothing in the kit's TextField comment or ds-build says a key handler on a field must continue propagation inside an overlay."
+        }
+      ],
+      "notes": "Not seen in a browser. Unverified behaviours: Backspace in the empty field moving focus to the last chip (done by `querySelector` + `focus()` on React Aria's tag element); focus going back to the field when the last chip is removed; `onPaste` being forwarded by TextField to the input (it type-checks as a React Aria TextField prop); the error message replacing the supporting text. A rejected entry stays in the field with the reason under it. Text left in the field is read when Send is pressed. Sending is a 900 ms timer, then the invited people appear as pending rows and a snackbar says so. The dialog is remounted by `key` at each opening so it opens empty. Escape closing the dialog from inside the field (after the `continuePropagation` fix) and focus returning to the Invite button are unseen. A second press of Send while sending is ignored."
+    },
+    {
+      "n": 3,
+      "part": "Avatars",
+      "built": "yes",
+      "kit": [
+        "Avatar"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Wrapped the Avatar in an `aria-hidden` span where it sits beside the visible name (the table, the sheet).",
+          "why": "Avatar has no decorative mode: without `alt` its fallback is an unnamed `role=\"img\"`, with `alt` the name is read twice."
+        },
+        {
+          "kind": "feature",
+          "what": "Three container pairs chosen from the member's id through `className` (primary, secondary, tertiary container), and a neutral one (`surface-container-highest` / `on-surface-variant`) for a pending invitation.",
+          "why": "Avatar has one colour and no `color` prop; a column of same-coloured initials reads as one block."
+        },
+        {
+          "kind": "read",
+          "what": "Read Avatar.tsx whole.",
+          "why": "Short file; to see what `alt` does without an image and that `className` can change the colours."
+        },
+        {
+          "kind": "layout",
+          "what": "The avatar-and-text pairings.",
+          "why": "Expected."
+        }
+      ],
+      "notes": "Initials only: the mock data has no pictures (no network). 40dp in rows, 56dp in the sheet."
+    },
+    {
+      "n": 4,
+      "part": "Role tags",
+      "built": "yes",
+      "kit": [
+        "Tag"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read Tag.tsx whole.",
+          "why": "To see the variant and colour grid (the doc comment shows four examples, not the list)."
+        }
+      ],
+      "notes": "One look a role: Owner filled primary, Admin tonal tertiary, Member tonal secondary, Viewer outlined. A pending invitation is an outlined tag in the sheet and a second line in the row. The role is always written, never colour alone."
+    },
+    {
+      "n": 5,
+      "part": "A role select",
+      "built": "yes",
+      "kit": [
+        "Select",
+        "SelectItem"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read Select.tsx whole, and react-stately's useSelectState types.",
+          "why": "The doc comment's example shows no controlled value: `selectedKey` / `onSelectionChange` had to be found in React Aria's types."
+        }
+      ],
+      "notes": "Used twice: in the side sheet (changes the member's role at once, the row's tag follows, a snackbar confirms) and in the invitation dialog (one role for the whole invitation). Each option carries a line saying what the role may do. The owner's select is disabled with the reason under it; Owner is not offered for anyone else. Not put inline in the table's rows: a 56dp field does not fit a row, and the kit has no compact select. Opening a Select's popover inside the modal sheet and the modal dialog is unverified in a browser."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "feature",
+      "what": "`font-<role> text-<role>` written raw on a `dt` and a `dd` in the sheet.",
+      "why": "The Label and Body primitives' `component` takes div/span/p/label only, so a description list's elements cannot be drawn by them."
+    },
+    {
+      "kind": "guess",
+      "what": "`component=\"dt\"` on Label and `component=\"dd\"` on Body: type errors, replaced by plain elements.",
+      "why": "The primitives' allowed elements are not in their doc comment."
+    },
+    {
+      "kind": "read",
+      "what": "Read primitives/Typography.tsx past its comment (the props type).",
+      "why": "To find `component`, `size` and `colorRole`."
+    }
+  ],
+  "friction": "No block served any of the five parts. The hardest thing was the several-addresses field: the kit has TextField and an input Chip but nothing that joins them, and the input Chip's remove is pointer-only, which is only visible in its source; a `ChipGroup` for input chips on React Aria's TagGroup (or a line in ds-build's 'straight from React Aria' table naming TagGroup for this) would have made it easy. Several doc comments describe the look and omit the props (SideSheet, Select's controlled value, Avatar's behaviour without `alt`, the Typography primitives' `component` values), so the source was read each time. Table's comment says `onRowAction` makes a row interactive while Row checks only its own `onAction`/`href`. ModalDialog cannot be given a width or told not to dismiss, so it was taken apart into Modal + Dialog. Nothing says how a table should lose columns on a phone. Nothing could be looked at: every behaviour here is built and type-checked, none seen."
+}

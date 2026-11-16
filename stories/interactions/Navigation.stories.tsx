@@ -11,6 +11,7 @@ import {
   Utensils,
 } from "lucide-react";
 import React from "react";
+import { MemoryRouter } from "react-router";
 import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 
 import { BottomNavigation } from "@french-tech-homies/design-system/components/BottomNavigation";
@@ -20,6 +21,12 @@ import { Tab, TabList, TabPanel, Tabs } from "@french-tech-homies/design-system/
 import Button from "@french-tech-homies/design-system/components/Button";
 import { TopAppBar } from "@french-tech-homies/design-system/components/TopAppBar";
 import IconButton from "@french-tech-homies/design-system/components/IconButton";
+import { Link } from "@french-tech-homies/design-system/components/Link";
+import {
+  Breadcrumb,
+  Breadcrumbs,
+} from "@french-tech-homies/design-system/components/Breadcrumbs";
+import { AriaRouterProvider } from "@french-tech-homies/design-system/adapters/react-router";
 import { Toolbar } from "@french-tech-homies/design-system/components/Toolbar";
 import {
   SearchBar,
@@ -171,6 +178,10 @@ export const TabsArrowKeysMoveSelection: Story = {
     await expect(week).toHaveFocus();
     await expect(week).toHaveAttribute("aria-selected", "true");
     await expect(canvas.getByRole("tabpanel")).toHaveTextContent("310 orders");
+    // The ring is inside the tab: the tab is as tall as its list, which
+    // cuts what is drawn outside it when it scrolls.
+    await expect(getComputedStyle(week).outlineStyle).toBe("solid");
+    await expect(getComputedStyle(week).outlineOffset).toBe("-3px");
 
     await userEvent.keyboard("{End}");
     await expect(month).toHaveAttribute("aria-selected", "true");
@@ -912,5 +923,151 @@ export const TopAppBarSearchKeepsTheHeading: Story = {
     await expect(
       canvas.getByRole("searchbox", { name: "Search the garden shop" }),
     ).toBeVisible();
+  },
+};
+
+/* ---- Link -------------------------------------------------------------- */
+
+const linkPressed = fn();
+
+/** A link is reached by Tab and pressed with Enter; a disabled one is
+    passed, and says so. */
+export const LinkIsReachedAndPressedByKeyboard: Story = {
+  render: () => (
+    <p className="text-body-medium font-body-medium text-on-surface">
+      <Link onPress={linkPressed}>Resend the code</Link> or{" "}
+      <Link isDisabled>use another method</Link>, then{" "}
+      <Link href="#help">read the help</Link>.
+    </p>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const resend = canvas.getByRole("link", { name: "Resend the code" });
+    const other = canvas.getByRole("link", { name: "use another method" });
+    const help = canvas.getByRole("link", { name: "read the help" });
+
+    linkPressed.mockClear();
+    await userEvent.tab();
+    await expect(resend).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(linkPressed).toHaveBeenCalledTimes(1));
+
+    await expect(other).toHaveAttribute("aria-disabled", "true");
+    await userEvent.tab();
+    await expect(help).toHaveFocus();
+    await expect(help).toHaveAttribute("href", "#help");
+  },
+};
+
+/* ---- Router adapter ---------------------------------------------------- */
+
+/** With the React Router adapter mounted, a link to a fragment of the page
+    brings its element into view: the navigation is the router's, and the
+    router alone would set the address and move nothing. */
+export const RouterLinkToAFragmentScrolls: Story = {
+  render: () => (
+    <MemoryRouter>
+      <AriaRouterProvider>
+        <div className="h-64 overflow-auto" data-testid="page">
+          <p className="text-body-medium font-body-medium text-on-surface">
+            <Link href="#pricing">Go to pricing</Link>
+          </p>
+          <div className="h-[200vh]" />
+          <h2
+            id="pricing"
+            className="text-title-large font-title-large text-on-surface"
+          >
+            Pricing
+          </h2>
+          <div className="h-64" />
+        </div>
+      </AriaRouterProvider>
+    </MemoryRouter>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = canvas.getByTestId("page");
+    const target = canvas.getByRole("heading", { name: "Pricing" });
+    const inView = () => {
+      const box = page.getBoundingClientRect();
+      const top = target.getBoundingClientRect().top;
+      return top >= box.top - 1 && top < box.bottom;
+    };
+    await expect(inView()).toBe(false);
+
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(inView()).toBe(true));
+  },
+};
+
+/** An address with a scheme is not the router's: the adapter leaves a
+    `mailto:` and an `https:` link as written, where React Router's `useHref`
+    would make each a path of the app. */
+export const RouterLeavesAnExternalAddress: Story = {
+  render: () => (
+    <MemoryRouter initialEntries={["/clients/acme"]}>
+      <AriaRouterProvider>
+        <p className="text-body-medium font-body-medium text-on-surface flex gap-4">
+          <Link href="mailto:ada@example.com">Write to Ada</Link>
+          <Link href="https://example.com/docs">Read the docs</Link>
+          <Link href="/clients">All clients</Link>
+        </p>
+      </AriaRouterProvider>
+    </MemoryRouter>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("link", { name: "Write to Ada" })).toHaveAttribute(
+      "href",
+      "mailto:ada@example.com",
+    );
+    await expect(canvas.getByRole("link", { name: "Read the docs" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs",
+    );
+    await expect(canvas.getByRole("link", { name: "All clients" })).toHaveAttribute(
+      "href",
+      "/clients",
+    );
+  },
+};
+
+/* ---- Breadcrumbs ------------------------------------------------------- */
+
+const crumbPressed = fn();
+
+/** The levels above are links, reached by Tab and pressed with Enter; the
+    last is the current page: named as such, and passed by Tab. */
+export const BreadcrumbsLastLevelIsTheCurrentPage: Story = {
+  render: () => (
+    <nav aria-label="Path">
+      <Breadcrumbs onAction={crumbPressed}>
+        <Breadcrumb id="drive">Team drive</Breadcrumb>
+        <Breadcrumb id="finance">Finance</Breadcrumb>
+        <Breadcrumb id="invoices">Invoices</Breadcrumb>
+      </Breadcrumbs>
+    </nav>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    crumbPressed.mockClear();
+    const nav = canvas.getByRole("navigation", { name: "Path" });
+    await expect(within(nav).getAllByRole("listitem")).toHaveLength(3);
+
+    const current = within(nav).getByText("Invoices");
+    await expect(current).toHaveAttribute("aria-current", "page");
+
+    await userEvent.tab();
+    await expect(within(nav).getByText("Team drive")).toHaveFocus();
+    await userEvent.tab();
+    const finance = within(nav).getByText("Finance");
+    await expect(finance).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(crumbPressed).toHaveBeenCalledWith("finance"));
+
+    // The current page is not a stop: Tab leaves the path.
+    await userEvent.tab();
+    await expect(current).not.toHaveFocus();
   },
 };

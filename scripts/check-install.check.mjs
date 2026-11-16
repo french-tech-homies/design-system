@@ -47,6 +47,62 @@ test("the shipped registry and skills: the one install is whole", () => {
   assert.deepEqual(checkInstall(kit), []);
 });
 
+const PAGER = "pager-block";
+const PAGER_SOURCE = "blocks/pager/Pager.tsx";
+
+test("the shipped kit holds a block, and it passes", () => {
+  assert.equal(item(kit, PAGER).type, "registry:block");
+  assert.ok(kit.texts[PAGER_SOURCE].includes('"@/registry/ds/ui/ds"'));
+});
+
+test("a block the whole install reaches is refused: an update would replace it", () => {
+  refuses(
+    changed((k) => {
+      item(k, "ds").registryDependencies.push(`@ds/${PAGER}`);
+    }),
+    /block "pager-block" is reached by `ds`/,
+  );
+});
+
+test("a block that depends on a kit item is refused: it would bring newer kit files", () => {
+  refuses(
+    changed((k) => {
+      item(k, PAGER).registryDependencies.push("@ds/menu");
+    }),
+    /block "pager-block" depends on @ds\/menu/,
+  );
+});
+
+test("a block's file placed under the kit's folder is refused", () => {
+  refuses(
+    changed((k) => {
+      item(k, PAGER).files[0].target = "@ui/ds/blocks/Pager.tsx";
+    }),
+    /block "pager-block": blocks\/pager\/Pager\.tsx is registry:component with the target @ui\/ds\/blocks\/Pager\.tsx/,
+  );
+});
+
+test("a block that imports the kit by a relative path, or by this repository's name, is refused", () => {
+  refuses(
+    changed((k) => {
+      k.texts[PAGER_SOURCE] = k.texts[PAGER_SOURCE].replace(
+        '"@/registry/ds/ui/ds"',
+        '"../../index"',
+      );
+    }),
+    /Pager\.tsx imports "\.\.\/\.\.\/index"/,
+  );
+  refuses(
+    changed((k) => {
+      k.texts[PAGER_SOURCE] = k.texts[PAGER_SOURCE].replace(
+        '"@/registry/ds/ui/ds"',
+        '"@french-tech-homies/design-system"',
+      );
+    }),
+    /Pager\.tsx imports "@french-tech-homies\/design-system"/,
+  );
+});
+
 test("the generator out of reach of `ds` is refused", () => {
   refuses(
     changed((k) => {
@@ -124,14 +180,15 @@ test("a dependency declared at another range than the kit's own is refused", () 
 });
 
 test("every registry dependency carries the kit's own range", () => {
-  // `shadcn add` installs a name with no range at its latest version: a
-  // fresh install took tailwind-variants 4, and `tsc -b` failed in utils.ts.
+  // `shadcn add` installs a name with no range at its latest version: while
+  // the kit was on tailwind-variants 1, a fresh install took 4, and `tsc -b`
+  // failed in utils.ts.
   for (const found of kit.registry.items) {
     for (const d of [...(found.dependencies ?? []), ...(found.devDependencies ?? [])]) {
       assert.match(d, /.@[^@]+$/, `item "${found.name}" declares "${d}" with no range`);
     }
   }
-  assert.ok(item(kit, "utils").dependencies.includes("tailwind-variants@^1.0.0"));
+  assert.ok(item(kit, "utils").dependencies.includes("tailwind-variants@^4.0.2"));
   assert.ok(item(kit, "ds").dependencies.includes("tw-animate-css@^1.4.0"));
 });
 
@@ -143,7 +200,7 @@ test("a registry dependency with no range is refused, naming the range to write"
         d.startsWith("tailwind-variants@") ? "tailwind-variants" : d,
       );
     }),
-    /item "utils" declares "tailwind-variants" with no range: write tailwind-variants@\^1\.0\.0/,
+    /item "utils" declares "tailwind-variants" with no range: write tailwind-variants@\^4\.0\.2/,
   );
   refuses(
     changed((k) => {
@@ -170,10 +227,10 @@ test("a registry dependency at another range than the kit's own is refused", () 
     changed((k) => {
       const utils = item(k, "utils");
       utils.dependencies = utils.dependencies.map((d) =>
-        d.startsWith("tailwind-variants@") ? "tailwind-variants@^4.0.0" : d,
+        d.startsWith("tailwind-variants@") ? "tailwind-variants@^5.0.0" : d,
       );
     }),
-    /item "utils" declares tailwind-variants@\^4\.0\.0, but the kit's package\.json has tailwind-variants@\^1\.0\.0: write tailwind-variants@\^1\.0\.0/,
+    /item "utils" declares tailwind-variants@\^5\.0\.0, but the kit's package\.json has tailwind-variants@\^4\.0\.2: write tailwind-variants@\^4\.0\.2/,
   );
   refuses(
     changed((k) => {

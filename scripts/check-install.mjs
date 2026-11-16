@@ -99,6 +99,10 @@ const PREVIEW_FORM = /^npx shadcn add @ds\/ds((?: @ds\/[a-z0-9-]+)*) (?:--dry-ru
 const DESCRIPTION_MAX = 1024;
 const DESCRIPTION_OPENS = "Use when";
 
+/** The type of an item that is a block, and how its source names the kit. */
+const BLOCK = "registry:block";
+const BLOCK_KIT_IMPORT = "@/registry/ds/ui/ds";
+
 /** Bare file names a skill may use for a file of the project, not the kit. */
 const PROJECT_FILES = new Set([
   "DESIGN.md",
@@ -504,6 +508,46 @@ export function checkInstall({ registry, pkg, skillFiles, texts, readme, docs = 
         }
       }
     });
+  }
+
+  // 9. A block is the project's once it lands. It is copied into the
+  //    project's components to be edited, so nothing may make an update
+  //    replace it, and adding one to an older install may bring no newer kit
+  //    file with it:
+  //    - `ds` does not reach it, and it reaches no kit item but the licence;
+  //    - its files name no place under the kit's folder: the CLI lands a
+  //      `registry:component` in the project's components;
+  //    - what it needs of the kit it imports from the kit's barrel, written
+  //      `@/registry/ds/ui/ds`, which the CLI rewrites to the project's own
+  //      `ui` alias. A relative import would point nowhere once it lands.
+  for (const found of registry.items.filter((i) => i.type === BLOCK)) {
+    if (closure.has(found.name)) {
+      problems.push(
+        `block "${found.name}" is reached by \`${ENTRY}\`: an update would replace what a project edited`,
+      );
+    }
+    for (const d of found.registryDependencies ?? []) {
+      if (d !== `${NS}license`) {
+        problems.push(
+          `block "${found.name}" depends on ${d}: adding it to an older install would bring that item's files at this release. A block depends on the licence alone`,
+        );
+      }
+    }
+    for (const f of found.files ?? []) {
+      if (f.type !== "registry:component" || f.target !== undefined) {
+        problems.push(
+          `block "${found.name}": ${f.path} is ${f.type}${f.target ? ` with the target ${f.target}` : ""}. A block's file is a registry:component with no target, landed in the project's components`,
+        );
+      }
+      for (const specifier of imports(texts[f.path] ?? "")) {
+        if (specifier === BLOCK_KIT_IMPORT) continue;
+        if (specifier.startsWith(".") || REPOSITORY_WORDS.some((w) => w.test(specifier))) {
+          problems.push(
+            `block "${found.name}": ${f.path} imports "${specifier}". A block imports the kit as "${BLOCK_KIT_IMPORT}" and nothing else of this repository`,
+          );
+        }
+      }
+    }
   }
 
   return [...new Set(problems)];

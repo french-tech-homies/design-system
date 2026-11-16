@@ -1,0 +1,88 @@
+{
+  "screen": "Product",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "An image carousel",
+      "built": "yes",
+      "kit": ["Carousel", "CarouselItem", "Button", "ModalDialog", "Headline"],
+      "leaves": [
+        { "kind": "layout", "what": "The product 'photographs' are an SVG drawing of the shoe (TrainerArt) framed five ways, and the 'All photos' dialog's inside (a scrolling list of figures, a Close button) is written by hand.", "why": "No photographs without the web; the dialog with children draws nothing of its own." },
+        { "kind": "feature", "what": "Added a 'Show all 5 photos' text button under the carousel and made each item open a dialog listing every photo, in place of previous/next buttons, a position indicator or thumbnails.", "why": "Carousel has no current-item state, no onChange, no way to scroll to an item from outside and no pager; its doc says Show all is the caller's. A mouse user on desktop has only the wheel, the scroll bar and the keyboard inside the carousel." },
+        { "kind": "feature", "what": "CarouselItem must be a button or a link (onPress or href is required), so each photo was given an action: open the photo dialog at that photo.", "why": "An item that is only looked at is not possible." },
+        { "kind": "read", "what": "Read Carousel.tsx below its doc comment for CarouselItem's props (onPress required, aria-label, classNames) and the root's h-56, and Dialog.tsx / DialogContent.tsx / Modal.tsx to learn where ModalDialog's className lands and that the modal gives the dialog no width.", "why": "CarouselItem's props are not in the doc comment; ModalDialog's doc does not say how the dialog is sized." },
+        { "kind": "guess", "what": "First gave the dialog 'mx-4 max-w-xl'; on reading the source its width would have been whatever its content made it, so it became 'w-80 sm:w-xl'.", "why": "ModalDialog's doc does not say the caller sets the width." },
+        { "kind": "guess", "what": "Body component=\"figcaption\" refused by the types; wrote a figcaption with text-body-small font-body-small.", "why": "The type primitives take only p, div, span (and h1-h6): not said in the skill." },
+        { "kind": "value", "what": "The shoe's fill and accent in the drawing are hex values from the product's data (the colourway).", "why": "They are the product's colours, not the theme's; everything else in the drawing is a role class." }
+      ],
+      "notes": "Not seen in a browser (no browser allowed): the hero layout's keylines, the h-80/sm:h-96 height override and the SVG's fill of a narrowing item are untested by eye. The reading-carousel-block and pager-block could not be looked at: the shadcn add command was denied by this session's permission classifier (twice, with npx shadcn@latest and with the project's own binary), so no block is used."
+    },
+    {
+      "n": 2,
+      "part": "A choice of variant by chip and by colour swatch",
+      "built": "yes",
+      "kit": ["ChipGroup", "Chip", "ColorSwatch", "Title"],
+      "leaves": [
+        { "kind": "component", "what": "ColorSwatchPicker and ColorSwatchPickerItem from react-aria-components hold the colour choice (a listbox of swatches, arrow keys, one selected), with the kit's ColorSwatch inside each item.", "why": "The kit's ColorSwatch only shows a colour; the kit has no swatch picker." },
+        { "kind": "layout", "what": "The swatch item's look is by hand: a 48px round target, a 2px primary border when selected, outline on hover, the kit's focusRing, and a hairline around the swatch so a near-white colour shows.", "why": "No kit look for a selectable swatch; Material describes none." },
+        { "kind": "feature", "what": "A sold-out size is a disabled chip with an aria-label 'UK 6, sold out' and a supporting text that lists the sold-out sizes.", "why": "A disabled filter chip only greys: nothing says why, and no struck-through or 'unavailable' state exists." },
+        { "kind": "read", "what": "Read Chip.tsx's prop types above the doc comment and ChipGroup's body (selectedKeys / onSelectionChange come from ToggleButtonGroup, the chip takes id) and its data-slot, to focus the first chip when no size was chosen.", "why": "The doc example shows id and selectionMode only; ChipGroup takes no ref." },
+        { "kind": "value", "what": "Each swatch's colour is a hex from the product's data.", "why": "Product data, passed to ColorSwatchPickerItem's color." }
+      ],
+      "notes": "Changing colour clears a chosen size that the new colour does not have. Whether ChipGroup in single mode lets the chosen chip be un-chosen was not checked; the screen handles an empty selection either way."
+    },
+    {
+      "n": 3,
+      "part": "A quantity",
+      "built": "yes",
+      "kit": ["NumberField"],
+      "leaves": [],
+      "notes": "NumberField with steppers, 1 to 6, at w-48. The doc comment's own example was enough. The steppers are out of the tab order by the kit's design (arrow keys step)."
+    },
+    {
+      "n": 4,
+      "part": "A bottom sheet of details",
+      "built": "yes",
+      "kit": ["BottomSheet", "Button", "Body", "Title", "Divider"],
+      "leaves": [
+        { "kind": "layout", "what": "The sheet's inside: a description, a dl of specifications, two lists.", "why": "Content composition." },
+        { "kind": "guess", "what": "Body component=\"dt\" / \"dd\" / \"li\" refused by the types (three errors in the first build); wrote dt, dd and li with text-body-medium font-body-medium.", "why": "The type primitives' component prop takes only p, div, span: a list item or a definition cannot be a Body." }
+      ],
+      "notes": "Modal variant, opened from an outlined 'Product details' button; both heights, the handle cycles them. Not seen in a browser."
+    },
+    {
+      "n": 5,
+      "part": "Add to basket with a snackbar",
+      "built": "yes",
+      "kit": ["Button", "snackbar", "SnackbarRegion", "IconButton", "TopAppBar", "Title", "Label"],
+      "leaves": [
+        { "kind": "layout", "what": "On a phone the button sits with the total in a bar fixed to the foot of the window (surface-container, elevation 2); from md it is in the column. The snackbar region is lifted above the bar with className 'bottom-24 md:bottom-4'.", "why": "The kit has no bottom action bar; the Snackbar doc gave the class to move the region." },
+        { "kind": "guess", "what": "Headline component=\"p\" for the price refused by the types; became component=\"div\".", "why": "Headline takes h1-h6, div or span, Body takes p, div or span: each primitive's list differs and is only in the source." }
+      ],
+      "notes": "Without a size the press marks the size chips invalid, scrolls to them and focuses the first available chip. With one, the button shows isLoading for 700 ms, the basket icon's badge counts up and a snackbar with Undo (8 s timeout) says what was added. The back and basket icon buttons only raise a snackbar: there is no other screen."
+    },
+    {
+      "n": 6,
+      "part": "A rating",
+      "built": "yes",
+      "kit": ["Meter", "StateLayer", "Button", "Body", "Title", "Headline", "Label", "Divider", "snackbar"],
+      "leaves": [
+        { "kind": "control", "what": "Stars: a read-only rating drawn by hand (five lucide stars, filled to a tenth by a clipped overlay, role=img named '4.6 out of 5 stars').", "why": "The kit has no rating display." },
+        { "kind": "component", "what": "StarRatingInput: react-aria-components' RadioGroup and Radio drawn as five 48px stars with the kit's StateLayer and focusRing, a hover preview and a word for each value.", "why": "The kit has no rating input, and its Radio draws Material's radio only." },
+        { "kind": "guess", "what": "Wrote StateLayer without its required color prop; caught on reading the source before the build.", "why": "StateLayer's required color is only in its source." },
+        { "kind": "read", "what": "Read StateLayer.tsx and Typography.tsx for their props.", "why": "The skill names them without their props." },
+        { "kind": "layout", "what": "The summary (average in display-medium, stars, count), five Meters as the distribution, the 'Rate these trainers' panel and the review list are composed by hand.", "why": "Content composition." },
+        { "kind": "value", "what": "The clipped overlay's width is an inline style percentage, and the stars are text-primary / text-outline.", "why": "A computed share has no class; Material gives a rating no colour role, so primary was chosen." }
+      ],
+      "notes": "Submitting a rating moves the counts, the average at the top and the meters, and raises a snackbar. A rating cannot be withdrawn, only changed."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "The page: a sticky TopAppBar, a two-column grid from md (gallery sticky on the left), one column on a phone, and a skeleton of animate-pulse blocks with a visually hidden status while a 900 ms timer 'loads' the product.", "why": "Page composition; the kit has no skeleton." },
+    { "kind": "hook", "what": "VisuallyHidden from react-aria-components for the loading status and 'Was' before the old price.", "why": "The skill lists it as coming straight from React Aria." },
+    { "kind": "control", "what": "The rating summary under the product's name is a plain anchor to #reviews with the kit's focusRing.", "why": "The kit's Link was not looked at; a jump within the page needed nothing more." },
+    { "kind": "guess", "what": "TopAppBar's title is the shop's name as the h1 and the product's name is an h2, to avoid the same words twice.", "why": "The bar's title is always a heading; what a product page puts there is not said." }
+  ],
+  "friction": "1. The blocks could not be added at all: 'npx shadcn@latest add @ds/reading-carousel-block -y' and the project's own './node_modules/.bin/shadcn add' were both refused by this session's permission classifier ('Unauthorized Access'), so I never saw whether reading-carousel-block or pager-block would have served the gallery. A block's source, or one line on what each block is and is not for, readable in the installed files would have let me decide without the network. 2. Carousel is the hardest fit for a product gallery: no current index, no onChange, no previous/next, no indicator, and every item must be a button or link. The doc comment is honest about 'Show all', but says nothing on 'which photo am I on' or on a gallery; a sentence saying 'for a gallery of one thing's photos with a pager, use X' would have saved the deliberation. 3. Props live below or above the doc comment, not in it: CarouselItem's (onPress required), Chip's variants' props, StateLayer's required color, the 'component' values each type primitive accepts (Body: p/div/span; Headline: h1-h6/div/span), cost four type errors and several reads. A props line in each doc comment, and the primitives' allowed elements in ds-build, would fix it; li, dt, dd and figcaption being refused is a real gap for lists. 4. ModalDialog does not say that the caller must give the dialog its width (the modal has none, DialogContent is w-full min-w-280). 5. Nothing in the kit or the skill mentions a rating, a swatch picker or a skeleton; knowing React Aria has ColorSwatchPicker came from memory, not from the guidance: the 'What comes straight from React Aria' table could list the React Aria components the kit does not wrap. 6. Nothing was seen running: no browser was allowed, so every statement about looks is from reading classes."
+}

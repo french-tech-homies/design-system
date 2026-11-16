@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
-import { createTV, tv as baseTv } from "tailwind-variants";
+import { createTV } from "tailwind-variants";
 
 /**
  * Every custom utility scale this kit adds to the Tailwind theme must be
@@ -132,8 +132,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** `tailwind-variants` bound to the MD3 merge config. Use for all kit styles. */
-export const tv = createTV({ twMergeConfig });
+/** `tailwind-variants` bound to the MD3 merge config. Use for all kit styles.
+    It is given the merge function `cn` uses, so a class is merged the same
+    way whether a component writes it through `tv` or through `cn`.
+    (`tailwind-variants` 4 takes a function here; through 3 it took the
+    config, as `createTV({ twMergeConfig })`.) */
+export const tv = createTV({ twMerge });
 
 /** The MD3 focus indicator — a 3px `secondary` ring offset 2px (Material's
     md.comp.focus-ring) — extended or inlined by every control. Drawn as an
@@ -148,9 +152,45 @@ export const tv = createTV({ twMergeConfig });
     that fills such a box draws its ring inside with `-outline-offset-2`, as
     the table's cells do. `ring` resolves to the MD3 secondary role in
     theme.v4.css.
+    It is made with the kit's `tv`, so classes given beside it
+    (`focusRing({ className })`) are merged as the kit merges: a type class
+    and a colour class (`text-body-large`, `text-primary`) both stay.
     `composeTailwindRenderProps` lives in ./render-props (client-only). */
-export const focusRing = baseTv({
+export const focusRing = tv({
   base: "outline-none outline-3 outline-offset-2 outline-ring focus-visible:outline-solid",
 });
 
 export type { VariantProps } from "tailwind-variants";
+
+let liveRegion: HTMLElement | undefined;
+let liveTimer: ReturnType<typeof setTimeout> | undefined;
+
+/** Says `message` to a screen reader and draws nothing: one polite live
+    region for the page, made at the first call. For what has no element of
+    its own to say it, as a button that starts loading. A message with a
+    place on the page belongs there, in a `role="status"` element. */
+export function announce(message: string) {
+  if (typeof document === "undefined") return;
+  if (!liveRegion?.isConnected) {
+    liveRegion = document.createElement("div");
+    liveRegion.setAttribute("role", "status");
+    liveRegion.setAttribute("aria-live", "polite");
+    liveRegion.setAttribute("data-slot", "announcer");
+    // An open modal hides the rest of the page from a screen reader, this
+    // region with it; React Aria leaves alone what carries this mark.
+    liveRegion.setAttribute("data-live-announcer", "true");
+    liveRegion.className = "sr-only";
+    document.body.append(liveRegion);
+  }
+  const region = liveRegion;
+  // Emptied, then filled a moment later: a region filled as it is made, or
+  // given the words it already holds, is not read.
+  region.textContent = "";
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(() => {
+    region.textContent = message;
+    liveTimer = setTimeout(() => {
+      region.textContent = "";
+    }, 7000);
+  }, 100);
+}

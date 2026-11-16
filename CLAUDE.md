@@ -40,6 +40,10 @@ are its own is listed once: `README.md`, "The kit's own".
   shadcn bridge, the Editorial preset, the resolved snapshot.
 - `DESIGN.md`: the kit's neutral default, the one hand-edited source of the
   theme.
+- `blocks/`: parts neither Material nor React Aria describes (a pager),
+  built from the kit and copied into a project's own components to be
+  edited: `blocks/<name>/`, a `registry:block` each, outside the one install
+  and never updated. They import the kit as `@/registry/ds/ui/ds`.
 - `stories/`: the catalog, titled `MD3/<Category>/<Component>`, and
   `stories/interactions/`, the behaviour tests. Every story is a test.
 - `screenshots/`: every story's committed baseline,

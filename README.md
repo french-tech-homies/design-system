@@ -208,7 +208,7 @@ where every variant is drawn, in light and dark.
 
 ### The kit's own
 
-Eleven the kit ships that Material 3 does not describe, each built on
+Seventeen the kit ships that Material 3 does not describe, each built on
 Material's foundations and saying so in its doc comment. How one joins the
 group is in [What this kit is](docs/what-this-kit-is.md).
 
@@ -216,6 +216,14 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 
 - [`Table`][table]: rows and columns of data. Material 3 publishes no data table.
 - [`Tag`][tag]: a small label pill that sits in a line of text.
+- [`Link`][link]: a text link, in a sentence or in a list of links.
+- [`Breadcrumbs`][breadcrumbs]: the path to the current page, each level above it a link.
+- [`Popover`][popover]: a surface for any content, opened beside its trigger.
+- [`Tree`][tree]: a hierarchy opened level by level, such as folders and files.
+- [`ContextMenu`][contextmenu]: the menu asked for on something itself, by a right click, a long
+  press or the keyboard.
+- [`DropZone`][dropzone]: an area files are dropped onto, with `FileTrigger`, which opens the
+  file chooser from a button.
 - [`Avatar`][avatar]: a person's picture or initials.
 - [`Disclosure`][disclosure]: a heading that opens and closes a panel, alone or in a group.
 - [`PreviewTrigger`][preview]: a card of any content opened by hovering or focusing its
@@ -224,11 +232,34 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 - [`PhoneField`][phonefield]: a text field for a phone number, with a country picker.
 - [`ImageField`][imagefield]: choosing, previewing and removing one image.
 - [`EmptyState`][emptystate]: what a list or a page shows when it has nothing to show.
+- [`Skeleton`][skeleton]: a placeholder the shape of content that is loading.
+- [`Pressable`][pressable]: a button or a link that holds anything, such as an avatar or a
+  card's content.
 - [`Meter`][meter]: a quantity within a known range, such as a quota or a disk's use.
 - [`ColorPicker`][colorpicker]: editing a colour, with its four parts `ColorArea`,
   `ColorField`, `ColorSlider` and `ColorSwatch`.
 
 <!-- /own-components -->
+
+### Blocks
+
+Parts that neither Material 3 nor React Aria describes, built from the kit's
+components and handed to a project to edit. `npx shadcn add @ds/<name>` copies
+one into your own components, outside the kit's folder: it is yours from then
+on, and an update of the kit never replaces it. What a block is:
+[What this kit is](docs/what-this-kit-is.md).
+
+- `pager-block`: the pages of a list or a table: the range shown, previous
+  and next, a page-size menu.
+- `stepper-block`: where a person is in a sequence of steps, with the steps
+  done to go back to.
+- `radio-tile-block`: a choice of one among a few, each drawn as a tile.
+- `reading-carousel-block`: a row of things that are read, a few in view at
+  a time.
+- `site-header-block`: the header of a public page, its links folding into
+  a menu on a phone.
+- `app-shell-block`: an application's frame, its navigation a bar on a
+  phone, a rail on a tablet and an expanded rail on a desktop.
 
 [color]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-color--roles
 [typography]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-typography--scale
@@ -280,6 +311,12 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 [form]: https://french-tech-homies.github.io/design-system/?path=/story/md3-text-inputs-form-react-hook-form--create-store
 [table]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-table--basic
 [tag]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-tag--tonal
+[link]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-link--in-a-sentence
+[breadcrumbs]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-breadcrumbs--path
+[popover]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-popover--filters
+[tree]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-tree--folders-and-files
+[contextmenu]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-contextmenu--on-a-card
+[dropzone]: https://french-tech-homies.github.io/design-system/?path=/story/md3-text-inputs-dropzone--outlined
 [avatar]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-avatar--image
 [disclosure]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-disclosure--single
 [preview]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-previewtrigger--product-list
@@ -287,6 +324,8 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 [phonefield]: https://french-tech-homies.github.io/design-system/?path=/story/md3-text-inputs-phone-field--outlined
 [imagefield]: https://french-tech-homies.github.io/design-system/?path=/story/md3-text-inputs-image-field--empty
 [emptystate]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-empty-state--default
+[skeleton]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-skeleton--list
+[pressable]: https://french-tech-homies.github.io/design-system/?path=/story/md3-actions-pressable--around-an-avatar
 [meter]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-meter--default
 [colorpicker]: https://french-tech-homies.github.io/design-system/?path=/story/md3-selection-color-picker--picker
 
@@ -295,6 +334,9 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 - [What this kit is](docs/what-this-kit-is.md): Material 3's implementation,
   how a component joins the kit's own, what a project may change, why there
   is no npm package, and what is not included.
+- [The coverage corpus](docs/coverage-corpus.md): the screens the kit's
+  coverage is counted against, how one is run, and what counts as leaving the
+  kit.
 - [Installing](docs/installing.md): the registry and its namespace, the Vite
   setup, what the one install brings, what an install and an update ask of
   your project, coming from `@md3`, and copying the folder instead.

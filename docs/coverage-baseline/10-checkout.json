@@ -1,0 +1,185 @@
+{
+  "screen": "Checkout",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Steps",
+      "built": "yes",
+      "kit": [
+        "stepper-block (Stepper)",
+        "Button",
+        "TopAppBar",
+        "SnackbarRegion",
+        "snackbar",
+        "focusRing",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The page (app bar, stepper, a three-column grid at lg with the step in two and the summary in one), each step's h2, the Back / Continue row, and the confirmation after the order is placed (lucide CircleCheck, heading, text, a button).",
+          "why": "Expected: a page is the project's."
+        },
+        {
+          "kind": "feature",
+          "what": "Each step's heading is a plain h2 with tabIndex -1 and the kit's focusRing, written with raw text-headline-small font-headline-small, and focused from an effect when the step changes.",
+          "why": "The Stepper block moves no focus when the step changes, and I did not know whether Headline forwards ref and tabIndex, so I did not use the primitive there."
+        },
+        {
+          "kind": "feature",
+          "what": "Per-step validation written by hand: a plain resolver function, handleSubmit with an onInvalid that keeps only this step's errors (clearErrors on the rest) and advances when the step's own fields are valid, then a querySelector focus on the first aria-invalid control.",
+          "why": "The Form* adapters take control and name only (no rules), no schema library is installed, and the adapters do not pass field.ref, so react-hook-form's shouldFocus cannot reach a kit field."
+        },
+        {
+          "kind": "read",
+          "what": "Button.tsx read past its doc comment for the loading prop's name (isLoading) and the icon prop.",
+          "why": "The doc comment lists variants and sizes but not isLoading."
+        },
+        {
+          "kind": "read",
+          "what": "adapters/react-hook-form.tsx read in full, code included: the Form* components take control and name only (no rules) and do not pass field.ref.",
+          "why": "Its comment shows the bindings, not what the adapters leave out; gating a step and focusing an invalid field depended on it."
+        }
+      ],
+      "notes": "Not exercised in a browser. Unverified: that the heading takes focus after each step change, that the first invalid field takes focus on a refused Continue, and the Stepper's phone form (only the current label, '2 of 4'). Steps ahead cannot be pressed (the block's rule); done steps go back. Back and Edit go back without validating."
+    },
+    {
+      "n": 2,
+      "part": "An address form with autocomplete",
+      "built": "yes",
+      "kit": [
+        "ComboBox",
+        "ComboBoxItem",
+        "adapters/react-hook-form: FormTextField, FormPhoneField",
+        "TextField (through the adapter)",
+        "PhoneField (through the adapter)"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A two-column grid of fields at sm, one column on a phone.",
+          "why": "Expected."
+        },
+        {
+          "kind": "feature",
+          "what": "The lookup is simulated with a 450ms timer; while it runs, and while fewer than 3 characters are typed, the menu is given one disabled ComboBoxItem ('Searching addresses…', 'Keep typing to see addresses').",
+          "why": "ComboBox has no loading or pending state: its empty menu says only 'No matches' or 'No options', which is wrong while a lookup is in flight."
+        },
+        {
+          "kind": "feature",
+          "what": "defaultFilter={() => true} passed through to React Aria so the lookup's answers are not filtered a second time by 'contains'.",
+          "why": "The kit's ComboBox always filters its items itself (it passes them as defaultItems); nothing in its doc comment says how to show remote results as they are. defaultFilter is React Aria's prop, found in its type definitions."
+        },
+        {
+          "kind": "read",
+          "what": "ComboBox.tsx read past the doc comment (the defaultItems wiring, EmptyOptions, that the remaining props are spread onto React Aria's ComboBox) and Select.tsx's SelectItem (textValue is the label when it is a string, isDisabled is passed through).",
+          "why": "To know whether a selected suggestion writes only the street into the input, whether a loading state exists, and whether defaultFilter would reach React Aria."
+        }
+      ],
+      "notes": "Bound as the adapter's comment shows for a text-valued field (Controller, allowsCustomValue, inputValue / onInputChange, validationBehavior aria). Choosing a suggestion writes the street into the field and fills City and ZIP through onChange(key). Not exercised in a browser: unverified that onChange fires with the key while inputValue is controlled, that the input then shows the street line only, and that the disabled hint rows read well. The state is fixed ('CA') in the mock."
+    },
+    {
+      "n": 3,
+      "part": "A choice of payment by radio, beside a slot for payment fields",
+      "built": "yes",
+      "kit": [
+        "radio-tile-block (RadioTileGroup, RadioTile)",
+        "RadioGroup and Radio (inside the block)",
+        "Label",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "Two columns at md (radios, slot), one under the other on a phone; the slot is a dashed, labelled placeholder box (role group, 'Payment fields placeholder') and holds no field.",
+          "why": "Expected; the slot is another product's."
+        },
+        {
+          "kind": "feature",
+          "what": "RadioTileGroup bound to react-hook-form with a Controller written by hand.",
+          "why": "The adapter's FormRadioGroup wraps the kit's RadioGroup, not the block's group; the block has no form binding."
+        }
+      ],
+      "notes": "Three methods, 'card' preselected. Not exercised in a browser."
+    },
+    {
+      "n": 4,
+      "part": "A delivery day and time",
+      "built": "yes",
+      "kit": [
+        "adapters/react-hook-form: FormChipGroup",
+        "ChipGroup",
+        "Chip (filter)",
+        "radio-tile-block (RadioTileGroup, RadioTile)",
+        "LoadingIndicator"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "Day chips over a column of time-window tiles; a centred loading indicator while a day's windows load (600ms timer).",
+          "why": "Expected."
+        },
+        {
+          "kind": "feature",
+          "what": "The radio-tile block edited (it is the project's): a `trailing` prop for the window's fee, and the title, description and trailing fade to on-surface at 38% when the tile is disabled.",
+          "why": "As delivered, a disabled tile keeps its title on text-on-surface and its description on on-surface-variant (the classes override the Radio's disabled colour), so a fully booked window did not look disabled; and a tile has no place for a price."
+        },
+        {
+          "kind": "read",
+          "what": "Radio.tsx read past its doc comment (the group/rd name, the disabled classes, where children sit) to style the disabled tile; Chip.tsx's prop types for the filter chip's id and variant. ChipGroup's body read too, to see that the remaining props (disallowEmptySelection) are spread onto React Aria's ToggleButtonGroup.",
+          "why": "The block's comment does not say how a disabled tile is drawn."
+        }
+      ],
+      "notes": "DatePicker and TimePicker were not used: a grocery delivery is one of a few days and a two-hour window with a price and an availability, not any date and a clock time. The day is a single-select ChipGroup (a radiogroup) with disallowEmptySelection, a React Aria prop passed through. Fully booked windows are disabled radios; changing the day clears a time that day does not have free. Not exercised in a browser: unverified how six chips wrap at 400px, and the disabled tile's look. disallowEmptySelection does reach the group (ChipGroup spreads its remaining props), and the parent guards an empty day anyway."
+    },
+    {
+      "n": 5,
+      "part": "An order summary",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Disclosure",
+        "DisclosureHeader",
+        "DisclosurePanel",
+        "ListItem",
+        "Divider",
+        "LoadingIndicator",
+        "Title",
+        "Body",
+        "Label"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The summary's insides (a ul of ListItems, two dl blocks of totals) written once and drawn twice: in a Disclosure above the step under lg (its total in the header, opened on the review step), in a sticky outlined Card beside the step from lg. One is display:none at any width.",
+          "why": "Expected; no kit part is a summary of totals."
+        },
+        {
+          "kind": "guess",
+          "what": "Title / Body given component=\"dt\" and \"dd\": a type error (only div and span there). Second attempt: plain dt and dd around a span primitive.",
+          "why": "The type primitives' doc comment does not list what `component` accepts."
+        },
+        {
+          "kind": "read",
+          "what": "Disclosure.tsx read past its doc comment for the panel's padding and colour (isUnstyled), the header's `trailing` and `level`; Typography.tsx for the props; Card.tsx's prop types.",
+          "why": "To put list rows edge to edge in the panel and the total in the header."
+        }
+      ],
+      "notes": "Basket loads after 900ms (LoadingIndicator, 'Loading your basket'). The delivery line follows the chosen window; before one is chosen the total says 'Total before delivery'. Quantities are not editable here. ListItem is used as a drawn row inside a plain li, without GridListItem, since the rows are not operated. Not exercised in a browser."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "read",
+      "what": "The prop type blocks of TextField, IconButton, TopAppBar, Tag, EmptyState, Avatar and Snackbar were grepped while choosing parts (Tag, EmptyState, Avatar and IconButton were then not used).",
+      "why": "The doc comments describe behaviour and spec; the props are in the type above them, which is part of the file but not of the comment."
+    },
+    {
+      "kind": "layout",
+      "what": "Review step: three outlined Cards (component li) with the address, the delivery and the payment, each with an Edit text button that returns to its step; 'Place order' shows the Button's isLoading for 1.4s, then the confirmation and a snackbar.",
+      "why": "Expected."
+    }
+  ],
+  "friction": "Nothing was run in a browser (the brief forbids it), so the build proves types only: every behaviour above is unverified. Hardest: (1) remote suggestions in ComboBox. The doc comment and the adapter's comment cover a text-valued field well (allowsCustomValue, inputValue), but not results that arrive from a lookup: the component always filters by 'contains', has no loading state, and one must read the source to learn that defaultFilter passes through. A line in the doc comment ('for results a service already matched, pass defaultFilter={() => true}') and an isLoading that makes the empty menu say 'Searching…' would have made it easy. (2) Validation by step with the Form* adapters: no rules prop, no field.ref passed, so focusing the first invalid field and gating a step are written by hand; an example of a multi-step form in the adapter's comment would help. (3) The radio-tile block does not draw a disabled tile as disabled and has no trailing slot, and has no form binding; (4) the Stepper block does not say who moves focus on a step change; (5) the type primitives' `component` accepts only some tags and the comment does not list them, nor say whether ref and tabIndex are forwarded. Props generally: the doc comment is rich on spec and deviations but the prop list is found only by reading the type, which blurs the line between 'doc comment' and 'source'."
+}

@@ -1,13 +1,29 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Settings, Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { expect, screen, userEvent, waitFor, within } from "storybook/test";
+import {
+  expect,
+  fireEvent,
+  fn,
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from "storybook/test";
 
 import Button from "@french-tech-homies/design-system/components/Button";
 import { Dialog } from "@french-tech-homies/design-system/components/Dialog";
+import { ContextMenu } from "@french-tech-homies/design-system/components/ContextMenu";
 import { Menu } from "@french-tech-homies/design-system/components/Menu";
+import {
+  Popover,
+  PopoverTrigger,
+} from "@french-tech-homies/design-system/components/Popover";
 import Modal from "@french-tech-homies/design-system/components/Modal";
 import { ModalDialog } from "@french-tech-homies/design-system/components/ModalDialog";
+import { page } from "vitest/browser";
+import TextField from "@french-tech-homies/design-system/components/TextField";
+import { Tree, TreeItem } from "@french-tech-homies/design-system/components/Tree";
 import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
 import BottomSheet, {
   type BottomSheetProps,
@@ -97,6 +113,157 @@ export const ModalDialogActionCloses: Story = {
   },
 };
 
+function DestructiveDialogHarness() {
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [requests, setRequests] = useState(0);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Delete account</Button>
+      <Button
+        variant="text"
+        onPress={() => {
+          setDeleting(false);
+          setOpen(false);
+        }}
+      >
+        The request ends
+      </Button>
+      <p data-testid="requests">{requests}</p>
+      <ModalDialog
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title="Delete your account?"
+        supportingText="Every venue you own, its menus and its printed codes go with it, and every code already printed and stuck to a table stops answering the moment the request is made. This cannot be undone."
+        actions={{
+          cancel: { label: "Cancel", onPress: () => setOpen(false) },
+          confirm: {
+            label: "Delete",
+            color: "error",
+            isLoading: deleting,
+            onPress: () => {
+              setDeleting(true);
+              setRequests((n) => n + 1);
+            },
+          },
+        }}
+      />
+    </>
+  );
+}
+
+/**
+ * A destructive confirm in the error colour. While its request runs the
+ * dialog holds: a second press starts nothing, Cancel is disabled, Escape
+ * does not close. Long text wraps at Material's 560dp.
+ */
+export const ModalDialogHoldsWhileARequestRuns: Story = {
+  render: () => <DestructiveDialogHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Delete account" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    const content = dialog.querySelector("[data-slot=dialog-content]")!;
+    await expect(content.getBoundingClientRect().width).toBeLessThanOrEqual(
+      560,
+    );
+
+    const confirm = within(dialog).getByRole("button", { name: "Delete" });
+    await expect(confirm).toHaveAttribute("data-color", "error");
+    await userEvent.click(confirm);
+    await expect(canvas.getByTestId("requests")).toHaveTextContent("1");
+
+    await userEvent.click(confirm);
+    await expect(canvas.getByTestId("requests")).toHaveTextContent("1");
+    await expect(
+      within(dialog).getByRole("button", { name: "Cancel" }),
+    ).toBeDisabled();
+    await userEvent.keyboard("{Escape}");
+    await expect(screen.getByRole("dialog")).toBeVisible();
+  },
+};
+
+function RenameDialogHarness() {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saves, setSaves] = useState(0);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Rename the folder</Button>
+      <p data-testid="saves">{saves}</p>
+      <ModalDialog
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title="Rename"
+        actions={{
+          cancel: { label: "Cancel", onPress: () => setOpen(false) },
+          confirm: {
+            label: "Save the name",
+            type: "submit",
+            form: "rename-form",
+            isLoading: saving,
+            loadingLabel: "Saving",
+          },
+        }}
+      >
+        <form
+          id="rename-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSaving(true);
+            setSaves((n) => n + 1);
+          }}
+        >
+          <TextField label="Name" defaultValue="Invoices" autoFocus className="w-72" />
+        </form>
+      </ModalDialog>
+    </>
+  );
+}
+
+/**
+ * A dialog with a form of its own keeps the kit's headline and its two
+ * actions: the confirm submits the form, as Enter in its field does, and
+ * while the request runs the dialog holds as any other.
+ */
+export const ModalDialogWithAFormKeepsItsActions: Story = {
+  render: () => <RenameDialogHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Rename the folder" }),
+    );
+    const dialog = await screen.findByRole("dialog", { name: "Rename" });
+    await expect(
+      within(dialog).getByRole("heading", { name: "Rename" }),
+    ).toBeVisible();
+    const field = within(dialog).getByRole("textbox", { name: "Name" });
+    await waitFor(() => expect(field).toHaveFocus());
+
+    // The confirm is outside the form and submits it.
+    const save = within(dialog).getByRole("button", { name: "Save the name" });
+    save.focus();
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.getByTestId("saves")).toHaveTextContent("1");
+    // Its loading is said, in a region the open dialog does not hide.
+    const region = document.querySelector('[data-slot="announcer"]');
+    await waitFor(() => expect(region).toHaveTextContent("Saving"));
+    await expect(region).not.toHaveAttribute("aria-hidden");
+    await expect(region?.closest("[inert]") ?? null).toBeNull();
+    await expect(
+      within(dialog).getByRole("button", { name: "Cancel" }),
+    ).toBeDisabled();
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Save the name" }),
+    );
+    await expect(canvas.getByTestId("saves")).toHaveTextContent("1");
+    await userEvent.keyboard("{Escape}");
+    await expect(screen.getByRole("dialog")).toBeVisible();
+  },
+};
+
 function ModalHarness() {
   const [open, setOpen] = useState(false);
   return (
@@ -173,6 +340,109 @@ function SideSheetHarness() {
   );
 }
 
+function SheetWithTheOpenFolder() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Open folders</Button>
+      <SideSheet
+        variant="modal"
+        isOpen={open}
+        title="Folders"
+        onClose={() => setOpen(false)}
+      >
+        {/* The selection is the folder that is open: it is never cleared. */}
+        <Tree
+          aria-label="Folders"
+          selectionMode="single"
+          selectedKeys={["finance"]}
+          escapeKeyBehavior="none"
+        >
+          <TreeItem id="finance" title="Finance" />
+          <TreeItem id="design" title="Design" />
+        </Tree>
+      </SideSheet>
+    </>
+  );
+}
+
+/**
+ * A tree whose selection is where the app is leaves Escape alone
+ * (`escapeKeyBehavior="none"`), so Escape on one of its rows closes the
+ * sheet around it. Left to clear a selection that is never cleared, the
+ * tree would keep the key for ever.
+ */
+export const EscapeLeavesAListWhoseSelectionStays: Story = {
+  render: () => <SheetWithTheOpenFolder />,
+  play: async ({ canvasElement }) => {
+    const opener = within(canvasElement).getByRole("button", { name: "Open folders" });
+    await userEvent.click(opener);
+    const sheet = await screen.findByRole("dialog", { name: "Folders" });
+    within(sheet).getByRole("row", { name: /Finance/ }).focus();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(opener).toHaveFocus());
+  },
+};
+
+function ModalSheetOnAPhone() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Open the member</Button>
+      <SideSheet
+        variant="modal"
+        isOpen={open}
+        title="Member details"
+        onClose={() => setOpen(false)}
+      >
+        <p className="text-body-medium font-body-medium text-on-surface">
+          tom.whitfield.the.third@a-rather-long-company-name.example
+        </p>
+        <Button>Resend the invitation</Button>
+      </SideSheet>
+    </>
+  );
+}
+
+/**
+ * On a phone the modal sheet sits at its edge and inside the window,
+ * whatever it holds: 56dp of the page stay in view beside it. Its width was
+ * a share of a box that took its own width from the sheet, so a long word
+ * pushed the sheet off the window's far side.
+ */
+export const ModalSideSheetFitsAPhone: Story = {
+  tags: ["no-screenshot"],
+  parameters: {
+    screenshot: { reason: "the play narrows the window to a phone's width" },
+  },
+  render: () => <ModalSheetOnAPhone />,
+  play: async ({ canvasElement }) => {
+    await page.viewport(400, 800);
+    try {
+      await userEvent.click(
+        within(canvasElement).getByRole("button", { name: "Open the member" }),
+      );
+      const sheet = await screen.findByRole("dialog", { name: "Member details" });
+      await waitFor(async () => {
+        const box = sheet.getBoundingClientRect();
+        await expect(Math.round(box.right)).toBe(400);
+        await expect(Math.round(box.left)).toBe(56);
+      });
+      // The strip of the page beside it is the scrim's: what is under a
+      // press there is not the sheet's box.
+      await expect(
+        document.elementFromPoint(20, 400)?.closest('[data-slot="side-sheet"]') ??
+          null,
+      ).toBeNull();
+      await userEvent.keyboard("{Escape}");
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    } finally {
+      await page.viewport(960, 720);
+    }
+  },
+};
+
 /**
  * The standard side sheet stays mounted while collapsed — that is what
  * animates — so it must be `inert`, or its buttons stay in the tab order
@@ -236,9 +506,186 @@ export const MenuKeyboardNavigation: Story = {
     await userEvent.keyboard("{ArrowDown}");
     await waitFor(() => expect(items[1]).toHaveFocus());
 
+    // The row the arrow keys reached shows it: its state layer is drawn, and
+    // the row left behind has none. A menu has no focus ring, so this layer
+    // is the only focus indicator a keyboard user gets.
+    const layer = (item: HTMLElement | undefined) =>
+      getComputedStyle(
+        item!.querySelector<HTMLElement>('[data-slot="state-layer"]')!,
+      ).opacity;
+    await waitFor(() => expect(Number(layer(items[1]))).toBeGreaterThan(0));
+    await expect(Number(layer(items[0]))).toBe(0);
+
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
     await waitFor(() => expect(trigger).toHaveFocus());
+  },
+};
+
+/** A letter typed in an open menu goes to the item that starts with it. */
+export const MenuTypeAheadGoesToAnItem: Story = {
+  render: () => (
+    <Menu
+      triggerButton={<Button variant="outlined">Open menu</Button>}
+      items={[
+        { id: "edit", label: "Edit" },
+        { id: "copy", label: "Copy link" },
+        { id: "delete", label: "Delete" },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    within(canvasElement).getByRole("button", { name: "Open menu" }).focus();
+    await userEvent.keyboard("{Enter}");
+    const menu = await screen.findByRole("menu");
+    await userEvent.keyboard("d");
+    await waitFor(() =>
+      expect(within(menu).getByRole("menuitem", { name: "Delete" })).toHaveFocus(),
+    );
+  },
+};
+
+/** A disabled item is announced as one and the arrow keys pass it; a
+    divider is a separator, not an item. */
+export const MenuSkipsDisabledAndDividers: Story = {
+  render: () => (
+    <Menu
+      triggerButton={<Button variant="outlined">Open menu</Button>}
+      items={[
+        { id: "edit", label: "Edit" },
+        { id: "share", label: "Share", isDisabled: true },
+        { id: "divider", type: "divider" },
+        { id: "delete", label: "Delete" },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+
+    const menu = await screen.findByRole("menu");
+    await expect(within(menu).getAllByRole("menuitem")).toHaveLength(3);
+    await expect(within(menu).getAllByRole("separator")).toHaveLength(1);
+    await expect(
+      within(menu).getByRole("menuitem", { name: "Share" }),
+    ).toHaveAttribute("aria-disabled", "true");
+
+    await waitFor(() =>
+      expect(within(menu).getByRole("menuitem", { name: "Edit" })).toHaveFocus(),
+    );
+    await userEvent.keyboard("{ArrowDown}");
+    await waitFor(() =>
+      expect(
+        within(menu).getByRole("menuitem", { name: "Delete" }),
+      ).toHaveFocus(),
+    );
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    await waitFor(() =>
+      expect(canvas.getByRole("button", { name: /open menu/i })).toHaveFocus(),
+    );
+  },
+};
+
+/** With `selectionMode="single"` the items are radio items: one is checked,
+    and choosing another moves the check and reports the new key. */
+export const MenuSingleSelection: Story = {
+  render: function Render() {
+    const [size, setSize] = useState("25");
+    return (
+      <Menu
+        triggerButton={<Button variant="text">{size} per page</Button>}
+        selectionMode="single"
+        disallowEmptySelection
+        selectedKeys={[size]}
+        onSelectionChange={(keys) => {
+          if (keys !== "all" && keys.size > 0) setSize(String([...keys][0]));
+        }}
+        items={[
+          { id: "10", label: "10 per page" },
+          { id: "25", label: "25 per page" },
+          { id: "50", label: "50 per page" },
+        ]}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+
+    const menu = await screen.findByRole("menu");
+    const radios = within(menu).getAllByRole("menuitemradio");
+    await expect(radios).toHaveLength(3);
+    await expect(radios[1]).toHaveAttribute("aria-checked", "true");
+    await expect(radios[0]).toHaveAttribute("aria-checked", "false");
+
+    // Focus opens on the selected item; one step down, then Enter chooses.
+    await waitFor(() => expect(radios[1]).toHaveFocus());
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
+
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    await expect(
+      canvas.getByRole("button", { name: "50 per page" }),
+    ).toBeVisible();
+  },
+};
+
+/** With `selectionMode="multiple"` the items are checkbox items, Space and
+    Enter each toggle one without closing, and an uncontrolled selection is
+    still there when the menu is opened again. */
+export const MenuMultipleSelectionSurvivesClosing: Story = {
+  render: () => (
+    <Menu
+      triggerButton={<Button variant="text">Columns</Button>}
+      selectionMode="multiple"
+      defaultSelectedKeys={["customer"]}
+      items={[
+        { id: "customer", label: "Customer" },
+        { id: "date", label: "Date" },
+        { id: "total", label: "Total" },
+      ]}
+    />
+  ),
+  play: async () => {
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+
+    let menu = await screen.findByRole("menu");
+    const date = () =>
+      within(menu).getByRole("menuitemcheckbox", { name: "Date" });
+    await expect(date()).toHaveAttribute("aria-checked", "false");
+
+    await waitFor(() =>
+      expect(
+        within(menu).getByRole("menuitemcheckbox", { name: "Customer" }),
+      ).toHaveFocus(),
+    );
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard(" ");
+    await waitFor(() => expect(date()).toHaveAttribute("aria-checked", "true"));
+    await expect(menu).toBeVisible();
+
+    // Enter toggles too, and the menu stays: Material's multi-select menu is
+    // open until the person dismisses it.
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
+    const total = within(menu).getByRole("menuitemcheckbox", { name: "Total" });
+    await waitFor(() => expect(total).toHaveAttribute("aria-checked", "true"));
+    await expect(menu).toBeVisible();
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+
+    await userEvent.keyboard("{Enter}");
+    menu = await screen.findByRole("menu");
+    await expect(date()).toHaveAttribute("aria-checked", "true");
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   },
 };
 
@@ -617,6 +1064,8 @@ export const PreviewOpensOnFocus: Story = {
 
     const item = await screen.findByRole("button", { name: /margherita/i });
     await expect(item).toBeVisible();
+    // The card is a dialog, and a dialog has a name.
+    await expect(screen.getByRole("dialog")).toHaveAccessibleName("Preview");
 
     await userEvent.keyboard("{Escape}");
     await waitFor(() =>
@@ -672,10 +1121,13 @@ export const BottomSheetHandleIsFirstAndCycles: Story = {
     const handle = within(dialog).getByRole("button", { name: "Drag handle" });
     await expect(handle).toHaveFocus();
 
+    await expect(handle).toHaveAttribute("aria-expanded", "false");
     await userEvent.keyboard("{Enter}");
     await waitFor(() =>
       expect(dialog).toHaveAttribute("data-height", "expanded"),
     );
+    // The handle says the height it moved the sheet to.
+    await expect(handle).toHaveAttribute("aria-expanded", "true");
     // Expanded, the sheet offers a way out, as Material asks of a full-screen one.
     await expect(
       within(dialog).getByRole("button", { name: "Close" }),
@@ -902,5 +1354,124 @@ export const BottomSheetStandardIsNotModal: Story = {
     await waitFor(() =>
       expect(bottomSheet()).toHaveAttribute("data-height", "partial"),
     );
+  },
+};
+
+/* ---- Popover ----------------------------------------------------------- */
+
+/** Enter opens it and the focus moves in; it is a dialog with a name, not a
+    modal one; a button given `close` closes it; Escape closes it; and each
+    time the focus goes back to the trigger. */
+export const PopoverOpensKeepsFocusAndReturnsIt: Story = {
+  render: () => (
+    <PopoverTrigger>
+      <Button variant="outlined">Rename</Button>
+      <Popover aria-label="Rename the file">
+        {({ close }) => (
+          <div className="flex gap-2">
+            <Button variant="text" onPress={close}>
+              Cancel
+            </Button>
+            <Button variant="filled" onPress={close}>
+              Rename
+            </Button>
+          </div>
+        )}
+      </Popover>
+    </PopoverTrigger>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: "Rename" });
+    await userEvent.tab();
+    await expect(trigger).toHaveFocus();
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+    await userEvent.keyboard("{Enter}");
+    const dialog = await screen.findByRole("dialog", {
+      name: "Rename the file",
+    });
+    await expect(dialog).not.toHaveAttribute("aria-modal", "true");
+    await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
+
+    // Tab stays in it.
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(dialog.contains(document.activeElement)).toBe(true);
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+
+    await userEvent.keyboard("{Enter}");
+    const again = await screen.findByRole("dialog");
+    await userEvent.click(within(again).getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+  },
+};
+
+/* ---- ContextMenu ------------------------------------------------------- */
+
+const renamed = fn();
+
+/** A right click opens the menu where the pointer is; from the keyboard it
+    opens at the focused element. The arrows move, Enter acts, Escape closes,
+    and the focus goes back to where it was. */
+export const ContextMenuOpensByPointerAndByKeyboard: Story = {
+  render: () => (
+    <ContextMenu
+      aria-label="File actions"
+      items={[
+        { id: "rename", label: "Rename", onAction: renamed },
+        { id: "delete", label: "Delete" },
+      ]}
+    >
+      <Button variant="outlined">Roadmap.pdf</Button>
+    </ContextMenu>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    renamed.mockClear();
+    const file = canvas.getByRole("button", { name: "Roadmap.pdf" });
+    const box = file.getBoundingClientRect();
+
+    // By the pointer: at the pointer.
+    await fireEvent.contextMenu(file, {
+      clientX: box.left + 20,
+      clientY: box.top + 10,
+    });
+    let menu = await screen.findByRole("menu", { name: "File actions" });
+    const at = menu.getBoundingClientRect();
+    await expect(Math.abs(at.left - (box.left + 20))).toBeLessThan(12);
+    await expect(Math.abs(at.top - (box.top + 10))).toBeLessThan(12);
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+
+    // By the keyboard: the event has no place, and the menu opens under the
+    // focused element, on its first entry.
+    await userEvent.tab();
+    await expect(file).toHaveFocus();
+    await fireEvent.contextMenu(file, { clientX: 0, clientY: 0 });
+    menu = await screen.findByRole("menu");
+    await expect(
+      Math.abs(menu.getBoundingClientRect().top - box.bottom),
+    ).toBeLessThan(12);
+    const rename = within(menu).getByRole("menuitem", { name: "Rename" });
+    await waitFor(() => expect(rename).toHaveFocus());
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(
+      within(menu).getByRole("menuitem", { name: "Delete" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    await waitFor(() => expect(file).toHaveFocus());
+
+    await fireEvent.contextMenu(file, { clientX: 0, clientY: 0 });
+    await screen.findByRole("menu");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(renamed).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   },
 };

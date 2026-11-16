@@ -3,12 +3,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import {
   FormCheckbox,
   FormCheckboxGroup,
   FormChipGroup,
   FormComboBox,
+  FormDatePicker,
   FormImageField,
   FormNumberField,
   FormPhoneField,
@@ -248,3 +250,193 @@ function ValidationOnSubmit() {
 }
 
 export const ValidationErrors: Story = { render: () => <ValidationOnSubmit /> };
+
+type Contact = {
+  name: string;
+  topic: string;
+  budget: number;
+  opensOn: string;
+  service: string;
+  consent: boolean;
+};
+
+function RulesAndFocus() {
+  const form = useForm<Contact>({ defaultValues: { name: "", consent: false } });
+  return (
+    <form
+      onSubmit={form.handleSubmit(() => undefined)}
+      className="flex w-[420px] flex-col gap-5"
+      noValidate
+    >
+      <FormTextField
+        control={form.control}
+        name="name"
+        label="Name"
+        rules={{ required: "Enter your name" }}
+      />
+      <FormSelect
+        control={form.control}
+        name="topic"
+        label="Topic"
+        items={expiry}
+        rules={{ required: "Choose a topic" }}
+      >
+        {(item) => <SelectItem id={item.id} label={item.name} />}
+      </FormSelect>
+      <FormNumberField
+        control={form.control}
+        name="budget"
+        label="Budget"
+        rules={{ required: "Enter a budget" }}
+      />
+      <FormDatePicker
+        control={form.control}
+        name="opensOn"
+        label="Opens on"
+        rules={{ required: "Pick a date" }}
+      />
+      <FormRadioGroup
+        control={form.control}
+        name="service"
+        label="Service"
+        rules={{ required: "Choose a service" }}
+      >
+        <Radio value="table">Table service</Radio>
+        <Radio value="counter">Counter pickup</Radio>
+      </FormRadioGroup>
+      <FormCheckbox
+        control={form.control}
+        name="consent"
+        rules={{ required: "Agree to be contacted" }}
+      >
+        You may contact me
+      </FormCheckbox>
+      <Button type="submit">Send</Button>
+      <Button variant="text" onPress={() => form.setFocus("budget")}>
+        Go to the budget
+      </Button>
+      <Button variant="text" onPress={() => form.setFocus("opensOn")}>
+        Go to the date
+      </Button>
+    </form>
+  );
+}
+
+/**
+ * With no schema, each field carries react-hook-form's `rules`. A refused
+ * submit puts the focus in the first invalid field, whatever control it is,
+ * and `form.setFocus` reaches one by name.
+ */
+export const RulesAndFocusOnTheFirstError: Story = {
+  render: () => <RulesAndFocus />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const send = canvas.getByRole("button", { name: "Send" });
+
+    await userEvent.click(send);
+    await expect(await canvas.findByText("Enter your name")).toBeVisible();
+    // A box alone shows its own message, and is described by it.
+    const consent = canvas.getByRole("checkbox", { name: "You may contact me" });
+    await expect(consent).toHaveAccessibleDescription("Agree to be contacted");
+    await expect(canvas.getByText("Choose a topic")).toBeVisible();
+    await expect(canvas.getByText("Pick a date")).toBeVisible();
+    await waitFor(() =>
+      expect(canvas.getByRole("textbox", { name: /Name/ })).toHaveFocus(),
+    );
+
+    await userEvent.keyboard("Ada");
+    await userEvent.click(send);
+    // The select's trigger is a button: the first invalid field now.
+    await waitFor(() =>
+      expect(document.activeElement?.closest("[data-slot=select]")).not.toBeNull(),
+    );
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Go to the budget" }),
+    );
+    await waitFor(() =>
+      expect(canvas.getByRole("textbox", { name: /Budget/ })).toHaveFocus(),
+    );
+
+    await userEvent.click(canvas.getByRole("button", { name: "Go to the date" }));
+    await waitFor(() =>
+      expect(
+        document.activeElement?.closest("[data-slot=date-picker]"),
+      ).not.toBeNull(),
+    );
+
+    // Ticking the invalid box clears its message, and the box is the same
+    // element after: it keeps the focus.
+    consent.focus();
+    await userEvent.keyboard(" ");
+    await waitFor(() => expect(consent).toBeChecked());
+    await waitFor(() => expect(consent).toHaveAccessibleDescription(""));
+    await expect(consent).toHaveFocus();
+  },
+};
+
+function EmptyChoice() {
+  const form = useForm<{ slot: string }>({ defaultValues: { slot: "" } });
+  return (
+    <form className="flex w-80 flex-col gap-4" noValidate>
+      <FormRadioGroup control={form.control} name="slot" label="Delivery time">
+        <Radio value="morning">Morning</Radio>
+        <Radio value="evening">Evening</Radio>
+      </FormRadioGroup>
+      <Button type="submit">Continue</Button>
+    </form>
+  );
+}
+
+/**
+ * A form's string field starts as "", which is no choice: the radio group
+ * is then reached by Tab, on its first radio, and the arrows choose. Taken
+ * as a value that no radio has, "" left the whole group out of the Tab
+ * order, and a choice could not be made from the keyboard.
+ */
+export const AnEmptyChoiceIsReachedByTab: Story = {
+  render: () => <EmptyChoice />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await expect(canvas.getByRole("radio", { name: "Morning" })).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(canvas.getByRole("radio", { name: "Evening" })).toBeChecked();
+  },
+};
+
+function RequiredByTheForm() {
+  const form = useForm<{ name: string }>({ defaultValues: { name: "" } });
+  return (
+    // No `noValidate`: the browser would stop this submit on an empty
+    // required field, were the field left to it.
+    <form onSubmit={form.handleSubmit(() => undefined)} className="flex w-80 flex-col gap-4">
+      <FormTextField
+        control={form.control}
+        name="name"
+        label="Name"
+        isRequired
+        rules={{ required: "Enter your name" }}
+      />
+      <Button type="submit">Save</Button>
+    </form>
+  );
+}
+
+/**
+ * A bound field marked `isRequired` is the form's to judge: the submit
+ * reaches the form's rules and the field shows the form's message, where
+ * the browser's own validation would have stopped the submit first.
+ */
+export const ARequiredFieldIsTheFormsToJudge: Story = {
+  render: () => <RequiredByTheForm />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole("textbox", { name: /Name/ });
+    await expect(field).toHaveAttribute("aria-required", "true");
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(canvas.getByText("Enter your name")).toBeVisible());
+    await expect(field).toHaveFocus();
+  },
+};
+

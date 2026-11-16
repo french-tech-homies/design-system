@@ -1,0 +1,56 @@
+{
+  "screen": "Account",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "An avatar that is replaced by upload",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to the picture button (first stop, named 'Add a profile photo for Maya Okafor', ring visible), Enter and Space open the file chooser, a PNG is chosen: the button is aria-disabled with a progressbar 'Uploading photo' and role=status 'Uploading photo', Enter during the upload opens nothing, after 1.4 s the blob image is shown (naturalWidth > 0), the name becomes 'Change profile photo of ...', focus stays on the button, a snackbar 'Profile photo updated' with Undo and Close appears. Undo reached by Tab (after Sign out) and pressed with Enter: initials back. 'Remove photo' by Tab then Enter/Space: photo removed, snackbar 'Profile photo removed', Undo restores it. A .txt file and a 6 MB PNG are refused with their snackbars and focus stays on the button. With the mouse: click opens the chooser, upload, click Undo.",
+      "failures": [
+        "Tab to 'Remove photo', Enter (or Space): the photo is removed and the button unmounts; in 4 of 5 runs document.activeElement became <body> (checked at 100, 300 and 800 ms, at 1280 and 400), where it should have gone to the picture button; the next Tab does continue from that place (first settings row). In the fifth run (1280, the snackbar had been used by keyboard earlier in the session) focus went to the new snackbar instead, and Enter on its Undo then left focus on <body> (seen once).",
+        "After an upload, the snackbar 'Profile photo updated / Undo' was still there after 15 s (focus inside or outside it) and Escape pressed outside it does not close it: unsure whether deliberate for a snackbar with an action. It is reached only at the very end of the tab order (after Sign out) and closed by its Close button, Undo, or Escape while inside. While it stays it covers the focused 'Sign out' button (the failure is written in part 3).",
+        "After Undo or Close in the snackbar by keyboard, focus goes to the 'Sign out' button (the stop before the snackbar), not back to the picture: unsure whether that is a failure, it is visible and named."
+      ],
+      "could_not_exercise": [
+        "The operating system's file dialog itself: Playwright intercepts the chooser, so that the dialog opens was checked only as the 'filechooser' event.",
+        "A file drop: the picture is a button around a FileTrigger, not a drop zone, so there is nothing to drop on; not tried.",
+        "What a screen reader says of the role=status 'Uploading photo' and of the snackbar: only the DOM was read."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "A list of settings rows with trailing switches and chevrons",
+      "works": "partly",
+      "tried": "Switch keys at 1280 only, chevron rows and mouse at 1280 and 400 (the list is laid out the same at both): Tab reaches each of the three lists (role=grid named Profile, Training, Notifications) as one stop; Up/Down/Home/End move between rows with a visible inset ring, no wrap. On a switch row Enter toggles it (input role=switch checked flips once), Right arrow moves to the switch and Space or Enter toggles it once, Left arrow returns to the row; all four switches toggled. On a chevron row Enter goes to #/units, #/goal, #/personal: focus lands on the new page's <main>, radios changed with arrows and Space, the personal form validated (empty name: aria-invalid and 'Enter your name') and saved, Back link (Shift+Tab from main) or browser back or Cancel returns, focus on <main aria-label=Account>, and the rows read 'Units, Imperial', 'Weekly goal, 5 workouts', the new name. With the mouse: a click on the row's text toggles once, a click on the switch itself toggles once (not twice), hover shows the state layer, a click on a chevron row navigates. No sideways overflow on any of the pages at 400. The setting pages were checked in light only.",
+      "failures": [
+        "A switch row's state is not on the row: the focused element is role=row with aria-label 'Private profile' only (no aria-checked, aria-selected or description), Enter on it flips the switch inside but focus stays on the row and nothing live says the new state; the state is only read by Right arrow to the switch. Unsure how a screen reader renders it: no screen reader was run.",
+        "Space on a focused switch row does nothing (Enter toggles): a person used to Space for a switch must first press Right arrow. Unsure whether it counts as a failure.",
+        "Shift+Tab from the Notifications list back into the Training list landed on the inner switch input of 'Sync with Health', not on its row (forward Tab always lands on a row). The switch is named and works; inconsistent.",
+        "On the Personal details page, name emptied and Enter pressed from the Email field: the error shows on Name (aria-invalid, 'Enter your name') but focus stays in Email; it is not moved to the invalid field. Unsure: this is the page behind a chevron, not the list.",
+        "Unsure, cosmetic: the 'Personal details' row cuts its value at both widths ('maya.okafor@e…' at 400); the full address is in the row's aria-label and in the profile above."
+      ],
+      "could_not_exercise": [
+        "A touch press and a long press on a row: only Playwright's mouse was used.",
+        "What a screen reader announces for a row and its switch.",
+        "The switch rows by keyboard at 400 and the three setting pages in dark: not run."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "Sign out confirmed in a dialog",
+      "works": "partly",
+      "tried": "At 1280 light and 400 dark: Tab to 'Sign out', Enter (and Space) opens role=alertdialog named 'Sign out?', inside the window (368 px wide at 400), the page behind inert; focus on the dialog itself, Tab and Shift+Tab cycle Cancel and Sign out only. Escape closes it and focus is back on the 'Sign out' button; Cancel with Enter the same. A mouse click outside does not close it. Enter on the dialog's 'Sign out': Cancel is disabled, the confirm is aria-disabled with a spinner, Escape and a second Enter do nothing, after 1.1 s the page is 'You are signed out' with focus on its h1. Tab, Enter on 'Sign in again': the skeleton (role=status 'Loading your account'), then the account again.",
+      "failures": [
+        "Enter on 'Sign in again': the button unmounts and document.activeElement is <body>, while the skeleton shows and after the account has loaded (1280 and 400). Focus should have gone to the account page (its main or heading). The next Tab reaches the picture button.",
+        "While a photo snackbar is up (it never leaves by itself, part 1), Tab to 'Sign out': the focused button (y 720 to 760 of 800) is covered by the snackbar (y 736 to 784) at 1280 and at 400, with the page already scrolled to its end (scrollY 240 of 240 at 400), so it cannot be scrolled clear: elementFromPoint at the button's centre is the snackbar. Enter still opens the dialog; with a pointer only the top 16 px of the button remain.",
+        "While signing out the state is not announced: the confirm button only gets aria-disabled='true', its spinner is an svg aria-hidden, no aria-busy, no progressbar, no live text, the name stays 'Sign out'.",
+        "The alertdialog has aria-label 'Sign out?' and no aria-describedby: its supporting text ('You will need your password to sign back in as ...') is not tied to it. Unsure whether a screen reader reads it on open."
+      ],
+      "could_not_exercise": [
+        "What a screen reader announces when the dialog opens and while it signs out."
+      ]
+    }
+  ]
+}

@@ -27,7 +27,8 @@
     // it when no workspace link does.
     "paths": {
       "@french-tech-homies/design-system": ["./index.ts"],
-      "@french-tech-homies/design-system/*": ["./*"]
+      "@french-tech-homies/design-system/*": ["./*"],
+      "@/registry/ds/ui/ds": ["./index.ts"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

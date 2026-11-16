@@ -102,6 +102,31 @@ exempts inactive components) — `InteractionStates/Disabled` and
 Running the tests the first time downloads a Chromium build:
 `npx playwright install chromium`.
 
+### Focus — every control shows the keyboard
+
+After a story's pictures are taken, its page is walked as a keyboard user
+walks it: Tab to each stop, and one arrow key inside a toolbar, a list, a
+grid or a menu. Each control reached is read while it holds the focus (its
+outline, fills, borders, state layer, underline, and those of what wraps it)
+and again once a key has moved the focus on. The two readings must differ, or
+the story fails naming the control. axe cannot see this and a picture is
+taken with nothing focused: a `Menu` whose rows showed nothing under the
+arrow keys passed both.
+
+- **What a story does not show at rest** (a menu's rows, a select's options)
+  is asked the same question by a `play` function, with `expectVisibleFocus`
+  from `stories/interactions/visible-focus.ts`: the tests of
+  `MD3/Interactions/Focus` open each by the keyboard and move onto a row.
+- **A field that takes typed text** is not read: its indicator is the text
+  cursor.
+- **A story whose controls are not to be walked** carries the tag
+  `no-focus-check` and its reason in `parameters.focus.reason`.
+- It runs under the `material` project only: where an indicator is drawn is
+  a component's structure, the same under every preset.
+
+The walk is `.storybook/focus.setup.ts`. It adds about two thirds to the
+suite's time.
+
 ### Screenshots — every story has a baseline
 
 ```bash

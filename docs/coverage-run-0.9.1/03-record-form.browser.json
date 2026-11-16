@@ -1,0 +1,70 @@
+{
+  "screen": "Record form",
+  "console": [],
+  "overflow": [
+    "400x800: at load nothing overflows on / and /?dark (scrollWidth 400). Measured on / (light; dark not re-measured with the error shown): As soon as the Stock field shows its error (Tab out of it empty, or a refused submit) the page scrolls sideways: scrollWidth 404 > innerWidth 400. The Stock field's box grows from 334px to 354px (error icon added beside the two steppers), the single grid column grows with it, and every card of the left column then runs from x=16 to x=404 instead of 384. It goes back to 400 once Stock is valid.",
+    "1280x800, / and /?dark, /products, /products/p-1001/edit: none."
+  ],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Text, select, combo box, date, number, phone, image, switch",
+      "works": "partly",
+      "tried": "At 1280 and 400, keyboard only: typed in Name (maxLength 80 holds), SKU, Description (Enter makes a line, counter follows); Category opened with Enter/Space/ArrowDown, arrows, type-ahead, Enter, Escape; Brand filtered by typing, ArrowDown+Enter, Escape, free text + Tab; Tags chosen from the list (several, filtered), chips removed with Backspace in the input, Delete/Backspace on a chip, Enter on a chip's Remove; Price and Stock typed, ArrowUp/Down, PageUp, Home, min 0, steppers by mouse; date typed in segments, calendar opened from its button (docked at 1280, modal at 400), arrows, PageDown, Shift+PageDown, month and year lists, text-input mode at 400, OK, Cancel, Escape, click outside; phone country list (type-ahead, Enter, Escape) and number typed; image chosen through the file chooser with Enter and Space (a .txt, a 2.1 MB PNG, a small PNG), Replace, Remove, by mouse too; switch with Space.",
+      "failures": [
+        "Phone: Tab into 'Supplier phone' (value '+33', the browser selects it all) and type the national number 0142685300: the value becomes '+0142685300', the country prefix is gone (not blurred in that state, so its refusal is unsure). After choosing United Kingdom from the country list: Tab, type 2079460018 gives '+20 79460018', refused on blur ('This is not a complete phone number for its country'). It should keep the chosen country's prefix; it only works if End is pressed first, the field is emptied first, or the whole number is typed with its '+' prefix.",
+        "Image: after a file is chosen through the file chooser (Enter on 'Choose image', pick small.png) the preview appears but document.activeElement is the body; it should be on Replace or Remove image. The 'Choose image' button that had the focus is unmounted.",
+        "Image: Enter on 'Remove image' removes the image and the focus is lost to the body; it should go to 'Choose image'.",
+        "Image: Tab reaches two stops both named 'Choose image'. The first is a 0x0 button inside the drop zone: nothing visible shows the focus (the zone has data-focus-visible but its computed outline-style is none and nothing changes in the picture), and Enter on it opens no file chooser. Only the second, visible button works.",
+        "Image: a 2.1 MB file is refused with 'Image must be under 1.9 MB' while the supporting text above says '2 MB at most'.",
+        "Image: the field's role=group has no accessible name (no aria-label, no aria-labelledby); only the card's heading says 'Image'. unsure whether a name is expected there.",
+        "Tags: Delete (or Backspace) on the last remaining chip removes it and the focus is lost to the body; it should go to the Tags input. With more than one chip the focus moves to a neighbouring chip, which is right.",
+        "Tags: every chip's Remove button is its own Tab stop (Shift+Tab from the input: Remove, the focused chip, Remove, Remove, ... then Brand), and ArrowLeft/ArrowRight do nothing while the focus is on a Remove button (they move between chips only from a chip). Works, but the tab order grows by one stop a chip. unsure whether intended.",
+        "Tags at 400x800: with the field near the window's bottom, choosing four tags wraps the chips on two lines and leaves the focused input at y=820, below the 800px window, not scrolled into view.",
+        "Category: when refused its trigger has no aria-invalid, and never aria-required, though it is required like Brand (rules.required, isRequired); its label shows no asterisk ('Category' beside 'Brand*'). The error text is tied by aria-describedby only. The Select box is also 56px tall beside the 66px Brand combo box on the same row.",
+        "Brand: Alt+ArrowDown does not open the list (aria-expanded stays false, no listbox); the key is not taken and the page scrolled down instead (scrollY 0 to 700 at 400 wide), which put the focused input above the window (y=-62). ArrowDown and ArrowUp alone open it. unsure: the scroll may be this headless Chromium's own binding. Not tried on Tags.",
+        "Date: the calendar dialog's aria-labelledby names two ids and the first resolves to no element; its name comes out as 'Available from' from the second. unsure whether it matters.",
+        "Price: after typing 12.5 in a Price already refused, it stays aria-invalid with 'Enter a price' until the value is committed (blur or an arrow key), where Name clears as it is typed. unsure: may be how the number field commits."
+      ],
+      "could_not_exercise": [
+        "Dropping a file on the image zone: a real file drag from the desktop cannot be made in headless Chromium, and synthetic dragenter/dragover/drop events carrying a DataTransfer with a PNG were ignored by the zone (no data-drop-target, no preview). Clicking on the zone outside its button opens no file chooser.",
+        "Pasting an image with the focus on the drop zone's hidden button: no clipboard file in headless Chromium.",
+        "A screen reader's reading of the fields: checked only through roles, names and aria-* in the DOM."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Validation on blur and on submit, from the server too",
+      "works": "partly",
+      "tried": "Typed 'ab' in Name and left it (error on blur, aria-invalid, aria-describedby; cleared as the third letter is typed), 'bag1' in SKU, left Category, Brand, Price, Stock empty, a past date (refused once the whole date field is left), an incomplete phone, five tags, a wrong file. Submitted empty with Enter on 'Create product' and with Enter in Name. Filled by keyboard with the name and SKU of an existing product and a price of 20000, submitted, waited for the server: three server errors on their fields; corrected each, published without an image (refused), then saved: snackbar '“Canvas cap 1280” created', /products, the new row in the list. Same on /products/p-1001/edit with 'Save changes'. A second Enter while saving does nothing (aria-disabled).",
+      "failures": [
+        "Category: when refused (on blur and on submit) its trigger button has no aria-invalid (the text, combo box, number, phone fields and the date's segments all get aria-invalid=\"true\"). The invalid state is not announced, only described through aria-describedby. Its message, like the date's, is plain text and not a role=alert, and no error icon is drawn.",
+        "At 400 wide the Stock field's error makes the page scroll sideways (see overflow).",
+        "While the save runs (1.1 s) the submit button only gets aria-disabled=\"true\" and a spinner that is aria-hidden: no aria-busy, no progressbar, no text says it is saving. unsure whether the kit means to announce it.",
+        "After a successful save the app goes to /products and document.activeElement is the body (the snackbar is announced, role=alert). unsure: a page change, but the focus is nowhere."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 3,
+      "part": "An error summary",
+      "works": "partly",
+      "tried": "Refused submits (empty form: 7 fields; server: 3 fields; published with no image: 1 field), at 1280 and 400. The summary is drawn above the form, takes the focus (role=group named 'N fields need your attention', focus ring drawn, scrolled to the top of the window), lists each field in the form's order with its message. Tab to each link and Enter: the focus lands in Name, SKU, Category, Brand, Price, Stock, the date's month segment, each visible and marked invalid. A field put right leaves the list at once, the count follows, and the summary goes when the last one is fixed (the focus stays in the field being edited).",
+      "failures": [
+        "The 'Image' link (summary after publishing with no image): Enter puts the focus on the drop zone's hidden 0x0 'Choose image' button, which shows no focus indicator and does nothing on Enter; the focused element is not visible. It should land on the visible 'Choose image' button."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 4,
+      "part": "A dialog on unsaved changes",
+      "works": "partly",
+      "tried": "Clean form, Enter on 'Back to products': leaves with no dialog. After typing in a field: Enter on 'Back to products', Enter on 'Cancel', and the browser's Back each open the role=alertdialog 'Discard unsaved changes?' (inside the window at 1280 and 400, background inert, the focus on the dialog, Tab and Shift+Tab cycle between 'Keep editing' and 'Discard' only). Escape and 'Keep editing' close it, keep the URL and the typed value, and return the focus to the link that was pressed; 'Discard' (Enter and Space) goes to /products. Reload while dirty raises the browser's beforeunload question, clean it does not. On the edit page the text is the edit's; a value typed then reverted asks nothing; a successful save leaves without asking.",
+      "failures": [
+        "The alertdialog has an accessible name but no aria-describedby: its supporting text ('This product has not been created. If you leave now, what you entered is lost.') is not tied to it. unsure whether the kit ties it another way.",
+        "After 'Discard' the focus on /products is the body. unsure: a page change."
+      ],
+      "could_not_exercise": []
+    }
+  ]
+}

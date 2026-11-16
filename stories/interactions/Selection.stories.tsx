@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import React from "react";
+import React, { useRef } from "react";
+import Button from "@french-tech-homies/design-system/components/Button";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 
 import Chip, {
@@ -59,6 +60,43 @@ export const CheckboxSpaceToggles: Story = {
     await userEvent.tab();
     await userEvent.keyboard(" ");
     await expect(gluten).toBeChecked();
+  },
+};
+
+/**
+ * A settings row: the label and its supporting line first, the switch at
+ * the row's far end. The line is the switch's description, the row is as
+ * wide as what holds it, and a press anywhere on it toggles.
+ */
+export const SwitchAsASettingsRow: Story = {
+  render: () => (
+    <div className="w-96">
+      <Switch labelPosition="start" supportingText="A sound for each new message">
+        Notification sounds
+      </Switch>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const sw = canvas.getByRole("switch", { name: "Notification sounds" });
+    await expect(sw).toHaveAccessibleDescription("A sound for each new message");
+    const row = canvasElement.querySelector<HTMLElement>('[data-slot="switch"]');
+    const track = canvasElement.querySelector<HTMLElement>('[data-slot="switch-track"]');
+    const text = canvas.getByText("Notification sounds");
+    if (!row || !track) throw new Error("no switch");
+    await expect(Math.round(row.getBoundingClientRect().width)).toBe(384);
+    // The switch is at the row's far end.
+    await expect(Math.round(track.getBoundingClientRect().right)).toBe(
+      Math.round(row.getBoundingClientRect().right),
+    );
+    await expect(track.getBoundingClientRect().left).toBeGreaterThan(
+      text.getBoundingClientRect().right,
+    );
+    await userEvent.click(canvas.getByText("A sound for each new message"));
+    await expect(sw).toBeChecked();
+    sw.focus();
+    await userEvent.keyboard(" ");
+    await expect(sw).not.toBeChecked();
   },
 };
 
@@ -234,6 +272,88 @@ export const SelectEscapeCloses: Story = {
   },
 };
 
+const clock = (seconds: number) =>
+  `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+
+/** A value a number does not say, a time here, is written and spoken
+    through `formatValue`: the output and the handle agree. */
+export const SliderSaysItsValueInWords: Story = {
+  render: () => (
+    <Slider
+      label="Position"
+      defaultValue={65}
+      maxValue={200}
+      step={5}
+      formatValue={clock}
+      className="w-80"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const handle = canvas.getByRole("slider", { name: "Position" });
+    await expect(canvas.getByRole("status")).toHaveTextContent("1:05");
+    await waitFor(() => expect(handle).toHaveAttribute("aria-valuetext", "1:05"));
+    handle.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    await waitFor(() => expect(handle).toHaveAttribute("aria-valuetext", "1:10"));
+    await expect(canvas.getByRole("status")).toHaveTextContent("1:10");
+  },
+};
+
+function ScrollingChips() {
+  const group = useRef<HTMLDivElement>(null);
+  return (
+    <div className="flex w-64 flex-col gap-4">
+      <ChipGroup
+        ref={group}
+        aria-label="Days"
+        selectionMode="multiple"
+        isScrollable
+      >
+        {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((day) => (
+          <Chip key={day} id={day} variant="filter">
+            {day}
+          </Chip>
+        ))}
+      </ChipGroup>
+      <Button
+        onPress={() =>
+          group.current
+            ?.querySelector<HTMLElement>('[data-slot="chip"]')
+            ?.focus()
+        }
+      >
+        Go to the days
+      </Button>
+    </div>
+  );
+}
+
+/** A row of chips that scrolls sideways where it does not fit, in place of
+    wrapping, and a group reached through its `ref`. */
+export const ChipGroupIsOneScrollingRow: Story = {
+  render: () => <ScrollingChips />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = canvas.getByRole("toolbar", { name: "Days" });
+    const chips = within(row).getAllByRole("button");
+    await expect(row.scrollWidth).toBeGreaterThan(row.clientWidth);
+    const tops = new Set(chips.map((c) => Math.round(c.getBoundingClientRect().top)));
+    await expect(tops.size).toBe(1);
+    await userEvent.click(canvas.getByRole("button", { name: "Go to the days" }));
+    await expect(chips[0]).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}");
+    const last = chips[chips.length - 1];
+    if (!last) throw new Error("no chip");
+    await expect(last).toHaveFocus();
+    await waitFor(() =>
+      expect(last.getBoundingClientRect().right).toBeLessThanOrEqual(
+        row.getBoundingClientRect().right + 1,
+      ),
+    );
+  },
+};
+
 /** Tab draws the thumb's ring; arrow keys move the slider by `step` and
     stop at the bounds. */
 export const SliderArrowsChangeValue: Story = {
@@ -253,7 +373,7 @@ export const SliderArrowsChangeValue: Story = {
     await expect(thumb).toHaveFocus();
     const ring = getComputedStyle(drawn);
     await expect(ring.outlineStyle).toBe("solid");
-    await expect(ring.outlineWidth).toBe("2px");
+    await expect(ring.outlineWidth).toBe("3px");
     await expect(ring.outlineOffset).toBe("2px");
 
     await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
@@ -261,6 +381,115 @@ export const SliderArrowsChangeValue: Story = {
 
     await userEvent.keyboard("{Home}");
     await expect(thumb).toHaveValue("8");
+  },
+};
+
+function RemovableChips({ pressable = false }: { pressable?: boolean }) {
+  const [tags, setTags] = React.useState(["Ada", "Grace", "Linus"]);
+  const [opened, setOpened] = React.useState("");
+  const list = React.useRef<HTMLDivElement>(null);
+  // The removed chip held the focus: it goes to the chip that takes its
+  // place, or to the one before it.
+  const remove = (tag: string) => {
+    const at = tags.indexOf(tag);
+    setTags(tags.filter((t) => t !== tag));
+    requestAnimationFrame(() => {
+      const chips =
+        list.current?.querySelectorAll<HTMLElement>("[data-slot=chip]");
+      const next = chips?.[Math.min(at, (chips?.length ?? 1) - 1)];
+      (next?.matches("button") ? next : next?.querySelector("button"))?.focus();
+    });
+  };
+  return (
+    <div className="flex flex-col gap-4">
+      <div ref={list} className="flex gap-2" role="group" aria-label="People">
+        {tags.map((tag) => (
+          <Chip
+            key={tag}
+            variant="input"
+            onPress={pressable ? () => setOpened(tag) : undefined}
+            onRemove={() => remove(tag)}
+          >
+            {tag}
+          </Chip>
+        ))}
+      </div>
+      <p data-testid="opened">{opened}</p>
+    </div>
+  );
+}
+
+/**
+ * A removable input chip is one button, named "Remove <its text>"; Enter,
+ * Backspace and Delete each remove the focused one.
+ */
+export const InputChipRemovedFromKeyboard: Story = {
+  render: () => <RemovableChips />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("button")).toHaveLength(3);
+
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Remove Ada" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(canvas.queryByRole("button", { name: "Remove Ada" })).toBeNull(),
+    );
+
+    await waitFor(() =>
+      expect(
+        canvas.getByRole("button", { name: "Remove Grace" }),
+      ).toHaveFocus(),
+    );
+    await userEvent.keyboard("{Backspace}");
+    await waitFor(() =>
+      expect(
+        canvas.getByRole("button", { name: "Remove Linus" }),
+      ).toHaveFocus(),
+    );
+    await userEvent.keyboard("{Delete}");
+    await waitFor(() =>
+      expect(canvas.queryAllByRole("button")).toHaveLength(0),
+    );
+  },
+};
+
+/**
+ * With an action of its own the chip is two buttons, its own then "Remove
+ * <its text>"; the first does the action, the second removes, and Delete
+ * on either removes too.
+ */
+export const InputChipWithTwoActionsFromKeyboard: Story = {
+  render: () => <RemovableChips pressable />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("button")).toHaveLength(6);
+
+    await userEvent.tab();
+    await expect(canvas.getByRole("button", { name: "Ada" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.getByTestId("opened")).toHaveTextContent("Ada");
+    await expect(canvas.getAllByRole("button")).toHaveLength(6);
+
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Remove Ada" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(canvas.queryByRole("button", { name: "Remove Ada" })).toBeNull(),
+    );
+
+    await waitFor(() =>
+      expect(canvas.getByRole("button", { name: "Grace" })).toHaveFocus(),
+    );
+    await userEvent.keyboard("{Delete}");
+    await waitFor(() =>
+      expect(canvas.queryByRole("button", { name: "Grace" })).toBeNull(),
+    );
+    await expect(canvas.getAllByRole("button")).toHaveLength(2);
   },
 };
 

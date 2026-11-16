@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Star, Trash2 } from "lucide-react";
 import React from "react";
+import { useDragAndDrop, useListData } from "react-aria-components";
 
 import {
   GridList,
+  GridListDragHandle,
   GridListItem,
 } from "@french-tech-homies/design-system/components/GridList";
 import IconButton from "@french-tech-homies/design-system/components/IconButton";
@@ -147,4 +149,47 @@ export const WithDisabledItems: Story = {
       )}
     </GridList>
   ),
+};
+
+function ReorderableTables() {
+  const list = useListData({ initialItems: tables });
+  const { dragAndDropHooks } = useDragAndDrop({
+    getItems: (keys) =>
+      [...keys].map((key) => ({ "text/plain": list.getItem(key)?.name ?? "" })),
+    onReorder(e) {
+      if (e.target.dropPosition === "before") {
+        list.moveBefore(e.target.key, e.keys);
+      } else if (e.target.dropPosition === "after") {
+        list.moveAfter(e.target.key, e.keys);
+      }
+    },
+  });
+  return (
+    <GridList
+      aria-label="Tables, in serving order"
+      items={list.items}
+      dragAndDropHooks={dragAndDropHooks}
+    >
+      {(item) => (
+        <GridListItem textValue={item.name}>
+          <ListItem
+            headline={item.name}
+            supportingText={item.supportingText}
+            trailingElement={
+              <GridListDragHandle aria-label={`Drag ${item.name}`} />
+            }
+          />
+        </GridListItem>
+      )}
+    </GridList>
+  );
+}
+
+/** A list whose rows are put in order by dragging: `useDragAndDrop` and
+ *  `useListData` are React Aria's, handed to the kit's `GridList`. The
+ *  pointer drags a row from anywhere; the `GridListDragHandle` in each row is
+ *  how the keyboard picks it up (arrow keys to the handle, Enter, the arrows,
+ *  Enter). */
+export const Reorderable: Story = {
+  render: () => <ReorderableTables />,
 };

@@ -1,0 +1,148 @@
+{
+  "screen": "Contact",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Text fields, a multi-line field, a select, a consent checkbox",
+      "built": "yes",
+      "kit": [
+        "FormTextField",
+        "FormSelect",
+        "FormCheckbox",
+        "TextField (multiline, showCharacterCount)",
+        "Select",
+        "SelectItem",
+        "Checkbox",
+        "Button",
+        "Card",
+        "Title",
+        "Body",
+        "Link"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Wrote the form's rules as a hand-written react-hook-form resolver function.",
+          "why": "The adapter's Form* components take only control and name: no rules prop, and no schema library is installed. The adapter's doc shows zodResolver only."
+        },
+        {
+          "kind": "feature",
+          "what": "Focus on the first invalid field after a refused submit is done by hand: each field sits in a div[data-field], and an effect focuses the input, textarea or trigger button inside it.",
+          "why": "The adapter does not hand field.ref to the kit controls, so react-hook-form's own focus on error does nothing."
+        },
+        {
+          "kind": "feature",
+          "what": "Wrote the consent checkbox's error message by hand (a Body in text-error inside a role=alert wrapper), tied to the box with aria-describedby, with the privacy line beside it.",
+          "why": "A single Checkbox has isInvalid but no errorMessage or supportingText; only CheckboxGroup has them, and a group of one for a boolean would bend it."
+        },
+        {
+          "kind": "feature",
+          "what": "Wrote the required mark into the Select's label text (\"Topic *\") and into the checkbox's label (an aria-hidden asterisk).",
+          "why": "TextField draws an asterisk when isRequired; Select and Checkbox draw none, so the form's required marks would not agree."
+        },
+        {
+          "kind": "feature",
+          "what": "'Send another message' remounts the form with a new key instead of calling reset().",
+          "why": "TextField mirrors the value's length for its counter only in its own onChange, so a reset from outside would leave the count stale."
+        },
+        {
+          "kind": "layout",
+          "what": "The form's grid (two columns from sm), the field wrappers and the consent block are plain elements with Tailwind layout classes.",
+          "why": "Expected: the kit has no form layout."
+        },
+        {
+          "kind": "value",
+          "what": "ps-6.5 (26px) to line the consent's hint and error up with the checkbox's label.",
+          "why": "The label's offset is the 18px box plus the 8px gap inside Checkbox; no token names it."
+        },
+        {
+          "kind": "read",
+          "what": "Read TextField, Select (its Trigger), Checkbox and the react-hook-form adapter past their doc comments; grepped field-styles.ts for the supporting text's classes.",
+          "why": "To learn that Select shows no required mark, that Checkbox has no error text, that the counter is kept in local state, and what each Form* passes down (no ref, no rules)."
+        }
+      ],
+      "notes": "Type-checked, built, and rendered once on the server (renderToString): no throw, the first button inside the topic's wrapper is the Select's trigger, and the consent input carries the aria-describedby of the hint and the error. Not exercised in a browser: no click, key or focus was tried. Unsure: how a screen reader reads \"Topic *\". While a send is in flight the text fields and the checkbox are read-only and the select is disabled."
+    },
+    {
+      "n": 2,
+      "part": "The state after sending",
+      "built": "yes",
+      "kit": [
+        "Button (isLoading, isPending)",
+        "Card",
+        "Headline",
+        "Body",
+        "Divider",
+        "CheckIcon",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The confirmation is composed by hand inside a Card: a check mark in a primary-container disc, a heading that takes focus (tabIndex -1), a definition list with the reference, time, topic and the message as sent, and two actions.",
+          "why": "The kit has no confirmation or result component; EmptyState is for nothing-to-show and Snackbar would vanish while the form stayed."
+        },
+        {
+          "kind": "feature",
+          "what": "Passed React Aria's isPending beside the kit's isLoading, kept a ref guard against a second submit, and added a role=status line beside the button.",
+          "why": "Button's isLoading only swaps the icon for a spinner: its doc comment does not say whether it blocks a press or announces anything."
+        },
+        {
+          "kind": "guess",
+          "what": "Body with component=\"dt\" / \"dd\" was a type error (it takes div, p, span); wrote plain dt and dd with text-body-* and font-body-* classes.",
+          "why": "The type primitives' element list is narrow and is only found in the type."
+        },
+        {
+          "kind": "read",
+          "what": "Read Button's ButtonContent, Typography's forwardRef signature, and the sources of Card and EmptyState.",
+          "why": "To see what isLoading does, that Headline takes a ref and tabIndex, how Card's content part is laid out, and whether EmptyState could be the confirmation (it could not)."
+        }
+      ],
+      "notes": "Pending: the button shows a spinner and 'Sending…' for 1.4 s. Then the form is replaced by the confirmation and focus moves to its heading. 'Send another message' brings back a fresh form with name, email and company kept and focus on the topic. Not exercised in a browser. `?ok` in the address stops the random 503 (an address at example.com is still refused)."
+    },
+    {
+      "n": 3,
+      "part": "An error from the server",
+      "built": "yes",
+      "kit": [
+        "Title",
+        "Body",
+        "Link",
+        "Button",
+        "FormTextField (errorMessage through setError)"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A persistent inline error banner written by hand above the submit button: role=alert, error-container / on-error-container, an icon, a title, what happened, a mailto fallback and a trace id, scrolled into view when it appears; the submit button under it becomes 'Try again'. Every value is kept.",
+          "why": "The kit has no banner or inline alert. Snackbar is brief and for things that need no decision; a failed send must stay in view beside the form."
+        },
+        {
+          "kind": "feature",
+          "what": "Deep-imported ErrorIcon from the kit's icons.tsx.",
+          "why": "It exists in icons.tsx but the barrel does not export it."
+        },
+        {
+          "kind": "read",
+          "what": "Read Snackbar's doc and styles, and grepped icons.tsx for its exports.",
+          "why": "To decide against a snackbar for the error, and to find an error icon."
+        }
+      ],
+      "notes": "Two server errors. A 503 (about one send in three; every send with `?fail` in the address) shows the banner and keeps the form. A 422 for an address at example.com is put on the email field with setError and the field takes focus. Not exercised in a browser. The banner is announced by role=alert and focus is not moved to it."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page (header, main with a two-thirds / one-third grid from lg, a side card of other ways to reach the team, a footer) is plain elements; the root paints bg-surface itself.",
+      "why": "Expected; the theme sets the ambient text colour but paints no page ground."
+    },
+    {
+      "kind": "feature",
+      "what": "site-header-block copied from kit-blocks/ (the shadcn command was refused here) and edited: a `current` flag on a link sets aria-current=\"page\".",
+      "why": "The block has no way to mark the page being read. A block, so not a leave of the kit: recorded for the edit."
+    }
+  ],
+  "friction": "The react-hook-form adapter is the hard part: its doc comment shows zodResolver but nothing says the Form* components take no rules and pass no ref, so validation without a schema library and focus on the first error both had to be worked out from the source. A single Checkbox cannot show its own error text, which a consent box always needs; an errorMessage / supportingText on Checkbox (or a FormCheckbox that draws fieldState.error) would have removed a hand-written block. Required marks differ between TextField (asterisk) and Select / Checkbox (none). Button's isLoading does not say what it does to presses or to assistive technology. There is no inline banner for an error that must stay on screen, and ds-build does not say what to use instead (Snackbar's doc says what it is for, not what to use when it is wrong). The type primitives' allowed `component` elements are only in their types. ErrorIcon is not in the barrel. What would have made it easy: one worked form in ds-build (validation, a server error on a field, a server error on the form, the pending and sent states) naming the kit's part for each."
+}

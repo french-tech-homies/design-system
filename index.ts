@@ -29,6 +29,7 @@ export {
   EditIcon,
   ScheduleIcon,
   KeyboardIcon,
+  DragIndicatorIcon,
   GlobeIcon,
   ImageIcon,
   MinusIcon,
@@ -42,6 +43,7 @@ export {
 
 // Primitives
 export { Display, Headline, Title, Body, Label } from "./primitives/Typography";
+export type { TextElement } from "./primitives/Typography";
 export {
   default as StateLayer,
   type StateLayerColor,
@@ -89,6 +91,34 @@ export {
 } from "./components/Carousel";
 export { default as ListItem, type ListItemProps } from "./components/ListItem";
 export { Tag, type TagProps } from "./components/Tag";
+export { Link, type LinkProps } from "./components/Link";
+export {
+  ContextMenu,
+  type ContextMenuProps,
+} from "./components/ContextMenu";
+export {
+  Tree,
+  TreeItem,
+  type TreeProps,
+  type TreeItemProps,
+} from "./components/Tree";
+export { DropZone, type DropZoneProps } from "./components/DropZone";
+export {
+  FileTrigger,
+  type FileTriggerProps,
+} from "./components/FileTrigger";
+export {
+  Popover,
+  PopoverTrigger,
+  type PopoverProps,
+  type PopoverTriggerProps,
+} from "./components/Popover";
+export {
+  Breadcrumbs,
+  Breadcrumb,
+  type BreadcrumbsProps,
+  type BreadcrumbProps,
+} from "./components/Breadcrumbs";
 export {
   Badge,
   badgeAccessibleText,
@@ -99,6 +129,7 @@ export {
 } from "./components/Badge";
 export {
   Table,
+  ResizableTableContainer,
   TableHeader,
   TableBody,
   TableFooter,
@@ -111,8 +142,23 @@ export {
   type CellProps,
 } from "./components/Table";
 export { Avatar, type AvatarProps } from "./components/Avatar";
-export { GridList, GridListItem } from "./components/GridList";
-export { Menu, type MenuItemType } from "./components/Menu";
+export { Pressable, type PressableProps } from "./components/Pressable";
+export {
+  Skeleton,
+  SkeletonGroup,
+  type SkeletonProps,
+  type SkeletonGroupProps,
+} from "./components/Skeleton";
+export {
+  GridList,
+  GridListItem,
+  GridListDragHandle,
+} from "./components/GridList";
+export {
+  Menu,
+  type MenuItemType,
+  type MenuDividerType,
+} from "./components/Menu";
 export { default as MenuItem, type MenuItemProps } from "./components/MenuItem";
 export { Dialog, type DialogProps } from "./components/Dialog";
 export {

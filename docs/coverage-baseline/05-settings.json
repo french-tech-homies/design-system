@@ -1,0 +1,219 @@
+{
+  "screen": "Settings",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Sections by tabs or by list and detail",
+      "built": "yes",
+      "kit": [
+        "Tabs",
+        "TabList",
+        "Tab",
+        "TabPanel",
+        "Title",
+        "Body",
+        "Headline",
+        "Divider",
+        "LoadingIndicator"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The page (header, centred column, fixed save bar), a Group (titled section on a surface-container-low card) and the loading placeholder, on plain elements with role utilities.",
+          "why": "Expected: the kit has no settings page or settings group. TopAppBar and Card were not tried."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tabs.tsx whole, styles included.",
+          "why": "The doc comments answered everything in the end (isScrollable, aria-label, panel padding); the read was to learn whether TabPanel keeps state and how className merges, which no comment says. All settings state is held above Tabs because React Aria unmounts the inactive panels."
+        },
+        {
+          "kind": "read",
+          "what": "Read primitives/Typography.tsx past the doc comments (the base implementation and prop types).",
+          "why": "To learn the default element of each role and that `component`, `colorRole` and passthrough props such as id and role are accepted."
+        },
+        {
+          "kind": "read",
+          "what": "Read Divider.tsx whole, styles included.",
+          "why": "Not needed in the end: the doc comment names the three variants. Read while looking for its props."
+        },
+        {
+          "kind": "read",
+          "what": "Read render-props.ts.",
+          "why": "To confirm a className passed to a kit component is merged over the kit's own classes (through cn) rather than appended: bottom-20 over bottom-4, flex-row-reverse and gap-4 on Switch, py-6 on TabPanel all rest on it. The skill says so for cn and tv, not for this helper."
+        }
+      ],
+      "notes": "Four tabs (Notifications, Appearance, Privacy, Workspace), TabList isScrollable so they fit 400px. Tabs chosen over list and detail at every width; no vertical or list-detail layout on desktop. Not seen in a browser: no rendering, pointer or keyboard check was possible in this run."
+    },
+    {
+      "n": 2,
+      "part": "Switches",
+      "built": "yes",
+      "kit": [
+        "Switch",
+        "Body",
+        "Divider"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "A settings row made from Switch with className 'w-full flex-row-reverse justify-between px-4 py-3' so the switch trails and the whole row is the target; name and description are two spans inside it, wired with aria-labelledby and aria-describedby by hand.",
+          "why": "Switch has no trailing placement and no supportingText/description prop (RadioGroup has one). Everything in its children becomes the accessible name, so a described switch needs ids written by the caller."
+        },
+        {
+          "kind": "layout",
+          "what": "SwitchRow, the row's two lines of text.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read Switch.tsx whole.",
+          "why": "The doc comment gives the measures and `icons`, not where children are drawn (after the track) nor that the root is an inline-flex that a className can reverse."
+        }
+      ],
+      "notes": "Eleven switches. The state layer stays on the handle only: hovering the row's text shows it on the handle, not across the row. Unverified in a browser that aria-labelledby on React Aria's Switch wins over the wrapping label's text; it is typed and builds."
+    },
+    {
+      "n": 3,
+      "part": "Radio groups",
+      "built": "yes",
+      "kit": [
+        "RadioGroup",
+        "Radio"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "Padding (p-4) on each group inside its card.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read Radio.tsx whole.",
+          "why": "Little was missing: the doc comment names label, supportingText, errorMessage and orientation. Read alongside the others; only the group's flex/gap had to be seen to pad it."
+        },
+        {
+          "kind": "feature",
+          "what": "onChange hands back a plain string, cast to each setting's union at four call sites.",
+          "why": "RadioGroup is not generic over its value type (React Aria's is not either)."
+        }
+      ],
+      "notes": "Four groups, one option preselected in each, vertical, five options or fewer."
+    },
+    {
+      "n": 4,
+      "part": "A slider",
+      "built": "yes",
+      "kit": [
+        "Slider",
+        "Title",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "className 'max-w-none' to lift the 300px cap on the root.",
+          "why": "The root carries max-w-[300px], which no doc comment mentions; a settings row wants the full width."
+        },
+        {
+          "kind": "feature",
+          "what": "Added the class 'group' to the slider that can be disabled (sound volume).",
+          "why": "The kit's disabled styles are written 'group-data-[disabled]:…' but the root has no 'group' class, so a disabled slider would paint as enabled. The label and output do not fade either way."
+        },
+        {
+          "kind": "read",
+          "what": "Read Slider.tsx whole.",
+          "why": "The doc comment is three lines: it names neither label, showOutput, thumbLabels nor the width cap, and says nothing of formatOptions for the output."
+        },
+        {
+          "kind": "value",
+          "what": "The preview paragraph takes style={{ fontSize: textSize, lineHeight: 1.4 }}.",
+          "why": "It is the person's setting drawn live (12 to 20px), not a design value; no type role can carry it."
+        },
+        {
+          "kind": "layout",
+          "what": "The message preview under the text-size slider (also follows the Density radio).",
+          "why": "Expected."
+        }
+      ],
+      "notes": "Two sliders: sound volume (0 to 100 %, disabled while the sound switch is off) and message text size (12 to 20px). The kit's slider is a 3px line and a 16px thumb, not Material's current track and handle; used as it is. Not seen in a browser."
+    },
+    {
+      "n": 5,
+      "part": "A destructive action confirmed in a dialog",
+      "built": "yes",
+      "kit": [
+        "ModalDialog",
+        "Button",
+        "Body",
+        "Title"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "actions passed as JSX (a text Cancel with autoFocus, a Button color=\"error\" with isLoading) instead of the { confirm, cancel } object.",
+          "why": "The object form draws a primary filled confirm and has no colour, autoFocus or disabled option; a destructive confirm needs the error button."
+        },
+        {
+          "kind": "feature",
+          "what": "className 'w-80 sm:w-96' on the dialog.",
+          "why": "DialogContent has min-w-[280px] and w-full but no maximum, and Modal gives it no width or side margin, so long supporting text would run it to the phone's edges. Material's 280 to 560dp range is not held by the kit."
+        },
+        {
+          "kind": "feature",
+          "what": "Guards in the handlers (if isDeleting return) and isDisabled on Cancel while deleting.",
+          "why": "Button's isLoading draws the spinner but does not stop a second press."
+        },
+        {
+          "kind": "read",
+          "what": "Read Dialog.tsx, ModalDialog.tsx, DialogContent.tsx and Modal.tsx whole.",
+          "why": "Four files to learn one dialog: which props go where (className lands on DialogContent, not the modal), that actions may be JSX, and that there is no width."
+        },
+        {
+          "kind": "layout",
+          "what": "The danger-zone row and the 'scheduled for deletion' notice with its Restore button.",
+          "why": "Expected."
+        },
+        {
+          "kind": "read",
+          "what": "Read Button.tsx prop types and the isLoading path, and renderIcon in icons.tsx.",
+          "why": "Button's doc comment does not mention isLoading at all (what it draws, whether it blocks a press), nor that autoFocus passes through; the dialog's `icon` type had to be traced to icons.tsx to know a lucide component is accepted."
+        }
+      ],
+      "notes": "Delete workspace (outlined error button) opens an alertdialog; Cancel takes focus; confirming waits 900ms, closes, replaces the Workspace section with a notice and a working Restore, and shows a snackbar. Escape closes, the scrim does not (alertdialog). Unverified in a browser: that autoFocus on the kit Button lands on Cancel, and where focus goes after the trigger is unmounted."
+    },
+    {
+      "n": 6,
+      "part": "A snackbar on save",
+      "built": "yes",
+      "kit": [
+        "SnackbarRegion",
+        "snackbar",
+        "Button",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A fixed save bar: a status line (role=status: Unsaved changes / Saving… / All changes saved), Discard and Save.",
+          "why": "Expected; the kit has no save bar. Toolbar was not tried."
+        },
+        {
+          "kind": "read",
+          "what": "Read Snackbar.tsx whole.",
+          "why": "The doc comment was enough (region once, snackbar(), bottom-20 above a bar); the read confirmed that an action makes it persistent unless a timeout is given."
+        }
+      ],
+      "notes": "Save is disabled until something differs from what is stored, loads for 900ms, then snackbar('Settings saved') with an Undo that really puts back the stored and shown values of before the save; timeout 6000 so it leaves by itself. The region is lifted with className 'bottom-20' to clear the save bar. Not seen in a browser."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "max-w-3xl, w-80/sm:w-96, basis-64 and spacing-scale gaps are Tailwind's own scale, not kit tokens.",
+      "why": "The kit has no layout width or dialog width tokens."
+    }
+  ],
+  "friction": "No block was added or inspected: by their names (pager, stepper, radio tile, reading carousel, site header) none matched a part, and plain radios serve a settings group better than tiles. Nothing was imported from react-aria-components, no kit file was edited, and no prop was guessed wrong (the first build was green), but that was bought with reading: Switch, Radio, Slider, Tabs, Snackbar, Divider and the four dialog files whole, and Button, Typography and icons in part. Slider's comment names none of its props and hides a 300px cap and a disabled style that needs a 'group' class the root lacks; a dialog is spread over four files and has no maximum width; Switch has no description or trailing-label form though a settings row is its commonest use, so the name/description wiring is by hand; Button's comment says nothing of isLoading, which does not block presses. A 'settings row' example (Switch with supporting text, trailing), a width on the dialog, and a props list in Slider's comment would have made this a doc-comment-only build. Nothing here was run in a browser: light, dark, 400px, pointer and keyboard are unverified beyond types and the build."
+}

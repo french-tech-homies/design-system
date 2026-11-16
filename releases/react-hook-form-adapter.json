@@ -1,10 +1,10 @@
 {
   "item": "react-hook-form-adapter",
-  "version": "0.6.0",
+  "version": "0.11.0",
   "kit": {
     "adapters/react-hook-form.tsx": {
-      "exact": "c1e1ab0571bbd577680be3e2a6cf8417d7f77301221805eb9e6b4b802b85615c",
-      "loose": "106c1ed867b4e5db332aa3bea8e76be4c646eb6722dd2e0404c3ba134126e78b"
+      "exact": "f75b5bad98000de340ae5dddec0327ea8e5605ceab22994d881340ace298c206",
+      "loose": "26d41ade0461c134eb5910983bf2f1eb9f1460dbc2c4cb0c95b91a84ed29391d"
     }
   }
 }

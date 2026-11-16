@@ -259,13 +259,14 @@ pages render straight from `resolved.json`.
 Before any of it, a new component is Material's or Material-derived, or it
 is not the kit's. Its doc comment cites its page of m3.material.io; or it is
 a React Aria component Material does not describe, joining the named group in
-`README.md`, "The kit's own", on a project's need, by the rule written in
+`README.md`, "The kit's own", on the need of a screen of the coverage corpus
+or of a project, by the rule written in
 `docs/what-this-kit-is.md`: its doc comment says "Material 3 does not describe this component."
 and cites, beside it, the page of each thing it borrows from Material. `npm
 run registry:check-install` (`scripts/check-components.mjs`) refuses a
 component file that does neither, and a list and files that differ.
 
-Then five things, and CI (`.github/workflows/checks.yml`) enforces all
+Then six things, and CI (`.github/workflows/checks.yml`) enforces all
 of them:
 
 1. **A story** in `stories/<Category>/<Component>.stories.tsx`, titled
@@ -290,7 +291,13 @@ of them:
    `on-surface/38`, which WCAG 1.4.3 exempts as an inactive component) or that
    it is a real defect with an issue number. Never a blanket disable in
    `.storybook/preview.ts`. An unexplained suppression is worse than no check.
-5. **Its screenshots.** Every story is compared to its committed pictures,
+5. **Its focus, shown.** Every tab stop of every story is reached by the
+   keyboard and must be drawn differently while it holds the focus. A part
+   that exists only while something is open (a row of a menu, an option of a
+   list) needs a test in `stories/interactions/Focus.stories.tsx` that opens
+   it by the keyboard and calls `expectVisibleFocus` on it. See
+   `docs/catalog-and-tests.md`, "Focus".
+6. **Its screenshots.** Every story is compared to its committed pictures,
    light and dark under both presets (`screenshots/`). A new story, or one
    changed on purpose, is baselined with
    `npm run screenshots:update -- <story file>`, and the pictures are
@@ -310,3 +317,13 @@ quality bar (story, interaction test, axe under both presets), and keep
 `README.md`'s component table, "Components", current. A component Material 3
 does not describe is not on this list: it joins the kit only through the
 group in `README.md`, "The kit's own".
+
+A part neither Material nor React Aria describes is never a component of the
+kit. Where the coverage corpus asks for one again and again, it is a block:
+a file under `blocks/<name>/`, built from the kit's components, that a
+project copies into its own components and edits. It clears the same bar
+(stories under `stories/blocks/`, titled `MD3/Blocks/<Name>`, a keyboard
+test, axe, the focus walk, pictures), imports the kit as
+`@/registry/ds/ui/ds`, and opens with a comment that says what it is, which
+kit components it needs and what it borrows from Material. See
+`docs/what-this-kit-is.md`, "Blocks".

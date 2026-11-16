@@ -1,0 +1,60 @@
+{
+  "screen": "Activity",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A thread of comments with a rich-text field to reply",
+      "built": "yes",
+      "kit": ["Avatar", "Title", "Body", "Label", "Link", "IconButton", "Button", "Menu", "Tooltip", "TooltipTrigger", "Card", "Tag", "TopAppBar", "cn", "focusRing"],
+      "leaves": [
+        { "kind": "control", "what": "Wrote the rich-text field by hand (src/activity/RichTextEditor.tsx): a contenteditable div with role=textbox, bold, italic, bulleted list and mention chips through document.execCommand, plain-text paste, Ctrl/Cmd+Enter to send, an outlined-field container with a 2px primary outline on focus. Its content is read back as blocks and drawn by React, never as HTML.", "why": "The kit has no rich-text field: TextField is plain text only, and neither Material nor React Aria describes one." },
+        { "kind": "component", "what": "Imported Toolbar from react-aria-components for the formatting row (arrow keys between its buttons, one tab stop).", "why": "The kit's Toolbar is Material's page toolbar: docked (64dp, full width, its own surface) or floating (pill at elevation 3). It has no plain inline form to sit in a field's footer, and overriding its height, surface and spacing would be bending it." },
+        { "kind": "layout", "what": "Hand-written comment row (avatar, author and time, body, like/reply/more), the ordered list with hairlines, the loading skeleton, the page grid and the design summary inside a Card.", "why": "Expected: the kit has no comment component; ListItem has no place for a rich body and a row of actions." },
+        { "kind": "layout", "what": "Drew a bold 'B' icon as an inline SVG.", "why": "The kit ships no formatting icons and the installed lucide-react has no Bold export (Italic and List exist)." },
+        { "kind": "guess", "what": "Passed component=\"h3\" to Label and component=\"li\" to Body: type errors. Used Title for the h3 and a plain li with text-body-large font-body-large.", "why": "The doc comments say which heading levels Display/Headline take, but Body's and Label's allowed elements (div|p|span, div|label|span) are only in the types." },
+        { "kind": "read", "what": "Looked up props by grep in the source of Typography (component, colorRole), Button (icon), Menu and MenuItem (triggerButton, placement, item fields) and IconButton (sizes, toggle props).", "why": "Quicker than reading each long doc comment; the types are where the allowed values are." },
+        { "kind": "read", "what": "Read Toolbar's styles past its doc comment to see whether className could reduce it to an inline row.", "why": "The doc comment does not say whether the docked container can be removed." }
+      ],
+      "notes": "Not exercised in a browser (none allowed): the build proves types only. Unverified in particular: that the caret is restored after a toolbar button or the mention menu takes the focus (the range is saved on selectionchange and restored before each command, and again 250 ms after a mention is picked, once the menu has returned focus to its button); that focus returns to the field after a send (an effect on the sending flag); that the toggles follow the selection (document.queryCommandState); what each browser writes for a list (the serializer handles ul/ol/li, div, p, br, b/strong, i/em). execCommand is deprecated though still implemented everywhere. Mentions are inserted from the @ menu or a comment's Reply button; typing '@' does not open a suggestion list. Undo history after a mention insert (done with Range, not execCommand) may skip that step. Thread loading is a 1.2 s timer; sending is a 0.7 s timer. Delete is offered on your own comments only, with Undo in the snackbar."
+    },
+    {
+      "n": 2,
+      "part": "A popover of notifications from a badged icon button",
+      "built": "yes",
+      "kit": ["TopAppBar", "IconButton (badge, badgeLabel)", "PopoverTrigger", "Popover", "GridList", "GridListItem", "ListItem", "Avatar", "Badge", "Button", "Divider", "LoadingIndicator", "Title"],
+      "leaves": [
+        { "kind": "read", "what": "Read Popover.tsx, Badge.tsx and GridList.tsx in full.", "why": "They came with the first read of the file; the doc comments would have been enough for Popover and Badge. GridList's doc comment does not show items/onAction, which are React Aria's." },
+        { "kind": "layout", "what": "The popover's header row (title, 'Mark all read') and the unread dot with its hidden 'Unread' text in ListItem's trailing slot (VisuallyHidden from react-aria-components, which the guidance lists as not leaving).", "why": "Expected composition." }
+      ],
+      "notes": "The badge is the unread count and goes when it reaches zero. The list loads on first open (0.7 s timer). Pressing a notification marks it read and, when it is about a comment, moves focus to that comment and closes the popover; the focus is moved 250 ms after closing, once React Aria has returned it to the bell: a timing I could not verify in a browser. A notification arrives by itself 9 s after load (badge rises, a snackbar with 'Show' opens the popover). Unread uses Badge color=\"primary\" as a dot, which the kit documents as not Material's."
+    },
+    {
+      "n": 3,
+      "part": "A card previewing a mentioned person",
+      "built": "yes",
+      "kit": ["PreviewTrigger", "PreviewCard", "Link", "Avatar", "Title", "Body", "Button (toggle)", "LoadingIndicator"],
+      "leaves": [
+        { "kind": "read", "what": "Read PreviewTrigger.tsx in full.", "why": "It is short and came with the first read; the doc comment was enough." },
+        { "kind": "layout", "what": "The card's insides: avatar and name, a definition list of profile facts, Message and Follow buttons.", "why": "Expected." },
+        { "kind": "guess", "what": "Passed component=\"dt\" to Label and component=\"dd\" to Body: type errors; wrote dt/dd with the role utilities instead.", "why": "The primitives take only div/p/span/label; the doc comment does not list them for Body and Label." }
+      ],
+      "notes": "Opens on hover, keyboard focus and long press, per the kit's doc comment; not seen running. The trigger is the kit's Link with no href: pressing it does nothing, since there is no profile page to go to. Mentions in comments and author names both carry the card. Profile facts load on first open (0.5 s timer). Follow and Message each queue a snackbar. Whether focus can travel from the link into the card's buttons by Tab is React Aria's behaviour and unverified here."
+    },
+    {
+      "n": 4,
+      "part": "Snackbars queued",
+      "built": "yes",
+      "kit": ["SnackbarRegion", "snackbar"],
+      "leaves": [
+        { "kind": "feature", "what": "Wrote src/lib/snackbar-queue.ts: a first-in first-out line that hands one message at a time to the kit's snackbar() and shows the next from its onClose. Every queued message gets a timeout (8 s with an action) and a close icon so none holds the line.", "why": "The kit's snackbar() closes the message on screen and replaces it, and its underlying queue (React Aria ToastQueue, maxVisibleToasts 1) puts the newest first, so several messages at once would show only the last, then the older ones afterwards in reverse." },
+        { "kind": "read", "what": "Read Snackbar.tsx in full, and ToastQueue.add in node_modules/react-stately, to learn the order.", "why": "The doc comment says a new message replaces the one on screen but not what the queue itself does with a second add." }
+      ],
+      "notes": "To see a queue: post a reply that mentions two people (three snackbars in a row), or follow someone and mark all read quickly. Unverified in a browser: that onClose fires once for each of timer, close icon, Escape and action (it is called from ToastQueue.close, which all four reach). The kit's action handler calls onPress and then closes, so an 8 s timeout on an action snackbar departs from the kit's default of staying until dismissed."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "Icons from lucide-react (Bell, ThumbsUp, EllipsisVertical, Italic, List, AtSign, Send).", "why": "The kit ships only the icons its own components use." }
+  ],
+  "friction": "Nothing was verified in a browser, so every behaviour above rests on types and on reading. No block fitted this screen. Hardest to find: (1) what 'queued' means for snackbars: the doc comment describes replacement, and the queue's newest-first order is only in React Aria's source; a snackbar option such as { queue: true }, or a line in the doc comment, would have settled it. (2) Which elements Body and Label accept: three type errors; a list in each doc comment (as Display's has) would do. (3) The kit Toolbar's name suggests a formatting toolbar; its doc comment makes clear it is the page's, but a sentence saying 'for a row of controls inside a field, use React Aria's Toolbar' would save the look at its styles. (4) ListItem's example writes <Avatar name=\"Ada\" />, a prop Avatar does not have. (5) The guidance has no word on a rich-text field at all: saying it is the project's to write, and on what, would help. Good: IconButton's badge and badgeLabel, Popover's doc comment naming 'a list of notifications', and PreviewTrigger's explanation of when to prefer it over a rich Tooltip made parts 2 and 3 quick."
+}

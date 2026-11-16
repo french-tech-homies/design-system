@@ -1,0 +1,73 @@
+{
+  "screen": "Sign in and up",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Several steps with their progress",
+      "built": "yes",
+      "kit": ["stepper-block (src/components/Stepper.tsx, unedited)", "Headline", "Body", "Title", "Button"],
+      "leaves": [
+        { "kind": "layout", "what": "The page, the bordered panel at desktop width, each step's heading and form, the signed-in ending, written by hand in src/screens/SignInAndUp.tsx.", "why": "Expected of a screen." },
+        { "kind": "feature", "what": "Focus is moved by hand to each step's heading (tabIndex -1, a ref, an effect) when the step changes.", "why": "The stepper block shows where a person is and does not hold the steps' content, so nothing moves focus or announces the new step." },
+        { "kind": "feature", "what": "onStepPress is passed only on the verify step, so only 'Account' is gone back to and only before the email is verified.", "why": "The block makes every done step a button or none: it has no way to say which done steps may be returned to. Solved from outside, without editing the block." }
+      ],
+      "notes": "Sign up has three steps (Account, Verify email, About you), sign in two (Sign in, Verify). Not seen in a browser: the block's phone form ('2 of 3: Verify email') is taken on its doc comment's word."
+    },
+    {
+      "n": 2,
+      "part": "Email and password with show and hide",
+      "built": "yes",
+      "kit": ["TextField", "IconButton (isToggle)", "FormTextField (react-hook-form adapter)", "Button"],
+      "leaves": [
+        { "kind": "feature", "what": "Show and hide is a toggle IconButton passed as an element to TextField's trailingIcon, with -mr-2 to sit as Material's trailing icon does, and the input's type switched in a wrapper (PasswordField).", "why": "TextField has no password form. Its doc comment says a trailing icon may be 'a clear button' only in passing, in a code comment: that the slot takes a pressable element had to be confirmed in icons.tsx (renderIcon) and field-styles.ts." },
+        { "kind": "read", "what": "Read TextField's body, icons.tsx's renderIcon and field-styles.ts to learn that trailingIcon accepts an interactive element and that no overlay covers it.", "why": "The doc comment does not say the slot is interactive, nor what margin a button in it needs." },
+        { "kind": "feature", "what": "Validation is a resolver written by hand, since the adapter's Form* fields do not pass `rules` to Controller.", "why": "The adapter takes only control and name: a rule per field is not possible, and no schema library is installed." },
+        { "kind": "feature", "what": "After a refused submit the first invalid input is found with querySelector('[aria-invalid=true]') and focused by hand.", "why": "The adapter does not hand react-hook-form the field's ref, so shouldFocusError has nothing to focus." },
+        { "kind": "read", "what": "Read Button's source to learn what isLoading does: it swaps the icon for a spinner and nothing else.", "why": "isLoading has no doc comment. The press is not held and nothing is announced, so a second submit is refused in the handlers." },
+        { "kind": "guess", "what": "Passed autoCapitalize to the text field: a type error, removed.", "why": "React Aria's TextField does not take it; assumed any input attribute went through." }
+      ],
+      "notes": "The toggle keeps the name 'Show password' and changes aria-pressed; its icon swaps between an eye and a struck eye (lucide-react). A trailingIcon replaces the kit's error icon, as its doc says, so an invalid password shows its error by colour and message only. Demo account: maya@example.com / harbour-2026. Not seen in a browser."
+    },
+    {
+      "n": 3,
+      "part": "A one-time code",
+      "built": "yes",
+      "kit": ["Button", "snackbar", "SnackbarRegion", "cn"],
+      "leaves": [
+        { "kind": "component", "what": "TextField, Label, Input, FieldError and Text from react-aria-components, in src/screens/OtpField.tsx.", "why": "The kit has no one-time-code field, and its TextField cannot draw the code as cells." },
+        { "kind": "control", "what": "Six cells drawn by hand under one transparent real input (autocomplete one-time-code, numeric keyboard, paste filtered to digits, caret held at the end, a drawn caret, submit when the sixth digit arrives).", "why": "No kit component. One input rather than six keeps the keyboard's code suggestion, paste and a single labelled field for a screen reader." },
+        { "kind": "layout", "what": "The cells follow the kit's outlined text field by eye: 56dp tall, extra-small corner, outline at rest, 2dp primary on the cell typed, error when refused.", "why": "Nothing in the kit or Material to follow for a code field." },
+        { "kind": "value", "what": "`animate-pulse` for the drawn caret, `max-w-12` for a cell: Tailwind's own, not motion or size tokens.", "why": "The kit has no caret or blink token." }
+      ],
+      "notes": "The code is 482913. A wrong code clears the cells, says so and keeps focus; the field is read-only while the code is checked. Resend is disabled for 30 seconds with a countdown in its label, then sends a snackbar and returns focus to the field. Selecting part of the code is not possible (the caret is held at the end): Backspace removes the last digit. Not seen in a browser: the transparent input's alignment over the cells and iOS's suggestion are untested."
+    },
+    {
+      "n": 4,
+      "part": "Consent checkbox with a link in its label",
+      "built": "yes",
+      "kit": ["Checkbox", "FormCheckbox (react-hook-form adapter)", "Link", "Body"],
+      "leaves": [
+        { "kind": "feature", "what": "The error message under the checkbox is a Body written by hand, tied to it with aria-describedby and a role=alert wrapper.", "why": "A lone Checkbox takes isInvalid and has no errorMessage; only CheckboxGroup has one, and a group of one is not a consent." },
+        { "kind": "read", "what": "Read Checkbox's source to see how its label lays out children.", "why": "The label is an inline-flex row: text with links in it becomes several flex items. The sentence is wrapped in one span and the row set to items-start; the doc comment does not say so." },
+        { "kind": "layout", "what": "The links open a small terms or privacy page (src/screens/LegalPage.tsx, `?page=terms`) in a new tab, by a real href.", "why": "A Link without href is a span, and a press on it inside a label would also tick the box; a real href inside a label does not. Nothing in the kit says which is safe." }
+      ],
+      "notes": "Unsure: React Aria's press handling on the label may show the checkbox's pressed state layer while a link in it is pressed. The checkbox's name read by a screen reader holds both links' text. Not seen in a browser."
+    },
+    {
+      "n": 5,
+      "part": "A provider button",
+      "built": "yes",
+      "kit": ["Button (outlined, icon, isLoading)", "Divider", "Body"],
+      "leaves": [
+        { "kind": "value", "what": "Google's mark is an SVG with Google's four hex colours (src/screens/GoogleMark.tsx).", "why": "A brand's mark is drawn in its own colours, not a role." },
+        { "kind": "layout", "what": "The 'or with your email' line between two Dividers.", "why": "Expected of a screen." }
+      ],
+      "notes": "'Continue with Google' simulates the provider's round trip with a timer and signs in as the demo customer. While it loads the mark is replaced by the kit's spinner and the form's submit is disabled. Not seen in a browser."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "Icons from lucide-react (Eye, EyeOff, Landmark).", "why": "The kit ships no icon set beyond its own few, and says so." }
+  ],
+  "friction": "Nothing here was seen running: no browser was allowed, so the screen is verified by tsc, vite build and one server render only. In the kit: (1) nothing says how to make a password field; that TextField's trailingIcon takes a pressable element, and that a 40dp IconButton needs -mr-2 there, was learnt from three source files. A line and an example in TextField's doc comment would do. (2) Button's isLoading has no doc: it does not hold the press nor set aria-busy, which a form's submit needs. (3) The react-hook-form adapter passes neither `rules` nor the field's ref: validation needs a resolver, and focusing the first error is done by hand; the skill's section on the adapter says neither. (4) A lone Checkbox has no errorMessage, and its doc does not say children must be one node for a sentence with a link, nor whether a Link inside the label is safe. (5) No one-time-code field and no block for one: the most hand-written part of the screen. (6) The stepper block has no say on which done steps may be gone back to, and no word on moving focus between steps."
+}

@@ -119,7 +119,9 @@ export default defineConfig({
     // were made: see `.storybook/screenshot.setup.ts`. An array, never a
     // string: `storybookTest` copies a string into its own list, the merge
     // adds it again, and every hook in it then runs twice.
-    setupFiles: ["./.storybook/screenshot.setup.ts"],
+    // `focus.setup.ts` first: hooks run last-registered first, so its walk
+    // of each story's tab stops comes after the pictures are taken.
+    setupFiles: ["./.storybook/focus.setup.ts", "./.storybook/screenshot.setup.ts"],
     provide: { md3Screenshots: Boolean(process.env.MD3_SCREENSHOTS) },
     // One project per identity. A component that is only accessible under the
     // Material palette is not accessible: the Editorial preset is a different

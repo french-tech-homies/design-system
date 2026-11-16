@@ -68,7 +68,7 @@
       },
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -135,7 +135,7 @@
       },
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -176,7 +176,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -209,7 +209,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -227,7 +227,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -248,7 +248,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -275,7 +275,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -287,7 +287,7 @@
       "dependencies": [
         "clsx@^2.1.1",
         "tailwind-merge@^3.6.0",
-        "tailwind-variants@^1.0.0"
+        "tailwind-variants@^4.0.2"
       ],
       "registryDependencies": [
         "@ds/license"
@@ -301,7 +301,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -326,7 +326,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -347,7 +347,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -369,7 +369,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -391,7 +391,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -418,7 +418,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -443,7 +443,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -469,7 +469,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -495,7 +495,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -521,7 +521,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -550,7 +550,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -577,7 +577,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -600,7 +600,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -625,7 +625,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -654,7 +654,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -677,7 +677,171 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "link",
+      "type": "registry:ui",
+      "title": "Link",
+      "description": "Text link on React Aria Link, in a sentence or in a list of links: primary or inherited colour, underlined always or on hover and focus, routed through the router adapter.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Link.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Link.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "context-menu",
+      "type": "registry:ui",
+      "title": "ContextMenu",
+      "description": "The kit's menu asked for on something itself: an area that opens it at the pointer on a right click or a long press, and at the focused element from the keyboard.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/menu",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/ContextMenu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/ContextMenu.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "tree",
+      "type": "registry:ui",
+      "title": "Tree",
+      "description": "A hierarchy opened level by level, on React Aria Tree: a list item's row at each level, 24dp of indent, selection by row or by checkbox, a dense variant.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/icons",
+        "@ds/checkbox",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Tree.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Tree.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "drop-zone",
+      "type": "registry:ui",
+      "title": "DropZone and FileTrigger",
+      "description": "An area files are dropped onto, on React Aria DropZone (a dashed outlined box, or bare over an area with its own look), and FileTrigger, which opens the file chooser from a kit button.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/DropZone.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/DropZone.tsx"
+        },
+        {
+          "path": "components/FileTrigger.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/FileTrigger.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "A surface for any content beside its trigger, on React Aria Popover and Dialog: not modal, focus kept in, closed by Escape or a press outside. The rich tooltip's container.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Popover.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Popover.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "breadcrumbs",
+      "type": "registry:ui",
+      "title": "Breadcrumbs",
+      "description": "The path to the current page on React Aria Breadcrumbs: links to each level above it and the page itself, with a mirrored chevron between two.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/icons",
+        "@ds/link",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Breadcrumbs.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Breadcrumbs.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -699,7 +863,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -722,7 +886,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -745,7 +909,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -760,6 +924,8 @@
       "registryDependencies": [
         "@ds/utils",
         "@ds/render-props",
+        "@ds/icons",
+        "@ds/icon-button",
         "@ds/license"
       ],
       "files": [
@@ -771,7 +937,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -795,7 +961,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -821,7 +987,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -846,7 +1012,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -871,7 +1037,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -897,7 +1063,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -920,7 +1086,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -947,7 +1113,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -975,7 +1141,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1004,7 +1170,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1030,7 +1196,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1056,7 +1222,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1085,7 +1251,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1113,7 +1279,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1142,7 +1308,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1165,7 +1331,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1191,7 +1357,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1219,7 +1385,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1248,7 +1414,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1279,7 +1445,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1304,7 +1470,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1327,7 +1493,52 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "pressable",
+      "type": "registry:ui",
+      "title": "Pressable",
+      "description": "A button, or a link, that holds anything (an avatar, a card's content, a line of text), with the state layer and the focus ring.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Pressable.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Pressable.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "A placeholder the shape of content that is loading (a line of text, a rectangle, a circle), and the group that says \"Loading\" once for a region.",
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Skeleton.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Skeleton.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1349,7 +1560,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1375,7 +1586,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1401,7 +1612,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1427,7 +1638,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1451,7 +1662,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1475,7 +1686,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1499,7 +1710,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1523,7 +1734,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1551,7 +1762,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1573,7 +1784,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1601,7 +1812,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1629,7 +1840,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1659,7 +1870,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1688,7 +1899,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1715,7 +1926,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1742,7 +1953,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1768,7 +1979,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1797,7 +2008,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1819,7 +2030,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1841,7 +2052,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1875,7 +2086,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1907,7 +2118,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1936,7 +2147,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -1976,7 +2187,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -2007,7 +2218,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -2037,7 +2248,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -2063,6 +2274,12 @@
         "@ds/carousel",
         "@ds/table",
         "@ds/tag",
+        "@ds/link",
+        "@ds/context-menu",
+        "@ds/tree",
+        "@ds/drop-zone",
+        "@ds/popover",
+        "@ds/breadcrumbs",
         "@ds/badge",
         "@ds/avatar",
         "@ds/list-item",
@@ -2088,6 +2305,8 @@
         "@ds/navigation-drawer",
         "@ds/slider",
         "@ds/empty-state",
+        "@ds/pressable",
+        "@ds/skeleton",
         "@ds/divider",
         "@ds/progress-indicator",
         "@ds/loading-indicator",
@@ -2133,13 +2352,13 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       },
       "dependencies": [
         "tw-animate-css@^1.4.0"
       ],
-      "docs": "MD3 kit 0.6.0, under <ui>/ds/ (the release is recorded in <ui>/ds/RELEASE.json). This install wrote nothing into your entry CSS.\n\nA first install: import the theme from your entry CSS, with every @import above any other at-rule. The path is from that file to your ui folder: ./components/ui/ds/ from src/index.css to src/components/ui, ../app/_components/ui/ds/ from src/styles/globals.css to src/app/_components/ui.\n\n  @import \"tailwindcss\";\n  @import \"./components/ui/ds/tokens/theme.css\";\n  @import \"./components/ui/ds/tokens/theme.v4.css\";\n  @import \"tw-animate-css\";\n\nAn update, or a theme of your own already imported (theme/theme.css, theme/theme.v4.css): keep your lines as they are.\n\nStock shadcn components in the project read the Material roles through one more import, written after theme.css:\n\n  @import \"./components/ui/ds/tokens/bridge-shadcn.css\";\n\nFor a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead."
+      "docs": "MD3 kit 0.11.0, under <ui>/ds/ (the release is recorded in <ui>/ds/RELEASE.json). This install wrote nothing into your entry CSS.\n\nA first install: import the theme from your entry CSS, with every @import above any other at-rule. The path is from that file to your ui folder: ./components/ui/ds/ from src/index.css to src/components/ui, ../app/_components/ui/ds/ from src/styles/globals.css to src/app/_components/ui.\n\n  @import \"tailwindcss\";\n  @import \"./components/ui/ds/tokens/theme.css\";\n  @import \"./components/ui/ds/tokens/theme.v4.css\";\n  @import \"tw-animate-css\";\n\nAn update, or a theme of your own already imported (theme/theme.css, theme/theme.v4.css): keep your lines as they are.\n\nStock shadcn components in the project read the Material roles through one more import, written after theme.css:\n\n  @import \"./components/ui/ds/tokens/bridge-shadcn.css\";\n\nFor a look of your own, open your agent and ask for one: the ds-theme skill (.claude/skills/ds-theme) writes your DESIGN.md, generates your theme into theme/ and imports that instead."
     },
     {
       "name": "spec-skill",
@@ -2163,7 +2382,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -2190,7 +2409,7 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
         "license": "MIT"
       }
     },
@@ -2212,7 +2431,127 @@
       ],
       "meta": {
         "kit": "french-tech-homies/design-system",
-        "version": "0.6.0",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "pager-block",
+      "type": "registry:block",
+      "title": "Pager (block)",
+      "description": "The pages of a list or a table: the range shown, previous and next, and a page-size menu. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's IconButton, Button, Menu and Body.",
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "blocks/pager/Pager.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "stepper-block",
+      "type": "registry:block",
+      "title": "Stepper (block)",
+      "description": "Where a person is in a sequence of steps: done steps with a check, buttons to go back to them, the current step named. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's Button, CheckIcon and Label.",
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "blocks/stepper/Stepper.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "radio-tile-block",
+      "type": "registry:block",
+      "title": "RadioTile (block)",
+      "description": "A choice of one among a few, each drawn as a tile around the kit's radio. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's RadioGroup, Radio, Title and Body.",
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "blocks/radio-tile/RadioTile.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "reading-carousel-block",
+      "type": "registry:block",
+      "title": "ReadingCarousel (block)",
+      "description": "A row of things that are read (quotes, cards of text), a few in view, scrolled by touch, by its buttons and by the arrow keys. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's IconButton, chevron icons and Body.",
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "blocks/reading-carousel/ReadingCarousel.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "site-header-block",
+      "type": "registry:block",
+      "title": "SiteHeader (block)",
+      "description": "The header of a public page: a brand link, a row of links that folds into a menu on a phone, and actions that stay in view. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's Link, IconButton, Menu and Title.",
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "blocks/site-header/SiteHeader.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
+        "license": "MIT"
+      }
+    },
+    {
+      "name": "app-shell-block",
+      "type": "registry:block",
+      "title": "AppShell (block)",
+      "description": "An application's frame with the navigation that fits its width: the navigation bar under 600dp, the rail from 600dp, the rail expanded from 1200dp, a skip link and a scrolling main. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's BottomNavigation, NavigationRail and Link.",
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "blocks/app-shell/AppShell.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.11.0",
         "license": "MIT"
       }
     }

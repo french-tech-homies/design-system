@@ -1,0 +1,79 @@
+{
+  "screen": "Application shell",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Rail on desktop, drawer on tablet, bottom navigation on phone",
+      "built": "yes",
+      "kit": ["app-shell-block (AppShell)", "NavigationRail", "NavigationDrawer", "BottomNavigation", "IconButton", "NavigationItem"],
+      "leaves": [
+        { "kind": "use", "what": "Edited the block (src/components/AppShell.tsx): the rail now starts at 840px instead of 600px, and between 600 and 840 the destinations are in a modal NavigationDrawer opened by a menu IconButton (AppShellMenuButton, exported from the block) placed in the top bar's leading slot. Added isDrawerOpen / onDrawerClose props and a brand(withName) prop replacing railHeader.", "why": "The block's comment: \"Yours to change: a drawer in place of the expanded rail, a FAB in the rail's `header`, an account button in its `footer`, other widths.\" The block as shipped has no drawer form and nothing that opens one." },
+        { "kind": "hook", "what": "A browser ResizeObserver (not a React Aria hook) in the block closes the modal drawer when the shell's width leaves 600-840px.", "why": "The modal drawer is a portalled overlay: the container queries that show and hide the rail and the bar cannot hide it, and the kit has nothing that ties a drawer to a width." },
+        { "kind": "layout", "what": "A brand mark (an 'L' on primary, with the name beside it on the expanded rail and in the drawer) written by hand for the rail's and drawer's header slots.", "why": "Expected: the kit has no logo part." },
+        { "kind": "read", "what": "Read NavigationDrawer's and NavigationRail's source past the doc comment.", "why": "To learn that a modal drawer calls onClose itself when a destination is chosen, that a destination with href is a React Aria Link (so the router adapter routes it), and what the header slots lay out." }
+      ],
+      "notes": "Not seen in a browser (none allowed): the three forms are switched by container queries on the shell's width (<600 bar, 600-839 menu button + modal drawer, >=840 rail, >=1200 expanded rail). 'Drawer on tablet' was read as a modal drawer; a standard 360dp drawer would leave a 600-840px window too little content. The expanded rail at >=1200 is the block's own and was kept."
+    },
+    {
+      "n": 2,
+      "part": "Top app bar",
+      "built": "yes",
+      "kit": ["TopAppBar", "IconButton", "ArrowBackIcon"],
+      "leaves": [
+        { "kind": "use", "what": "Wrapped each leading IconButton (menu, back) in a span carrying container-query classes (hidden @[600px]:flex @[840px]:hidden; flex @[600px]:hidden) so the bar shows the menu button only on a tablet and the back button only on a phone on a nested page.", "why": "TopAppBar's doc: \"The `leading` and `actions` slots take the interactive parts — pass `IconButton`s\". Which one shows at which width is the project's logic around it; the bar itself has no responsive leading." },
+        { "kind": "layout", "what": "The bar's title is the current route's name (its h1), taken from route handles; document.title is set beside it.", "why": "Project logic." }
+      ],
+      "notes": "Small variant only; no on-scroll behaviour (the kit documents it as not built)."
+    },
+    {
+      "n": 3,
+      "part": "Breadcrumbs",
+      "built": "yes",
+      "kit": ["Breadcrumbs", "Breadcrumb"],
+      "leaves": [
+        { "kind": "layout", "what": "The nav 'Path' landmark around the kit's Breadcrumbs, under the top bar and outside main, built from the matched routes (Clients > client > invoice). Shown only where the path has two levels or more.", "why": "The Breadcrumbs doc asks for it: \"put it in a `nav` with a name, so the path is a landmark\". A one-level path would only repeat the title." }
+      ],
+      "notes": "Top-level pages therefore show no breadcrumbs; open /clients/hartwell-sons or an invoice under it to see two and three levels. On a phone the bar also shows a back button to the level above."
+    },
+    {
+      "n": 4,
+      "part": "Account menu",
+      "built": "yes",
+      "kit": ["Menu", "Avatar", "StateLayer", "focusRing", "Title", "Body", "EmptyState", "Button"],
+      "leaves": [
+        { "kind": "component", "what": "The menu's trigger is react-aria-components' Button, round, 48dp, holding the kit's Avatar (32dp) with the kit's StateLayer and focusRing.", "why": "The kit has no pressable avatar: IconButton takes only an icon component ({size, className}) and draws it at 24dp in the icon colour, Avatar is not pressable, and Button is a labelled pill." },
+        { "kind": "use", "what": "Menu's header prop holds the account line (avatar, name, email); className=\"min-w-56\" widens the surface; placement=\"bottom end\".", "why": "Menu's doc: \"`header` static content above the items, `placement` and `offset` where the popover sits, `className` extra classes on its surface\"." },
+        { "kind": "layout", "what": "Sign out really leaves the shell: a signed-out page (EmptyState with a 'Sign in again' Button) replaces it. The theme item toggles the .dark class on <html>.", "why": "Project logic; a mock session held in state." }
+      ],
+      "notes": "Items: Profile and settings (a routed link to /settings), Use dark/light theme, divider, Sign out. The theme choice is not persisted across a reload (only ?dark is)."
+    },
+    {
+      "n": 5,
+      "part": "Skip link and landmarks",
+      "built": "yes",
+      "kit": ["app-shell-block (its skip Link and main)", "Link", "TopAppBar (header/banner)", "NavigationRail/NavigationDrawer/BottomNavigation (nav 'Main')"],
+      "leaves": [
+        { "kind": "component", "what": "VisuallyHidden from react-aria-components for a polite status that says the page's name after a client-side navigation, and for the brand's name on the collapsed rail.", "why": "The skill lists it under 'What comes straight from React Aria': \"Text only a screen reader gets | VisuallyHidden | For a status, or a name with no visible text.\" (so arguably not a leave)." }
+      ],
+      "notes": "Landmarks: banner (TopAppBar's header), navigation 'Main' (one of rail/bar rendered visible at a time, the others display:none; the drawer's nav exists only while open), navigation 'Path' (breadcrumbs), main (focusable, the skip link's target). The skip link is the block's: first in the tab order, shown on focus. Focus is not moved to main on navigation; the page's name is announced and main is scrolled to the top. Not checked with a screen reader."
+    },
+    {
+      "n": 6,
+      "part": "Routed links",
+      "built": "yes",
+      "kit": ["adapters/react-router (AriaRouterProvider)", "NavigationItem.href", "Breadcrumb href", "Menu item href", "IconButton href", "Button href", "GridList", "GridListItem", "ListItem", "Link"],
+      "leaves": [
+        { "kind": "layout", "what": "react-router's createBrowserRouter with a layout route that mounts AriaRouterProvider around the shell; each route carries a handle (title, destination) that the bar, the breadcrumbs and the selected destination read through useMatches.", "why": "Project logic; the adapter's doc says: \"Mount once, inside the router and above the components\"." },
+        { "kind": "use", "what": "href passed to GridListItem so a client or invoice row is a routed link.", "why": "GridListItem's doc: \"React Aria's `GridListItem`, which gives the row its focus, its selection, its action and its drag\"; it hands React Aria's props down. The doc does not name href, so this leans towards option: I relied on knowing React Aria's GridListItem takes href." },
+        { "kind": "layout", "what": "Sample pages by hand: Overview (three figures, invoices to chase), Clients (list), a client's page and an invoice's page, each with Skeleton placeholders on a 700ms timer; Invoices, Reports and Settings are honest EmptyState placeholders.", "why": "Expected of every screen." }
+      ],
+      "notes": "Every link is a real <a> routed client-side through the adapter: destinations, breadcrumb levels, the menu's profile item, the phone's back button, list rows, EmptyState actions. The mailto link on a client's page goes through the same RouterProvider; React Aria is expected to leave an external scheme to the browser, not verified here. A deep link needs the host to serve index.html for any path (vite dev/preview do)."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "Page column, figure cards (Card as li), definition lists and invoice lines laid out by hand with role utilities and the type primitives.", "why": "Expected." },
+    { "kind": "guess", "what": "None that failed: the first build was green. One self-caught mistake before the log: dt/dd placed inside Card inside a dl (invalid nesting, Card adds two divs), rewritten as a ul of Card component=\"li\".", "why": "Card's root can be an li but its content part is always a div, so it cannot sit directly in a dl." }
+  ],
+  "friction": "Nothing was verified in a browser, so every visual and keyboard claim is from reading code. The shell block offers rail and bar but 'a drawer in place of the expanded rail' is left to the reader: a modal drawer needs open state, a trigger that lives in someone else's top bar, and closing when the width changes, none of which the block sketches; a ready 'menu button' export and an isDrawerOpen pair would have made part 1 a prop. The kit has no avatar button (an account trigger is in nearly every shell): IconButton accepting children or an avatar would remove the one react-aria Button. GridListItem's doc does not say rows can take href, though that is how a list of links is built. Breadcrumbs do not collapse on a phone and the doc gives no advice for narrow widths. The react-router adapter's header comment speaks of an augmentation living in adapters/next.tsx, a file this project does not have."
+}

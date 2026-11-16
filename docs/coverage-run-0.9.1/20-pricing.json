@@ -1,0 +1,193 @@
+{
+  "screen": "Pricing",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A monthly and yearly toggle",
+      "built": "yes",
+      "kit": [
+        "ButtonGroup",
+        "Button",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read ButtonGroup.tsx's prop types (SelectionProps) and its render, and Button.tsx's toggle prop types, past their doc comments.",
+          "why": "The doc comment says the group 'takes `selectionMode`' and that children are toggles with an `id`, but not that it takes `selectedKeys`, `onSelectionChange` and `disallowEmptySelection`. A two-way choice that can be emptied would be broken, so I had to know whether the empty selection could be refused."
+        },
+        {
+          "kind": "use",
+          "what": "className=\"w-full max-w-xs\" on the connected group, to keep two buttons from spanning the whole page.",
+          "why": "ds-build: 'First try, in order: a token in `DESIGN.md` (the `ds-theme` skill), a `className` on the component'. ButtonGroup's comment: 'the buttons sit 2dp apart and span the group's width, which spans its surface'."
+        },
+        {
+          "kind": "layout",
+          "what": "A centred column: the group, and under it a line of body-small that says what the choice gives (aria-live=\"polite\").",
+          "why": "The saving ('two months free') has no place inside a toggle button; the kit has no supporting text for a button group."
+        }
+      ],
+      "notes": "Chosen over SegmentedButton because its doc comment sends new work to the connected ButtonGroup. Not seen in a browser: the toggle's default (filled) selected and unselected colours are as the kit draws them. Prices in the cards and the table's first row follow the choice."
+    },
+    {
+      "n": 2,
+      "part": "Plan cards with one emphasised",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Tag",
+        "Button",
+        "Title",
+        "Body",
+        "Display",
+        "CheckIcon",
+        "Skeleton",
+        "SkeletonGroup"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A ul grid (one column, three from md), each card a Card component=\"li\" with its insides written by hand: name and tag, tagline, price, call to action, a list of points with check icons. A skeleton of the same shape for 900 ms.",
+          "why": "CardContent's anatomy (headline, supporting text, actions) has no price and no list; Card's comment says to compose children."
+        },
+        {
+          "kind": "use",
+          "what": "classNames={{ content: \"h-full gap-6 p-6\" }} on Card.",
+          "why": "Card: 'To lay them out another way or to run them to the card's edges, say so on that part: `classNames={{ content: \"p-0\" }}`'."
+        },
+        {
+          "kind": "option",
+          "what": "The emphasis is assembled: variant=\"elevated\" elevation=\"medium\" against outlined neighbours, a filled primary Tag 'Most popular', and a filled call to action against outlined ones.",
+          "why": "Card has no emphasised or highlighted form (no primary outline, no primary-container variant); recolouring it through className is what its comment forbids ('never its insides'). `elevation=\"medium\"` is by the comment's own word 'Not Material's'."
+        },
+        {
+          "kind": "option",
+          "what": "The skeleton of the call to action is a rectangle Skeleton with className=\"rounded-shape-full h-10\", overriding its medium corner.",
+          "why": "Skeleton's shapes are text, rectangle and circle: none stands for a pill button."
+        },
+        {
+          "kind": "read",
+          "what": "Read Card.tsx's types and styles past the doc comment.",
+          "why": "To see how `elevation` is typed (only on the elevated variant) and whether the root clips its content (it does: overflow-hidden), which the comment does not say and which decides where a sideways-scrolling box goes."
+        }
+      ],
+      "notes": "Each call to action (and the header's) is a Button with href to /signup?plan=…&billing=…, a route this mock does not have: with no router it is a full page load. Terms inside the points are part 5's Term. Not seen in a browser: whether elevated-medium against outlined reads as emphasis enough in dark, where shadows are faint; the Tag carries it in words either way. Plan names are h2 (Title component=\"h2\") under the page's h1."
+    },
+    {
+      "n": 3,
+      "part": "A table comparing plans",
+      "built": "yes",
+      "kit": [
+        "Table",
+        "TableHeader",
+        "TableBody",
+        "Column",
+        "Row",
+        "Cell",
+        "Card",
+        "CheckIcon",
+        "MinusIcon",
+        "Skeleton",
+        "SkeletonGroup",
+        "Headline",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "The Table sits in an outlined Card with classNames={{ content: \"p-0\" }} and showLastRowDivider={false}.",
+          "why": "Table: 'Wrap it in a `Card` for an outlined container.' and 'A table that closes with an edge of the project's own (a frame, a card's border) says `<Table showLastRowDivider={false}>`'."
+        },
+        {
+          "kind": "layout",
+          "what": "A div with overflow-x-auto between the Card and the Table, and className=\"min-w-2xl\" on the Table, so four columns scroll sideways at a phone's width.",
+          "why": "The kit has no scrolling container for a table that is not resized (ResizableTableContainer is for resizable columns). Table's comment only alludes to 'a box that scrolls it sideways'."
+        },
+        {
+          "kind": "use",
+          "what": "VisuallyHidden from react-aria-components gives each check 'Included' and each dash 'Not included'.",
+          "why": "ds-build, 'What comes straight from React Aria': 'Text only a screen reader gets | `VisuallyHidden` | For a status, or a name with no visible text.'"
+        },
+        {
+          "kind": "read",
+          "what": "Read Table.tsx's ColumnProps and root styles, and icons.tsx, past their comments.",
+          "why": "To see what Column takes (className for a width) and that the kit's icons are aria-hidden, which no comment says."
+        }
+      ],
+      "notes": "Not seen in a browser. The kit's Table is a keyboard grid (arrow keys move by cell); for a table that is only read, that is more than needed but harmless. A Term in a feature cell is expected to take the focus when the arrow keys reach its cell (React Aria's behaviour for a cell with one focusable child): unverified here. The feature column does not stay in place while the table scrolls sideways on a phone, and the emphasised plan is not marked in the table."
+    },
+    {
+      "n": 4,
+      "part": "Questions that open and close",
+      "built": "yes",
+      "kit": [
+        "DisclosureGroup",
+        "Disclosure",
+        "DisclosureHeader",
+        "DisclosurePanel",
+        "Headline"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A labelled section with its Headline, in a narrower centred column (max-w-3xl) so answers keep a readable line.",
+          "why": "Expected of every screen; DisclosureGroup lays out its rows and nothing around them."
+        }
+      ],
+      "notes": "Used as the doc comment's example shows, with allowsMultipleExpanded, the first question open, and level={3} under the section's h2. Answers are plain text: no Term inside a header (it is the inside of a button)."
+    },
+    {
+      "n": 5,
+      "part": "Tooltips on terms",
+      "built": "yes",
+      "kit": [
+        "Tooltip",
+        "TooltipTrigger",
+        "focusRing",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "`Button` from react-aria-components is the term's trigger, drawn as the text it sits in with a dotted underline (src/pricing/Term.tsx).",
+          "why": "The kit has no inline trigger for a term: its Button is a drawn button with a 40dp container, and its Link without href 'is a link that acts'. Tooltip's comment offers Focusable around a span with tabIndex and a role; a real button gives the focus, the role and the press with nothing to hand-wire."
+        },
+        {
+          "kind": "option",
+          "what": "TooltipTrigger is controlled (isOpen, onOpenChange) with React Aria's shouldCloseOnPress={false}, and the trigger's onPress toggles it when pointerType is \"touch\".",
+          "why": "The kit's tooltip opens on hover and on keyboard focus only, so on a phone a term would explain nothing; and React Aria closes a tooltip on its trigger's pointer-down and key-down (read in node_modules/react-aria's useTooltipTrigger), so a click on a term put its explanation away. Neither Tooltip's nor TooltipTrigger's comment says what a touch screen gets, nor names shouldCloseOnPress ('everything else is React Aria's')."
+        },
+        {
+          "kind": "use",
+          "what": "focusRing() extended with the extra-small corner on the trigger; offset={8} on the Tooltip.",
+          "why": "ds-build: 'The ring is `focusRing` from `<kit>/utils.ts`; extend it, do not invent another.' Tooltip: 'pass 8 for one with none, such as text'."
+        },
+        {
+          "kind": "read",
+          "what": "Read react-aria's useTooltipTrigger in node_modules.",
+          "why": "To learn what a press on the trigger does to an open tooltip; the first version of Term toggled on touch while React Aria was closing on pointer-down, so a second tap would have reopened it."
+        }
+      ],
+      "notes": "Rich tooltips (headline: the term; supporting text: its meaning) on VAT in the introduction, on terms in the cards' points and on five feature names in the table. Hover and keyboard focus are React Aria's, at the kit's timing; Escape closes. Nothing was tried in a browser or on a device. From the source: a tap shows it and a second tap hides it (pointer-down no longer closes, onPress toggles for touch alone), and the trigger losing focus hides it; whether a tap elsewhere on a touch screen takes the focus away, and so hides it, is unverified. The same term appears in several places, each with its own tooltip."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "use",
+      "what": "The `site-header-block` (src/components/SiteHeader.tsx) heads the page, unedited, with links to the page's three sections and a call to action. `npx shadcn@latest add @ds/site-header-block -y` was refused by this session's permissions, so the file was copied from kit-blocks/, as the brief allows.",
+      "why": "ds-build: 'For some of those the kit has a block to start from: … a public page's header'. It is not one of the five parts."
+    },
+    {
+      "kind": "layout",
+      "what": "The page: a surface ground, a centred column (max-w-6xl), three labelled sections with their headings (Display stepped up from md by className, as Display's comment shows).",
+      "why": "Expected of every screen."
+    },
+    {
+      "kind": "read",
+      "what": "The first sweep of the kit printed the export and prop lines (and some style lines) of SegmentedButton, Card, Disclosure, Tooltip, Skeleton, Tag and Badge before their doc comments were found, since each file opens with its styles.",
+      "why": "'Doc comment first' is not the file's order: the comment sits under 60 to 300 lines of tv()."
+    }
+  ],
+  "friction": "Nothing was seen in a browser (none allowed), and a render-to-string smoke test was not run (my attempt wrote its script outside the project and was refused; I did not retry inside): every claim about look, dark mode and keyboard reach rests on the kit's comments and on tsc. The build was green at the first attempt, no prop was guessed wrong. What cost reads: (1) ButtonGroup's comment does not list the selection props it passes on (selectedKeys, onSelectionChange, disallowEmptySelection); one line would have saved opening the types. (2) Nothing says how to emphasise one card among several: a pricing page's commonest need. A sentence on Card ('to single one out: elevated among outlined, or …') or a variant would settle it. (3) Tooltip says nothing of touch screens: a line saying it does not open on touch, and what to do for a term in text (a ready 'term' or 'info tip' trigger, or PreviewTrigger), would have removed the one hand-made control here. (4) Card's comment does not say the root clips (overflow-hidden), which matters as soon as something inside scrolls or draws a focus ring at the edge. (5) Table has no word on a phone's width beyond an allusion to 'a box that scrolls it sideways': an example of that box, and whether a first column can stay in place, would help. (6) The doc comments sit after the styles in each file, so 'doc comment first' means scrolling past 60 to 300 lines of tv(); an index of line numbers, or the comment at the top, would make it literal. (7) TooltipTrigger closes on a press of its trigger by default; for a trigger that is text, that is the wrong default and the comment does not mention shouldCloseOnPress."
+}

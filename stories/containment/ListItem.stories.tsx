@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import React from "react";
+import { expect } from "storybook/test";
 import ListItem from "@french-tech-homies/design-system/components/ListItem";
+import { GridList, GridListItem } from "@french-tech-homies/design-system/components/GridList";
 import { Checkbox } from "@french-tech-homies/design-system/components/Checkbox";
 
 /** Plain `<img>` so the story has no framework dependency (the Next image component needs the Next runtime). */
@@ -88,5 +91,67 @@ export const SelectedListItemWithTrailingElement: Story = {
     isSelected: true,
     leadingElement: <Thumb size={80} />,
     trailingElement: <Checkbox aria-label="Select" isSelected />,
+  },
+};
+
+/** A name longer than the row is cut to one line when it is passed wrapped
+ *  (`block truncate`) and the list has a width. Left bare, it wraps. */
+export const LongNameCutToOneLine: Story = {
+  args: {
+    headline: (
+      <span className="block truncate">
+        Quarterly report, final, reviewed by finance, do not edit (3).pdf
+      </span>
+    ),
+    supportingText: "Edited yesterday",
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-64">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const text = canvasElement.querySelector<HTMLElement>(".truncate")!;
+    const row = canvasElement.querySelector<HTMLElement>(
+      '[data-slot="list-item"]',
+    )!;
+    // Cut, not wrapped and not spilling: narrower than its own text, one
+    // line high, and inside the row.
+    await expect(text.scrollWidth).toBeGreaterThan(text.clientWidth);
+    await expect(text.getBoundingClientRect().height).toBeLessThan(30);
+    await expect(text.getBoundingClientRect().right).toBeLessThanOrEqual(
+      row.getBoundingClientRect().right,
+    );
+  },
+};
+
+/**
+ * Outside a `GridList` the row is read, not pressed: it shows no pointer's
+ * hand.
+ */
+export const ReadOnlyInAPlainList: Story = {
+  render: () => (
+    <ul className="bg-surface w-80">
+      <li>
+        <ListItem headline="Ada Martin" supportingText="Owner" />
+      </li>
+      <li>
+        <ListItem headline="Grace Hopper" supportingText="Editor" />
+      </li>
+      <li>
+        <GridList aria-label="Pressable" onAction={() => undefined}>
+          <GridListItem id="linus" textValue="Linus Torvalds">
+            <ListItem headline="Linus Torvalds" supportingText="In a GridList" />
+          </GridListItem>
+        </GridList>
+      </li>
+    </ul>
+  ),
+  play: async ({ canvasElement }) => {
+    const rows = canvasElement.querySelectorAll("[data-slot=list-item]");
+    await expect(getComputedStyle(rows[0]!).cursor).not.toBe("pointer");
+    await expect(getComputedStyle(rows[2]!).cursor).toBe("pointer");
   },
 };

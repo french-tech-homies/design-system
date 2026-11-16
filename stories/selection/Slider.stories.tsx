@@ -46,3 +46,23 @@ export const WithoutOutput: Story = {
 export const Disabled: Story = {
   args: { label: "Locked", defaultValue: [40], isDisabled: true },
 };
+
+/** The slider is as wide as what holds it: here, 480px. */
+export const FillsItsContainer: Story = {
+  render: (args) => (
+    <div className="w-[480px]">
+      <Slider {...args} label="Brightness" defaultValue={70} />
+    </div>
+  ),
+};
+
+/** A handle at an end: its side of the track is gone, and its stop with it. */
+export const AtItsEnds: Story = {
+  render: (args) => (
+    <div className="flex flex-col gap-4">
+      <Slider {...args} label="Empty" defaultValue={0} />
+      <Slider {...args} label="Full" defaultValue={100} />
+      <Slider {...args} label="Whole range" defaultValue={[0, 100]} />
+    </div>
+  ),
+};

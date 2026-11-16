@@ -1,0 +1,62 @@
+{
+  "screen": "Search",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A search bar that opens a search view",
+      "built": "yes",
+      "kit": ["SearchView", "SearchViewItem", "IconButton", "XIcon"],
+      "leaves": [
+        { "kind": "read", "what": "Read Search.tsx past its doc comment: the closed bar's rendering of the query, the order of onAction/onSubmit and the close, the Results list.", "why": "The doc comment does not say that the closed bar shows the controlled inputValue, nor that onOpenChange(false) fires after onAction/onSubmit." },
+        { "kind": "feature", "what": "On close, the controlled inputValue is put back to the submitted query from a ref (onOpenChange), so the bar does not show text that was typed and abandoned.", "why": "SearchView has one value for both the field's draft and what the closed bar displays; there is no separate 'submitted query' the bar shows." },
+        { "kind": "feature", "what": "A first row 'Search \"<typed>\"' is an ordinary SearchViewItem whose textValue is the typed text, so it passes the view's filter.", "why": "The view has no built-in 'run this query' row; without it, typing something no suggestion contains shows only the empty state though Enter still searches." },
+        { "kind": "layout", "what": "Sticky header holding the bar; layout is full-screen under 600px and docked above, chosen with matchMedia through React's useSyncExternalStore.", "why": "The kit leaves the choice of layout to the app and has no window-size helper." }
+      ],
+      "notes": "Not seen in a browser (none allowed): behaviour is from the kit's source and the types, not from use. The clear button in the bar's trailing slot resets query and filters."
+    },
+    {
+      "n": 2,
+      "part": "Recent and suggested entries in sections",
+      "built": "yes",
+      "kit": ["SearchViewSection", "SearchViewItem", "GridList", "GridListItem", "ListItem", "IconButton", "Chip", "Title", "XIcon"],
+      "leaves": [
+        { "kind": "feature", "what": "Removing a recent search is not in the search view: it is on the page under the bar, a GridList of ListItems each with a remove IconButton. In the view the Recent and Suggested sections only run a search.", "why": "SearchViewItem is a listbox option: its `trailing` can hold a glyph, not a button, so a recent entry cannot be removed where it is listed." },
+        { "kind": "layout", "what": "The landing page: two titled sections (recent list, popular chips).", "why": "Expected composition." }
+      ],
+      "notes": "Sections empty after filtering disappear by React Aria's collection filter (checked in node_modules, BaseCollection's SectionNode.filter), not by anything the kit's doc says. Recent is omitted when there are none. Unverified visually."
+    },
+    {
+      "n": 3,
+      "part": "Results with filters in a bottom sheet",
+      "built": "yes",
+      "kit": ["BottomSheet", "Button", "Chip", "ChipGroup", "RadioGroup", "Radio", "Slider", "CheckboxGroup", "Checkbox", "Switch", "Card", "IconButton", "LoadingIndicator", "Title", "Body", "Label"],
+      "leaves": [
+        { "kind": "feature", "what": "The sheet's Reset / 'Show N results' row is a hand-written sticky footer inside the content (classNames.content 'pb-0', footer '-mx-6 sticky bottom-0' on surface-container-low with a hairline).", "why": "BottomSheet has a title and content and no actions/footer part that stays visible while the content scrolls." },
+        { "kind": "feature", "what": "Slider given className='max-w-none'.", "why": "Slider's root is capped at max-w-[300px], too narrow for a full-width sheet; nothing in its doc comment says so." },
+        { "kind": "feature", "what": "Active-filter chips (variant='input') remove on the chip's own press, with aria-label 'Remove filter: …'; onRemove is also passed so the X is drawn.", "why": "The input chip's remove affordance is a div with onClick: pointer only, no keyboard path, no name. Its X only appears when onRemove is given." },
+        { "kind": "feature", "what": "Result cards are not pressable; the one control on a card is a save toggle (IconButton isToggle).", "why": "Card is by design not actionable (no directly actionable card); a GridList of cards would have made them rows, but opening a listing is outside this screen so nothing was faked." },
+        { "kind": "guess", "what": "Title component='p' and Body component='h3' were type errors; second attempt: Title as 'div', and the listing title as a plain <h3> with text-body-medium font-body-medium.", "why": "Each type primitive accepts only some elements (Title: div/h1-h6/span; Body: div/p/span); the list is only in the types." },
+        { "kind": "read", "what": "Read BottomSheet.tsx (content/header styles, modal structure), Slider.tsx (root styles, thumbLabels), Chip.tsx (InputChip's remove, ChipGroup's props), IconButton.tsx (toggle props), Card.tsx (root).", "why": "Slider and Chip's doc comments say little about props; needed the slots' paddings to place the footer." },
+        { "kind": "layout", "what": "Results grid (ul of Card component='li', 2/3/4 columns), card insides (placeholder image tile with a category icon on surface-container-highest, price, title, meta), filter row, status line, centred loader.", "why": "Expected composition; no images are available offline so the media is a placeholder tile." }
+      ],
+      "notes": "Filters: sort, category, price range, condition, free delivery; edited as a draft, applied by the button, which counts live. Loading is a timer (800 ms for a search, 450 ms for filters). The sheet opens expanded. The input chip's X click and the chip's press both call the same idempotent removal; I could not check in a browser that a pointer press on the X does not look odd. Sticky footer position inside the sheet's scroller is unverified visually."
+    },
+    {
+      "n": 4,
+      "part": "A state for no result",
+      "built": "yes",
+      "kit": ["EmptyState", "Button"],
+      "leaves": [
+        { "kind": "feature", "what": "The media is a wrapper component that discards the className EmptyState gives and sets size-16 and on-surface-variant.", "why": "EmptyState forces its media to h-32…xl:h-64 in primary with no size prop; far too large for an icon on a phone." },
+        { "kind": "feature", "what": "Both actions are passed as one node in `action`, in a flex row with a gap.", "why": "EmptyState puts action and secondaryAction side by side with no gap and no wrap." },
+        { "kind": "read", "what": "Read EmptyState.tsx's body.", "why": "To learn how media is sized and how the two actions are laid out." }
+      ],
+      "notes": "Shown for a query with no match (try 'typewriter') and for filters that exclude everything; the text and actions differ (Clear filters / Change search, which reopens the search view). The search view has its own short empty text too. Unverified visually."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "Page shell: min-h-dvh surface, sticky header, centred main column.", "why": "Expected composition." }
+  ],
+  "friction": "No block served this screen (pager, stepper, radio tile, carousel, site header). Search.tsx's doc comment is good, but three things had to be found in the source: the closed bar displays inputValue, close fires after onAction/onSubmit, and how sections behave under the filter. SearchViewItem cannot carry an action (remove a recent entry), which Material's search view shows; a documented pattern for it would help. BottomSheet needs a sticky actions part: filters in a sheet always end with Apply. Slider's 300px cap and EmptyState's huge media and gapless actions are surprises that only the source shows; Chip's input variant removes by pointer only. Slider, Chip variants and the type primitives' allowed `component` elements are not in doc comments. Nothing could be looked at: no browser was allowed, so every 'yes' above means built and type-checked, not seen."
+}

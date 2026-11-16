@@ -1,0 +1,69 @@
+{
+  "screen": "Checkout",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Steps",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to Continue and Enter on an empty step (errors shown, focus on the first refused field, also for Phone and for the hand-bound Street); Enter inside a field; Continue through Address, Delivery, Payment, Review; Back; Enter and Space on the done-step buttons of the stepper; the three Edit buttons of Review; Place order (Enter), the wait, the 'Order placed' screen, 'Start another order'. Checked aria-current=\"step\", the done buttons' names ('Address, done. Go back to this step'), the focus after every step change (it lands on the section 'Step N of 4: …', on <main> for 'Order placed', never on the body), the stepper's fit at 400 (368 of 368px, 40px icon buttons, no sideways scroll), entered values kept when going back. Step 2 could only be passed after one mouse click on a delivery time (see part 4); everything else here was done by keyboard.",
+      "failures": [
+        "While the order is being placed (the 1.6 s after Enter on 'Place order'), 'Back' and 'Place order' are disabled but 'Edit address', 'Edit delivery' and 'Edit payment' are not: Shift+Tab twice to 'Edit delivery', Enter, and the Delivery step opens with an active Continue; 1.6 s later the order is placed anyway and the screen is replaced by 'Order placed'. The Edit buttons should be disabled (or the placing cancelled) like Back.",
+        "At 400 wide the steps after the current one have no accessible content: their number is aria-hidden and their label is display:none, so on the Address step the list reads one named item ('1 of 4: Address') and three empty <li> (done steps are named buttons and are fine). During placing, the done steps (no longer buttons) read only ', done' with no step name. At 1280 the labels are present.",
+        "Continue on Delivery with no time chosen: the error 'Choose a delivery time' appears and the group gets aria-invalid, but focus stays on Continue instead of moving to the refused group as it does on the Address step, and the message is in no live region (unsure how much this matters: it is tied to the group by aria-describedby)."
+      ],
+      "could_not_exercise": [
+        "Reaching Payment and Review with the keyboard alone: the Delivery step cannot be completed by keyboard (part 4), so one mouse click on a time tile was used to get past it."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "An address form with autocomplete",
+      "works": "partly",
+      "tried": "At 1280 and 400: typed 'mart' in 'Street and number' (role=combobox, aria-expanded=true, 'Looking for addresses…' then a listbox 'Suggestions' of 4 options inside the window), ArrowDown twice (aria-activedescendant follows), Enter: input '128 Rue des Martyrs', Postcode 75018 and City Paris filled, their errors cleared, list closed and not reopened 400 ms later, focus still in the input. Text that matches nothing ('1 Rue Inconnue', list 'No matches') stays as the street after Tab; 'ober' with its list open stays 'ober' after Escape, and Escape after a pick keeps the picked street. Picked with the mouse (click on an option; the trigger button reopens the list). Postcode '12' + Enter: 'A postcode has five digits', focus on Postcode. Note counter '10 / 140'. Country picker of the phone: Enter opens, typing 'germ' finds Germany, Enter picks, focus returns to the trigger, value '+49'; Escape closes with focus back on the trigger. All required errors are tied to their inputs by aria-describedby with aria-invalid.",
+      "failures": [
+        "At 400x800, whenever the page is scrolled to its bottom, typing in 'Street and number' shows no suggestions: the list opens on the first two letters (empty), the third letter swaps the two-line supporting text for the one-line 'Looking for addresses…', the page becomes 16px shorter and scrolls, the scroll closes the list (aria-expanded=false), and it does not reopen when the addresses arrive. Reproduced two ways: (a) Continue on the empty form, fill name and phone, pick '128 Rue des Martyrs', then Ctrl+A and type 'ober' or 'rep': no list; (b) scroll to the bottom, Tab to the field, type 'mart': no list at all. ArrowDown, or a click on the field's arrow button, still opens it; a phone has no ArrowDown. Not seen at 1280 (the text is one line there) nor at 400 when the page is not at its bottom.",
+        "Phone: Tab into the field (or the focus put there by a refused Continue) selects its '+33', so typing a French number replaces the prefix: '612345678' becomes '+61 2 3456 78' (read as an Australian number, country switches to 'International'), '0612345678' becomes '+0612345678'. No error is shown for either after Tab, and Continue accepted '+61 2 3456 78' (Continue not tried with '+0612345678': unsure). Only pressing End first ('+33 6 12 34 56 78') or typing '+33…' in full gives the French number. Should keep the +33 of the default country.",
+        "Alt+ArrowDown on the street field with a street already picked did not open the list (unsure: plain ArrowDown does when there are suggestions)."
+      ],
+      "could_not_exercise": [
+        "A touch keyboard's effect on the scroll position at 400 (headless Chromium, viewport only)."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "A choice of payment by radio, beside a slot for payment fields",
+      "works": "yes",
+      "tried": "At 1280 and 400, reached by keyboard after the one mouse click part 4 needs: radiogroup 'Payment method', one tab stop on the checked 'Card', ArrowDown/Up/Left/Right move and check the next radio and wrap, the choice is kept after Back and Continue and shown in Review ('Digital wallet'). The slot is role=group named 'Payment fields (placeholder)', text 'Slot: payment fields', holds nothing focusable; at 1280 it sits beside the radios (x=457 against x=80, same row), at 400 under them, full width. Light and dark drawn, no sideways scroll.",
+      "failures": [],
+      "could_not_exercise": [
+        "Reaching this step with the keyboard alone: the Delivery step before it needs one mouse click on a time (part 4). The part itself was worked by keyboard only."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "A delivery day and time",
+      "works": "no",
+      "tried": "At 1280 and 400. Day: radiogroup 'Delivery day', one tab stop on 'Tomorrow', arrows change the day; the times reload (group aria-disabled, role=status 'Loading delivery times', 700 ms) and focus stays on the day. Time: tried to reach it by Tab and Shift+Tab on each of the five days, with no time chosen. Then with the mouse: a click on a 'Full' tile does nothing, a click on '18:00 – 20:00' checks it, the summary's Delivery becomes €2.99 and the total €29.66; from there the arrows move between the enabled times and skip the full ones, Tab/Shift+Tab re-enter on the checked time. Another day clears the time and the summary goes back to 'Choose a time'. Back from Payment: day and time still checked after the reload.",
+      "failures": [
+        "The delivery time cannot be chosen with the keyboard, so the step cannot be passed: while no time is chosen every enabled time radio has tabindex=\"-1\" (the full ones are disabled), on all five days. Tab from the checked day goes straight to 'Back', Shift+Tab from 'Back' goes straight to the day; the arrow keys of the day group do not leave it. Continue then answers 'Choose a delivery time'. Same at 400. The group should have a tab stop on its first enabled time. It becomes reachable only once a time has been checked with a pointer.",
+        "Changing the day clears the time, and the time group again has no tab stop: a keyboard user who changes the day cannot choose a time again.",
+        "After 'Choose a delivery time' is shown, choosing a time leaves the group aria-invalid=\"true\" and the message in its description until focus leaves the group (seen right after a mouse click and after arrow keys; it is gone after Tab away)."
+      ],
+      "could_not_exercise": [
+        "Choosing a time by keyboard from an empty choice (Space, arrows): no key reaches the group."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "An order summary",
+      "works": "partly",
+      "tried": "At 1280 and 400: while loading, a role=status 'Loading your order' and no button; after 1.2 s a section 'Order summary' whose header is a button in an h2, named 'Order summary €26.67', the first tab stop after the app bar. Open by default at 1280, closed at 400. Enter and Space toggle it (aria-expanded true/false; closed, the panel is hidden=\"until-found\" and aria-hidden, height 0; open, 6 list items and a dl of Subtotal, Delivery, Service fee, Total), focus stays on the button, the page does not scroll sideways. Mouse click toggles too. Delivery reads 'Choose a time', then '€2.99' / '€1.99' / 'Free' as a time is chosen, and the total follows in the header (€29.66, €28.66, €26.67) and in the panel, also when closed at 400; it goes back when the day changes. It opens by itself at Review at 400. Light and dark drawn.",
+      "failures": [
+        "At 400, after 'Order placed' and 'Start another order', the summary is still expanded above the empty Address step (it was opened by Review), 695px tall before the form (unsure: focus and scroll do go to the step's section, and Enter closes it)."
+      ],
+      "could_not_exercise": []
+    }
+  ]
+}

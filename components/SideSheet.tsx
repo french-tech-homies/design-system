@@ -13,7 +13,9 @@ import { Body, Title } from "../primitives/Typography";
 
 const styles = tv({
   slots: {
-    base: "min-w-[360px] bg-surface-container flex flex-col relative",
+    // An outlined field's label is cut into its outline with the colour of
+    // what is behind it: here, the sheet's.
+    base: "[--md3-field-notch:var(--md-sys-color-surface-container)] min-w-[360px] bg-surface-container flex flex-col relative",
     header: "p-4 flex items-center justify-between",
     content: "grow overflow-y-auto p-4",
     footer: "p-4 border-t border-outline-variant",
@@ -29,7 +31,11 @@ const styles = tv({
         // from drawing a focus outline around the whole sheet. (This is also
         // why the slots no longer extend `focusRing`: its focus-visible outline
         // would land on the sheet container, not on anything inside it.)
-        base: "h-[var(--visual-viewport-height)] w-[calc(100%-56px)] sm:w-[560px] outline-hidden",
+        // Its width is the window's less 56dp, in `vw`: the box around it
+        // takes its own width from the sheet, so a share of that box is a
+        // share of nothing, and the sheet fell back on its 360dp minimum,
+        // against the wrong edge. No minimum here: a phone may be narrower.
+        base: "h-[var(--visual-viewport-height)] w-[calc(100vw-56px)] min-w-0 sm:w-[560px] outline-hidden",
       },
     },
     align: {

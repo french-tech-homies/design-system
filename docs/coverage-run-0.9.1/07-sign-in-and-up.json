@@ -1,0 +1,203 @@
+{
+  "screen": "Sign in and up",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Several steps with their progress",
+      "built": "yes",
+      "kit": [
+        "stepper-block (Stepper)",
+        "Headline",
+        "Body",
+        "Title",
+        "Button",
+        "CheckIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Edited the block (src/components/Stepper.tsx): a step takes `isLocked`, so a done step that must not be gone back to (the code, once verified) shows its check and is not a button.",
+          "why": "The block made every done step a button as soon as `onStepPress` is given. Its doc comment expects the edit: \"A block of the MD3 kit: it is copied into your project to be edited. It is yours from then on\"."
+        },
+        {
+          "kind": "use",
+          "what": "`className=\"-mx-3\"` on the Stepper so its first marker lines up with the column's edge.",
+          "why": "A step's own 12px side padding insets the row. The block is the project's to edit and takes `className`: \"it is copied into your project to be edited\"."
+        },
+        {
+          "kind": "layout",
+          "what": "The page: brand row, the stepper, a section named by its heading that takes the focus at each step change (tabIndex -1, a ref and an effect), the done state, and the state machine for the two flows (sign up: Account, Verify, Terms; sign in: Password, Verify).",
+          "why": "A screen's own composition and logic; the kit has no wizard that holds steps' content or moves the focus."
+        },
+        {
+          "kind": "read",
+          "what": "Read the Typography primitives' source for the `component` prop and its allowed elements.",
+          "why": "The skill lists the elements; whether `id` and `role` pass through, and the prop's type, were in the source."
+        },
+        {
+          "kind": "layout",
+          "what": "`useAlive`: each step's timers stop acting once the step is unmounted (a check that ends after the person went back does not move them forward).",
+          "why": "The project's own logic around simulated requests."
+        }
+      ],
+      "notes": "Build only: not seen in a browser. Under 32rem the block draws only the current label with \"2 of 3\"; not checked by eye at 400px. The focus move to the step's section on a step change is unverified. A provider sign-up jumps from Account to Terms and the stepper then shows Verify as done, though no code was asked. The column is max-w-md (about 416px inside), under the block's 32rem container breakpoint, so the stepper shows its one-label form at every width, desktop too: the progress reads, the all-labels form never appears."
+    },
+    {
+      "n": 2,
+      "part": "Email and password with show and hide",
+      "built": "yes",
+      "kit": [
+        "FormTextField (react-hook-form adapter)",
+        "TextField",
+        "IconButton",
+        "Button",
+        "Link",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "Show and hide is a kit `IconButton` (`isToggle`, `variant=\"standard\"`, named \"Show password\", the icon swapped Eye / EyeOff) passed as a node into `TextField`'s `trailingIcon`, with `-mr-2` to take back the slot's 12px margin; the field's `type` goes from `password` to `text`.",
+          "why": "The kit has no password field and `TextField` no reveal option. `trailingIcon` is documented as an icon slot; that it may hold a button is said only in a code comment inside the component (\"a clear button\"), not in the doc comment, and the slot's margin is sized for a 24px icon, not a 40px button."
+        },
+        {
+          "kind": "read",
+          "what": "Read TextField's body, field-styles.ts and the adapter's FormTextField past their doc comments.",
+          "why": "To learn that `trailingIcon` renders an element as given, that the floating label and the state layer are `pointer-events-none` and do not cover a button in the slot, and which props the adapter lets through."
+        },
+        {
+          "kind": "guess",
+          "what": "Passed `autoCapitalize=\"none\"` to the text field: a type error; removed.",
+          "why": "React Aria's TextField props do not include it, and nothing says which input attributes pass. `spellCheck`, `inputMode`, `autoComplete` do."
+        },
+        {
+          "kind": "use",
+          "what": "`validationBehavior=\"aria\"` and react-hook-form `rules` on each field; `className=\"w-full\"` and `size=\"medium\"` on the submit button.",
+          "why": "The skill: \"`validationBehavior=\\\"aria\\\"` where the form decides what is valid\"; the adapter: \"each field's own `rules`\"; Button: \"The root is `data-slot=\\\"button\\\"` ... and takes `className`\"."
+        },
+        {
+          "kind": "layout",
+          "what": "The form column, the \"or with your email\" row between two Dividers, the line that switches between sign in and sign up.",
+          "why": "Composition."
+        },
+        {
+          "kind": "read",
+          "what": "Grepped IconButton's source for `isToggle`, `isSelected` and `onChange`.",
+          "why": "The doc comment says it is \"a toggle with `isToggle`\" and to swap the icon from the toggle's state; the controlled props' names are only in the types below it."
+        }
+      ],
+      "notes": "Not run in a browser. With the reveal button in the trailing slot an invalid password field loses its error icon (the doc comment says a trailing icon replaces it); the message and the colour remain. Unverified: that the button sits well in the 56dp field, and that the caret keeps its place when the type changes. Mock rules: sign up refuses taken@example.com after the timer; sign in accepts any password. No \"forgot password\" path was built: it is not a listed part and a dead link would be a fake."
+    },
+    {
+      "n": 3,
+      "part": "A one-time code",
+      "built": "yes",
+      "kit": [
+        "Button",
+        "Body",
+        "Link",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "control",
+          "what": "src/auth/OneTimeCodeField.tsx: one real input (numeric keyboard, `autocomplete=\"one-time-code\"`, digits only, pasted spaces dropped), made transparent and laid over six drawn cells; the cell that takes the next digit carries the focus outline and a caret; the caret is held at the end; `onComplete` verifies as the sixth digit arrives.",
+          "why": "The kit has no one-time code field, and React Aria has none either. The kit's TextField would hold the code but cannot draw a cell a digit."
+        },
+        {
+          "kind": "component",
+          "what": "`TextField`, `Label`, `Input`, `FieldError`, `Text` from react-aria-components, for the field's name, description, invalid state and error.",
+          "why": "The kit's TextField draws its own container and floating label and gives no way to replace what the input looks like."
+        },
+        {
+          "kind": "value",
+          "what": "`outline-3 -outline-offset-3`, `h-14`, `h-6 w-px` and Tailwind's `animate-pulse` for the cells and the caret.",
+          "why": "Copied by hand from the outlined field's measures in field-styles.ts (56dp, 3dp focus outline): there is no token or utility for a field's height or focus outline, and no kit caret."
+        },
+        {
+          "kind": "layout",
+          "what": "The step: the field, Verify, a text Button \"Send a new code in 27s\" on a one-second timer, a `role=\"status\"` line for \"a new code is on its way\", and \"Change your email\".",
+          "why": "Composition and the project's own timers."
+        },
+        {
+          "kind": "layout",
+          "what": "After review: the caret is put at the end on focus too (Tab selects the whole value), and the input takes the focus back after a refusal and after a resend, through an `inputRef`.",
+          "why": "The project's own control; the resend button disables itself while it holds the focus."
+        }
+      ],
+      "notes": "Not run in a browser, so unverified: that a press on any cell focuses the unseen input, paste, the phone's code suggestion, and the look of the cells in dark. The demo code is 424242 (shown under the field); any other code is refused after the timer and the field emptied. The form is one field: `check` returns while a check is running, as Button's doc comment warns for Enter. Select-all then typing replaces the code; arrow keys are disabled since no caret is drawn mid-code."
+    },
+    {
+      "n": 4,
+      "part": "Consent checkbox with a link in its label",
+      "built": "yes",
+      "kit": [
+        "FormCheckbox (react-hook-form adapter)",
+        "Checkbox",
+        "Link",
+        "ModalDialog",
+        "Button",
+        "Label",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "The kit's `Link` (with `onPress`, no `href`) is put inside the Checkbox's children; it opens the terms in a `ModalDialog` whose \"Agree\" ticks the box.",
+          "why": "Checkbox's doc comment says the label \"also toggles it\" and nothing about an interactive child in it. Whether a press on the link ticks the box had to be found in React Aria's source."
+        },
+        {
+          "kind": "read",
+          "what": "Read Checkbox's body and the adapter's FormCheckbox, and react-aria's useToggle in node_modules.",
+          "why": "To learn that the label toggles from its own press handler (which a nested pressable stops) and cancels the native click, so a link inside should not tick the box."
+        },
+        {
+          "kind": "option",
+          "what": "`className=\"items-start py-3\"` on the Checkbox so a label that wraps to two lines at 400px starts beside the box.",
+          "why": "The checkbox centres its box on the label (`items-center`), right for one line; there is no option for a long label."
+        },
+        {
+          "kind": "layout",
+          "what": "The summary of the address in a `surface-container-low` box (a `dl`), the two checkboxes, the terms' text in the dialog.",
+          "why": "Composition."
+        },
+        {
+          "kind": "read",
+          "what": "Read ModalDialog's body and DialogContent's prop types.",
+          "why": "To learn that `supportingText` takes a node and the shape of `actions` ({ confirm, cancel }), and that `title` is drawn only without children."
+        }
+      ],
+      "notes": "Not run in a browser: by the source, a press on the link opens the dialog and leaves the box as it was, but this was not confirmed by pointer or keyboard. The link's words are part of the checkbox's accessible name, and the link is its own tab stop inside the label. The required rule's message shows under the box on a refused submit. `items-start` alignment of the box with the first line is unverified by eye."
+    },
+    {
+      "n": 5,
+      "part": "A provider button",
+      "built": "yes",
+      "kit": [
+        "Button"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A hand-written SVG of Google's \"G\" as the Button's `icon`, in `currentColor`.",
+          "why": "\"The kit ships no icon library\" (the skill), and lucide no longer has brand marks. Drawn in one colour so no brand hex is written; Google's own guidelines ask for the four-colour mark, which would be a `value` leave."
+        },
+        {
+          "kind": "use",
+          "what": "`variant=\"outlined\"`, `size=\"medium\"`, `isLoading` on a 1.2s timer, `className=\"w-full\"`.",
+          "why": "Button: \"The action this button started is running: a spinner takes the icon's place, and the button takes no press\"; \"takes `className`\"."
+        }
+      ],
+      "notes": "Mock: after the timer the provider returns amelia.okafor@gmail.com; sign up goes straight to Terms (the address is the provider's, no code), sign in is done. The path of the mark was written from memory and not seen rendered."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page ground `bg-surface text-on-surface min-h-dvh` and a single `max-w-md` column at every width, with no card around the form.",
+      "why": "The theme paints no body background. A card was avoided because the outlined field's label notch is painted in `surface` unless `--md3-field-notch` is set on the ancestor (said in field-styles.ts only)."
+    }
+  ],
+  "friction": "`npx shadcn@latest add @ds/stepper-block -y` was refused by this session's permission layer (a network call), so the block was copied from kit-blocks/ as the brief allows. Nothing was run in a browser: every behaviour above is from types, source and a green build. Hard to find: (1) whether TextField's `trailingIcon` may hold a button (password reveal, clear) is in a code comment, not the doc comment, and the slot's margin fits an icon, not a 40px button: one line and an example of a password field with show and hide would settle it. (2) Whether a Link inside a Checkbox's label ticks the box: the doc comment's example is a consent, and a consent nearly always carries a link; one sentence would spare reading useToggle. (3) No one-time code field in the kit or in React Aria; the field's measures (56dp, 3dp focus outline, the notch variable) live in field-styles.ts as classes with no token or shared utility, so a hand-made field copies numbers. (4) Which native input attributes TextField passes (autoCapitalize does not) is only found by a type error. (5) The Stepper block makes every done step pressable or none; a per-step lock was the first edit needed."
+}

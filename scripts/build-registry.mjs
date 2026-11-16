@@ -432,6 +432,60 @@ const components = [
     deps: ["utils", "typography"],
   }),
   item({
+    name: "link",
+    title: "Link",
+    description:
+      "Text link on React Aria Link, in a sentence or in a list of links: primary or inherited colour, underlined always or on hover and focus, routed through the router adapter.",
+    files: [file("components/Link.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
+    name: "context-menu",
+    title: "ContextMenu",
+    description:
+      "The kit's menu asked for on something itself: an area that opens it at the pointer on a right click or a long press, and at the focused element from the keyboard.",
+    files: [file("components/ContextMenu.tsx")],
+    dependencies: [RAC],
+    deps: ["menu"],
+  }),
+  item({
+    name: "tree",
+    title: "Tree",
+    description:
+      "A hierarchy opened level by level, on React Aria Tree: a list item's row at each level, 24dp of indent, selection by row or by checkbox, a dense variant.",
+    files: [file("components/Tree.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props", "icons", "checkbox"],
+  }),
+  item({
+    name: "drop-zone",
+    title: "DropZone and FileTrigger",
+    description:
+      "An area files are dropped onto, on React Aria DropZone (a dashed outlined box, or bare over an area with its own look), and FileTrigger, which opens the file chooser from a kit button.",
+    files: [file("components/DropZone.tsx"), file("components/FileTrigger.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
+    name: "popover",
+    title: "Popover",
+    description:
+      "A surface for any content beside its trigger, on React Aria Popover and Dialog: not modal, focus kept in, closed by Escape or a press outside. The rich tooltip's container.",
+    files: [file("components/Popover.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
+    name: "breadcrumbs",
+    title: "Breadcrumbs",
+    description:
+      "The path to the current page on React Aria Breadcrumbs: links to each level above it and the page itself, with a mirrored chevron between two.",
+    files: [file("components/Breadcrumbs.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props", "icons", "link"],
+  }),
+  item({
     name: "badge",
     title: "Badge",
     description:
@@ -462,7 +516,7 @@ const components = [
       "React Aria GridList collection with MD3 state layers on items.",
     files: [file("components/GridList.tsx")],
     dependencies: [RAC],
-    deps: ["utils", "render-props"],
+    deps: ["utils", "render-props", "icons", "icon-button"],
   }),
   item({
     name: "menu-item",
@@ -645,6 +699,22 @@ const components = [
     description: "Illustration, headline, supporting text and actions.",
     files: [file("components/EmptyState.tsx")],
     deps: ["utils", "typography"],
+  }),
+  item({
+    name: "pressable",
+    title: "Pressable",
+    description:
+      "A button, or a link, that holds anything (an avatar, a card's content, a line of text), with the state layer and the focus ring.",
+    files: [file("components/Pressable.tsx")],
+    deps: ["utils", "render-props"],
+  }),
+  item({
+    name: "skeleton",
+    title: "Skeleton",
+    description:
+      "A placeholder the shape of content that is loading (a line of text, a rectangle, a circle), and the group that says \"Loading\" once for a region.",
+    files: [file("components/Skeleton.tsx")],
+    deps: ["utils"],
   }),
   item({
     name: "divider",
@@ -1025,6 +1095,77 @@ const base = {
   ...stamp,
 };
 
+/* ---- blocks ------------------------------------------------------------ */
+
+// A block is a part neither Material nor React Aria describes (a pager, a
+// stepper), built from the kit's components and handed to a project to be
+// edited: it is the project's from the moment it lands.
+//
+// - It lands outside the kit's folder, in the project's components, where
+//   the CLI puts a `registry:component` of a `registry:block`.
+// - It is no dependency of `ds`, and depends on no kit item but the
+//   licence: adding one to an older install must not bring newer kit files
+//   with it. What it needs of the kit, it imports from the kit's barrel,
+//   written `@/registry/ds/ui/ds` in its source, which the CLI rewrites to
+//   the project's `ui` alias.
+// - It has no release record and is in none: `changed.mjs` does not name it
+//   and an update does not replace it.
+const BLOCK = "registry:block";
+const blockItem = ({ name, title, description, path }) => ({
+  name,
+  type: BLOCK,
+  title,
+  description,
+  registryDependencies: [`${NS}/${LICENSE}`],
+  files: [{ path, type: "registry:component" }],
+  ...stamp,
+});
+
+const blocks = [
+  blockItem({
+    name: "pager-block",
+    title: "Pager (block)",
+    description:
+      "The pages of a list or a table: the range shown, previous and next, and a page-size menu. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's IconButton, Button, Menu and Body.",
+    path: "blocks/pager/Pager.tsx",
+  }),
+  blockItem({
+    name: "stepper-block",
+    title: "Stepper (block)",
+    description:
+      "Where a person is in a sequence of steps: done steps with a check, buttons to go back to them, the current step named. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's Button, CheckIcon and Label.",
+    path: "blocks/stepper/Stepper.tsx",
+  }),
+  blockItem({
+    name: "radio-tile-block",
+    title: "RadioTile (block)",
+    description:
+      "A choice of one among a few, each drawn as a tile around the kit's radio. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's RadioGroup, Radio, Title and Body.",
+    path: "blocks/radio-tile/RadioTile.tsx",
+  }),
+  blockItem({
+    name: "reading-carousel-block",
+    title: "ReadingCarousel (block)",
+    description:
+      "A row of things that are read (quotes, cards of text), a few in view, scrolled by touch, by its buttons and by the arrow keys. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's IconButton, chevron icons and Body.",
+    path: "blocks/reading-carousel/ReadingCarousel.tsx",
+  }),
+  blockItem({
+    name: "site-header-block",
+    title: "SiteHeader (block)",
+    description:
+      "The header of a public page: a brand link, a row of links that folds into a menu on a phone, and actions that stay in view. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's Link, IconButton, Menu and Title.",
+    path: "blocks/site-header/SiteHeader.tsx",
+  }),
+  blockItem({
+    name: "app-shell-block",
+    title: "AppShell (block)",
+    description:
+      "An application's frame with the navigation that fits its width: the navigation bar under 600dp, the rail from 600dp, the rail expanded from 1200dp, a skip link and a scrolling main. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's BottomNavigation, NavigationRail and Link.",
+    path: "blocks/app-shell/AppShell.tsx",
+  }),
+];
+
 const registry = {
   $schema: "https://ui.shadcn.com/schema/registry.json",
   name: "ds",
@@ -1040,6 +1181,7 @@ const registry = {
     ...components,
     everything,
     ...skills,
+    ...blocks,
   ],
 };
 
@@ -1087,6 +1229,8 @@ rmSync(RECORDS, { recursive: true, force: true });
 mkdirSync(RECORDS);
 for (const found of registry.items) {
   if (reached.has(found.name) || !found.files?.length) continue;
+  // A block is the project's once it lands: it carries no record.
+  if (found.type === BLOCK) continue;
   const own = { item: found.name, version: VERSION, kit: {} };
   for (const f of found.files) {
     const [group, landed] = placed(f);
@@ -1102,6 +1246,34 @@ for (const found of registry.items) {
   found.files.push({ path, type: "registry:file", target: `${UI}/${path}` });
 }
 
+// The barrel names nothing the one install does not bring. `index.ts` lands
+// in every project: a module it exports from that no item reached from `ds`
+// carries is a file missing there, and a kit that does not type-check.
+// (0.9.0 was published with `Skeleton` exported and in no item.)
+{
+  const brought = new Set(
+    registry.items
+      .filter((i) => reached.has(i.name))
+      .flatMap((i) => i.files ?? [])
+      .map((f) => f.path),
+  );
+  const missing = [];
+  for (const [, spec] of readFileSync("index.ts", "utf8").matchAll(
+    /from\s+"(\.\/[^"]+)"/g,
+  )) {
+    const path = spec.slice(2);
+    const found = [`${path}.tsx`, `${path}.ts`, `${path}/index.ts`].some((c) =>
+      brought.has(c),
+    );
+    if (!found) missing.push(spec);
+  }
+  if (missing.length) {
+    throw new Error(
+      `index.ts exports from ${missing.join(", ")}, which \`shadcn add @ds/ds\` does not bring: add an item for it`,
+    );
+  }
+}
+
 // What `changed.mjs` reads in a project: this version, the digests of
 // every file every item carries (of both its forms where it has two), keyed
 // by where it lands (under the kit's folder, or under the project's root),
@@ -1109,7 +1281,9 @@ for (const found of registry.items) {
 // its target is known, with the function the check itself uses. It records
 // neither itself nor the items' own records.
 const record = { version: VERSION, kit: {}, project: {}, optional: sorted(optional) };
-for (const f of registry.items.flatMap((i) => i.files ?? [])) {
+for (const f of registry.items
+  .filter((i) => i.type !== BLOCK)
+  .flatMap((i) => i.files ?? [])) {
   if (f.path === RECORD || f.path.startsWith(`${RECORDS}/`)) continue;
   const [group, landed] = placed(f);
   record[group][landed] = entry(f.path, landed);

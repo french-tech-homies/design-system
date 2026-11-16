@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 const link = focusRing({
   className:
-    "rounded-shape-extra-small text-body-large text-primary underline underline-offset-4",
+    "rounded-shape-extra-small text-body-large font-body-large text-primary underline underline-offset-4",
 });
 
 /**
@@ -65,9 +65,23 @@ function Enlarged({ ground, name }: { ground: string; name: string }) {
   );
 }
 
+/** These two draw the ring on every control whether it holds focus or not,
+    to show it: a control here looks the same with the keyboard on it. The
+    `Keyboard` story below is where the ring is asked to follow the focus. */
+const ALWAYS_DRAWN = {
+  tags: ["no-focus-check"],
+  parameters: {
+    focus: {
+      reason:
+        "The ring is drawn on every control at rest, to be looked at; Keyboard checks that it follows the focus.",
+    },
+  },
+};
+
 /** On the page's ground: the gap is `background`. */
 export const OnBackground: Story = {
   render: () => <Enlarged ground="bg-background" name="background" />,
+  ...ALWAYS_DRAWN,
 };
 
 /** On a card's ground: the gap is `surface-container-low`, not the page's. */
@@ -75,6 +89,7 @@ export const OnSurfaceContainerLow: Story = {
   render: () => (
     <Enlarged ground="bg-surface-container-low" name="surface-container-low" />
   ),
+  ...ALWAYS_DRAWN,
 };
 
 const ring = (el: Element) => {

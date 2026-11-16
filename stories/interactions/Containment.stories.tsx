@@ -1,9 +1,24 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import React, { useRef } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
-import { I18nProvider } from "react-aria-components";
+import {
+  I18nProvider,
+  type SortDescriptor,
+  useDragAndDrop,
+  useListData,
+} from "react-aria-components";
 
 import Button from "@french-tech-homies/design-system/components/Button";
+import {
+  GridList,
+  GridListDragHandle,
+  GridListItem,
+} from "@french-tech-homies/design-system/components/GridList";
+import ListItem from "@french-tech-homies/design-system/components/ListItem";
+import {
+  Tree,
+  TreeItem,
+} from "@french-tech-homies/design-system/components/Tree";
 import {
   Card,
   CardContent,
@@ -19,13 +34,23 @@ import {
   DisclosureHeader,
   DisclosurePanel,
 } from "@french-tech-homies/design-system/components/Disclosure";
-import { Cell } from "@french-tech-homies/design-system/components/Table";
+import {
+  Cell,
+  Column,
+  ResizableTableContainer,
+  Row,
+  Table,
+  TableBody,
+  TableHeader,
+} from "@french-tech-homies/design-system/components/Table";
 
 /**
  * Behaviour tests for the containment surfaces. See
  * `stories/interactions/Fields.stories.tsx` for why these live apart from the
  * component stories.
  */
+import { expectVisibleFocus } from "./visible-focus";
+
 const meta = {
   title: "MD3/Interactions/Containment",
   parameters: { layout: "padded" },
@@ -792,5 +817,249 @@ export const CarouselReducedMotionSameSize: Story = {
         name === "Heroes" ? "always" : "normal",
       );
     }
+  },
+};
+
+/* ---- A list put in order by dragging ----------------------------------- */
+
+function OrderedList() {
+  const list = useListData({
+    initialItems: [
+      { id: "a", name: "Starters" },
+      { id: "b", name: "Mains" },
+      { id: "c", name: "Desserts" },
+    ],
+  });
+  const { dragAndDropHooks } = useDragAndDrop({
+    getItems: (keys) =>
+      [...keys].map((key) => ({ "text/plain": list.getItem(key)?.name ?? "" })),
+    onReorder(e) {
+      if (e.target.dropPosition === "before") {
+        list.moveBefore(e.target.key, e.keys);
+      } else if (e.target.dropPosition === "after") {
+        list.moveAfter(e.target.key, e.keys);
+      }
+    },
+  });
+  return (
+    <GridList
+      aria-label="Courses"
+      items={list.items}
+      dragAndDropHooks={dragAndDropHooks}
+      className="w-72"
+    >
+      {(item) => (
+        <GridListItem textValue={item.name}>
+          <ListItem
+            headline={item.name}
+            trailingElement={
+              <GridListDragHandle aria-label={`Drag ${item.name}`} />
+            }
+          />
+        </GridListItem>
+      )}
+    </GridList>
+  );
+}
+
+/** A row's focus ring is drawn inside it, where the list cannot cut it,
+    and over what the row holds: a selected item's colour does not hide it. */
+export const GridListRingIsInsideTheRow: Story = {
+  render: () => (
+    <GridList
+      aria-label="Folders"
+      selectionMode="single"
+      defaultSelectedKeys={["finance"]}
+      className="w-72"
+    >
+      {["finance", "design"].map((id) => (
+        <GridListItem key={id} id={id} textValue={id}>
+          {({ isSelected }) => <ListItem headline={id} isSelected={isSelected} />}
+        </GridListItem>
+      ))}
+    </GridList>
+  ),
+  play: async ({ canvasElement }) => {
+    await userEvent.tab();
+    const row = within(canvasElement).getByRole("row", { name: "finance" });
+    await expect(row).toHaveFocus();
+    // The ring is the row's last layer, a pseudo-element over its content.
+    const ring = getComputedStyle(row, "::after");
+    await expect(ring.outlineStyle).toBe("solid");
+    await expect(ring.outlineOffset).toBe("-3px");
+    await expect(ring.position).toBe("absolute");
+  },
+};
+
+/** A row is moved by the keyboard alone: the arrow keys reach its handle,
+    Enter picks the row up, the arrows choose a place, Enter drops it. */
+export const GridListRowIsMovedByTheKeyboard: Story = {
+  render: () => <OrderedList />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const names = () =>
+      canvas.getAllByRole("row").map((row) => row.textContent ?? "");
+    await expect(names()).toEqual(["Starters", "Mains", "Desserts"]);
+
+    await userEvent.tab();
+    await expect(canvas.getAllByRole("row")[0]).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}");
+    const handle = canvas.getByRole("button", { name: "Drag Starters" });
+    await expect(handle).toHaveFocus();
+    // A stop only the arrow keys reach: it shows the focus, and is given it
+    // back to go on.
+    await expectVisibleFocus(handle, () => userEvent.keyboard("{ArrowLeft}"));
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(handle).toHaveFocus();
+
+    // Enter picks the row up: the focus goes to a place it can be dropped,
+    // which says where it is. Each arrow press is waited for, so the row is
+    // dropped in one place every time.
+    const place = () => document.activeElement?.getAttribute("aria-label") ?? "";
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(place()).toMatch(/insert/i));
+    for (let i = 0; i < 2; i++) {
+      const before = place();
+      await userEvent.keyboard("{ArrowDown}");
+      await waitFor(() => expect(place()).not.toBe(before));
+    }
+    await expect(place()).toBe("Insert after Desserts");
+    // Where the row will land is drawn: a line between two rows.
+    const line = canvasElement.querySelector(
+      ".react-aria-DropIndicator[data-drop-target]",
+    )!;
+    await expect(getComputedStyle(line).outlineStyle).toBe("solid");
+    await expect(getComputedStyle(line).outlineWidth).toBe("1px");
+    await userEvent.keyboard("{Enter}");
+
+    await waitFor(() =>
+      expect(names()).toEqual(["Mains", "Desserts", "Starters"]),
+    );
+  },
+};
+
+/* ---- A table's columns, resized ---------------------------------------- */
+
+/** A column is resized by the keyboard alone: from the heading the arrow
+    keys reach the handle, Enter takes it, the arrows move it, Enter lets go.
+    And a heading that sorts still sorts on Enter. */
+export const TableColumnIsResizedByTheKeyboard: Story = {
+  render: function Render() {
+    const [sort, setSort] = React.useState<SortDescriptor>();
+    return (
+      <div className="w-[560px]">
+        <ResizableTableContainer>
+          <Table
+            aria-label="Files"
+            sortDescriptor={sort}
+            onSortChange={setSort}
+          >
+            <TableHeader>
+              <Column
+                id="name"
+                isRowHeader
+                allowsSorting
+                allowsResizing
+                defaultWidth={240}
+              >
+                Name
+              </Column>
+              <Column id="size">Size</Column>
+            </TableHeader>
+            <TableBody>
+              <Row>
+                <Cell>Roadmap.pdf</Cell>
+                <Cell>3 MB</Cell>
+              </Row>
+            </TableBody>
+          </Table>
+        </ResizableTableContainer>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const heading = canvas.getByRole("columnheader", { name: /name/i });
+    const width = () => Math.round(heading.getBoundingClientRect().width);
+    const start = width();
+
+    // Tab enters the table on its first row; ArrowUp goes to the heading,
+    // where the focus is on its label: Enter there sorts.
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowUp}");
+    await expect(heading.contains(document.activeElement)).toBe(true);
+    // The heading's label and its handle are stops only the arrow keys
+    // reach: each shows the focus.
+    const label = document.activeElement as HTMLElement;
+    await expectVisibleFocus(label, () => userEvent.keyboard("{ArrowRight}"));
+    const resizer = within(heading).getByRole("slider");
+    await expect(resizer).toHaveFocus();
+    await expectVisibleFocus(resizer, () => userEvent.keyboard("{ArrowLeft}"));
+    await expect(heading.contains(document.activeElement)).toBe(true);
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(heading).toHaveAttribute("aria-sort", "ascending"),
+    );
+
+    // One more arrow reaches the handle, a slider.
+    await userEvent.keyboard("{ArrowRight}");
+    const handle = within(heading).getByRole("slider");
+    await expect(handle).toHaveFocus();
+
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(width()).toBeGreaterThan(start));
+  },
+};
+
+/* ---- Tree -------------------------------------------------------------- */
+
+/** The arrow keys walk the tree: Right opens a level, Down goes into it,
+    Left closes it; Enter selects the row; typing a name goes to it. */
+export const TreeIsWalkedByTheKeyboard: Story = {
+  render: () => (
+    <Tree aria-label="Files" selectionMode="single" className="w-72">
+      <TreeItem id="finance" title="Finance">
+        <TreeItem id="invoices" title="Invoices" />
+        <TreeItem id="budget" title="Budget" />
+      </TreeItem>
+      <TreeItem id="design" title="Design" />
+    </Tree>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = (name: string) => canvas.getByRole("row", { name });
+    await expect(canvas.getAllByRole("row")).toHaveLength(2);
+
+    await userEvent.tab();
+    await expect(row("Finance")).toHaveFocus();
+    await expect(row("Finance")).toHaveAttribute("aria-expanded", "false");
+
+    await userEvent.keyboard("{ArrowRight}");
+    await waitFor(() =>
+      expect(row("Finance")).toHaveAttribute("aria-expanded", "true"),
+    );
+    await expect(canvas.getAllByRole("row")).toHaveLength(4);
+    await expect(row("Invoices")).toHaveAttribute("aria-level", "2");
+
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(row("Invoices")).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(row("Invoices")).toHaveAttribute("aria-selected", "true"),
+    );
+
+    // Typing goes to the row whose name starts so.
+    await userEvent.keyboard("des");
+    await waitFor(() => expect(row("Design")).toHaveFocus());
+
+    await userEvent.keyboard("{ArrowUp}{ArrowUp}{ArrowUp}");
+    await expect(row("Finance")).toHaveFocus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await waitFor(() =>
+      expect(row("Finance")).toHaveAttribute("aria-expanded", "false"),
+    );
+    await expect(canvas.getAllByRole("row")).toHaveLength(2);
   },
 };
