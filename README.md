@@ -238,6 +238,17 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 
 <!-- /own-components -->
 
+### Blocks
+
+Parts that neither Material 3 nor React Aria describes, built from the kit's
+components and handed to a project to edit. `npx shadcn add @ds/<name>` copies
+one into your own components, outside the kit's folder: it is yours from then
+on, and an update of the kit never replaces it. What a block is:
+[What this kit is](docs/what-this-kit-is.md).
+
+- `pager-block`: the pages of a list or a table: the range shown, previous
+  and next, a page-size menu.
+
 [color]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-color--roles
 [typography]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-typography--scale
 [shape]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-shape-elevation--shape

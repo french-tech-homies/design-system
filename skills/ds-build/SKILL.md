@@ -57,6 +57,14 @@ Until then, and for anything neither Material nor React Aria describes, a
 component the kit does not have is the project's: it is written beside the
 kit, not inside it, on `react-aria-components`, following the rules below.
 
+For some of those the kit has a block to start from: a pager, and others
+its registry lists as `<name>-block`. `npx shadcn add @ds/pager-block`
+copies one into the project's components, outside `<kit>`. It is the
+project's from then on: edit it freely, an update of the kit never replaces
+it. It imports the kit's components from `<kit>`'s barrel, so it needs the
+kit at a release that has them: if it does not type-check, update the kit
+first.
+
 What the project's own component follows:
 
 - **Its measures and its look are Material's**, where Material describes the

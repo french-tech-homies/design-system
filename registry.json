@@ -2387,6 +2387,26 @@
         "version": "0.7.0",
         "license": "MIT"
       }
+    },
+    {
+      "name": "pager-block",
+      "type": "registry:block",
+      "title": "Pager (block)",
+      "description": "The pages of a list or a table: the range shown, previous and next, and a page-size menu. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's IconButton, Button, Menu and Body.",
+      "registryDependencies": [
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "blocks/pager/Pager.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.7.0",
+        "license": "MIT"
+      }
     }
   ]
 }

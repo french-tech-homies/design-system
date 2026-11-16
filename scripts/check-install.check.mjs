@@ -47,6 +47,62 @@ test("the shipped registry and skills: the one install is whole", () => {
   assert.deepEqual(checkInstall(kit), []);
 });
 
+const PAGER = "pager-block";
+const PAGER_SOURCE = "blocks/pager/Pager.tsx";
+
+test("the shipped kit holds a block, and it passes", () => {
+  assert.equal(item(kit, PAGER).type, "registry:block");
+  assert.ok(kit.texts[PAGER_SOURCE].includes('"@/registry/ds/ui/ds"'));
+});
+
+test("a block the whole install reaches is refused: an update would replace it", () => {
+  refuses(
+    changed((k) => {
+      item(k, "ds").registryDependencies.push(`@ds/${PAGER}`);
+    }),
+    /block "pager-block" is reached by `ds`/,
+  );
+});
+
+test("a block that depends on a kit item is refused: it would bring newer kit files", () => {
+  refuses(
+    changed((k) => {
+      item(k, PAGER).registryDependencies.push("@ds/menu");
+    }),
+    /block "pager-block" depends on @ds\/menu/,
+  );
+});
+
+test("a block's file placed under the kit's folder is refused", () => {
+  refuses(
+    changed((k) => {
+      item(k, PAGER).files[0].target = "@ui/ds/blocks/Pager.tsx";
+    }),
+    /block "pager-block": blocks\/pager\/Pager\.tsx is registry:component with the target @ui\/ds\/blocks\/Pager\.tsx/,
+  );
+});
+
+test("a block that imports the kit by a relative path, or by this repository's name, is refused", () => {
+  refuses(
+    changed((k) => {
+      k.texts[PAGER_SOURCE] = k.texts[PAGER_SOURCE].replace(
+        '"@/registry/ds/ui/ds"',
+        '"../../index"',
+      );
+    }),
+    /Pager\.tsx imports "\.\.\/\.\.\/index"/,
+  );
+  refuses(
+    changed((k) => {
+      k.texts[PAGER_SOURCE] = k.texts[PAGER_SOURCE].replace(
+        '"@/registry/ds/ui/ds"',
+        '"@french-tech-homies/design-system"',
+      );
+    }),
+    /Pager\.tsx imports "@french-tech-homies\/design-system"/,
+  );
+});
+
 test("the generator out of reach of `ds` is refused", () => {
   refuses(
     changed((k) => {

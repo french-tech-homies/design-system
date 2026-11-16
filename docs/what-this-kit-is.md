@@ -38,9 +38,30 @@ pages it cites. `npm run registry:check-install`
 component file that neither says so nor cites a page of m3.material.io.
 
 A part that neither Material nor React Aria describes is a project's: it is
-written in the project, beside the kit, and does not come here. So is a React
-Aria component that no screen of the corpus needs and no project has asked
-the kit for.
+written in the project, beside the kit, and is never a component of the kit.
+So is a React Aria component that no screen of the corpus needs and no
+project has asked the kit for.
+
+**Blocks.** Where screens of the corpus write the same such part again (a
+pager, a stepper), the kit offers it once as a block: a file built from the
+kit's components, on its role utilities, that `npx shadcn add @ds/<name>-block`
+copies into a project's own components. From then on it is the project's, to
+edit as its product asks:
+
+- it lands outside the kit's folder, so no update of the kit replaces it,
+  and `changed.mjs` does not name it;
+- the whole install does not bring it, and it brings no kit file with it: it
+  imports what it needs from the kit the project holds, and says in its
+  first lines which components those are;
+- it is not Material's and does not claim to be: its first lines say that
+  neither Material nor React Aria describes it, and cite what it borrows.
+
+In this repository a block clears the same bar as a component: stories, a
+keyboard test, axe under both presets, the walk of its tab stops, its
+pictures. The blocks are listed on the front page,
+[Blocks](../README.md#blocks). `npm run registry:check-install` holds what
+makes one a block: reached by nothing, reaching nothing but the licence,
+landing outside the kit, importing the kit by its barrel alone.
 
 **What a project may change.** An edit of a kit file is allowed, priced and
 rarely needed: an update overwrites every kit file that differs, and the
