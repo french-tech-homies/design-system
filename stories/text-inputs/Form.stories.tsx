@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import {
   FormCheckbox,
@@ -248,3 +249,98 @@ function ValidationOnSubmit() {
 }
 
 export const ValidationErrors: Story = { render: () => <ValidationOnSubmit /> };
+
+type Contact = {
+  name: string;
+  topic: string;
+  budget: number;
+  service: string;
+  consent: boolean;
+};
+
+function RulesAndFocus() {
+  const form = useForm<Contact>({ defaultValues: { name: "", consent: false } });
+  return (
+    <form
+      onSubmit={form.handleSubmit(() => undefined)}
+      className="flex w-[420px] flex-col gap-5"
+      noValidate
+    >
+      <FormTextField
+        control={form.control}
+        name="name"
+        label="Name"
+        rules={{ required: "Enter your name" }}
+      />
+      <FormSelect
+        control={form.control}
+        name="topic"
+        label="Topic"
+        items={expiry}
+        rules={{ required: "Choose a topic" }}
+      >
+        {(item) => <SelectItem id={item.id} label={item.name} />}
+      </FormSelect>
+      <FormNumberField
+        control={form.control}
+        name="budget"
+        label="Budget"
+        rules={{ required: "Enter a budget" }}
+      />
+      <FormRadioGroup
+        control={form.control}
+        name="service"
+        label="Service"
+        rules={{ required: "Choose a service" }}
+      >
+        <Radio value="table">Table service</Radio>
+        <Radio value="counter">Counter pickup</Radio>
+      </FormRadioGroup>
+      <FormCheckbox
+        control={form.control}
+        name="consent"
+        rules={{ required: "Agree to be contacted" }}
+      >
+        You may contact me
+      </FormCheckbox>
+      <Button type="submit">Send</Button>
+      <Button variant="text" onPress={() => form.setFocus("budget")}>
+        Go to the budget
+      </Button>
+    </form>
+  );
+}
+
+/**
+ * With no schema, each field carries react-hook-form's `rules`. A refused
+ * submit puts the focus in the first invalid field, whatever control it is,
+ * and `form.setFocus` reaches one by name.
+ */
+export const RulesAndFocusOnTheFirstError: Story = {
+  render: () => <RulesAndFocus />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const send = canvas.getByRole("button", { name: "Send" });
+
+    await userEvent.click(send);
+    await expect(await canvas.findByText("Enter your name")).toBeVisible();
+    await expect(canvas.getByText("Choose a topic")).toBeVisible();
+    await waitFor(() =>
+      expect(canvas.getByRole("textbox", { name: /Name/ })).toHaveFocus(),
+    );
+
+    await userEvent.keyboard("Ada");
+    await userEvent.click(send);
+    // The select's trigger is a button: the first invalid field now.
+    await waitFor(() =>
+      expect(document.activeElement?.closest("[data-slot=select]")).not.toBeNull(),
+    );
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Go to the budget" }),
+    );
+    await waitFor(() =>
+      expect(canvas.getByRole("textbox", { name: /Budget/ })).toHaveFocus(),
+    );
+  },
+};

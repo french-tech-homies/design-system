@@ -10,6 +10,18 @@
  *
  *   const form = useForm<Values>({ resolver: zodResolver(schema) });
  *   <FormTextField control={form.control} name="displayName" label="Name" />
+ *
+ * Validation is a resolver's (`zodResolver(schema)` above) or, with no
+ * schema library, each field's own `rules`, react-hook-form's:
+ *
+ *   <FormTextField control={form.control} name="email" label="Email"
+ *     rules={{ required: "Enter your email", pattern: { value: /@/, message: "Not an email" } }} />
+ *
+ * A refused submit puts the focus in the first invalid field, as
+ * react-hook-form does by default (`shouldFocusError`), and
+ * `form.setFocus(name)` reaches a field: each `Form*` renders a hidden
+ * marker before its control for that.
+ *
  *   <FormNumberField control={form.control} name="price" label="Price"
  *     formatOptions={{ style: "currency", currency: "EUR" }} />
  *   <FormPhoneField control={form.control} name="phone" label="Phone" defaultCountry="FR" />
@@ -33,6 +45,7 @@ import type { Key } from "react-aria-components";
 import {
   Controller,
   type Control,
+  type ControllerProps,
   type FieldPath,
   type FieldValues,
 } from "react-hook-form";
@@ -53,14 +66,72 @@ import { Select, type SelectProps } from "../components/Select";
 import { Switch, type SwitchProps } from "../components/Switch";
 import { TextField, type TextFieldProps } from "../components/TextField";
 
+/**
+ * What react-hook-form focuses when a field is refused. The kit's controls
+ * are not one element each, so the adapter hands it a hidden marker before
+ * the control: focusing the field focuses the first thing in the control a
+ * keyboard reaches. With it `shouldFocusError` (on by default) and
+ * `form.setFocus(name)` work.
+ */
+function FocusAnchor({ fieldRef }: { fieldRef: (instance: unknown) => void }) {
+  return (
+    <span
+      hidden
+      data-slot="form-field-anchor"
+      ref={(anchor) => {
+        fieldRef(
+          anchor && {
+            focus: () => {
+              // React Aria renders a `template` before a control that holds
+              // a collection (a select, a combo box): the control is after.
+              let control = anchor.nextElementSibling;
+              while (control?.tagName === "TEMPLATE") {
+                control = control.nextElementSibling;
+              }
+              firstFocusable(control)?.focus();
+            },
+          },
+        );
+      }}
+    />
+  );
+}
+
+/**
+ * The first element of a control that a keyboard reaches: not a hidden
+ * native input a component keeps for the browser, not one taken out of the
+ * tab order.
+ */
+function firstFocusable(control: Element | null): HTMLElement | undefined {
+  if (!control) return undefined;
+  const reached = (selector: string) =>
+    [control, ...control.querySelectorAll(selector)].find(
+      (el): el is HTMLElement =>
+        el instanceof HTMLElement &&
+        el.matches(selector) &&
+        el.tabIndex >= 0 &&
+        !el.matches(":disabled, [type=hidden]") &&
+        !el.closest("[aria-hidden=true], [hidden]") &&
+        el.getClientRects().length > 0,
+    );
+  // Where a control has both, the place a person types (a phone number, a
+  // combo box's text) before the button beside it.
+  return reached("input, textarea") ?? reached("select, button, [tabindex]");
+}
+
 type Bound<TValues extends FieldValues> = {
   control: Control<TValues>;
   name: FieldPath<TValues>;
+  /** react-hook-form's own rules for this field (`required`, `minLength`,
+   *  `pattern`, `validate`), for a form with no schema resolver. A rule's
+   *  message is the field's error message. */
+  rules?: ControllerProps<TValues, FieldPath<TValues>>["rules"];
 };
 
 export function FormTextField<TValues extends FieldValues>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<TextFieldProps, "value" | "onChange" | "onBlur" | "name">) {
@@ -68,16 +139,20 @@ export function FormTextField<TValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <TextField
-          {...props}
-          name={field.name}
-          value={field.value ?? ""}
-          onChange={field.onChange}
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <TextField
+            {...props}
+            name={field.name}
+            value={field.value ?? ""}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
@@ -91,6 +166,7 @@ export function FormTextField<TValues extends FieldValues>({
 export function FormNumberField<TValues extends FieldValues>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<NumberFieldProps, "value" | "onChange" | "onBlur" | "name">) {
@@ -98,18 +174,22 @@ export function FormNumberField<TValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <NumberField
-          {...props}
-          name={field.name}
-          value={typeof field.value === "number" ? field.value : NaN}
-          onChange={(value) =>
-            field.onChange(Number.isNaN(value) ? undefined : value)
-          }
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <NumberField
+            {...props}
+            name={field.name}
+            value={typeof field.value === "number" ? field.value : NaN}
+            onChange={(value) =>
+              field.onChange(Number.isNaN(value) ? undefined : value)
+            }
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
@@ -123,6 +203,7 @@ export function FormNumberField<TValues extends FieldValues>({
 export function FormPhoneField<TValues extends FieldValues>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<PhoneFieldProps, "value" | "onChange" | "onBlur" | "name">) {
@@ -130,16 +211,20 @@ export function FormPhoneField<TValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <PhoneField
-          {...props}
-          name={field.name}
-          value={typeof field.value === "string" ? field.value : ""}
-          onChange={(value) => field.onChange(value)}
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <PhoneField
+            {...props}
+            name={field.name}
+            value={typeof field.value === "string" ? field.value : ""}
+            onChange={(value) => field.onChange(value)}
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
@@ -152,20 +237,25 @@ export function FormPhoneField<TValues extends FieldValues>({
 export function FormImageField<TValues extends FieldValues>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> & Omit<ImageFieldProps, "value" | "onChange">) {
   return (
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <ImageField
-          {...props}
-          value={typeof field.value === "string" ? field.value : ""}
-          onChange={(value) => field.onChange(value)}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <ImageField
+            {...props}
+            value={typeof field.value === "string" ? field.value : ""}
+            onChange={(value) => field.onChange(value)}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
@@ -174,6 +264,7 @@ export function FormImageField<TValues extends FieldValues>({
 export function FormCheckbox<TValues extends FieldValues>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<CheckboxProps, "isSelected" | "onChange" | "onBlur" | "name">) {
@@ -181,15 +272,19 @@ export function FormCheckbox<TValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <Checkbox
-          {...props}
-          name={field.name}
-          isSelected={!!field.value}
-          onChange={field.onChange}
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <Checkbox
+            {...props}
+            name={field.name}
+            isSelected={!!field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+          />
+        </>
       )}
     />
   );
@@ -199,6 +294,7 @@ export function FormCheckbox<TValues extends FieldValues>({
 export function FormCheckboxGroup<TValues extends FieldValues>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<CheckboxGroupProps, "value" | "onChange" | "onBlur" | "name">) {
@@ -206,16 +302,20 @@ export function FormCheckboxGroup<TValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <CheckboxGroup
-          {...props}
-          name={field.name}
-          value={Array.isArray(field.value) ? field.value : []}
-          onChange={field.onChange}
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <CheckboxGroup
+            {...props}
+            name={field.name}
+            value={Array.isArray(field.value) ? field.value : []}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
@@ -224,6 +324,7 @@ export function FormCheckboxGroup<TValues extends FieldValues>({
 export function FormSwitch<TValues extends FieldValues>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<SwitchProps, "isSelected" | "onChange" | "onBlur" | "name">) {
@@ -231,14 +332,18 @@ export function FormSwitch<TValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
-        <Switch
-          {...props}
-          name={field.name}
-          isSelected={!!field.value}
-          onChange={field.onChange}
-          onBlur={field.onBlur}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <Switch
+            {...props}
+            name={field.name}
+            isSelected={!!field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+          />
+        </>
       )}
     />
   );
@@ -247,6 +352,7 @@ export function FormSwitch<TValues extends FieldValues>({
 export function FormRadioGroup<TValues extends FieldValues>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<RadioGroupProps, "value" | "onChange" | "onBlur" | "name">) {
@@ -254,16 +360,20 @@ export function FormRadioGroup<TValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <RadioGroup
-          {...props}
-          name={field.name}
-          value={field.value ?? null}
-          onChange={field.onChange}
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <RadioGroup
+            {...props}
+            name={field.name}
+            value={field.value ?? null}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
@@ -272,6 +382,7 @@ export function FormRadioGroup<TValues extends FieldValues>({
 export function FormSelect<TValues extends FieldValues, T extends object>({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<
@@ -282,16 +393,20 @@ export function FormSelect<TValues extends FieldValues, T extends object>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <Select<T>
-          {...props}
-          name={field.name}
-          selectedKey={field.value ?? null}
-          onSelectionChange={(key) => field.onChange(key)}
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <Select<T>
+            {...props}
+            name={field.name}
+            selectedKey={field.value ?? null}
+            onSelectionChange={(key) => field.onChange(key)}
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
@@ -305,6 +420,7 @@ export function FormSelect<TValues extends FieldValues, T extends object>({
 export function FormChipGroup<TValues extends FieldValues>({
   control,
   name,
+  rules,
   selectionMode = "multiple",
   ...props
 }: Bound<TValues> &
@@ -313,22 +429,26 @@ export function FormChipGroup<TValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <ChipGroup
-          {...props}
-          selectionMode={selectionMode}
-          selectedKeys={toKeys(field.value)}
-          onSelectionChange={(keys) =>
-            field.onChange(
-              selectionMode === "single"
-                ? (Array.from(keys)[0] ?? null)
-                : Array.from(keys),
-            )
-          }
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <ChipGroup
+            {...props}
+            selectionMode={selectionMode}
+            selectedKeys={toKeys(field.value)}
+            onSelectionChange={(keys) =>
+              field.onChange(
+                selectionMode === "single"
+                  ? (Array.from(keys)[0] ?? null)
+                  : Array.from(keys),
+              )
+            }
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
@@ -371,6 +491,7 @@ export function FormComboBox<
 >({
   control,
   name,
+  rules,
   ...props
 }: Bound<TValues> &
   Omit<ComboBoxProps<T, M>, "value" | "onChange" | "onBlur" | "name">) {
@@ -379,22 +500,26 @@ export function FormComboBox<
     <Controller
       control={control}
       name={name}
+      rules={rules}
       render={({ field, fieldState }) => (
-        <ComboBox<T, M>
-          {...props}
-          name={field.name}
-          value={
-            (multiple
-              ? Array.isArray(field.value)
-                ? field.value
-                : []
-              : (field.value ?? null)) as ComboBoxProps<T, M>["value"]
-          }
-          onChange={(value) => field.onChange(value)}
-          onBlur={field.onBlur}
-          isInvalid={fieldState.invalid}
-          errorMessage={fieldState.error?.message}
-        />
+        <>
+          <FocusAnchor fieldRef={field.ref} />
+          <ComboBox<T, M>
+            {...props}
+            name={field.name}
+            value={
+              (multiple
+                ? Array.isArray(field.value)
+                  ? field.value
+                  : []
+                : (field.value ?? null)) as ComboBoxProps<T, M>["value"]
+            }
+            onChange={(value) => field.onChange(value)}
+            onBlur={field.onBlur}
+            isInvalid={fieldState.invalid}
+            errorMessage={fieldState.error?.message}
+          />
+        </>
       )}
     />
   );
