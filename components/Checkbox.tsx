@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 import {
   Checkbox as AriaCheckbox,
   CheckboxGroup as AriaCheckboxGroup,
@@ -61,6 +61,10 @@ export type CheckboxProps = Omit<
 > & {
   children?: ReactNode;
   className?: string;
+  /** What is wrong, shown under the box while `isInvalid` and read with it:
+   *  for a box that stands alone (a consent, "I accept the terms"). A set
+   *  of boxes takes its message on `CheckboxGroup`. */
+  errorMessage?: string;
 };
 
 /**
@@ -69,13 +73,32 @@ export type CheckboxProps = Omit<
  * an optional label that also toggles it. `CheckboxGroup` adds a group label,
  * supporting text and an error message.
  *
+ * A box alone that must be ticked takes `isRequired`, `isInvalid` and its
+ * own `errorMessage`:
+ *
+ *   <Checkbox isRequired isInvalid={!accepted} errorMessage="Accept the terms to continue">
+ *     I accept the terms
+ *   </Checkbox>
+ *
  * Spec: https://m3.material.io/components/checkbox/{overview,specs,guidelines,accessibility}
  */
-export function Checkbox({ children, className, ...props }: CheckboxProps) {
-  return (
+export function Checkbox({
+  children,
+  className,
+  errorMessage,
+  ...props
+}: CheckboxProps) {
+  const errorId = useId();
+  const showError = !!errorMessage && !!props.isInvalid;
+  const box = (
     <AriaCheckbox
       data-slot="checkbox"
       {...props}
+      aria-describedby={
+        [props["aria-describedby"], showError && errorId]
+          .filter(Boolean)
+          .join(" ") || undefined
+      }
       className={composeTailwindRenderProps(className, styles().base())}
     >
       {composeRenderProps(
@@ -100,6 +123,21 @@ export function Checkbox({ children, className, ...props }: CheckboxProps) {
         },
       )}
     </AriaCheckbox>
+  );
+  if (!showError) return box;
+  // The message is outside the label, so a press on it does not tick the
+  // box, and under the label's text: 18dp of box and 8dp of gap in.
+  return (
+    <span data-slot="checkbox-field" className="inline-flex flex-col">
+      {box}
+      <span
+        id={errorId}
+        data-slot="checkbox-error"
+        className="text-body-small font-body-small text-error pl-[26px]"
+      >
+        {errorMessage}
+      </span>
+    </span>
   );
 }
 
