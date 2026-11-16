@@ -49,6 +49,8 @@ import {
  * `stories/interactions/Fields.stories.tsx` for why these live apart from the
  * component stories.
  */
+import { expectVisibleFocus } from "./visible-focus";
+
 const meta = {
   title: "MD3/Interactions/Containment",
   parameters: { layout: "padded" },
@@ -875,14 +877,29 @@ export const GridListRowIsMovedByTheKeyboard: Story = {
     await userEvent.keyboard("{ArrowRight}");
     const handle = canvas.getByRole("button", { name: "Drag Starters" });
     await expect(handle).toHaveFocus();
+    // A stop only the arrow keys reach: it shows the focus, and is given it
+    // back to go on.
+    await expectVisibleFocus(handle, () => userEvent.keyboard("{ArrowLeft}"));
+    await userEvent.keyboard("{ArrowRight}");
+    await expect(handle).toHaveFocus();
 
+    // Enter picks the row up: the focus goes to a place it can be dropped,
+    // which says where it is. Each arrow press is waited for, so the row is
+    // dropped in one place every time.
+    const place = () => document.activeElement?.getAttribute("aria-label") ?? "";
     await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{ArrowDown}");
-    await userEvent.keyboard("{ArrowDown}");
+    await waitFor(() => expect(place()).toMatch(/insert/i));
+    for (let i = 0; i < 2; i++) {
+      const before = place();
+      await userEvent.keyboard("{ArrowDown}");
+      await waitFor(() => expect(place()).not.toBe(before));
+    }
+    await expect(place()).toBe("Insert after Desserts");
     await userEvent.keyboard("{Enter}");
 
-    await waitFor(() => expect(names()[0]).not.toBe("Starters"));
-    await expect(names().sort()).toEqual(["Desserts", "Mains", "Starters"]);
+    await waitFor(() =>
+      expect(names()).toEqual(["Mains", "Desserts", "Starters"]),
+    );
   },
 };
 
@@ -935,6 +952,14 @@ export const TableColumnIsResizedByTheKeyboard: Story = {
     // where the focus is on its label: Enter there sorts.
     await userEvent.tab();
     await userEvent.keyboard("{ArrowUp}");
+    await expect(heading.contains(document.activeElement)).toBe(true);
+    // The heading's label and its handle are stops only the arrow keys
+    // reach: each shows the focus.
+    const label = document.activeElement as HTMLElement;
+    await expectVisibleFocus(label, () => userEvent.keyboard("{ArrowRight}"));
+    const resizer = within(heading).getByRole("slider");
+    await expect(resizer).toHaveFocus();
+    await expectVisibleFocus(resizer, () => userEvent.keyboard("{ArrowLeft}"));
     await expect(heading.contains(document.activeElement)).toBe(true);
     await userEvent.keyboard("{Enter}");
     await waitFor(() =>
