@@ -1,9 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import React, { useRef } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
-import { I18nProvider } from "react-aria-components";
+import {
+  I18nProvider,
+  useDragAndDrop,
+  useListData,
+} from "react-aria-components";
 
 import Button from "@french-tech-homies/design-system/components/Button";
+import {
+  GridList,
+  GridListDragHandle,
+  GridListItem,
+} from "@french-tech-homies/design-system/components/GridList";
+import ListItem from "@french-tech-homies/design-system/components/ListItem";
 import {
   Card,
   CardContent,
@@ -792,5 +802,73 @@ export const CarouselReducedMotionSameSize: Story = {
         name === "Heroes" ? "always" : "normal",
       );
     }
+  },
+};
+
+/* ---- A list put in order by dragging ----------------------------------- */
+
+function OrderedList() {
+  const list = useListData({
+    initialItems: [
+      { id: "a", name: "Starters" },
+      { id: "b", name: "Mains" },
+      { id: "c", name: "Desserts" },
+    ],
+  });
+  const { dragAndDropHooks } = useDragAndDrop({
+    getItems: (keys) =>
+      [...keys].map((key) => ({ "text/plain": list.getItem(key)?.name ?? "" })),
+    onReorder(e) {
+      if (e.target.dropPosition === "before") {
+        list.moveBefore(e.target.key, e.keys);
+      } else if (e.target.dropPosition === "after") {
+        list.moveAfter(e.target.key, e.keys);
+      }
+    },
+  });
+  return (
+    <GridList
+      aria-label="Courses"
+      items={list.items}
+      dragAndDropHooks={dragAndDropHooks}
+      className="w-72"
+    >
+      {(item) => (
+        <GridListItem textValue={item.name}>
+          <ListItem
+            headline={item.name}
+            trailingElement={
+              <GridListDragHandle aria-label={`Drag ${item.name}`} />
+            }
+          />
+        </GridListItem>
+      )}
+    </GridList>
+  );
+}
+
+/** A row is moved by the keyboard alone: the arrow keys reach its handle,
+    Enter picks the row up, the arrows choose a place, Enter drops it. */
+export const GridListRowIsMovedByTheKeyboard: Story = {
+  render: () => <OrderedList />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const names = () =>
+      canvas.getAllByRole("row").map((row) => row.textContent ?? "");
+    await expect(names()).toEqual(["Starters", "Mains", "Desserts"]);
+
+    await userEvent.tab();
+    await expect(canvas.getAllByRole("row")[0]).toHaveFocus();
+    await userEvent.keyboard("{ArrowRight}");
+    const handle = canvas.getByRole("button", { name: "Drag Starters" });
+    await expect(handle).toHaveFocus();
+
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
+
+    await waitFor(() => expect(names()[0]).not.toBe("Starters"));
+    await expect(names().sort()).toEqual(["Desserts", "Mains", "Starters"]);
   },
 };

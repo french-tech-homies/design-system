@@ -29,6 +29,7 @@ export {
   EditIcon,
   ScheduleIcon,
   KeyboardIcon,
+  DragIndicatorIcon,
   GlobeIcon,
   ImageIcon,
   MinusIcon,
@@ -112,7 +113,11 @@ export {
   type CellProps,
 } from "./components/Table";
 export { Avatar, type AvatarProps } from "./components/Avatar";
-export { GridList, GridListItem } from "./components/GridList";
+export {
+  GridList,
+  GridListItem,
+  GridListDragHandle,
+} from "./components/GridList";
 export {
   Menu,
   type MenuItemType,
