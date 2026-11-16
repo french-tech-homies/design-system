@@ -93,6 +93,10 @@
       "exact": "b62bedf89f6c2cae27213dc235ea897a6b0e8031bd8125c71ac18edc62be01d8",
       "loose": "f17346b87379c9ca6263de1a5b4863e3a7ed0d5866da9a5ed1cb9e5efb713783"
     },
+    "components/DropZone.tsx": {
+      "exact": "23f2179f04be093986c381415327cff99c42dfa1b9cd6365c0af795c060928ed",
+      "loose": "b72762b1b7170458423908199e2bd2897fcae23be20345d88a88fcc7509900bc"
+    },
     "components/EmptyState.tsx": {
       "exact": "4ff295392fb38a0338d18796528a5044354fb2088af5fa3fc88429d8be943208",
       "loose": "7b17881b5917d6c41ab9ef753553b2306e419dbc08f958069f4d0562d1cafc82"
@@ -100,6 +104,10 @@
     "components/FabMenu.tsx": {
       "exact": "3eca2e25b49ab37887f011172aae13038a585cc200681db4e001fc2bc0ae1b24",
       "loose": "4fb2881fa30890bbfbb8fe8b87f7102e8c62e77615f9c455495ea997522007a9"
+    },
+    "components/FileTrigger.tsx": {
+      "exact": "75072992417cfd6e49a25e5f5b7d3fd397fa8f1f21454f92df98425d4643d442",
+      "loose": "21d853d478de71bfe4dc7d3ef82656abd649fce40231fa235736143652b23b00"
     },
     "components/GridList.tsx": {
       "exact": "e568db799e68ddee90b462ca2a492cdf972af4fb32c56d233f405d14d44b58a7",
@@ -278,11 +286,11 @@
       "loose": "f53873012a0ccb6815603ab3e49154577deef31809651d1b1b6ad7c74045c38f"
     },
     "index.ts": {
-      "exact": "0b17f33c0a52448a184838eac122d43c40d76268116f56697167c4f0976b37bb",
-      "loose": "6da7543c26699d786c78137d2d5135316ec6bf96574f773b3ffec59a0721772f",
+      "exact": "910110ba543c8344c59ca8369a43b21100a5abf9ab5225f65d402638c3cbba60",
+      "loose": "3aa8c5f7d70d7efc438a40d535764ffa354c5f7582a158ed9b7966102c55895a",
       "landed": {
-        "exact": "5d00577bd15615d4d1836304f47f41205947028f066e332af685b7e176fa4d21",
-        "loose": "fe6c05eeaf4d984861a73769c37ad5a1db297a5ccf8c710cc99911f659fc5f9c"
+        "exact": "b4a75f87275e3111cd9ab6d264be77cf60a8200ba97ab121b5b2d7647743830d",
+        "loose": "d3a1c4768268ba813164597f1be4603ac408e34bf52447f4ac946fdfa26b54e0"
       }
     },
     "primitives/StateLayer.tsx": {

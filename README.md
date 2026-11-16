@@ -208,7 +208,7 @@ where every variant is drawn, in light and dark.
 
 ### The kit's own
 
-Fourteen the kit ships that Material 3 does not describe, each built on
+Fifteen the kit ships that Material 3 does not describe, each built on
 Material's foundations and saying so in its doc comment. How one joins the
 group is in [What this kit is](docs/what-this-kit-is.md).
 
@@ -219,6 +219,8 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 - [`Link`][link]: a text link, in a sentence or in a list of links.
 - [`Breadcrumbs`][breadcrumbs]: the path to the current page, each level above it a link.
 - [`Popover`][popover]: a surface for any content, opened beside its trigger.
+- [`DropZone`][dropzone]: an area files are dropped onto, with `FileTrigger`, which opens the
+  file chooser from a button.
 - [`Avatar`][avatar]: a person's picture or initials.
 - [`Disclosure`][disclosure]: a heading that opens and closes a panel, alone or in a group.
 - [`PreviewTrigger`][preview]: a card of any content opened by hovering or focusing its
@@ -286,6 +288,7 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 [link]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-link--in-a-sentence
 [breadcrumbs]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-breadcrumbs--path
 [popover]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-popover--filters
+[dropzone]: https://french-tech-homies.github.io/design-system/?path=/story/md3-text-inputs-dropzone--outlined
 [avatar]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-avatar--image
 [disclosure]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-disclosure--single
 [preview]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-previewtrigger--product-list

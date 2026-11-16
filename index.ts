@@ -91,6 +91,11 @@ export {
 export { default as ListItem, type ListItemProps } from "./components/ListItem";
 export { Tag, type TagProps } from "./components/Tag";
 export { Link, type LinkProps } from "./components/Link";
+export { DropZone, type DropZoneProps } from "./components/DropZone";
+export {
+  FileTrigger,
+  type FileTriggerProps,
+} from "./components/FileTrigger";
 export {
   Popover,
   PopoverTrigger,

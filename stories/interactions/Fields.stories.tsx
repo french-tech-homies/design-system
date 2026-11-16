@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { UserEvent } from "@vitest/browser-playwright/context";
 import React, { useState } from "react";
-import { expect, screen, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 
+import Button from "@french-tech-homies/design-system/components/Button";
 import { ComboBox, ComboBoxItem } from "@french-tech-homies/design-system/components/ComboBox";
+import { DropZone } from "@french-tech-homies/design-system/components/DropZone";
+import { FileTrigger } from "@french-tech-homies/design-system/components/FileTrigger";
 import { NumberField } from "@french-tech-homies/design-system/components/NumberField";
 import { PhoneField } from "@french-tech-homies/design-system/components/PhoneField";
 import { Select, SelectItem } from "@french-tech-homies/design-system/components/Select";
@@ -642,5 +645,73 @@ export const ComboBoxChipsBackspace: Story = {
     await userEvent.keyboard("{Backspace}");
     await expect(canvas.queryByText("Mains")).toBeNull();
     await expect(canvas.getByText("Starters")).toBeVisible();
+  },
+};
+
+/* ---- DropZone and FileTrigger ------------------------------------------ */
+
+const filesTaken = fn();
+
+/** The zone shows itself while a file is over it; the button in it takes
+    files from the chooser; and both are stops for
+    the keyboard, the zone by its name. What a real drop hands over is React
+    Aria's and the browser's: a drop made by a script does not reach it, so
+    it is not asked here. */
+export const DropZoneMarksItselfAndTheButtonTakesFiles: Story = {
+  render: () => (
+    <DropZone aria-label="Upload files" className="w-80">
+      Drop files here, or
+      <FileTrigger
+        onSelect={(list) => {
+          filesTaken([...(list ?? [])].map((f) => f.name));
+        }}
+      >
+        <Button variant="tonal">Choose files</Button>
+      </FileTrigger>
+    </DropZone>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    filesTaken.mockClear();
+    const zone = canvasElement.querySelector<HTMLElement>(
+      '[data-slot="drop-zone"]',
+    )!;
+
+    const over = new DataTransfer();
+    over.items.add(new File(["a"], "dropped.txt", { type: "text/plain" }));
+    const drag = (type: string) =>
+      zone.dispatchEvent(
+        new DragEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: over,
+        }),
+      );
+    await expect(zone).not.toHaveAttribute("data-drop-target");
+    drag("dragenter");
+    drag("dragover");
+    await waitFor(() => expect(zone).toHaveAttribute("data-drop-target"));
+    // The drag ends: React Aria takes the mark off on a real leave or drop.
+    drag("drop");
+
+    // Chosen: the button's file input takes it.
+    const input = canvasElement.querySelector<HTMLInputElement>(
+      'input[type="file"]',
+    )!;
+    await userEvent.upload(
+      input,
+      new File(["b"], "chosen.txt", { type: "text/plain" }),
+    );
+    await waitFor(() => expect(filesTaken).toHaveBeenCalledWith(["chosen.txt"]));
+
+    // By the keyboard: the zone is a named button, then the button in it.
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Upload files" }),
+    ).toHaveFocus();
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "Choose files" }),
+    ).toHaveFocus();
   },
 };
