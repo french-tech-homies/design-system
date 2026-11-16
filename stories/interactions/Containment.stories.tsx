@@ -16,6 +16,10 @@ import {
 } from "@french-tech-homies/design-system/components/GridList";
 import ListItem from "@french-tech-homies/design-system/components/ListItem";
 import {
+  Tree,
+  TreeItem,
+} from "@french-tech-homies/design-system/components/Tree";
+import {
   Card,
   CardContent,
 } from "@french-tech-homies/design-system/components/Card";
@@ -946,5 +950,56 @@ export const TableColumnIsResizedByTheKeyboard: Story = {
     await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
     await userEvent.keyboard("{Enter}");
     await waitFor(() => expect(width()).toBeGreaterThan(start));
+  },
+};
+
+/* ---- Tree -------------------------------------------------------------- */
+
+/** The arrow keys walk the tree: Right opens a level, Down goes into it,
+    Left closes it; Enter selects the row; typing a name goes to it. */
+export const TreeIsWalkedByTheKeyboard: Story = {
+  render: () => (
+    <Tree aria-label="Files" selectionMode="single" className="w-72">
+      <TreeItem id="finance" title="Finance">
+        <TreeItem id="invoices" title="Invoices" />
+        <TreeItem id="budget" title="Budget" />
+      </TreeItem>
+      <TreeItem id="design" title="Design" />
+    </Tree>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = (name: string) => canvas.getByRole("row", { name });
+    await expect(canvas.getAllByRole("row")).toHaveLength(2);
+
+    await userEvent.tab();
+    await expect(row("Finance")).toHaveFocus();
+    await expect(row("Finance")).toHaveAttribute("aria-expanded", "false");
+
+    await userEvent.keyboard("{ArrowRight}");
+    await waitFor(() =>
+      expect(row("Finance")).toHaveAttribute("aria-expanded", "true"),
+    );
+    await expect(canvas.getAllByRole("row")).toHaveLength(4);
+    await expect(row("Invoices")).toHaveAttribute("aria-level", "2");
+
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(row("Invoices")).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(row("Invoices")).toHaveAttribute("aria-selected", "true"),
+    );
+
+    // Typing goes to the row whose name starts so.
+    await userEvent.keyboard("des");
+    await waitFor(() => expect(row("Design")).toHaveFocus());
+
+    await userEvent.keyboard("{ArrowUp}{ArrowUp}{ArrowUp}");
+    await expect(row("Finance")).toHaveFocus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await waitFor(() =>
+      expect(row("Finance")).toHaveAttribute("aria-expanded", "false"),
+    );
+    await expect(canvas.getAllByRole("row")).toHaveLength(2);
   },
 };

@@ -441,6 +441,15 @@ const components = [
     deps: ["utils", "render-props"],
   }),
   item({
+    name: "tree",
+    title: "Tree",
+    description:
+      "A hierarchy opened level by level, on React Aria Tree: a list item's row at each level, 24dp of indent, selection by row or by checkbox, a dense variant.",
+    files: [file("components/Tree.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props", "icons", "checkbox"],
+  }),
+  item({
     name: "drop-zone",
     title: "DropZone and FileTrigger",
     description:
