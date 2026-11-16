@@ -130,5 +130,15 @@ export const IsMovedByItsButtonsAndByTheArrowKeys: Story = {
     await waitFor(() => expect(status()).toBe("3 of 5"), { timeout: 3000 });
     await userEvent.keyboard("{Home}");
     await waitFor(() => expect(status()).toBe("1 of 5"), { timeout: 3000 });
+
+    // Previous pressed back to the start disables itself and hands the
+    // focus to Next.
+    next.focus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(status()).toBe("2 of 5"), { timeout: 3000 });
+    previous.focus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(status()).toBe("1 of 5"), { timeout: 3000 });
+    await waitFor(() => expect(next).toHaveFocus());
   },
 };

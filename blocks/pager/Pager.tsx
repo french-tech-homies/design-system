@@ -17,6 +17,7 @@
  * its steps, its menu (https://m3.material.io/components/menus/specs) for
  * the page size, and body-medium on `on-surface-variant` for what it says.
  */
+import { useEffect, useRef } from "react";
 import {
   Body,
   Button,
@@ -58,6 +59,17 @@ export function Pager({
   const first = total === 0 ? 0 : (at - 1) * pageSize + 1;
   const last = Math.min(at * pageSize, total);
 
+  // A button pressed at an end is disabled by its own press and would drop
+  // the focus: the other one takes it.
+  const previous = useRef<HTMLButtonElement>(null);
+  const next = useRef<HTMLButtonElement>(null);
+  const pressed = useRef<"previous" | "next" | null>(null);
+  useEffect(() => {
+    if (pressed.current === "previous" && at <= 1) next.current?.focus();
+    if (pressed.current === "next" && at >= pages) previous.current?.focus();
+    pressed.current = null;
+  }, [at, pages]);
+
   return (
     <nav
       aria-label={label}
@@ -96,16 +108,24 @@ export function Pager({
           variant="standard"
           icon={ChevronLeftIcon}
           aria-label="Previous page"
+          ref={previous}
           isDisabled={at <= 1}
-          onPress={() => onPageChange(at - 1)}
+          onPress={() => {
+            pressed.current = "previous";
+            onPageChange(at - 1);
+          }}
           className="rtl:-scale-x-100"
         />
         <IconButton
           variant="standard"
           icon={ChevronRightIcon}
           aria-label="Next page"
+          ref={next}
           isDisabled={at >= pages}
-          onPress={() => onPageChange(at + 1)}
+          onPress={() => {
+            pressed.current = "next";
+            onPageChange(at + 1);
+          }}
           className="rtl:-scale-x-100"
         />
       </div>

@@ -85,12 +85,15 @@ export const IsWalkedByTheKeyboard: Story = {
     await userEvent.keyboard("{Enter}");
     await waitFor(() => expect(range()).toBe("51–60 of 60"));
     await expect(next).toBeDisabled();
+    // The button that disabled itself hands the focus to the other.
+    await waitFor(() => expect(previous).toHaveFocus());
 
     previous.focus();
     await userEvent.keyboard("{Enter}");
     await userEvent.keyboard("{Enter}");
     await waitFor(() => expect(range()).toBe("1–25 of 60"));
     await expect(previous).toBeDisabled();
+    await waitFor(() => expect(next).toHaveFocus());
 
     const size = within(nav).getByRole("button", { name: /per page/ });
     size.focus();
