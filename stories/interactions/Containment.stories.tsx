@@ -883,13 +883,23 @@ export const GridListRowIsMovedByTheKeyboard: Story = {
     await userEvent.keyboard("{ArrowRight}");
     await expect(handle).toHaveFocus();
 
+    // Enter picks the row up: the focus goes to a place it can be dropped,
+    // which says where it is. Each arrow press is waited for, so the row is
+    // dropped in one place every time.
+    const place = () => document.activeElement?.getAttribute("aria-label") ?? "";
     await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{ArrowDown}");
-    await userEvent.keyboard("{ArrowDown}");
+    await waitFor(() => expect(place()).toMatch(/insert/i));
+    for (let i = 0; i < 2; i++) {
+      const before = place();
+      await userEvent.keyboard("{ArrowDown}");
+      await waitFor(() => expect(place()).not.toBe(before));
+    }
+    await expect(place()).toBe("Insert after Desserts");
     await userEvent.keyboard("{Enter}");
 
-    await waitFor(() => expect(names()[0]).not.toBe("Starters"));
-    await expect(names().sort()).toEqual(["Desserts", "Mains", "Starters"]);
+    await waitFor(() =>
+      expect(names()).toEqual(["Mains", "Desserts", "Starters"]),
+    );
   },
 };
 
