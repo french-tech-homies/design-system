@@ -43,6 +43,18 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.9.1] — 2026-11-16
+
+### Action needed
+
+#### Skeleton comes with the install: 0.9.0's barrel named a file it did not bring ([#78](https://github.com/french-tech-homies/design-system/pull/78))
+
+**If you installed 0.9.0, update to this release:** 0.9.0's `index.ts` exports `Skeleton` from a file the install did not bring, and does not type-check. This release brings the file. Nothing else to do.
+
+### Fixed
+
+- Skeleton comes with the install: 0.9.0's barrel named a file it did not bring ([#78](https://github.com/french-tech-homies/design-system/pull/78))
+
 ## [0.9.0] — 2026-11-16
 
 ### Action needed
