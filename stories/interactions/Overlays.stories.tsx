@@ -110,6 +110,78 @@ export const ModalDialogActionCloses: Story = {
   },
 };
 
+function DestructiveDialogHarness() {
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [requests, setRequests] = useState(0);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Delete account</Button>
+      <Button
+        variant="text"
+        onPress={() => {
+          setDeleting(false);
+          setOpen(false);
+        }}
+      >
+        The request ends
+      </Button>
+      <p data-testid="requests">{requests}</p>
+      <ModalDialog
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title="Delete your account?"
+        supportingText="Every venue you own, its menus and its printed codes go with it, and every code already printed and stuck to a table stops answering the moment the request is made. This cannot be undone."
+        actions={{
+          cancel: { label: "Cancel", onPress: () => setOpen(false) },
+          confirm: {
+            label: "Delete",
+            color: "error",
+            isLoading: deleting,
+            onPress: () => {
+              setDeleting(true);
+              setRequests((n) => n + 1);
+            },
+          },
+        }}
+      />
+    </>
+  );
+}
+
+/**
+ * A destructive confirm in the error colour. While its request runs the
+ * dialog holds: a second press starts nothing, Cancel is disabled, Escape
+ * does not close. Long text wraps at Material's 560dp.
+ */
+export const ModalDialogHoldsWhileARequestRuns: Story = {
+  render: () => <DestructiveDialogHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Delete account" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    const content = dialog.querySelector("[data-slot=dialog-content]")!;
+    await expect(content.getBoundingClientRect().width).toBeLessThanOrEqual(
+      560,
+    );
+
+    const confirm = within(dialog).getByRole("button", { name: "Delete" });
+    await expect(confirm).toHaveAttribute("data-color", "error");
+    await userEvent.click(confirm);
+    await expect(canvas.getByTestId("requests")).toHaveTextContent("1");
+
+    await userEvent.click(confirm);
+    await expect(canvas.getByTestId("requests")).toHaveTextContent("1");
+    await expect(
+      within(dialog).getByRole("button", { name: "Cancel" }),
+    ).toBeDisabled();
+    await userEvent.keyboard("{Escape}");
+    await expect(screen.getByRole("dialog")).toBeVisible();
+  },
+};
+
 function ModalHarness() {
   const [open, setOpen] = useState(false);
   return (
