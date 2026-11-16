@@ -1,0 +1,215 @@
+{
+  "screen": "Landing page",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A header of links that folds to a menu",
+      "built": "yes",
+      "kit": [
+        "Button",
+        "IconButton",
+        "NavigationDrawer",
+        "NavigationItem",
+        "cn",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "Wrote the header by hand: a sticky <header> with a <nav><ul> of kit text Buttons (href) from md up, and a menu IconButton below md.",
+          "why": "TopAppBar always renders its title as a heading (h1 by default, h1 to h6 only), and its doc allows three trailing actions at most. A site header's product name is a home link, not a heading, the hero owns the h1, and the bar has no slot for a row of five navigation links."
+        },
+        {
+          "kind": "component",
+          "what": "Imported Link from react-aria-components for the product name (a home link) with the kit's focusRing.",
+          "why": "The kit has no text link: only Button/IconButton/Chip/ListItem with href."
+        },
+        {
+          "kind": "read",
+          "what": "Read NavigationDrawer.tsx and BottomNavigation.tsx past the doc comment: the NavigationItem type, the drawer's prop list, its select handler and how an item with href renders.",
+          "why": "The doc comment does not give the item's shape (it lives in another file, BottomNavigation.tsx), nor say that an activated destination becomes aria-current=page in the uncontrolled drawer. I pass selectedKey={null} so a section link is never marked as the current page."
+        },
+        {
+          "kind": "read",
+          "what": "Read TopAppBar.tsx's prop types to confirm the title is always a heading.",
+          "why": "Needed to decide whether the bar could serve a marketing header."
+        },
+        {
+          "kind": "feature",
+          "what": "Gave every drawer destination a lucide icon it did not need.",
+          "why": "NavigationItem.icon is required; a plain list of site links has no natural icons."
+        },
+        {
+          "kind": "hand",
+          "what": "Mounted the kit's AriaRouterProvider inside react-router's BrowserRouter and wrote an effect on react-router's useLocation (ScrollToTarget in App.tsx) that scrolls to the fragment's section and focuses its heading; when a dialog (the phone drawer) is still on the page it waits, up to a second, until it is gone.",
+          "why": "With the router adapter mounted, React Aria sends same-origin '#section' links through navigate(), so the browser's own fragment scroll no longer happens. The adapter's doc does not say so; I found it by reading react-aria's openLink.mjs in node_modules."
+        },
+        {
+          "kind": "read",
+          "what": "Read utils.ts for focusRing's classes and Button.tsx's prop comments (variant, size, href, icon).",
+          "why": "To extend the ring on hand-written links and to learn Button's props, which are in per-prop comments."
+        }
+      ],
+      "notes": "Not verified in a browser. Unsure: when a section link is chosen in the modal drawer, the scroll and the focus on the section heading wait for the drawer to unmount (polling for [role=dialog], one second at most) so that React Aria's focus restore to the menu button and its scroll lock do not undo them; if the restore lands after my focus call, focus ends on the menu button in the sticky header and the next Tab goes back up the page. The drawer is 360dp wide per Material; at 400px it nearly covers the screen. 'Pricing', 'Help', 'Sign in' and 'Start free trial' go to a placeholder route (OtherPage) since those pages are outside this screen."
+    },
+    {
+      "n": 2,
+      "part": "A hero with a headline, a supporting line and two actions",
+      "built": "yes",
+      "kit": [
+        "Display",
+        "Body",
+        "Title",
+        "Button"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "Drew the hero picture as a placeholder invoice from plain elements with role utilities (role=img with a label, its insides aria-hidden).",
+          "why": "A placeholder image was allowed; the kit has nothing for an illustration, and Card would have added nothing."
+        },
+        {
+          "kind": "guess",
+          "what": "Wrote <Title component=\"p\">; type error, second attempt with component=\"div\".",
+          "why": "Title's component is limited to div, span and h1 to h6, although the Typography source's generic default reads as 'p'; the limit is not in the doc comment."
+        }
+      ],
+      "notes": "'Start free trial' is a filled medium Button (href /sign-up, placeholder route); 'See how it works' is an outlined medium Button to /#how-it-works, a three-step section I added so the link has a real target. Not verified in a browser."
+    },
+    {
+      "n": 3,
+      "part": "Six feature cards in a grid that reflows",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Title",
+        "Body",
+        "IconComponent",
+        "Label"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "Composed each card's inside by hand (icon tile, Title h3, Body) as Card children instead of CardContent; the grid is a plain <ul> with grid-cols-1 / sm:2 / lg:3 and each Card is component=\"li\".",
+          "why": "CardContent's headline is headline-medium with media/actions anatomy and has no icon slot; too large for a feature card. The kit has no layout grid."
+        },
+        {
+          "kind": "read",
+          "what": "Read Card.tsx's styles and prop types past the doc comment.",
+          "why": "To learn that Card wraps children in a padded flex column (the 'content' part, p-4) and that classNames.content can change gap and padding."
+        },
+        {
+          "kind": "read",
+          "what": "Read icons.tsx for the IconComponent type.",
+          "why": "To check lucide-react icons fit it."
+        }
+      ],
+      "notes": "Icons are lucide-react (already a dependency). Not verified in a browser."
+    },
+    {
+      "n": 4,
+      "part": "A carousel of customer quotes with name, role and picture",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Avatar",
+        "IconButton",
+        "Body",
+        "Title",
+        "ChevronLeftIcon",
+        "ChevronRightIcon",
+        "cn",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "Wrote QuoteCarousel by hand: a scroll-snap row (1 / 2 / 3 quotes by width) in a section with aria-roledescription=carousel, each slide a group named 'n of N', a focusable scroller with Arrow/Home/End keys, kit IconButtons for previous and next that wrap at the ends, and a polite live status ('Quotes 1 to 3 of 5'). No autoplay.",
+          "why": "The kit's Carousel is Material's: mostly visual items at a fixed 224px row height whose width changes as they scroll, and every CarouselItem must be a Button (onPress required) or a Link (href required) at the type level. A quote is wrapping text that is not pressable; making each a button, cropped and narrowed, would have bent the part."
+        },
+        {
+          "kind": "read",
+          "what": "Read Carousel.tsx's CarouselItemProps past the doc comment.",
+          "why": "To confirm an item cannot be non-interactive (the doc says 'around a React Aria Button or Link' but not that one of onPress/href is required)."
+        },
+        {
+          "kind": "read",
+          "what": "Read Avatar.tsx's and IconButton.tsx's prop lists.",
+          "why": "Prop names (size as a number, fallback, variant/size) are in per-prop comments, not the main doc comment."
+        },
+        {
+          "kind": "guess",
+          "what": "Wrote <Title component=\"p\"> for the customer's name; type error, second attempt with component=\"div\". The same wrong guess was made in three places (two in the hero's placeholder, one here).",
+          "why": "Title's component is limited to div, span and h1 to h6; only the type says so."
+        }
+      ],
+      "notes": "Pictures are the kit Avatar's initials fallback (no image files); Quote.picture takes a src when one exists. Not verified in a browser: the index maths (scrollLeft / slide width), the wrap at the ends and the live status are untested; RTL is handled by sign only. The scroller is a div role=group with tabIndex=0, which some screen readers announce tersely."
+    },
+    {
+      "n": 5,
+      "part": "A footer of four columns of links with a legal line",
+      "built": "yes",
+      "kit": [
+        "Title",
+        "Body",
+        "cn",
+        "focusRing"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "Wrote TextLink on react-aria-components' Link (kit focusRing, body-medium, on-surface-variant, underline on hover) for the 16 footer links.",
+          "why": "The kit has no text link; a text Button is the wrong weight and shape for a column of footer links."
+        },
+        {
+          "kind": "hand",
+          "what": "Footer layout by hand: four <nav> columns, each named by its heading, in a grid of 2 columns on a phone and 4 from md; a hairline border above the legal line.",
+          "why": "No kit footer or grid. The hairline is a border-outline-variant class rather than the kit Divider, for no better reason than brevity."
+        }
+      ],
+      "notes": "Most links lead to the placeholder route. Not verified in a browser."
+    },
+    {
+      "n": 6,
+      "part": "Display type that steps with the width",
+      "built": "yes",
+      "kit": [
+        "Display",
+        "Headline",
+        "Label"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Stepped type with responsive role utilities in className: hero h1 is Display small (36px), md:text-display-medium md:font-display-medium (45px), lg:text-display-large lg:font-display-large (57px); section h2s are Headline medium (28px) and md:text-display-small md:font-display-small (36px). Added text-balance and break-words.",
+          "why": "The type primitives take one size; there is no responsive size prop and the skill does not say how to step a role by breakpoint. I had to read Typography.tsx to learn each size is a text-<role> font-<role> pair so both must be overridden."
+        },
+        {
+          "kind": "read",
+          "what": "Read Typography.tsx's variant table and props (component, size, colorRole), and DESIGN.resolved.md for the sizes in px.",
+          "why": "To choose steps and to write the right pair of utilities."
+        }
+      ],
+      "notes": "Confirmed the responsive classes exist in the built CSS; whether the headline wraps well at 400px was reasoned (36px, short words), not seen. id, tabIndex and aria-live passed to the primitives reach the element (confirmed in Typography.tsx: rest props are spread)."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "hand",
+      "what": "Page layout by hand: max-w-6xl centred containers with px-4, section bands alternating surface and surface-container-low, a 'How it works' section and a closing call-to-action band (primary-container) that the brief did not list.",
+      "why": "The kit has no page, container, section or grid primitives."
+    },
+    {
+      "kind": "hand",
+      "what": "Added a catch-all route (OtherPage) so links to other pages arrive somewhere that says the page is outside this screen.",
+      "why": "The brief asks for links to other pages; none exist in the project."
+    },
+    {
+      "kind": "read",
+      "what": "Read node_modules/react-aria/dist/private/utils/openLink.mjs (shouldClientNavigate, RouterProvider).",
+      "why": "To learn whether fragment links are client-navigated under the router adapter. They are."
+    }
+  ],
+  "friction": "1) No text link in the kit: a landing page's brand link and footer links both needed react-aria-components' Link. 2) The Carousel's doc is thorough about layouts but the fact that an item must be a button or a link sits only in the type; a line saying 'not for text content such as testimonials' would have saved the read. 3) TopAppBar is an app's bar (title is a heading, three actions); the guidance has nothing for a website header or for where a row of navigation links goes on a desktop, and NavigationItem requires an icon. 4) Nothing says how to make a type role responsive; a sentence in ds-build ('override with md:text-<role> md:font-<role>') would do. 5) The router adapter's doc does not warn that '#fragment' links stop scrolling once it is mounted. 6) Prop lists live in per-prop comments and in types defined in other files (NavigationItem is in BottomNavigation.tsx), so 'doc comment first' rarely sufficed; Title's allowed 'component' values are only in the type. 7) Nothing was verified in a browser (forbidden in this run): everything above about behaviour is from reading code and a green tsc + vite build, plus a grep of the built CSS for the classes used. 8) Boundary slip: three of my shell commands printed too much and the harness saved the output outside the project directory; I read one such saved file (kit doc comments only, nothing of another repository) with the Read tool."
+}

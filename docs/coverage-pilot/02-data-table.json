@@ -1,0 +1,253 @@
+{
+  "screen": "Data table",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Sortable columns",
+      "built": "yes",
+      "kit": [
+        "Table",
+        "TableHeader",
+        "Column",
+        "TableBody",
+        "Row",
+        "Cell",
+        "Menu",
+        "Button",
+        "ChevronDownIcon",
+        "ChevronUpIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "Each sortable heading's text is wrapped in my own <span tabIndex={-1}> carrying the kit's focusRing(), inside the kit Column.",
+          "why": "Forced by part 7: React Aria gives a header cell's focus to its first focusable child, which would otherwise be the ColumnResizer, so Enter would resize instead of sort. The kit Column draws its focus ring on the <th>, which no longer takes focus once it has a focusable child, so the ring had to be redrawn on the span."
+        },
+        {
+          "kind": "hand",
+          "what": "Below 900px, where the table shows three data columns, a 'Sort: <key>, <direction>' text Button opens a kit Menu of all six sort keys; choosing the current key turns the direction round, and the current key carries a chevron for its direction.",
+          "why": "A column that is not shown has no heading to sort by, and the kit has no sort control apart from the Column heading. The kit Menu has no selected state, so the current key is marked with a trailing icon only (not announced as selected)."
+        }
+      ],
+      "notes": "Sorting is client-side through the kit Table's sortDescriptor / onSortChange: press a heading, or Enter on it; date, items and total sort as values, status in workflow order, ties fall back to the order number; sorting returns to page 1. Below 900px the same sort state is also set from the Sort menu, since customer, date and items have no heading there. Not exercised in a browser."
+    },
+    {
+      "n": 2,
+      "part": "Search (filters the rows as you type)",
+      "built": "yes",
+      "kit": [
+        "SearchBar"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read Search.tsx's SearchBar body and styles past the doc comment.",
+          "why": "The doc comment speaks of onSubmit, Enter and Escape only; it does not say that value / onChange pass through to React Aria's SearchField for filtering as one types, nor that the bar carries elevation 3."
+        }
+      ],
+      "notes": "Controlled value / onChange; matches order number, customer name and email, case-insensitively; returns to page 1. className=\"shadow-none\" removes the bar's elevation-3 shadow, which reads as a floating app-level search rather than a table filter. Not exercised in a browser."
+    },
+    {
+      "n": 3,
+      "part": "Filter chips (by order status)",
+      "built": "yes",
+      "kit": [
+        "ChipGroup",
+        "Chip"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read Chip.tsx past the doc comment (FilterChip and ChipGroup bodies).",
+          "why": "To confirm that ChipGroup forwards selectedKeys / onSelectionChange / aria-label to ToggleButtonGroup and that a filter chip's id is its key; the doc comment shows only an uncontrolled example."
+        }
+      ],
+      "notes": "Multiple selection, no chip selected means all statuses. Each chip shows the count of orders with that status among the rows the search leaves. onSelectionChange's Set<Key> is cast to Set<OrderStatus>. Not exercised in a browser."
+    },
+    {
+      "n": 4,
+      "part": "Multiple selection of rows, with a bulk-action bar",
+      "built": "yes",
+      "kit": [
+        "Table",
+        "Row",
+        "Toolbar",
+        "IconButton",
+        "Tooltip",
+        "TooltipTrigger",
+        "Label",
+        "snackbar",
+        "SnackbarRegion",
+        "XIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "A fixed, centred wrapper <div> places the kit's floating Toolbar at the bottom of the window; a visually hidden aria-live region announces the count; the page gets extra bottom padding and the SnackbarRegion is raised while the bar shows.",
+          "why": "The kit's Toolbar says the margin and placement are the layout's; the kit has no contextual / bulk-action bar that appears for a selection and announces itself."
+        },
+        {
+          "kind": "hand",
+          "what": "Selection is held as a Set of ids across pages; onSelectionChange's \"all\" is turned into the current page's ids and merged with the other pages' selection; when the bar goes away after an action, focus is sent to the summary line above the table.",
+          "why": "React Aria's table selection knows only the rows it holds (one page). Nothing in the kit covers selection across pages or where focus goes when a bar unmounts."
+        }
+      ],
+      "notes": "The kit Table adds the checkbox column and select-all itself. Bar actions: mark as shipped (paid orders only), export to CSV (a real file download), cancel (pending and paid only), clear. Orders a change does not apply to are skipped and the snackbar says how many; each change offers Undo (8 s). There is no confirmation dialog before a bulk cancel, only Undo. The bar's actions are icon buttons with tooltips, to fit 400px; labelled buttons would be clearer on a desktop. The selection that counts is what is selected among the rows the search and chips leave; a selected row that gets filtered out is not acted on, and is dropped at the next selection change. Select-all and Escape act on the current page only. Not exercised in a browser; in particular the bar's position in the tab order (after the table, before nothing else) and the focus hand-off are unverified."
+    },
+    {
+      "n": 5,
+      "part": "A menu of actions on each row",
+      "built": "yes",
+      "kit": [
+        "Menu",
+        "IconButton"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read Menu.tsx in full.",
+          "why": "Its doc comment is two lines; the item shape (MenuItemType), the triggerButton prop and what an item can and cannot express are only in the source."
+        },
+        {
+          "kind": "feature",
+          "what": "Actions that do not apply to an order's status are left out of its menu instead of being shown disabled; 'Cancel order' and 'Refund' look like any other item; there is no divider between the neutral and the status-changing items.",
+          "why": "The kit Menu takes a flat items array whose type has no isDisabled, no destructive / error colour, no section or separator and no selected state, all of which React Aria's Menu, MenuItem, MenuSection and Separator have."
+        }
+      ],
+      "notes": "Each row's trigger is a standard IconButton named 'Actions for order #…'. Items: view details (kit ModalDialog), copy order number (clipboard), and whichever of mark as paid / shipped / delivered, refund, cancel the status allows; each changes the mock data and offers Undo. Not exercised in a browser; the interplay of the trigger inside a selectable row (a press on it must not toggle the row) relies on React Aria and is unverified."
+    },
+    {
+      "n": 6,
+      "part": "Paging",
+      "built": "yes",
+      "kit": [
+        "IconButton",
+        "Button",
+        "Menu",
+        "Body",
+        "Label",
+        "ChevronLeftIcon",
+        "ChevronRightIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "A <nav aria-label=\"Pages of orders\"> under the table: a rows-per-page menu (10 / 25 / 50), the range ('11–20 of 37'), 'Page 2 of 4', and first / previous / next / last icon buttons.",
+          "why": "The kit has no pagination component."
+        },
+        {
+          "kind": "feature",
+          "what": "Rows per page is a kit Menu on a text Button showing the current size, not a select; the open menu does not mark the current size.",
+          "why": "The kit's Select is a 56dp text-field-shaped control with a floating label, too heavy for a table footer, and the kit Menu's items have no selected state (React Aria's Menu has selectionMode)."
+        }
+      ],
+      "notes": "The page is clamped when the rows shrink; search, chips, sort and page size return to page 1. First and last page buttons are hidden under 640px. Not exercised in a browser."
+    },
+    {
+      "n": 7,
+      "part": "Columns the user can resize",
+      "built": "yes",
+      "kit": [
+        "Table",
+        "Column",
+        "Cell"
+      ],
+      "leaves": [
+        {
+          "kind": "component",
+          "what": "Imported ResizableTableContainer and ColumnResizer from react-aria-components; the kit Table sits inside the container and each data column's kit Column holds a ColumnResizer.",
+          "why": "The kit's Table has no resizing: no container, no resizer, and its doc comment does not mention resizing at all."
+        },
+        {
+          "kind": "hand",
+          "what": "Styled the resize handle by hand (a 16px-wide strip at the header cell's trailing edge with a line that thickens and takes primary / secondary on hover, keyboard focus and while resizing), and made the kit Column 'relative' so the handle is placed against the cell.",
+          "why": "The kit has no handle to reuse. The kit Column puts its children inside a 'truncate' (overflow-hidden) span, so the handle only escapes clipping because it is absolutely positioned against the <th>; this depends on the kit Column's inner markup, which an update may change."
+        },
+        {
+          "kind": "read",
+          "what": "Read the kit's Table.tsx in full, and React Aria's built sources in node_modules (react-aria-components/dist/private/Table.mjs, react-aria's useTableColumnHeader, useGridCell and useTableColumnResize).",
+          "why": "To learn where the kit Column puts its children, whether the kit Table survives the inline table-layout:fixed / width:min-content that ResizableTableContainer sets, where a header cell's focus lands once it holds a resizer (first focusable child), and how the resizer is driven from the keyboard. Neither the kit's guidance nor its Table doc covers any of it, and the web was off limits."
+        },
+        {
+          "kind": "value",
+          "what": "Column widths and minimum widths are pixel numbers in props (defaultWidth={128}, minWidth={104}, and so on).",
+          "why": "React Aria's column sizing takes pixels, percentages or fr; the kit has no token or guidance for column widths."
+        }
+      ],
+      "notes": "Every data column can be resized by dragging its trailing edge (mouse or touch) or, by keyboard, Arrow Right from the heading to the resizer, Enter, arrow keys, then Enter or Escape; widths are kept while the table stays mounted and are lost on reload, on a switch between the two layouts (at 900px), and when the table is replaced by a loading / empty / error panel. The checkbox and actions columns are fixed. Text cells use the kit's `Cell truncate`, so a narrowed column cuts its text and shows it in a tooltip; status cells clip. The handle is 16px wide, under a 48px touch target. Widths by my arithmetic, not measured: below 900px the fixed columns take 56 + 100 + 88 + 48 = 292px and the Order column the rest (minimum 104), so at 400px, where the card runs edge to edge, the table should fit with the Order column at about 108px (its second line, customer and date, will usually be cut) and scroll sideways under about 396px; from 900px the minimums sum to 812px against a container of about 850px. Widening a column makes the container scroll sideways. Not exercised in a browser: dragging, the keyboard path, the handle's escape from the kit's overflow-hidden span, the fixed-layout rendering and those widths are unverified beyond server-rendered markup."
+    },
+    {
+      "n": 8,
+      "part": "An empty state, a loading state and an error state",
+      "built": "yes",
+      "kit": [
+        "EmptyState",
+        "LoadingIndicator",
+        "Button",
+        "Menu",
+        "Card",
+        "Body",
+        "TopAppBar",
+        "IconButton",
+        "CheckIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "hand",
+          "what": "The states are drawn in place of the table, inside the same Card, not through the kit TableBody's renderEmptyState.",
+          "why": "Not a kit gap (React Aria's own renderEmptyState behaves the same): inside ResizableTableContainer the table is as wide as its columns, so an empty-state cell is centred on the table's width, not the window's, and can sit off-screen on a phone; and a table with no rows makes its headers unfocusable anyway."
+        },
+        {
+          "kind": "read",
+          "what": "Read EmptyState.tsx past its doc comment.",
+          "why": "The doc comment does not say that it draws its own bordered, filled box (and with `rounded-lg`, not a shape token), nor that `media` is drawn 128 to 256px tall."
+        },
+        {
+          "kind": "hand",
+          "what": "EmptyState is given className=\"border-0 bg-transparent\" and no media; the loading panel is a hand-laid column (LoadingIndicator over a line of Body text, role=status).",
+          "why": "A boxed EmptyState inside the table's outlined Card is a box in a box; its media sizes are too large for a table panel; the kit has no loading panel or skeleton rows."
+        }
+      ],
+      "notes": "Reachable from the 'Demo state' menu in the top app bar (Loaded / Loading / No orders / Error), which re-runs the 900 ms load timer and decides how it ends; 'Loading' never resolves until another state is chosen. The error panel's 'Try again' sets the demo back to Loaded and re-runs the timer. A second empty state ('No orders match', with 'Clear search and filters') shows when search or chips leave nothing. A reload button sits beside the demo menu. The demo menu marks the current state with a trailing check icon, not a real selected state. Not exercised in a browser."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "hand",
+      "what": "Page layout by hand: a flex column with the kit TopAppBar, a max-width <main>, the search and chips stacked, a summary line (aria-live, also the focus target after the bulk bar closes), and the table in an outlined kit Card with classNames={{ content: 'p-0' }}.",
+      "why": "The kit has no page scaffold or data-table toolbar; Card pads its content by 16dp, which the table must not have."
+    },
+    {
+      "kind": "hand",
+      "what": "A matchMedia hook (useSyncExternalStore) switches the table at 900px between a full set of columns and a narrow set (Order with customer and date on a second line, Status, Total, actions) with 8dp cell padding (className=\"px-2\" on the kit Column and Cell) and 64px rows, remounting the table; under 640px the Card runs edge to edge (negative margin, no side border, square corners).",
+      "why": "Six data columns need about 812px; the kit Table has no responsive column priority, stacked-row layout or compact horizontal padding (its `dense` changes heights only)."
+    },
+    {
+      "kind": "read",
+      "what": "Read DialogContent.tsx, Dialog.tsx, ModalDialog.tsx and Modal.tsx.",
+      "why": "Dialog's doc says children go 'under the headline', but DialogContent renders children in place of the headline, supporting text and actions; the order-details dialog therefore draws its own Headline and Close button. Found only by reading the source."
+    },
+    {
+      "kind": "read",
+      "what": "Read Card.tsx's body and styles.",
+      "why": "To find that children are wrapped in a padded 'content' part and that the root is overflow-hidden; the doc comment lists the part names but not the padding."
+    },
+    {
+      "kind": "read",
+      "what": "Read Snackbar.tsx past the doc comment (snackbar(), SnackbarOptions, SnackbarRegion).",
+      "why": "To confirm the option names (timeout, close, action) and that SnackbarRegion's className can move it above the bulk bar."
+    },
+    {
+      "kind": "value",
+      "what": "One arbitrary grid template, grid-cols-[auto_1fr], in the order-details list.",
+      "why": "Not a colour or a size token; Tailwind has no named utility for an auto / 1fr pair."
+    },
+    {
+      "kind": "value",
+      "what": "The layout switch is a raw media query, (max-width: 899px), in JavaScript.",
+      "why": "The switch has to change which columns are rendered, which a Tailwind breakpoint class cannot do; the kit gives no breakpoint tokens or window-size-class helper."
+    }
+  ],
+  "friction": "0. How this run was verified, which limits every 'built: yes' above: `npm run build` (tsc -b && vite build) is green and was green at the first attempt; `npm run lint` (oxlint) exits 0 with no warning in the new files (its sixteen warnings are all inside the kit). Two throwaway server renders (tsx + renderToString, files deleted afterwards) were made: the kit Table inside ResizableTableContainer with the resizable header, and a temporary copy of the whole page forced to its loaded state with one row selected, in both layouts; both rendered without throwing and with the expected counts of headers, rows, cells, resizers, row menus, the bulk toolbar and the pager. Nothing was opened in a browser, as instructed: no pointer, keyboard, touch, focus, real layout at 400px or desktop, or dark mode was exercised. 'yes' therefore means 'written against the documented behaviour of the kit and React Aria, type-checked and server-rendered', not 'seen working'. Files: src/App.tsx, src/orders/OrdersPage.tsx, src/orders/data.ts. 1. Resizing was the hard part. The kit Table's doc comment is long and good on alignment, density, truncation and the last row's line, but says nothing about resizing, not even 'not built: wrap it in React Aria's ResizableTableContainer and put a ColumnResizer in a Column'. The kit half-anticipates it (its checkbox column sets width and minWidth, which only mean something inside a ResizableTableContainer), yet its Column wraps children in an overflow-hidden span and draws the focus ring on the <th>, both of which work against a resizer. I had to read React Aria's minified dist to learn that a header's focus goes to its first focusable child and so a tabIndex={-1} label is needed before the resizer. A `resizable` prop on Column (or a ResizableTable export) with the handle drawn by the kit would have removed three leaves and all the reading. 2. The ds-build skill sends one to the ds-spec skill and to React Aria's online docs for behaviour; with the web off limits neither was usable (ds-spec's script fetches m3.material.io; I did not run it), and Adobe's react-aria skill is not installed in this project, so node_modules was the only source. 3. The kit Menu is much thinner than React Aria's: a flat array of label / icon / onAction, with no disabled, destructive, selected, section or separator. A row menu in a back-office table wants at least disabled and destructive items. Its doc comment is two lines, so the limits are only visible in the source. 4. No pagination component; composing one from IconButton, Button and Menu was easy but every project will redo it. Select is the only 'pick one' control and is field-sized, so a compact rows-per-page picker has no good kit answer. 5. EmptyState's doc comment does not say it draws a bordered filled box (with `rounded-lg`, against the skill's own rule) or that its media is 128 to 256px; inside a table card it needs its border and background removed. 6. Dialog's doc says children go 'under the headline'; they replace it. 7. There is no bulk-action / contextual bar; the floating Toolbar did the job well once placed by hand, and its 'vibrant' colour painting the children by slot was pleasant. 8. What was easy: sorting, selection, the checkbox column, `Cell truncate` (which fits resizable columns very well), ChipGroup, SearchBar, Tag, snackbar with Undo, LoadingIndicator; the role utilities and the barrel were clear, and the build was green at the first attempt with no guessed prop wrong. 9. A general limit of this run: with no browser allowed, nothing interactive was verified; a kit-provided test or story for 'Table inside ResizableTableContainer' would have been the thing to lean on."
+}
