@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, within } from "storybook/test";
 import React from "react";
 
 import { Avatar } from "@french-tech-homies/design-system/components/Avatar";
@@ -47,4 +48,33 @@ export const Sizes: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * Beside the person's visible name the avatar takes no `alt`: it is
+ * decorative, hidden from a screen reader, and the name is said once.
+ */
+export const DecorativeBesideAName: Story = {
+  render: () => (
+    <div className="text-on-surface flex items-center gap-3">
+      <Avatar fallback="AM" />
+      <span className="text-body-large font-body-large">Ada Martin</span>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole("img")).toBeNull();
+    await expect(
+      canvasElement.querySelector("[data-slot=avatar]"),
+    ).toHaveAttribute("aria-hidden", "true");
+  },
+};
+
+/** With `alt` the initials are an image named for the person. */
+export const NamedByAlt: Story = {
+  args: { alt: "Ada Martin", fallback: "AM" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("img", { name: "Ada Martin" })).toBeVisible();
+  },
 };
