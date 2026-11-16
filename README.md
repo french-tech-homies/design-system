@@ -208,7 +208,7 @@ where every variant is drawn, in light and dark.
 
 ### The kit's own
 
-Thirteen the kit ships that Material 3 does not describe, each built on
+Fourteen the kit ships that Material 3 does not describe, each built on
 Material's foundations and saying so in its doc comment. How one joins the
 group is in [What this kit is](docs/what-this-kit-is.md).
 
@@ -218,6 +218,7 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 - [`Tag`][tag]: a small label pill that sits in a line of text.
 - [`Link`][link]: a text link, in a sentence or in a list of links.
 - [`Breadcrumbs`][breadcrumbs]: the path to the current page, each level above it a link.
+- [`Popover`][popover]: a surface for any content, opened beside its trigger.
 - [`Avatar`][avatar]: a person's picture or initials.
 - [`Disclosure`][disclosure]: a heading that opens and closes a panel, alone or in a group.
 - [`PreviewTrigger`][preview]: a card of any content opened by hovering or focusing its
@@ -284,6 +285,7 @@ group is in [What this kit is](docs/what-this-kit-is.md).
 [tag]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-tag--tonal
 [link]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-link--in-a-sentence
 [breadcrumbs]: https://french-tech-homies.github.io/design-system/?path=/story/md3-navigation-breadcrumbs--path
+[popover]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-popover--filters
 [avatar]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-avatar--image
 [disclosure]: https://french-tech-homies.github.io/design-system/?path=/story/md3-containment-disclosure--single
 [preview]: https://french-tech-homies.github.io/design-system/?path=/story/md3-communication-previewtrigger--product-list

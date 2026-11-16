@@ -92,6 +92,12 @@ export { default as ListItem, type ListItemProps } from "./components/ListItem";
 export { Tag, type TagProps } from "./components/Tag";
 export { Link, type LinkProps } from "./components/Link";
 export {
+  Popover,
+  PopoverTrigger,
+  type PopoverProps,
+  type PopoverTriggerProps,
+} from "./components/Popover";
+export {
   Breadcrumbs,
   Breadcrumb,
   type BreadcrumbsProps,

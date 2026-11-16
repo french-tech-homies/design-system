@@ -6,6 +6,10 @@ import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 import Button from "@french-tech-homies/design-system/components/Button";
 import { Dialog } from "@french-tech-homies/design-system/components/Dialog";
 import { Menu } from "@french-tech-homies/design-system/components/Menu";
+import {
+  Popover,
+  PopoverTrigger,
+} from "@french-tech-homies/design-system/components/Popover";
 import Modal from "@french-tech-homies/design-system/components/Modal";
 import { ModalDialog } from "@french-tech-homies/design-system/components/ModalDialog";
 import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
@@ -1056,5 +1060,60 @@ export const BottomSheetStandardIsNotModal: Story = {
     await waitFor(() =>
       expect(bottomSheet()).toHaveAttribute("data-height", "partial"),
     );
+  },
+};
+
+/* ---- Popover ----------------------------------------------------------- */
+
+/** Enter opens it and the focus moves in; it is a dialog with a name, not a
+    modal one; a button given `close` closes it; Escape closes it; and each
+    time the focus goes back to the trigger. */
+export const PopoverOpensKeepsFocusAndReturnsIt: Story = {
+  render: () => (
+    <PopoverTrigger>
+      <Button variant="outlined">Rename</Button>
+      <Popover aria-label="Rename the file">
+        {({ close }) => (
+          <div className="flex gap-2">
+            <Button variant="text" onPress={close}>
+              Cancel
+            </Button>
+            <Button variant="filled" onPress={close}>
+              Rename
+            </Button>
+          </div>
+        )}
+      </Popover>
+    </PopoverTrigger>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: "Rename" });
+    await userEvent.tab();
+    await expect(trigger).toHaveFocus();
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+    await userEvent.keyboard("{Enter}");
+    const dialog = await screen.findByRole("dialog", {
+      name: "Rename the file",
+    });
+    await expect(dialog).not.toHaveAttribute("aria-modal", "true");
+    await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
+
+    // Tab stays in it.
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(dialog.contains(document.activeElement)).toBe(true);
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+
+    await userEvent.keyboard("{Enter}");
+    const again = await screen.findByRole("dialog");
+    await userEvent.click(within(again).getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
   },
 };
