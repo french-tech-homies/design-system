@@ -54,4 +54,21 @@ export const Selected: Story = {
 
 export const Disabled: Story = {
   args: { label: "Unavailable", leadingIcon: Settings, isDisabled: true },
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          {
+            // The rule is wrong here: MD3 draws disabled content at
+            // `on-surface/38`, and WCAG 1.4.3 exempts an inactive component.
+            // axe makes that exemption from `aria-disabled`, which the React
+            // Aria item around this row carries inside a `Menu` or a
+            // `Select`; the row drawn alone, as here, has no such item.
+            id: "color-contrast",
+            enabled: false,
+          },
+        ],
+      },
+    },
+  },
 };
