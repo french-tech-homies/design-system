@@ -32,7 +32,8 @@ written down.
 | Kind         | What happened                                                                 |
 | :----------- | :---------------------------------------------------------------------------- |
 | `component`  | A component imported from `react-aria-components` because the kit has none.   |
-| `feature`    | A kit component lacked a prop or a behaviour React Aria's own has.            |
+| `option`     | A kit component lacked a prop, a part or a behaviour the job needed.          |
+| `use`        | The kit used as it means to be: a class or a prop passed, logic around it.    |
 | `hook`       | A React Aria hook or utility used with no word of it in the skills.           |
 | `control`    | A control written by hand, on plain elements, because the kit has none.       |
 | `layout`     | A layout or a composition written by hand: a page, a grid, a card's insides.  |
@@ -44,20 +45,26 @@ written down.
 A block of the kit that a builder adds and edits is no leave: the kit
 offered it.
 
-`component`, `feature`, `control` and `edit` are gaps in the kit. `layout`
+`component`, `option`, `control` and `edit` are gaps in the kit. `use` is
+none: a gap or a height passed by `className`, a React Aria prop passed
+through, the project's own logic around a component, a block edited. It is
+logged so that what a builder had to work out stays on record, and it is the
+kind to choose only where the kit, by its doc comment or its skill, expects
+what was done. Where a builder had to defeat the component to get there (a
+cap lifted, a part's class reached around), it is an `option`. `layout`
 is none: arranging the kit's parts is a project's work, and a layout that
 many screens write alike is a registry block to offer. `hook`, `guess` and
 `read` are gaps in what the kit says of itself, and `value` may be either. A
 `hook` leave that the skills name, with when to use it, is no leave: hooks
 are React Aria's and are imported from it. A hook that does a part's work
 through a kit component counts for the kit only where that component needs
-nothing more of the project: a handle, a slot or a style it lacks is a
-`feature` leave.
+nothing more of the project: a handle, a slot or a style it lacks is an
+`option` leave.
 
 ## The figure
 
 A screen's coverage is the share of its parts built with no `component`,
-`feature`, `control` or `edit` leave. The corpus's coverage is that share over
+`option`, `control` or `edit` leave. The corpus's coverage is that share over
 all its parts, and the aim is 95%. The other kinds are counted beside it, a
 screen, as the measure of how easily the kit is used.
 
