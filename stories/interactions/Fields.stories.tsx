@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import KitCard from "@french-tech-homies/design-system/components/Card";
 import type { UserEvent } from "@vitest/browser-playwright/context";
 import React, { useState } from "react";
 import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
@@ -743,6 +744,34 @@ export const ComboBoxMultipleKeepsAChoiceOnTab: Story = {
     await expect(canvas.getByRole("button", { name: "Save" })).toHaveFocus();
     await expect(canvas.getByText("Mains")).toBeVisible();
     await expect(screen.queryByRole("listbox")).toBeNull();
+  },
+};
+
+/** An outlined field's label is cut into its outline with the colour of
+    what is behind it. On each of the kit's cards that is the card's own
+    colour, not the page's. */
+export const OutlinedLabelTakesItsCardsColour: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {(["filled", "elevated", "outlined"] as const).map((variant) => (
+        <KitCard key={variant} variant={variant} className="w-80">
+          <TextField variant="outlined" label={`Name on a ${variant} card`} defaultValue="Ada" />
+        </KitCard>
+      ))}
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const cards = canvasElement.querySelectorAll('[data-slot="card"]');
+    await expect(cards).toHaveLength(3);
+    // The Editorial preset stacks the label above the field: no notch.
+    if (canvasElement.closest(".preset-editorial")) return;
+    for (const card of cards) {
+      const label = card.querySelector('[data-slot="label"]');
+      if (!label) throw new Error("no label");
+      await expect(getComputedStyle(label).backgroundColor).toBe(
+        getComputedStyle(card).backgroundColor,
+      );
+    }
   },
 };
 

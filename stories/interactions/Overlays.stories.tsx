@@ -1075,10 +1075,13 @@ export const BottomSheetHandleIsFirstAndCycles: Story = {
     const handle = within(dialog).getByRole("button", { name: "Drag handle" });
     await expect(handle).toHaveFocus();
 
+    await expect(handle).toHaveAttribute("aria-expanded", "false");
     await userEvent.keyboard("{Enter}");
     await waitFor(() =>
       expect(dialog).toHaveAttribute("data-height", "expanded"),
     );
+    // The handle says the height it moved the sheet to.
+    await expect(handle).toHaveAttribute("aria-expanded", "true");
     // Expanded, the sheet offers a way out, as Material asks of a full-screen one.
     await expect(
       within(dialog).getByRole("button", { name: "Close" }),
