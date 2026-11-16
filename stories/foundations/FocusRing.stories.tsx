@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 const link = focusRing({
   className:
-    "rounded-shape-extra-small text-body-large text-primary underline underline-offset-4",
+    "rounded-shape-extra-small text-body-large font-body-large text-primary underline underline-offset-4",
 });
 
 /**
