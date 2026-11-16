@@ -1,9 +1,10 @@
 {
- "note": "The 117 leaves the baseline's builders logged as `feature`, split afterwards into `option` (the kit's component lacked a prop, a part or a behaviour the job needed) and `use` (the kit used as it means to be). Keys are <screen>.<part>.<index of the leave in that part>; `g` is the run's general leaves. Read by hand, one reader, on 2026-11-16.",
+ "note": "The 117 leaves the baseline's builders logged as `feature`, split afterwards into `option` (the kit's component lacked a prop, a part or a behaviour the job needed) and `use` (the kit used as it means to be). Keys are <screen>.<part>.<index of the leave in that part>; `g` is the run's general leaves. Read by hand, one reader, on 2026-11-16. `closed: true` marks an option the kit has since been given (see the baseline page, \"Since the baseline\"): read against the pull requests, not measured by a new run.",
  "leaves": {
   "01.1.0": {
    "kind": "option",
-   "what": "Wrote useMediaQuery / useWindowClass (window.matchMedia through useSyncExternalStore) and render exactly one of the three navigations by window class."
+   "what": "Wrote useMediaQuery / useWindowClass (window.matchMedia through useSyncExternalStore) and render exactly one of the three navigations by window class.",
+   "closed": true
   },
   "01.2.1": {
    "kind": "option",
@@ -15,7 +16,8 @@
   },
   "01.5.0": {
    "kind": "option",
-   "what": "Skip link made from the kit's Link: href=\"#main-content\", classes sr-only / focus:not-sr-only on inverse-surface, and an onPress that focuses <main tabIndex={-1"
+   "what": "Skip link made from the kit's Link: href=\"#main-content\", classes sr-only / focus:not-sr-only on inverse-surface, and an onPress that focuses <main tabIndex={-1",
+   "closed": true
   },
   "01.g.1": {
    "kind": "option",
@@ -42,7 +44,8 @@
   },
   "03.1.0": {
    "kind": "option",
-   "what": "Bound DatePicker to the form myself with react-hook-form's Controller, holding the date as an ISO string and converting with parseDate / toString."
+   "what": "Bound DatePicker to the form myself with react-hook-form's Controller, holding the date as an ISO string and converting with parseDate / toString.",
+   "closed": true
   },
   "03.1.1": {
    "kind": "option",
@@ -50,7 +53,8 @@
   },
   "03.2.0": {
    "kind": "option",
-   "what": "Wrote a react-hook-form resolver by hand (src/product/validation.ts) that holds every rule."
+   "what": "Wrote a react-hook-form resolver by hand (src/product/validation.ts) that holds every rule.",
+   "closed": true
   },
   "03.2.1": {
    "kind": "option",
@@ -67,11 +71,13 @@
   },
   "03.3.1": {
    "kind": "option",
-   "what": "Focus a field from the summary by a DOM query inside a data-field wrapper (first input / textarea / spinbutton, else first button)."
+   "what": "Focus a field from the summary by a DOM query inside a data-field wrapper (first input / textarea / spinbutton, else first button).",
+   "closed": true
   },
   "03.4.0": {
    "kind": "option",
-   "what": "Passed the two actions as JSX (text \"Keep editing\", text error-colour \"Discard\") instead of the { confirm, cancel } object."
+   "what": "Passed the two actions as JSX (text \"Keep editing\", text error-colour \"Discard\") instead of the { confirm, cancel } object.",
+   "closed": true
   },
   "04.3.0": {
    "kind": "option",
@@ -84,11 +90,13 @@
   },
   "04.6.0": {
    "kind": "option",
-   "what": "Put ListItem in a plain ul/li and overrode its cursor with className=\"cursor-default\"."
+   "what": "Put ListItem in a plain ul/li and overrode its cursor with className=\"cursor-default\".",
+   "closed": true
   },
   "04.6.1": {
    "kind": "option",
-   "what": "Wrapped Avatar in an aria-hidden span."
+   "what": "Wrapped Avatar in an aria-hidden span.",
+   "closed": true
   },
   "05.2.0": {
    "kind": "option",
@@ -101,23 +109,28 @@
   },
   "05.4.0": {
    "kind": "option",
-   "what": "className 'max-w-none' to lift the 300px cap on the root."
+   "what": "className 'max-w-none' to lift the 300px cap on the root.",
+   "closed": true
   },
   "05.4.1": {
    "kind": "option",
-   "what": "Added the class 'group' to the slider that can be disabled (sound volume)."
+   "what": "Added the class 'group' to the slider that can be disabled (sound volume).",
+   "closed": true
   },
   "05.5.0": {
    "kind": "option",
-   "what": "actions passed as JSX (a text Cancel with autoFocus, a Button color=\"error\" with isLoading) instead of the { confirm, cancel } object."
+   "what": "actions passed as JSX (a text Cancel with autoFocus, a Button color=\"error\" with isLoading) instead of the { confirm, cancel } object.",
+   "closed": true
   },
   "05.5.1": {
    "kind": "option",
-   "what": "className 'w-80 sm:w-96' on the dialog."
+   "what": "className 'w-80 sm:w-96' on the dialog.",
+   "closed": true
   },
   "05.5.2": {
    "kind": "option",
-   "what": "Guards in the handlers (if isDeleting return) and isDisabled on Cancel while deleting."
+   "what": "Guards in the handlers (if isDeleting return) and isDisabled on Cancel while deleting.",
+   "closed": true
   },
   "06.1.3": {
    "kind": "option",
@@ -134,7 +147,8 @@
   },
   "06.2.1": {
    "kind": "option",
-   "what": "Did not use the kit's input `Chip`."
+   "what": "Did not use the kit's input `Chip`.",
+   "closed": true
   },
   "06.2.2": {
    "kind": "option",
@@ -146,7 +160,8 @@
   },
   "06.3.0": {
    "kind": "option",
-   "what": "Wrapped the Avatar in an `aria-hidden` span where it sits beside the visible name (the table, the sheet)."
+   "what": "Wrapped the Avatar in an `aria-hidden` span where it sits beside the visible name (the table, the sheet).",
+   "closed": true
   },
   "06.3.1": {
    "kind": "option",
@@ -154,7 +169,8 @@
   },
   "06.g.0": {
    "kind": "option",
-   "what": "`font-<role> text-<role>` written raw on a `dt` and a `dd` in the sheet."
+   "what": "`font-<role> text-<role>` written raw on a `dt` and a `dd` in the sheet.",
+   "closed": true
   },
   "07.1.1": {
    "kind": "use",
@@ -172,19 +188,23 @@
   },
   "07.2.2": {
    "kind": "option",
-   "what": "Validation is a resolver written by hand, since the adapter's Form* fields do not pass `rules` to Controller."
+   "what": "Validation is a resolver written by hand, since the adapter's Form* fields do not pass `rules` to Controller.",
+   "closed": true
   },
   "07.2.3": {
    "kind": "option",
-   "what": "After a refused submit the first invalid input is found with querySelector('[aria-invalid=true]') and focused by hand."
+   "what": "After a refused submit the first invalid input is found with querySelector('[aria-invalid=true]') and focused by hand.",
+   "closed": true
   },
   "07.4.0": {
    "kind": "option",
-   "what": "The error message under the checkbox is a Body written by hand, tied to it with aria-describedby and a role=alert wrapper."
+   "what": "The error message under the checkbox is a Body written by hand, tied to it with aria-describedby and a role=alert wrapper.",
+   "closed": true
   },
   "08.1.2": {
    "kind": "option",
-   "what": "The seek bar is React Aria's Slider, SliderTrack and SliderThumb imported from react-aria-components and styled by hand with role utilities, not the kit's Slide"
+   "what": "The seek bar is React Aria's Slider, SliderTrack and SliderThumb imported from react-aria-components and styled by hand with role utilities, not the kit's Slide",
+   "closed": true
   },
   "08.1.3": {
    "kind": "use",
@@ -209,7 +229,8 @@
   },
   "08.7.0": {
    "kind": "option",
-   "what": "Passed media components that ignore the className EmptyState hands them and set size-20 themselves."
+   "what": "Passed media components that ignore the className EmptyState hands them and set size-20 themselves.",
+   "closed": true
   },
   "09.1.1": {
    "kind": "option",
@@ -231,7 +252,8 @@
   },
   "10.1.2": {
    "kind": "option",
-   "what": "Per-step validation written by hand: a plain resolver function, handleSubmit with an onInvalid that keeps only this step's errors (clearErrors on the rest) and "
+   "what": "Per-step validation written by hand: a plain resolver function, handleSubmit with an onInvalid that keeps only this step's errors (clearErrors on the rest) and ",
+   "closed": true
   },
   "10.2.1": {
    "kind": "option",
@@ -265,7 +287,8 @@
   },
   "11.2.3": {
    "kind": "option",
-   "what": "Long supporting text (an email) wraps with wrap-anywhere instead of truncating."
+   "what": "Long supporting text (an email) wraps with wrap-anywhere instead of truncating.",
+   "closed": true
   },
   "11.2.6": {
    "kind": "option",
@@ -273,11 +296,13 @@
   },
   "11.3.1": {
    "kind": "option",
-   "what": "Passed className=\"mx-4 w-auto max-w-140\" to ModalDialog to cap the dialog at 560px and keep 16px from a phone's edges."
+   "what": "Passed className=\"mx-4 w-auto max-w-140\" to ModalDialog to cap the dialog at 560px and keep 16px from a phone's edges.",
+   "closed": true
   },
   "11.3.2": {
    "kind": "option",
-   "what": "Guards written by hand so Cancel, Escape and a second confirm do nothing while the sign-out request runs."
+   "what": "Guards written by hand so Cancel, Escape and a second confirm do nothing while the sign-out request runs.",
+   "closed": true
   },
   "12.1.1": {
    "kind": "option",
@@ -297,11 +322,13 @@
   },
   "12.3.1": {
    "kind": "option",
-   "what": "Slider given className='max-w-none'."
+   "what": "Slider given className='max-w-none'.",
+   "closed": true
   },
   "12.3.2": {
    "kind": "option",
-   "what": "Active-filter chips (variant='input') remove on the chip's own press, with aria-label 'Remove filter: …'; onRemove is also passed so the X is drawn."
+   "what": "Active-filter chips (variant='input') remove on the chip's own press, with aria-label 'Remove filter: …'; onRemove is also passed so the X is drawn.",
+   "closed": true
   },
   "12.3.3": {
    "kind": "option",
@@ -309,23 +336,28 @@
   },
   "12.4.0": {
    "kind": "option",
-   "what": "The media is a wrapper component that discards the className EmptyState gives and sets size-16 and on-surface-variant."
+   "what": "The media is a wrapper component that discards the className EmptyState gives and sets size-16 and on-surface-variant.",
+   "closed": true
   },
   "12.4.1": {
    "kind": "option",
-   "what": "Both actions are passed as one node in `action`, in a flex row with a gap."
+   "what": "Both actions are passed as one node in `action`, in a flex row with a gap.",
+   "closed": true
   },
   "13.1.2": {
    "kind": "option",
-   "what": "className on each TreeItem: data-drop-target:bg-primary/8 and a primary outline"
+   "what": "className on each TreeItem: data-drop-target:bg-primary/8 and a primary outline",
+   "closed": true
   },
   "13.2.2": {
    "kind": "option",
-   "what": "headline and supportingText wrapped in a span with truncate and contain-inline-size"
+   "what": "headline and supportingText wrapped in a span with truncate and contain-inline-size",
+   "closed": true
   },
   "13.4.2": {
    "kind": "option",
-   "what": "isDropTarget classes on ListItem and on the tile"
+   "what": "isDropTarget classes on ListItem and on the tile",
+   "closed": true
   },
   "13.5.0": {
    "kind": "option",
@@ -342,7 +374,8 @@
   },
   "14.2.0": {
    "kind": "option",
-   "what": "Long names and subjects are cut with `line-clamp-1 break-all` / `line-clamp-2` in the nodes passed to `headline` and `supportingText`."
+   "what": "Long names and subjects are cut with `line-clamp-1 break-all` / `line-clamp-2` in the nodes passed to `headline` and `supportingText`.",
+   "closed": true
   },
   "14.2.1": {
    "kind": "option",
@@ -362,7 +395,8 @@
   },
   "14.4.2": {
    "kind": "option",
-   "what": "The dialog's width is a className on its content (`w-screen max-w-xl max-h-dvh overflow-y-auto`): full-bleed on a phone, 36rem on a desktop."
+   "what": "The dialog's width is a className on its content (`w-screen max-w-xl max-h-dvh overflow-y-auto`): full-bleed on a phone, 36rem on a desktop.",
+   "closed": true
   },
   "14.5.1": {
    "kind": "use",
@@ -371,7 +405,8 @@
   },
   "15.2.2": {
    "kind": "option",
-   "what": "Styled the list's own `data-drop-target` (a `primary` outline and `bg-primary/8`) by className on GridList."
+   "what": "Styled the list's own `data-drop-target` (a `primary` outline and `bg-primary/8`) by className on GridList.",
+   "closed": true
   },
   "15.2.4": {
    "kind": "option",
@@ -428,7 +463,8 @@
   },
   "17.4.0": {
    "kind": "option",
-   "what": "Used Modal + Dialog in place of ModalDialog"
+   "what": "Used Modal + Dialog in place of ModalDialog",
+   "closed": true
   },
   "17.4.1": {
    "kind": "option",
@@ -453,15 +489,18 @@
   },
   "21.1.0": {
    "kind": "option",
-   "what": "Wrote the form's rules as a hand-written react-hook-form resolver function."
+   "what": "Wrote the form's rules as a hand-written react-hook-form resolver function.",
+   "closed": true
   },
   "21.1.1": {
    "kind": "option",
-   "what": "Focus on the first invalid field after a refused submit is done by hand: each field sits in a div[data-field], and an effect focuses the input, textarea or trig"
+   "what": "Focus on the first invalid field after a refused submit is done by hand: each field sits in a div[data-field], and an effect focuses the input, textarea or trig",
+   "closed": true
   },
   "21.1.2": {
    "kind": "option",
-   "what": "Wrote the consent checkbox's error message by hand (a Body in text-error inside a role=alert wrapper), tied to the box with aria-describedby, with the privacy l"
+   "what": "Wrote the consent checkbox's error message by hand (a Body in text-error inside a role=alert wrapper), tied to the box with aria-describedby, with the privacy l",
+   "closed": true
   },
   "21.1.3": {
    "kind": "option",
@@ -473,7 +512,8 @@
   },
   "21.2.1": {
    "kind": "option",
-   "what": "Passed React Aria's isPending beside the kit's isLoading, kept a ref guard against a second submit, and added a role=status line beside the button."
+   "what": "Passed React Aria's isPending beside the kit's isLoading, kept a ref guard against a second submit, and added a role=status line beside the button.",
+   "closed": true
   },
   "21.3.1": {
    "kind": "option",
@@ -491,7 +531,8 @@
   },
   "22.5.1": {
    "kind": "option",
-   "what": "The seek bar is React Aria's Slider, SliderTrack and SliderThumb, not the kit's Slider."
+   "what": "The seek bar is React Aria's Slider, SliderTrack and SliderThumb, not the kit's Slider.",
+   "closed": true
   }
  }
 }

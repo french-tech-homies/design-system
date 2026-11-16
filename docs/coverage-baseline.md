@@ -115,6 +115,45 @@ player, a rich-text field (twice), a field of several email addresses, an
 error summary for a form, a table of contents that follows the scroll.
 Candidates for blocks.
 
+## Since the baseline
+
+The kit was then given what the table above names, most repeated first.
+Each is a pull request with its own tests:
+
+| What                                                                                   | Screens that met it |
+| :------------------------------------------------------------------------------------- | ------------------: |
+| The type primitives draw any text element (`p`, `li`, `dt`, `dd` and more)             |                  10 |
+| `Skeleton` and `SkeletonGroup`, for content that is loading                            |                  10 |
+| The dialog: Material's 560dp maximum, a destructive confirm, a hold while a request runs |                 9 |
+| The react-hook-form adapter: `rules`, focus on the first invalid field, a date picker  |                   8 |
+| `app-shell-block`: the navigation bar, the rail or the expanded rail, by width         |                   7 |
+| `ListItem` cuts a long name, and outside a list is not drawn as pressable              |                   6 |
+| `Avatar` with no `alt` is decorative                                                   |                   5 |
+| `Slider`: Material's, with a filled track and no width cap                             |                   4 |
+| `Button` takes no press while loading                                                  |                   3 |
+| `EmptyState`'s media follows its size, and its actions are apart                       |                   3 |
+| A `Checkbox` alone shows its own error message                                         |                   2 |
+| The input `Chip`'s remove is reached from the keyboard, and named                      |                   2 |
+| Lists and trees draw where a drop will land                                            |                   2 |
+
+**What that should be worth, not measured.** Of the 93 `option` leaves, 41
+name something in that table; they are marked `closed` in
+[`feature-split.json`](coverage-baseline/feature-split.json). Scored with
+those gone, the same logs give **64 parts of 119, 54%**. That is a reading
+of old logs against new code, by the one who wrote the code: the figure
+that counts is the next run's.
+
+What still stands between a part and the kit, in those logs:
+
+- 52 `option` leaves, most met by one screen each. The ones met by more:
+  `Table` on a phone (a column to drop, a two-line row), `Card` that is
+  pressed or emphasised, `Tooltip` on touch.
+- 19 `component` leaves: a calendar and a time field outside a picker, a
+  colour swatch picker, submenus, sections in a list, a tag group.
+- 13 `control` leaves, written by hand once each: candidates for blocks (a
+  one-time-code field, a rating, a media player, a rich-text field, an error
+  summary, a table of contents).
+
 ## What the runs did not hold to
 
 - **Blocks were out of reach of three builders.** The command that adds a
