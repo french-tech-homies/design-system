@@ -113,7 +113,11 @@ export {
 } from "./components/Table";
 export { Avatar, type AvatarProps } from "./components/Avatar";
 export { GridList, GridListItem } from "./components/GridList";
-export { Menu, type MenuItemType } from "./components/Menu";
+export {
+  Menu,
+  type MenuItemType,
+  type MenuDividerType,
+} from "./components/Menu";
 export { default as MenuItem, type MenuItemProps } from "./components/MenuItem";
 export { Dialog, type DialogProps } from "./components/Dialog";
 export {

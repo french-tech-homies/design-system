@@ -7,7 +7,8 @@
 
    The kit is Material 3's implementation. Beside what Material's
    specification describes it ships a named group of components of its own,
-   Material-derived, each joining on a project's need, named in one place: the list in README.md between `<!-- own-components -->`
+   Material-derived, each joining on the need of a screen of the coverage
+   corpus or of a project, named in one place: the list in README.md between `<!-- own-components -->`
    and `<!-- /own-components -->`. This checks, on the README and the
    component files as they are in the kit, that:
 

@@ -236,9 +236,163 @@ export const MenuKeyboardNavigation: Story = {
     await userEvent.keyboard("{ArrowDown}");
     await waitFor(() => expect(items[1]).toHaveFocus());
 
+    // The row the arrow keys reached shows it: its state layer is drawn, and
+    // the row left behind has none. A menu has no focus ring, so this layer
+    // is the only focus indicator a keyboard user gets.
+    const layer = (item: HTMLElement | undefined) =>
+      getComputedStyle(
+        item!.querySelector<HTMLElement>('[data-slot="state-layer"]')!,
+      ).opacity;
+    await waitFor(() => expect(Number(layer(items[1]))).toBeGreaterThan(0));
+    await expect(Number(layer(items[0]))).toBe(0);
+
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
     await waitFor(() => expect(trigger).toHaveFocus());
+  },
+};
+
+/** A disabled item is announced as one and the arrow keys pass it; a
+    divider is a separator, not an item. */
+export const MenuSkipsDisabledAndDividers: Story = {
+  render: () => (
+    <Menu
+      triggerButton={<Button variant="outlined">Open menu</Button>}
+      items={[
+        { id: "edit", label: "Edit" },
+        { id: "share", label: "Share", isDisabled: true },
+        { id: "divider", type: "divider" },
+        { id: "delete", label: "Delete" },
+      ]}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+
+    const menu = await screen.findByRole("menu");
+    await expect(within(menu).getAllByRole("menuitem")).toHaveLength(3);
+    await expect(within(menu).getAllByRole("separator")).toHaveLength(1);
+    await expect(
+      within(menu).getByRole("menuitem", { name: "Share" }),
+    ).toHaveAttribute("aria-disabled", "true");
+
+    await waitFor(() =>
+      expect(within(menu).getByRole("menuitem", { name: "Edit" })).toHaveFocus(),
+    );
+    await userEvent.keyboard("{ArrowDown}");
+    await waitFor(() =>
+      expect(
+        within(menu).getByRole("menuitem", { name: "Delete" }),
+      ).toHaveFocus(),
+    );
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    await waitFor(() =>
+      expect(canvas.getByRole("button", { name: /open menu/i })).toHaveFocus(),
+    );
+  },
+};
+
+/** With `selectionMode="single"` the items are radio items: one is checked,
+    and choosing another moves the check and reports the new key. */
+export const MenuSingleSelection: Story = {
+  render: function Render() {
+    const [size, setSize] = useState("25");
+    return (
+      <Menu
+        triggerButton={<Button variant="text">{size} per page</Button>}
+        selectionMode="single"
+        disallowEmptySelection
+        selectedKeys={[size]}
+        onSelectionChange={(keys) => {
+          if (keys !== "all" && keys.size > 0) setSize(String([...keys][0]));
+        }}
+        items={[
+          { id: "10", label: "10 per page" },
+          { id: "25", label: "25 per page" },
+          { id: "50", label: "50 per page" },
+        ]}
+      />
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+
+    const menu = await screen.findByRole("menu");
+    const radios = within(menu).getAllByRole("menuitemradio");
+    await expect(radios).toHaveLength(3);
+    await expect(radios[1]).toHaveAttribute("aria-checked", "true");
+    await expect(radios[0]).toHaveAttribute("aria-checked", "false");
+
+    // Focus opens on the selected item; one step down, then Enter chooses.
+    await waitFor(() => expect(radios[1]).toHaveFocus());
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
+
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    await expect(
+      canvas.getByRole("button", { name: "50 per page" }),
+    ).toBeVisible();
+  },
+};
+
+/** With `selectionMode="multiple"` the items are checkbox items, Space and
+    Enter each toggle one without closing, and an uncontrolled selection is
+    still there when the menu is opened again. */
+export const MenuMultipleSelectionSurvivesClosing: Story = {
+  render: () => (
+    <Menu
+      triggerButton={<Button variant="text">Columns</Button>}
+      selectionMode="multiple"
+      defaultSelectedKeys={["customer"]}
+      items={[
+        { id: "customer", label: "Customer" },
+        { id: "date", label: "Date" },
+        { id: "total", label: "Total" },
+      ]}
+    />
+  ),
+  play: async () => {
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+
+    let menu = await screen.findByRole("menu");
+    const date = () =>
+      within(menu).getByRole("menuitemcheckbox", { name: "Date" });
+    await expect(date()).toHaveAttribute("aria-checked", "false");
+
+    await waitFor(() =>
+      expect(
+        within(menu).getByRole("menuitemcheckbox", { name: "Customer" }),
+      ).toHaveFocus(),
+    );
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard(" ");
+    await waitFor(() => expect(date()).toHaveAttribute("aria-checked", "true"));
+    await expect(menu).toBeVisible();
+
+    // Enter toggles too, and the menu stays: Material's multi-select menu is
+    // open until the person dismisses it.
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
+    const total = within(menu).getByRole("menuitemcheckbox", { name: "Total" });
+    await waitFor(() => expect(total).toHaveAttribute("aria-checked", "true"));
+    await expect(menu).toBeVisible();
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+
+    await userEvent.keyboard("{Enter}");
+    menu = await screen.findByRole("menu");
+    await expect(date()).toHaveAttribute("aria-checked", "true");
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   },
 };
 

@@ -1,0 +1,110 @@
+{
+  "screen": "File browser",
+  "build": "green",
+  "verification": "npm run build (tsc -b && vite build) is green; oxlint has one fast-refresh warning. A one-off server render (renderToString, script since deleted) showed the tree, the breadcrumbs, the grid and the toolbar render without throwing, and exercised the data operations (1003 nodes, folders 4 levels deep, Finance/Invoices/2026 holds 520 files). No browser was allowed, so NOTHING interactive was exercised: pointer, keyboard, drag and drop, touch, the virtualizer's layout and the look in light and dark are all unverified. The advisor tool was overloaded and gave no review.",
+  "files": [
+    "src/App.tsx",
+    "src/files/FilesScreen.tsx",
+    "src/files/FolderTree.tsx",
+    "src/files/ItemsView.tsx",
+    "src/files/PathBreadcrumbs.tsx",
+    "src/files/ContextMenu.tsx",
+    "src/files/dialogs.tsx",
+    "src/files/data.ts"
+  ],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A folder tree",
+      "built": "yes",
+      "kit": ["StateLayer", "ChevronRightIcon", "focusRing", "cn", "SideSheet"],
+      "leaves": [
+        { "kind": "component", "what": "Tree, TreeItem, TreeItemContent and Collection from react-aria-components (src/files/FolderTree.tsx): single selection is the current folder, expandedKeys is controlled so navigating opens the ancestors.", "why": "The kit has no tree. NavigationDrawer takes flat sections of destinations, Disclosure is not a tree (no arrow-key tree navigation, no levels)." },
+        { "kind": "component", "what": "React Aria's Button with slot=\"chevron\" for the expand control, drawn by hand with a StateLayer.", "why": "The kit's IconButton needs an aria-label and answers over an invisible 48px target that would overlap the row; nothing says whether it forwards `slot`. I did not try it." },
+        { "kind": "hand", "what": "The row's look: 48px tall on phone and 40px from md, full shape, secondary-container when current, primary-container as a drop target, folder icons from lucide-react.", "why": "No kit row for a tree. Modelled on Material's navigation drawer item, from memory: the ds-spec skill was not run (no web)." },
+        { "kind": "value", "what": "Indentation is an inline style, paddingInlineStart = 4 + (level - 1) * 16 px.", "why": "No token or utility for a tree level's indent." }
+      ],
+      "notes": "On a phone the tree is in the kit's modal SideSheet (align left), opened from the app bar's menu button; picking a folder closes it. The same expanded state serves both. Unverified in a browser."
+    },
+    {
+      "n": 2,
+      "part": "Items as a grid and as a list, with a toggle",
+      "built": "yes",
+      "kit": ["GridList", "GridListItem", "Card", "ButtonGroup", "IconButton", "Body", "Label", "StateLayer", "EmptyState", "Button"],
+      "leaves": [
+        { "kind": "component", "what": "Virtualizer with GridLayout (grid) and ListLayout (list), and Size, from react-aria-components, around the kit's GridList.", "why": "A folder of 520 files needs virtualization; the kit's GridList says nothing of it and exports no layout." },
+        { "kind": "hand", "what": "The list row is written by hand (icon, name, date and size columns from md, a second line on phone, StateLayer).", "why": "The kit's ListItem cannot cut a long name: its content box has no min-w-0 and it has no classNames for its parts, so a long name pushes the trailing element out of the row. Its headline is also title-large (22px), too big for a dense file list." },
+        { "kind": "read", "what": "Read ListItem.tsx past its doc comment to learn the above (the doc comment names neither the type role nor the missing truncation).", "why": "The doc comment is four lines." },
+        { "kind": "read", "what": "Read Card.tsx's styles to learn that card-content carries p-4 and flex-col, overridden with classNames.content=\"h-full p-0\".", "why": "The doc comment names the parts but not their padding." },
+        { "kind": "value", "what": "Pixel numbers given to the layouts: tiles 150 to 240 by 132, 12 apart; rows 64 tall, 8 of padding.", "why": "React Aria's layouts take numbers, not classes; no token for an item size." },
+        { "kind": "feature", "what": "Used ButtonGroup variant=\"connected\" selectionMode=\"single\" with two toggle IconButtons, and className=\"w-auto\" against its full-width default.", "why": "SegmentedButton's doc says Material no longer recommends it and points here; a connected group spans its surface by default, which a two-icon view toggle must not." }
+      ],
+      "notes": "The kit's Table was not used for the list view: one GridList serves both views so selection, drag and drop and the context menu are the same code. The price: the list view has no column headers and no sorting (items are always folders first, then by name). A file has no open action (nothing to open in a mock); a folder opens on double click, Enter, or a tap. The kit's EmptyState writes rounded-lg and a border-outline in its own styles; I overrode both by className. Unverified in a browser, the virtualizer's sizing in particular."
+    },
+    {
+      "n": 3,
+      "part": "Multiple selection",
+      "built": "yes",
+      "kit": ["GridList", "GridListItem", "IconButton", "Tooltip", "TooltipTrigger", "Body"],
+      "leaves": [],
+      "notes": "React Aria's own, through the kit's GridList: selectionMode=\"multiple\" selectionBehavior=\"replace\" (click selects, Ctrl/Cmd and Shift extend, arrows and Shift+arrows, Ctrl+A, Escape clears; on touch a long press enters selection and taps then toggle). No checkboxes are drawn. A row under the breadcrumbs shows the count and Rename (one item), Move, Delete and Clear. Delete and F2 act on the selection from the keyboard. Unverified in a browser."
+    },
+    {
+      "n": 4,
+      "part": "Moving items by drag and drop, with a keyboard way",
+      "built": "yes",
+      "kit": ["GridList", "ModalDialog", "Button", "Headline", "Body", "snackbar", "SnackbarRegion"],
+      "leaves": [
+        { "kind": "hook", "what": "useDragAndDrop from react-aria-components, twice: on the items view (getItems, onItemDrop onto a folder, onRootDrop for files from the computer, a drag preview) and on the tree (onItemDrop onto a folder, refusing a folder's own descendants).", "why": "The kit passes dragAndDropHooks through GridList and has no tree; it documents no drag and drop of its own beyond the 'dragged' state layer." },
+        { "kind": "hook", "what": "isFileDropItem and isDirectoryDropItem from react-aria-components to tell a move from an upload in one drop handler.", "why": "Utilities, not in the kit." },
+        { "kind": "read", "what": "Read DialogContent.tsx: with children it renders the children alone, no headline, though Dialog's doc comment says 'children of your own under the headline'. The Move and name dialogs draw their own Headline.", "why": "Doc comment and code disagree." },
+        { "kind": "value", "what": "The dialogs' width is className=\"w-[calc(100vw-2rem)] max-w-md\".", "why": "ModalDialog sets only min-w-[280px] and takes its content's width; nothing gives a dialog a width that holds on a phone and on a desktop." }
+      ],
+      "notes": "Keyboard ways: (a) 'Move to…' (context menu, selection bar) opens a dialog with the folder tree as a picker and a 'Move here' button, which I am confident in; (b) React Aria's own keyboard drag (Enter, or Alt+Enter on a folder since Enter opens it; Tab between targets; Enter to drop), which comes with useDragAndDrop and which I did not exercise. Every move, upload, rename and delete shows a snackbar with Undo. Tree folders are drop targets only, not draggable. On a phone the tree is in a drawer, so a drag onto the tree is desktop only; the dialog is the phone's way. A dragged name colliding in the target gets ' (2)'. Unverified in a browser."
+    },
+    {
+      "n": 5,
+      "part": "A context menu on an item",
+      "built": "partly",
+      "kit": ["MenuItem", "IconButton"],
+      "leaves": [
+        { "kind": "component", "what": "Popover, Menu and MenuItem from react-aria-components (src/files/ContextMenu.tsx), the Popover placed against an empty fixed element at the pointer, with the kit's MenuItem as each row's look.", "why": "The kit's Menu is a MenuTrigger around a trigger button: it cannot open at a point, takes no isOpen, and cannot disable an item." },
+        { "kind": "hand", "what": "A delegated onContextMenu on the items view and on the tree (reads React Aria's data-key on the row; the keyboard's menu key and Shift+F10 open it at the row with the first action focused), and a hand-timed long press (550ms, 10px slop, touch pointers only, capture phase).", "why": "Neither the kit nor React Aria Components has a context-menu trigger; iOS Safari sends no contextmenu on a long press." },
+        { "kind": "read", "what": "Read Menu.tsx and MenuItem.tsx: MenuItem accepts isFocused and isHovered but ignores them; its keyboard focus layer is group-data-focus-visible, which needs a `group` ancestor carrying data-focus-visible. I put `group` on my React Aria MenuItem. The kit's own Menu does not, so its keyboard focus may draw nothing.", "why": "The doc comment does not say how the states reach the row." },
+        { "kind": "value", "what": "The menu surface's classes are copied from the kit's Menu, with min-w-48 max-w-72 in place of its min-w-[112px] max-w-[280px].", "why": "The surface style is private to Menu.tsx, not exported." }
+      ],
+      "notes": "Actions: Open (a folder), New folder inside (tree), Rename, Move to…, Delete; on a selected item the menu acts on the whole selection, on another it selects that one first. Each item also has a 'more' button that opens the same menu. Marked partly because the touch path is unverified and has known risks: the long press fires beside React Aria's own long-press selection (500ms) and, where the browser starts a native drag on a long press, the drag may cancel it or compete with it. In the grid layout the arrow keys do not reach the 'more' button; the menu key does the job. Right click and keyboard are unverified too, but stand on plain events."
+    },
+    {
+      "n": 6,
+      "part": "Breadcrumbs",
+      "built": "yes",
+      "kit": ["StateLayer", "ChevronRightIcon", "focusRing", "cn"],
+      "leaves": [
+        { "kind": "component", "what": "Breadcrumbs, Breadcrumb and Link from react-aria-components (src/files/PathBreadcrumbs.tsx), onAction navigating to the crumb's folder.", "why": "The kit has no breadcrumbs. Material 3 describes none either." },
+        { "kind": "hand", "what": "The crumb's look: a 40px full-shape link in title-small with a state layer, on-surface-variant, the current one on-surface; the row scrolls sideways on a phone and is scrolled to its end on navigation.", "why": "Nothing to follow in the kit or in Material; taken from the nearest thing, a text button." },
+        { "kind": "guess", "what": "Wrote aria-hidden on the kit's ChevronRightIcon, then removed it before building on reading icons.tsx: IconComponent takes size and className only.", "why": "The icons' props are not said in the index." }
+      ],
+      "notes": "Crumbs are not drop targets. Unverified in a browser."
+    },
+    {
+      "n": 7,
+      "part": "Upload by drop, and by a button",
+      "built": "yes",
+      "kit": ["Button", "EmptyState", "TopAppBar", "snackbar"],
+      "leaves": [
+        { "kind": "component", "what": "DropZone from react-aria-components around the whole items pane (breadcrumb row, status row, items), refusing this screen's own drags.", "why": "The kit has ImageField for one image and nothing for a drop area." },
+        { "kind": "component", "what": "FileTrigger from react-aria-components around the kit's Button ('Upload' in the app bar, 'Choose files' in the empty state), allowsMultiple.", "why": "The kit has no file trigger." },
+        { "kind": "read", "what": "Read react-aria's useDrop source: it stops propagation, so a drop over the GridList never reaches the DropZone around it. The GridList therefore takes files itself (onRootDrop into the current folder, onItemDrop into the folder under the pointer, tree folders too) and the DropZone takes what falls outside it.", "why": "Nested drop targets are not covered by anything in the project." }
+      ],
+      "notes": "A dropped folder is walked and added with what it holds. The drop target shows a primary outline (the pane, or the list). Uploaded names that collide get ' (2)'. Unverified in a browser; a file drop cannot be faked without one."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "hand", "what": "The page layout: a flex column at h-dvh, the kit's TopAppBar, then the tree aside (hidden under md) beside the items pane on surface-container-low.", "why": "The kit has no app shell or pane layout; expected." },
+    { "kind": "read", "what": "Read SideSheet.tsx past the doc comment: the modal form is min-w-[360px] and w-[calc(100%-56px)] inside a w-fit modal. Overrode with className=\"w-80 min-w-0 max-w-[calc(100vw-3.5rem)] sm:w-80\".", "why": "360px minimum on a 400px phone, and a percentage width of a shrink-to-fit parent; the props do not offer a width." },
+    { "kind": "value", "what": "max-w-[calc(100vw-3.5rem)] on the drawer, and w-28 / w-24 / max-w-48 for the list's columns and a crumb's cut.", "why": "Layout widths; no token applies." },
+    { "kind": "hand", "what": "Opening and closing state for the dialogs and the menu keeps the last content while closed, so an overlay does not empty itself during its exit animation.", "why": "ModalDialog is rendered unconditionally and animates out; nothing in the kit holds the content for it." }
+  ],
+  "friction": "1. index.ts is the only map and it has no Tree, Breadcrumbs, DropZone, FileTrigger, context menu or virtualized collection: five of the seven parts left the kit for a React Aria component. ds-build says a missing component is written 'beside the kit on react-aria-components' but gives no example of dressing one (which state-layer colour for a selected row, which shape, which height), so each look was a judgement from the nearest kit component. A short recipe ('a row: focusRing + StateLayer with the render props + secondary-container when selected') would have saved most of the reading. 2. GridList and GridListItem are thin pass-throughs, which is good: Virtualizer, dragAndDropHooks, selectionBehavior and per-item onAction all worked by type on the first build. But their doc comments do not say so; I assumed it from the prop types. One line ('takes everything React Aria's GridList takes: layout, dragAndDropHooks, a Virtualizer around it') would settle it. 3. ListItem is where the list view left the kit: no truncation, no classNames, title-large headline, and its selected colour is primary-container while Table and the navigation use secondary-container. 4. Menu is closed where a file browser needs it open: no isOpen, no placement at a point, no disabled item, no way to reuse its surface style; and MenuItem's isFocused/isHovered props do nothing, the focus layer depending on a `group` ancestor the kit's own Menu does not set. A ContextMenu, or a Menu that takes triggerRef + isOpen, was the single biggest gap. 5. Dialog's doc ('children under the headline') does not match DialogContent (children replace the headline), and no dialog has a documented width. 6. EmptyState uses rounded-lg and border-outline, against the skill's own rules. 7. SegmentedButton sends you to ButtonGroup connected, whose full-width default is wrong for a small toggle; the doc could say 'give it a width'. 8. The ds-spec skill could not be used (no web), so Material's measures for the tree row and the tiles are from memory. 9. Nothing in the guidance speaks of phone layouts: which kit component is the phone's drawer for arbitrary content (I took the modal SideSheet aligned left, and had to override its widths)."
+}
