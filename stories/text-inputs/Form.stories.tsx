@@ -404,3 +404,39 @@ export const AnEmptyChoiceIsReachedByTab: Story = {
     await expect(canvas.getByRole("radio", { name: "Evening" })).toBeChecked();
   },
 };
+
+function RequiredByTheForm() {
+  const form = useForm<{ name: string }>({ defaultValues: { name: "" } });
+  return (
+    // No `noValidate`: the browser would stop this submit on an empty
+    // required field, were the field left to it.
+    <form onSubmit={form.handleSubmit(() => undefined)} className="flex w-80 flex-col gap-4">
+      <FormTextField
+        control={form.control}
+        name="name"
+        label="Name"
+        isRequired
+        rules={{ required: "Enter your name" }}
+      />
+      <Button type="submit">Save</Button>
+    </form>
+  );
+}
+
+/**
+ * A bound field marked `isRequired` is the form's to judge: the submit
+ * reaches the form's rules and the field shows the form's message, where
+ * the browser's own validation would have stopped the submit first.
+ */
+export const ARequiredFieldIsTheFormsToJudge: Story = {
+  render: () => <RequiredByTheForm />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByRole("textbox", { name: /Name/ });
+    await expect(field).toHaveAttribute("aria-required", "true");
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(canvas.getByText("Enter your name")).toBeVisible());
+    await expect(field).toHaveFocus();
+  },
+};
+

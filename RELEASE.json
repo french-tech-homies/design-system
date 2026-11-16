@@ -14,8 +14,8 @@
       "loose": "7e2a811b5f9755f761529a49bc547cbb9c0d4fe2b9cf9b51077b5a254d3884eb"
     },
     "adapters/react-hook-form.tsx": {
-      "exact": "23fa354914ada6d137c0e391db3f6050e89bb46b37f597b11247050ebf9db325",
-      "loose": "1529dcdc7067ec7578fd3d31fd28e9d4c794619c378fa9bb843feda5a595bb8c"
+      "exact": "437cab988b40f3858ed8e8efaf4be0aa4bae8e28e85fb429a7e5d7d93df27228",
+      "loose": "dd9de7e2608dfd1f47c2de38925c2694623ed55339518d889c80584fae0f55e5"
     },
     "adapters/react-router.tsx": {
       "exact": "a7ab9e810ca5bf18b33b8f8230c1f45826985cb3f35c2a859978efe731c9ab1a",
@@ -356,8 +356,8 @@
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "26a660d900c6a90dd994f74e809e9234dd43a494ddd81cf6b70e9d1c0daa7e85",
-      "loose": "f49aa90fa4cdb6455bf9e0b677220dc9e8e9d40b86524c6d7b1e9965a058ea21"
+      "exact": "aad6e4b3f375398512b2299106d96daa77d23e454e31b43f21d87c5cb4800079",
+      "loose": "c1a1c8c3f170c79b0f2d0a2c885377123692b966fe6b2399572345e6a7004bf5"
     },
     ".claude/skills/ds-spec/SKILL.md": {
       "exact": "96df5b9d9585d4dfb4f5ef97d0baa936a5d7176111ef5247d29a04670d8fd25e",

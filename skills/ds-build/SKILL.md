@@ -111,6 +111,8 @@ form's errors to it. A field you bind yourself with `Controller` takes
 `validationBehavior="aria"` where the form decides what is valid: the field
 is then marked invalid for assistive technology and the browser's own
 validation does not stop the submit before the form has run. The adapter's
+`Form*` fields set it themselves, and its `FocusAnchor` gives a field of your
+own the focus on a refused submit. The adapter's
 `FormComboBox` holds the chosen option; for a field whose value is the typed
 text, the comment above it shows the binding.
 
