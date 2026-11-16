@@ -9,6 +9,7 @@ import {
   Cell,
   Column,
   Row,
+  ResizableTableContainer,
   Table,
   TableBody,
   TableFooter,
@@ -494,6 +495,41 @@ export const CutCells: Story = {
           )}
         </TableBody>
       </Table>
+    </Card>
+  ),
+};
+
+/** Columns a person resizes: the table sits in a `ResizableTableContainer`
+ *  and each `Column` with `allowsResizing` draws a handle at its trailing
+ *  edge. Drag it, or from the heading press the arrow keys to reach it,
+ *  Enter, the arrows, Enter. A column that sorts still sorts on Enter. */
+export const ResizableColumns: Story = {
+  render: () => (
+    <Card variant="outlined" className="w-[640px]" classNames={{ content: "p-0" }}>
+      <ResizableTableContainer>
+        <Table aria-label="Users">
+          <TableHeader>
+            <Column id="name" isRowHeader allowsResizing defaultWidth={200}>
+              Name
+            </Column>
+            <Column id="email" allowsResizing minWidth={120}>
+              Email
+            </Column>
+            <Column id="role" defaultWidth={120}>
+              Role
+            </Column>
+          </TableHeader>
+          <TableBody items={users}>
+            {(user) => (
+              <Row>
+                <Cell truncate>{user.name}</Cell>
+                <Cell truncate>{user.email}</Cell>
+                <Cell>{user.role}</Cell>
+              </Row>
+            )}
+          </TableBody>
+        </Table>
+      </ResizableTableContainer>
     </Card>
   ),
 };

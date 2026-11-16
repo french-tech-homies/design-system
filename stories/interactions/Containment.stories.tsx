@@ -3,6 +3,7 @@ import React, { useRef } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import {
   I18nProvider,
+  type SortDescriptor,
   useDragAndDrop,
   useListData,
 } from "react-aria-components";
@@ -29,7 +30,15 @@ import {
   DisclosureHeader,
   DisclosurePanel,
 } from "@french-tech-homies/design-system/components/Disclosure";
-import { Cell } from "@french-tech-homies/design-system/components/Table";
+import {
+  Cell,
+  Column,
+  ResizableTableContainer,
+  Row,
+  Table,
+  TableBody,
+  TableHeader,
+} from "@french-tech-homies/design-system/components/Table";
 
 /**
  * Behaviour tests for the containment surfaces. See
@@ -870,5 +879,72 @@ export const GridListRowIsMovedByTheKeyboard: Story = {
 
     await waitFor(() => expect(names()[0]).not.toBe("Starters"));
     await expect(names().sort()).toEqual(["Desserts", "Mains", "Starters"]);
+  },
+};
+
+/* ---- A table's columns, resized ---------------------------------------- */
+
+/** A column is resized by the keyboard alone: from the heading the arrow
+    keys reach the handle, Enter takes it, the arrows move it, Enter lets go.
+    And a heading that sorts still sorts on Enter. */
+export const TableColumnIsResizedByTheKeyboard: Story = {
+  render: function Render() {
+    const [sort, setSort] = React.useState<SortDescriptor>();
+    return (
+      <div className="w-[560px]">
+        <ResizableTableContainer>
+          <Table
+            aria-label="Files"
+            sortDescriptor={sort}
+            onSortChange={setSort}
+          >
+            <TableHeader>
+              <Column
+                id="name"
+                isRowHeader
+                allowsSorting
+                allowsResizing
+                defaultWidth={240}
+              >
+                Name
+              </Column>
+              <Column id="size">Size</Column>
+            </TableHeader>
+            <TableBody>
+              <Row>
+                <Cell>Roadmap.pdf</Cell>
+                <Cell>3 MB</Cell>
+              </Row>
+            </TableBody>
+          </Table>
+        </ResizableTableContainer>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const heading = canvas.getByRole("columnheader", { name: /name/i });
+    const width = () => Math.round(heading.getBoundingClientRect().width);
+    const start = width();
+
+    // Tab enters the table on its first row; ArrowUp goes to the heading,
+    // where the focus is on its label: Enter there sorts.
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowUp}");
+    await expect(heading.contains(document.activeElement)).toBe(true);
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(heading).toHaveAttribute("aria-sort", "ascending"),
+    );
+
+    // One more arrow reaches the handle, a slider.
+    await userEvent.keyboard("{ArrowRight}");
+    const handle = within(heading).getByRole("slider");
+    await expect(handle).toHaveFocus();
+
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(width()).toBeGreaterThan(start));
   },
 };

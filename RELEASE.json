@@ -202,8 +202,8 @@
       "loose": "aa43737ee4cc897e5642d72f6975bef3225822fe55e52541c7e3f724b2c017d3"
     },
     "components/Table.tsx": {
-      "exact": "3f697462a1a97e125cbcb36b55bfd83b8177953c7ec434efd96bdc86d22107aa",
-      "loose": "2a533222653ebfac6cd286e3e02b6457733c3b8605e4943dce0da10df1174f1b"
+      "exact": "2b6e86ef0fd6fa2764560eccb0896cc237350867b82572ecfac4e03b127be018",
+      "loose": "0a29d855ba3913de8f5abfadd85f92ac55d50a72560b539be6e0bee9719ee122"
     },
     "components/Tabs.tsx": {
       "exact": "7809bdc06759dddc4a1bafcfbcc8acda7175b439811790c68d1e2e276db72c83",
@@ -270,11 +270,11 @@
       "loose": "f53873012a0ccb6815603ab3e49154577deef31809651d1b1b6ad7c74045c38f"
     },
     "index.ts": {
-      "exact": "ce04fed4b37d287e37039873a14085af70645f8d0511615ac6f1cac0d3982ccf",
-      "loose": "a89041575942b3f82bd39f29f1982ae154dab40f63c086ce82f285cb721e3acf",
+      "exact": "82dfad254537aebb106141a3f88b604eea1a650cbc18b80e2a704e12e475bcaf",
+      "loose": "7e68e4275d2cef631953bba7b49be81e8acbcdca831055d9c74d3937d83f25be",
       "landed": {
-        "exact": "0a7d2b8f0f1562c3f6c70d8977dfefbd37054f5fb3ab6b387de795c6ae22f8ed",
-        "loose": "c6ce2fe6b04f1a4aab11e27d3eadc4fe34558f5ac224b6b0039ec8ad5cf9718b"
+        "exact": "d3fc1c67aecb9ec14e0a701a956ac6116efb2d2539c47ad66aa8121f3f3cbd57",
+        "loose": "298786f1f4ecf8fbd034ab7e55822264a65cf74f2e8366998987f948af26e6aa"
       }
     },
     "primitives/StateLayer.tsx": {
@@ -282,11 +282,11 @@
       "loose": "6b6f7aac23c4324de2b709e240637cb3d23ffc725ee47ec62cf7a88390028024"
     },
     "primitives/Typography.tsx": {
-      "exact": "9347ed2344af6340070d9693fb60751982e1f5ad98cf83048cebb8b83b522696",
-      "loose": "24d2076c6c7b0bd9e5f296067cf14f715cc22e89dc89d0f6e27f7967190f52e9",
+      "exact": "e11ba885c11445c60eb7ffc97ef3ec4e98750f4e9fc8cd59b7721e55bf112b49",
+      "loose": "b60fb27c702aff7130f30277396bb8fb393b57a39944b6f0a10715f5ee61aba6",
       "landed": {
-        "exact": "7f02ad478ccc17a27afda86d8ed1f1a698dd14be421d13c612b9527a712f4604",
-        "loose": "37d47f99a17c4f64ba590ac4637741f845a984a59619efff40153acca1d5f4d9"
+        "exact": "b265b9411f02e59466ce4c5693200f823de8621b906640f2a628900c6df8cd8d",
+        "loose": "986b63470a6391ba7148ab1d07fd3b5d75ac89b069bb078a54af717438b05d0f"
       }
     },
     "render-props.ts": {
