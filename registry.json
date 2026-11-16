@@ -708,6 +708,34 @@
       }
     },
     {
+      "name": "tree",
+      "type": "registry:ui",
+      "title": "Tree",
+      "description": "A hierarchy opened level by level, on React Aria Tree: a list item's row at each level, 24dp of indent, selection by row or by checkbox, a dense variant.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/icons",
+        "@ds/checkbox",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Tree.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Tree.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.7.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "drop-zone",
       "type": "registry:ui",
       "title": "DropZone and FileTrigger",
@@ -2177,6 +2205,7 @@
         "@ds/table",
         "@ds/tag",
         "@ds/link",
+        "@ds/tree",
         "@ds/drop-zone",
         "@ds/popover",
         "@ds/breadcrumbs",
