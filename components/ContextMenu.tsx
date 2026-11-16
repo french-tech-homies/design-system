@@ -83,9 +83,12 @@ export function ContextMenu({
         const entries = typeof items === "function" ? items(target) : items;
         if (entries.length === 0) return;
         e.preventDefault();
-        // From the keyboard the event carries no place of its own: the menu
-        // opens under the start of the element that holds the focus.
-        const fromKeyboard = e.clientX === 0 && e.clientY === 0;
+        // From the keyboard (the Menu key, Shift+F10) the event has no
+        // pointer: browsers report no button, and the middle of the focused
+        // element or no place at all. The menu then opens under the start of
+        // that element, where a menu opens under its trigger.
+        const fromKeyboard =
+          e.button === -1 || (e.clientX === 0 && e.clientY === 0);
         const box = target.getBoundingClientRect();
         setOpen({
           x: fromKeyboard ? box.left : e.clientX,
