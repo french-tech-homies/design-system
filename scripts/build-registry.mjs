@@ -471,7 +471,7 @@ const components = [
       "React Aria GridList collection with MD3 state layers on items.",
     files: [file("components/GridList.tsx")],
     dependencies: [RAC],
-    deps: ["utils", "render-props"],
+    deps: ["utils", "render-props", "icons", "icon-button"],
   }),
   item({
     name: "menu-item",

@@ -786,6 +786,8 @@
       "registryDependencies": [
         "@ds/utils",
         "@ds/render-props",
+        "@ds/icons",
+        "@ds/icon-button",
         "@ds/license"
       ],
       "files": [
