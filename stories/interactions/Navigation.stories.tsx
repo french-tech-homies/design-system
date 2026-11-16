@@ -22,6 +22,10 @@ import Button from "@french-tech-homies/design-system/components/Button";
 import { TopAppBar } from "@french-tech-homies/design-system/components/TopAppBar";
 import IconButton from "@french-tech-homies/design-system/components/IconButton";
 import { Link } from "@french-tech-homies/design-system/components/Link";
+import {
+  Breadcrumb,
+  Breadcrumbs,
+} from "@french-tech-homies/design-system/components/Breadcrumbs";
 import { AriaRouterProvider } from "@french-tech-homies/design-system/adapters/react-router";
 import { Toolbar } from "@french-tech-homies/design-system/components/Toolbar";
 import {
@@ -990,5 +994,44 @@ export const RouterLinkToAFragmentScrolls: Story = {
     await userEvent.tab();
     await userEvent.keyboard("{Enter}");
     await waitFor(() => expect(inView()).toBe(true));
+  },
+};
+
+/* ---- Breadcrumbs ------------------------------------------------------- */
+
+const crumbPressed = fn();
+
+/** The levels above are links, reached by Tab and pressed with Enter; the
+    last is the current page: named as such, and passed by Tab. */
+export const BreadcrumbsLastLevelIsTheCurrentPage: Story = {
+  render: () => (
+    <nav aria-label="Path">
+      <Breadcrumbs onAction={crumbPressed}>
+        <Breadcrumb id="drive">Team drive</Breadcrumb>
+        <Breadcrumb id="finance">Finance</Breadcrumb>
+        <Breadcrumb id="invoices">Invoices</Breadcrumb>
+      </Breadcrumbs>
+    </nav>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    crumbPressed.mockClear();
+    const nav = canvas.getByRole("navigation", { name: "Path" });
+    await expect(within(nav).getAllByRole("listitem")).toHaveLength(3);
+
+    const current = within(nav).getByText("Invoices");
+    await expect(current).toHaveAttribute("aria-current", "page");
+
+    await userEvent.tab();
+    await expect(within(nav).getByText("Team drive")).toHaveFocus();
+    await userEvent.tab();
+    const finance = within(nav).getByText("Finance");
+    await expect(finance).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(crumbPressed).toHaveBeenCalledWith("finance"));
+
+    // The current page is not a stop: Tab leaves the path.
+    await userEvent.tab();
+    await expect(current).not.toHaveFocus();
   },
 };
