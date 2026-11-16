@@ -23,14 +23,18 @@ const radioStyles = tv({
       "group/rd inline-flex min-h-12 items-center gap-2 text-body-medium font-body-medium text-on-surface",
       "data-disabled:text-on-surface/38 data-disabled:pointer-events-none",
     ],
+    // Every part is a fixed circle (`rounded-full`), not the shape scale's
+    // `rounded-shape-full`: Material gives the radio button no shape token
+    // (its icon is a 20dp circle, its state layer 40dp), so a theme that
+    // squares its corners must not square a radio into a checkbox.
     target:
-      "relative flex size-10 shrink-0 -m-2.5 items-center justify-center rounded-shape-full",
+      "relative flex size-10 shrink-0 -m-2.5 items-center justify-center rounded-full",
     stateLayer: [
-      "absolute inset-0 rounded-shape-full opacity-0 transition-opacity",
+      "absolute inset-0 rounded-full opacity-0 transition-opacity",
       "group-hover/rd:state-opacity-hover group-data-focus-visible/rd:state-opacity-focus group-data-pressed/rd:state-opacity-pressed",
     ],
-    ring: "flex size-5 items-center justify-center rounded-shape-full border-2 transition-colors duration-short-2",
-    dot: "size-2.5 rounded-shape-full transition-transform duration-short-2 ease-standard",
+    ring: "flex size-5 items-center justify-center rounded-full border-2 transition-colors duration-short-2",
+    dot: "size-2.5 rounded-full transition-transform duration-short-2 ease-standard",
   },
   variants: {
     isSelected: {
@@ -59,7 +63,10 @@ export type RadioProps = Omit<AriaRadioProps, "className" | "children"> & {
 /**
  * MD3 radio button: a 20dp ring with a 10dp dot when selected, a 40dp state
  * layer inside a 48dp touch target. `RadioGroup` carries the label,
- * supporting text, error message and orientation.
+ * supporting text, error message and orientation. The ring, the dot and the
+ * state layer are circles in every theme: Material's radio button has no
+ * shape token, so a theme's corner scale (`--md-sys-shape-corner-full: 0`
+ * included) never squares them.
  *
  * Spec: https://m3.material.io/components/radio-button/{overview,specs,guidelines,accessibility}
  * The guidelines caution against horizontal lists and recommend one option
