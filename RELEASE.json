@@ -202,8 +202,8 @@
       "loose": "57143fda8fc287500018a5053daee3604e6a27dd1e6f4f401c2511d771f5534d"
     },
     "components/SideSheet.tsx": {
-      "exact": "50aceed2ab2918c4fbeba0dbffdb9c387148a26e060c7d83d7d079cb71dca4bd",
-      "loose": "334ca970da6d0da9e32ab7a6fe70e556179be86eb142e4a095d86a8fe14ec7b7"
+      "exact": "a90b17cf1d995dc63e75c7345fdf22e001a24e78cda1580ae110505e675652a5",
+      "loose": "0711f06b5801c8656bcebc593e1e215d626236578dfd14afaadc798a88dc6718"
     },
     "components/Skeleton.tsx": {
       "exact": "8c277c18fdabc61e364c5432d09df4d00873b8be6228785f9f1ffa78e0264c9d",

@@ -21,6 +21,7 @@ import {
 } from "@french-tech-homies/design-system/components/Popover";
 import Modal from "@french-tech-homies/design-system/components/Modal";
 import { ModalDialog } from "@french-tech-homies/design-system/components/ModalDialog";
+import { page } from "vitest/browser";
 import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
 import BottomSheet, {
   type BottomSheetProps,
@@ -257,6 +258,58 @@ function SideSheetHarness() {
     </div>
   );
 }
+
+function ModalSheetOnAPhone() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Open the member</Button>
+      <SideSheet
+        variant="modal"
+        isOpen={open}
+        title="Member details"
+        onClose={() => setOpen(false)}
+      >
+        <p className="text-body-medium font-body-medium text-on-surface">
+          tom.whitfield.the.third@a-rather-long-company-name.example
+        </p>
+        <Button>Resend the invitation</Button>
+      </SideSheet>
+    </>
+  );
+}
+
+/**
+ * On a phone the modal sheet sits at its edge and inside the window,
+ * whatever it holds: 56dp of the page stay in view beside it. Its width was
+ * a share of a box that took its own width from the sheet, so a long word
+ * pushed the sheet off the window's far side.
+ */
+export const ModalSideSheetFitsAPhone: Story = {
+  tags: ["no-screenshot"],
+  parameters: {
+    screenshot: { reason: "the play narrows the window to a phone's width" },
+  },
+  render: () => <ModalSheetOnAPhone />,
+  play: async ({ canvasElement }) => {
+    await page.viewport(400, 800);
+    try {
+      await userEvent.click(
+        within(canvasElement).getByRole("button", { name: "Open the member" }),
+      );
+      const sheet = await screen.findByRole("dialog", { name: "Member details" });
+      await waitFor(async () => {
+        const box = sheet.getBoundingClientRect();
+        await expect(Math.round(box.right)).toBe(400);
+        await expect(Math.round(box.left)).toBe(56);
+      });
+      await userEvent.keyboard("{Escape}");
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    } finally {
+      await page.viewport(960, 720);
+    }
+  },
+};
 
 /**
  * The standard side sheet stays mounted while collapsed — that is what
