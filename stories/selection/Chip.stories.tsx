@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Calendar, Filter, Image } from "lucide-react";
-import Chip, { ChipGroup } from "@french-tech-homies/design-system/components/Chip";
+import Chip, {
+  ChipGroup,
+} from "@french-tech-homies/design-system/components/Chip";
 
 const meta = {
   title: "MD3/Selection/Chip",
@@ -140,6 +142,19 @@ export const InputChipWithLongText: Story = {
     children: "This is a very long input chip text",
     variant: "input",
     icon: Image,
+    onRemove: () => console.log("Remove clicked"),
+  },
+};
+
+/**
+ * An input chip with an action of its own and a remove: two buttons, the
+ * chip's and "Remove Ada Martin".
+ */
+export const InputChipWithTwoActions: Story = {
+  args: {
+    children: "Ada Martin",
+    variant: "input",
+    onPress: () => console.log("Chip pressed"),
     onRemove: () => console.log("Remove clicked"),
   },
 };
