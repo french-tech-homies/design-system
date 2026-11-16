@@ -89,6 +89,7 @@ export {
 } from "./components/Carousel";
 export { default as ListItem, type ListItemProps } from "./components/ListItem";
 export { Tag, type TagProps } from "./components/Tag";
+export { Link, type LinkProps } from "./components/Link";
 export {
   Badge,
   badgeAccessibleText,

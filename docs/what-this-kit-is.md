@@ -18,7 +18,7 @@ repository and the same registry, with its own components, tokens and spec.
 There is none today, and nothing here is built for one.
 
 **Which components are its own.** Those Material 3's specification describes,
-and a named group of eleven the kit ships that Material does not describe. They are listed on the front page,
+and a named group of twelve the kit ships that Material does not describe. They are listed on the front page,
 [The kit's own](../README.md#the-kits-own), each with what it is and its page
 of the catalog.
 

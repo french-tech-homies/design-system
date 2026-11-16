@@ -20,6 +20,7 @@ import { Tab, TabList, TabPanel, Tabs } from "@french-tech-homies/design-system/
 import Button from "@french-tech-homies/design-system/components/Button";
 import { TopAppBar } from "@french-tech-homies/design-system/components/TopAppBar";
 import IconButton from "@french-tech-homies/design-system/components/IconButton";
+import { Link } from "@french-tech-homies/design-system/components/Link";
 import { Toolbar } from "@french-tech-homies/design-system/components/Toolbar";
 import {
   SearchBar,
@@ -912,5 +913,38 @@ export const TopAppBarSearchKeepsTheHeading: Story = {
     await expect(
       canvas.getByRole("searchbox", { name: "Search the garden shop" }),
     ).toBeVisible();
+  },
+};
+
+/* ---- Link -------------------------------------------------------------- */
+
+const linkPressed = fn();
+
+/** A link is reached by Tab and pressed with Enter; a disabled one is
+    passed, and says so. */
+export const LinkIsReachedAndPressedByKeyboard: Story = {
+  render: () => (
+    <p className="text-body-medium font-body-medium text-on-surface">
+      <Link onPress={linkPressed}>Resend the code</Link> or{" "}
+      <Link isDisabled>use another method</Link>, then{" "}
+      <Link href="#help">read the help</Link>.
+    </p>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const resend = canvas.getByRole("link", { name: "Resend the code" });
+    const other = canvas.getByRole("link", { name: "use another method" });
+    const help = canvas.getByRole("link", { name: "read the help" });
+
+    linkPressed.mockClear();
+    await userEvent.tab();
+    await expect(resend).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(linkPressed).toHaveBeenCalledTimes(1));
+
+    await expect(other).toHaveAttribute("aria-disabled", "true");
+    await userEvent.tab();
+    await expect(help).toHaveFocus();
+    await expect(help).toHaveAttribute("href", "#help");
   },
 };
