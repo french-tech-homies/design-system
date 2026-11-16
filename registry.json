@@ -682,6 +682,32 @@
       }
     },
     {
+      "name": "link",
+      "type": "registry:ui",
+      "title": "Link",
+      "description": "Text link on React Aria Link, in a sentence or in a list of links: primary or inherited colour, underlined always or on hover and focus, routed through the router adapter.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/Link.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/Link.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.6.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
@@ -2063,6 +2089,7 @@
         "@ds/carousel",
         "@ds/table",
         "@ds/tag",
+        "@ds/link",
         "@ds/badge",
         "@ds/avatar",
         "@ds/list-item",

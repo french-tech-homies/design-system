@@ -432,6 +432,15 @@ const components = [
     deps: ["utils", "typography"],
   }),
   item({
+    name: "link",
+    title: "Link",
+    description:
+      "Text link on React Aria Link, in a sentence or in a list of links: primary or inherited colour, underlined always or on hover and focus, routed through the router adapter.",
+    files: [file("components/Link.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
     name: "badge",
     title: "Badge",
     description:
