@@ -708,6 +708,37 @@
       }
     },
     {
+      "name": "drop-zone",
+      "type": "registry:ui",
+      "title": "DropZone and FileTrigger",
+      "description": "An area files are dropped onto, on React Aria DropZone (a dashed outlined box, or bare over an area with its own look), and FileTrigger, which opens the file chooser from a kit button.",
+      "dependencies": [
+        "react-aria-components@^1.20.0"
+      ],
+      "registryDependencies": [
+        "@ds/utils",
+        "@ds/render-props",
+        "@ds/license"
+      ],
+      "files": [
+        {
+          "path": "components/DropZone.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/DropZone.tsx"
+        },
+        {
+          "path": "components/FileTrigger.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ds/components/FileTrigger.tsx"
+        }
+      ],
+      "meta": {
+        "kit": "french-tech-homies/design-system",
+        "version": "0.7.0",
+        "license": "MIT"
+      }
+    },
+    {
       "name": "popover",
       "type": "registry:ui",
       "title": "Popover",
@@ -2146,6 +2177,7 @@
         "@ds/table",
         "@ds/tag",
         "@ds/link",
+        "@ds/drop-zone",
         "@ds/popover",
         "@ds/breadcrumbs",
         "@ds/badge",

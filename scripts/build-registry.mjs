@@ -441,6 +441,15 @@ const components = [
     deps: ["utils", "render-props"],
   }),
   item({
+    name: "drop-zone",
+    title: "DropZone and FileTrigger",
+    description:
+      "An area files are dropped onto, on React Aria DropZone (a dashed outlined box, or bare over an area with its own look), and FileTrigger, which opens the file chooser from a kit button.",
+    files: [file("components/DropZone.tsx"), file("components/FileTrigger.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props"],
+  }),
+  item({
     name: "popover",
     title: "Popover",
     description:
