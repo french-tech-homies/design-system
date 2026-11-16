@@ -797,3 +797,57 @@ export const FabMenuKeyboard: Story = {
     await expect(fab).toHaveFocus();
   },
 };
+
+function LoadingButtonHarness() {
+  const [requests, setRequests] = useState(0);
+  const [submits, setSubmits] = useState(0);
+  const [loading, setLoading] = useState(false);
+  return (
+    <form
+      className="flex items-center gap-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        setSubmits((n) => n + 1);
+      }}
+    >
+      <Button
+        type="submit"
+        isLoading={loading}
+        onPress={() => {
+          setRequests((n) => n + 1);
+          setLoading(true);
+        }}
+      >
+        Save
+      </Button>
+      <p data-testid="counts">
+        {requests} pressed, {submits} submitted
+      </p>
+    </form>
+  );
+}
+
+/**
+ * A loading button takes no second press and submits no form, from the
+ * pointer or the keyboard, and stays in the tab order.
+ */
+export const ButtonLoadingTakesNoPress: Story = {
+  render: () => <LoadingButtonHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const save = canvas.getByRole("button", { name: /Save/ });
+    await userEvent.click(save);
+    await expect(canvas.getByTestId("counts")).toHaveTextContent(
+      "1 pressed, 1 submitted",
+    );
+
+    await userEvent.click(save);
+    save.focus();
+    await expect(save).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard(" ");
+    await expect(canvas.getByTestId("counts")).toHaveTextContent(
+      "1 pressed, 1 submitted",
+    );
+  },
+};
