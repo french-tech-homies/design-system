@@ -43,6 +43,38 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-11-16
+
+### Action needed
+
+#### An outlined field's label sits right on a card, a sheet and a popover, and a bottom sheet's handle says its height ([#94](https://github.com/french-tech-homies/design-system/pull/94))
+
+A project that set `--md3-field-notch` on a kit `Card`, `SideSheet`, `BottomSheet` or `Popover` to make a label sit right no longer needs to: the class can go.
+
+#### The form adapter's fields validate through the form, and its focus anchor is exported ([#95](https://github.com/french-tech-homies/design-system/pull/95))
+
+A `Form*` field of the react-hook-form adapter no longer checks itself: the form does. Before, a field with `isRequired`, a number or a date with `minValue` or `maxValue`, or a `pattern`, and no rule of the form's for it, was stopped by the browser at submit with the field's own message. Now that submit goes through unless the form has a rule. For each such field, give the form the rule (`rules={{ required: "…" }}`, or the schema's), or pass `validationBehavior="native"` to that field to keep the old behaviour. Put `noValidate` on the `form`: the browser still judges an input's `type` (`email`, `url`). A `validationBehavior="aria"` written on a `Form*` field by hand can go.
+
+#### Switch takes a supporting line and a settings-row form, and a list row's focus ring is whole ([#96](https://github.com/french-tech-homies/design-system/pull/96))
+
+A `GridListItem`'s focus ring is now drawn by the kit inside the row, over its content. An outline class passed to a `GridListItem` to move or restyle its ring (`-outline-offset-3`, `outline-*`) no longer does anything and can go.
+
+### Breaking
+
+- The form adapter's fields validate through the form, and its focus anchor is exported ([#95](https://github.com/french-tech-homies/design-system/pull/95))
+
+### Added
+
+- Switch takes a supporting line and a settings-row form, and a list row's focus ring is whole ([#96](https://github.com/french-tech-homies/design-system/pull/96))
+- Slider says its value in words, and ChipGroup can be one scrolling row ([#97](https://github.com/french-tech-homies/design-system/pull/97))
+- Pressable: a button or a link that holds anything, with the state layer and the focus ring ([#98](https://github.com/french-tech-homies/design-system/pull/98))
+
+### Fixed
+
+- Menu typeahead works, a multiple ComboBox keeps a choice on Tab, a tab's focus ring is whole, and PreviewCard has a name ([#93](https://github.com/french-tech-homies/design-system/pull/93))
+- An outlined field's label sits right on a card, a sheet and a popover, and a bottom sheet's handle says its height ([#94](https://github.com/french-tech-homies/design-system/pull/94))
+- A list row's focus ring shows on a selected row, and a list can leave Escape to the sheet around it ([#99](https://github.com/french-tech-homies/design-system/pull/99))
+
 ## [0.10.0] — 2026-11-16
 
 ### Action needed
