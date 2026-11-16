@@ -374,3 +374,33 @@ export const RulesAndFocusOnTheFirstError: Story = {
     await expect(consent).toHaveFocus();
   },
 };
+
+function EmptyChoice() {
+  const form = useForm<{ slot: string }>({ defaultValues: { slot: "" } });
+  return (
+    <form className="flex w-80 flex-col gap-4" noValidate>
+      <FormRadioGroup control={form.control} name="slot" label="Delivery time">
+        <Radio value="morning">Morning</Radio>
+        <Radio value="evening">Evening</Radio>
+      </FormRadioGroup>
+      <Button type="submit">Continue</Button>
+    </form>
+  );
+}
+
+/**
+ * A form's string field starts as "", which is no choice: the radio group
+ * is then reached by Tab, on its first radio, and the arrows choose. Taken
+ * as a value that no radio has, "" left the whole group out of the Tab
+ * order, and a choice could not be made from the keyboard.
+ */
+export const AnEmptyChoiceIsReachedByTab: Story = {
+  render: () => <EmptyChoice />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.tab();
+    await expect(canvas.getByRole("radio", { name: "Morning" })).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(canvas.getByRole("radio", { name: "Evening" })).toBeChecked();
+  },
+};
