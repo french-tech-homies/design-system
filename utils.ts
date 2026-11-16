@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
-import { createTV, tv as baseTv } from "tailwind-variants";
+import { createTV } from "tailwind-variants";
 
 /**
  * Every custom utility scale this kit adds to the Tailwind theme must be
@@ -152,8 +152,11 @@ export const tv = createTV({ twMerge });
     that fills such a box draws its ring inside with `-outline-offset-2`, as
     the table's cells do. `ring` resolves to the MD3 secondary role in
     theme.v4.css.
+    It is made with the kit's `tv`, so classes given beside it
+    (`focusRing({ className })`) are merged as the kit merges: a type class
+    and a colour class (`text-body-large`, `text-primary`) both stay.
     `composeTailwindRenderProps` lives in ./render-props (client-only). */
-export const focusRing = baseTv({
+export const focusRing = tv({
   base: "outline-none outline-3 outline-offset-2 outline-ring focus-visible:outline-solid",
 });
 

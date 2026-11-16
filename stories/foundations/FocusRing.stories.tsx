@@ -15,7 +15,7 @@ import {
   TableHeader,
 } from "@french-tech-homies/design-system/components/Table";
 import { Label } from "@french-tech-homies/design-system/primitives/Typography";
-import { cn, focusRing } from "@french-tech-homies/design-system/utils";
+import { focusRing } from "@french-tech-homies/design-system/utils";
 
 /**
  * The kit's focus indicator, `focusRing` in `utils.ts`: 3px of `ring`
@@ -31,13 +31,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Through `cn`, the kit's own merge: `focusRing` is not bound to it, and
-// what it does with a type class beside a colour class (`text-body-large`,
-// `text-primary`) changed between versions of `tailwind-variants`.
-const link = cn(
-  "rounded-shape-extra-small text-body-large font-body-large text-primary underline underline-offset-4",
-  focusRing(),
-);
+const link = focusRing({
+  className:
+    "rounded-shape-extra-small text-body-large font-body-large text-primary underline underline-offset-4",
+});
 
 /**
  * The three controls at four times their size, so the 2px gap is 8 pixels of
