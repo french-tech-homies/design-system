@@ -63,7 +63,10 @@ export type CheckboxProps = Omit<
   className?: string;
   /** What is wrong, shown under the box while `isInvalid` and read with it:
    *  for a box that stands alone (a consent, "I accept the terms"). A set
-   *  of boxes takes its message on `CheckboxGroup`. */
+   *  of boxes takes its message on `CheckboxGroup`. Pass it at every
+   *  render, `""` while there is nothing to say: the box is drawn inside a
+   *  wrapper whenever the prop is given, and a prop that comes and goes
+   *  would remake the box and drop its focus. */
   errorMessage?: string;
 };
 
@@ -76,7 +79,8 @@ export type CheckboxProps = Omit<
  * A box alone that must be ticked takes `isRequired`, `isInvalid` and its
  * own `errorMessage`:
  *
- *   <Checkbox isRequired isInvalid={!accepted} errorMessage="Accept the terms to continue">
+ *   <Checkbox isRequired isInvalid={!accepted}
+ *     errorMessage={accepted ? "" : "Accept the terms to continue"}>
  *     I accept the terms
  *   </Checkbox>
  *
@@ -89,6 +93,7 @@ export function Checkbox({
   ...props
 }: CheckboxProps) {
   const errorId = useId();
+  const hasField = errorMessage !== undefined;
   const showError = !!errorMessage && !!props.isInvalid;
   const box = (
     <AriaCheckbox
@@ -124,19 +129,23 @@ export function Checkbox({
       )}
     </AriaCheckbox>
   );
-  if (!showError) return box;
+  if (!hasField) return box;
   // The message is outside the label, so a press on it does not tick the
-  // box, and under the label's text: 18dp of box and 8dp of gap in.
+  // box, and under the label's text: 18dp of box and 8dp of gap in. The
+  // wrapper stays while the message comes and goes, so the box is the same
+  // element before and after and keeps the focus.
   return (
     <span data-slot="checkbox-field" className="inline-flex flex-col">
       {box}
-      <span
-        id={errorId}
-        data-slot="checkbox-error"
-        className="text-body-small font-body-small text-error pl-[26px]"
-      >
-        {errorMessage}
-      </span>
+      {showError && (
+        <span
+          id={errorId}
+          data-slot="checkbox-error"
+          className="text-body-small font-body-small text-error pl-[26px]"
+        >
+          {errorMessage}
+        </span>
+      )}
     </span>
   );
 }

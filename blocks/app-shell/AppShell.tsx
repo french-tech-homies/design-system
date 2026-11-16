@@ -54,8 +54,10 @@ import type { ReactNode } from "react";
 export type AppShellProps = {
   /** Three to five destinations, the same in every form. */
   items: NavigationItem[];
-  /** The id of the destination being shown. */
-  selectedKey?: string | null;
+  /** The id of the destination being shown (`null` for none). Required:
+   *  the three navigations are three components, and only a selection held
+   *  outside them is the same in each. */
+  selectedKey: string | null;
   onSelectionChange?: (key: string) => void;
   /** Above the content, beside the rail: the page's top app bar. */
   topBar?: ReactNode;

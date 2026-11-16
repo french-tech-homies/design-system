@@ -26,7 +26,9 @@ const styles = tv({
     label: "text-label-large font-label-large text-on-surface [grid-area:label]",
     output: "text-label-large font-label-large text-on-surface-variant [grid-area:output]",
     track: "relative [grid-area:track] col-span-2 h-11 w-full touch-none",
-    segment: "absolute top-1/2 h-4 -translate-y-1/2",
+    // Clipped: with the handle at an end its segment has no width, and its
+    // stop goes with it.
+    segment: "absolute top-1/2 h-4 -translate-y-1/2 overflow-hidden",
     stop: "absolute top-1/2 size-1 -translate-y-1/2 rounded-shape-full",
     thumb: [
       // React Aria places the thumb: its own style centres it on both axes.

@@ -337,7 +337,9 @@ export function FormCheckbox<TValues extends FieldValues>({
             onChange={field.onChange}
             onBlur={field.onBlur}
             isInvalid={fieldState.invalid}
-            errorMessage={fieldState.error?.message}
+            // Always a string, so the box is not remade, and keeps the
+            // focus, when its message appears or clears.
+            errorMessage={fieldState.error?.message ?? ""}
           />
         </>
       )}
