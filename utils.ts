@@ -176,6 +176,9 @@ export function announce(message: string) {
     liveRegion.setAttribute("role", "status");
     liveRegion.setAttribute("aria-live", "polite");
     liveRegion.setAttribute("data-slot", "announcer");
+    // An open modal hides the rest of the page from a screen reader, this
+    // region with it; React Aria leaves alone what carries this mark.
+    liveRegion.setAttribute("data-live-announcer", "true");
     liveRegion.className = "sr-only";
     document.body.append(liveRegion);
   }

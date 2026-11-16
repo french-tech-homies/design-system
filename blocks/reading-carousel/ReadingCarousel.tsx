@@ -113,12 +113,17 @@ export function ReadingCarousel({
   const next = useRef<HTMLButtonElement>(null);
   const pressed = useRef<"previous" | "next" | null>(null);
   useEffect(() => {
+    // Only where the focus is still where the press left it: on the button,
+    // or on the page's body once the button was disabled.
+    const active = document.activeElement;
+    const left = (button: HTMLButtonElement | null) =>
+      active === document.body || active === button;
     if (pressed.current === "previous" && ends.start) {
-      next.current?.focus();
+      if (left(previous.current)) next.current?.focus();
       pressed.current = null;
     }
     if (pressed.current === "next" && ends.end) {
-      previous.current?.focus();
+      if (left(next.current)) previous.current?.focus();
       pressed.current = null;
     }
   }, [ends.start, ends.end]);
@@ -143,6 +148,11 @@ export function ReadingCarousel({
     >
       <div
         ref={row}
+        // A press of Next is forgotten once the focus is here: the row may
+        // then reach an end by itself, and takes no focus from anyone.
+        onFocus={() => {
+          pressed.current = null;
+        }}
         // The row is a stop so the arrow keys scroll it.
         tabIndex={0}
         role="group"

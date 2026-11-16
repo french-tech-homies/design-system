@@ -65,8 +65,17 @@ export function Pager({
   const next = useRef<HTMLButtonElement>(null);
   const pressed = useRef<"previous" | "next" | null>(null);
   useEffect(() => {
-    if (pressed.current === "previous" && at <= 1) next.current?.focus();
-    if (pressed.current === "next" && at >= pages) previous.current?.focus();
+    // Only where the focus is still where the press left it: on the button,
+    // or on the page's body once the button was disabled.
+    const active = document.activeElement;
+    const left = (button: HTMLButtonElement | null) =>
+      active === document.body || active === button;
+    if (pressed.current === "previous" && at <= 1 && left(previous.current)) {
+      next.current?.focus();
+    }
+    if (pressed.current === "next" && at >= pages && left(next.current)) {
+      previous.current?.focus();
+    }
     pressed.current = null;
   }, [at, pages]);
 
