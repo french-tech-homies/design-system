@@ -118,10 +118,13 @@ What the kit says of itself:
 
 ## The install
 
-`npx shadcn init @ds/base` wrote an entry CSS that did not build: "Cannot
-apply unknown utility class `border-border`". The runs replaced it with the
-lines [Install from the registry](installing.md#install-from-the-registry)
-gives, and built. The cause has not been looked for.
+`npx shadcn init @ds/base` left an entry CSS that did not build: "Cannot
+apply unknown utility class `border-border`". The cause is not a fault of
+the kit's items: the theme was not imported yet, and the file builds as
+`init` wrote it once the two theme lines of
+[Install from the registry](installing.md#install-from-the-registry) are
+added. The install page said such a project is unthemed, where it does not
+build.
 
 ## What the runs did not hold to
 
