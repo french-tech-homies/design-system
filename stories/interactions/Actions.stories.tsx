@@ -851,3 +851,48 @@ export const ButtonLoadingTakesNoPress: Story = {
     );
   },
 };
+
+function LoadingAnnouncedHarness() {
+  const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  return (
+    <div className="flex items-center gap-4">
+      <Button isLoading={saving} loadingLabel="Saving" onPress={() => setSaving(true)}>
+        Save
+      </Button>
+      <Button variant="outlined" isLoading={exporting}>
+        Export
+      </Button>
+      <Button variant="text" onPress={() => setExporting(true)}>
+        Start the export
+      </Button>
+    </div>
+  );
+}
+
+/**
+ * A button that starts loading under the focus says so to a screen reader,
+ * in the page's one polite region, with the words it was given. A button
+ * that starts loading while the focus is elsewhere says nothing.
+ */
+export const ButtonLoadingIsAnnounced: Story = {
+  render: () => <LoadingAnnouncedHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const region = () =>
+      canvasElement.ownerDocument.querySelector('[data-slot="announcer"]');
+    // The region is the page's: an earlier story may have left words in it.
+    region()?.remove();
+    await userEvent.click(canvas.getByRole("button", { name: "Start the export" }));
+    await new Promise((r) => setTimeout(r, 300));
+    await expect(region()?.textContent ?? "").toBe("");
+
+    const save = canvas.getByRole("button", { name: /Save/ });
+    save.focus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(region()).toHaveTextContent("Saving"));
+    await expect(region()).toHaveAttribute("role", "status");
+    await expect(save).toHaveFocus();
+    await expect(save).toHaveAttribute("aria-disabled", "true");
+  },
+};
