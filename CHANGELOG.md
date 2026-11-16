@@ -43,6 +43,23 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-11-16
+
+### Added
+
+- Menu: disabled items, dividers, and items that are choices ([#38](https://github.com/french-tech-homies/design-system/pull/38))
+- Link: a text link, in a sentence or in a list of links ([#40](https://github.com/french-tech-homies/design-system/pull/40))
+
+### Fixed
+
+- Menu: a row reached by the arrow keys shows its focus ([#37](https://github.com/french-tech-homies/design-system/pull/37))
+
+### Docs
+
+- Docs: the screens the kit's coverage is counted against, and a pilot of four ([#35](https://github.com/french-tech-homies/design-system/pull/35))
+- Docs: a fresh init does not build until the theme is imported ([#36](https://github.com/french-tech-homies/design-system/pull/36))
+- A component joins the kit's own on a corpus screen's need, with no project named ([#39](https://github.com/french-tech-homies/design-system/pull/39))
+
 ## [0.6.0] — 2026-11-04
 
 ### Action needed
