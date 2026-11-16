@@ -142,6 +142,12 @@ export {
 } from "./components/Table";
 export { Avatar, type AvatarProps } from "./components/Avatar";
 export {
+  Skeleton,
+  SkeletonGroup,
+  type SkeletonProps,
+  type SkeletonGroupProps,
+} from "./components/Skeleton";
+export {
   GridList,
   GridListItem,
   GridListDragHandle,
