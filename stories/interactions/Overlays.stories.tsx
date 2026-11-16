@@ -234,15 +234,23 @@ export const ModalDialogWithAFormKeepsItsActions: Story = {
     await userEvent.click(
       canvas.getByRole("button", { name: "Rename the folder" }),
     );
-    const dialog = await screen.findByRole("dialog");
+    const dialog = await screen.findByRole("dialog", { name: "Rename" });
     await expect(
       within(dialog).getByRole("heading", { name: "Rename" }),
     ).toBeVisible();
     const field = within(dialog).getByRole("textbox", { name: "Name" });
     await waitFor(() => expect(field).toHaveFocus());
 
+    // The confirm is outside the form and submits it.
+    const save = within(dialog).getByRole("button", { name: "Save the name" });
+    save.focus();
     await userEvent.keyboard("{Enter}");
     await expect(canvas.getByTestId("saves")).toHaveTextContent("1");
+    // Its loading is said, in a region the open dialog does not hide.
+    const region = document.querySelector('[data-slot="announcer"]');
+    await waitFor(() => expect(region).toHaveTextContent("Saving"));
+    await expect(region).not.toHaveAttribute("aria-hidden");
+    await expect(region?.closest("[inert]") ?? null).toBeNull();
     await expect(
       within(dialog).getByRole("button", { name: "Cancel" }),
     ).toBeDisabled();
@@ -375,6 +383,12 @@ export const ModalSideSheetFitsAPhone: Story = {
         await expect(Math.round(box.right)).toBe(400);
         await expect(Math.round(box.left)).toBe(56);
       });
+      // The strip of the page beside it is the scrim's: what is under a
+      // press there is not the sheet's box.
+      await expect(
+        document.elementFromPoint(20, 400)?.closest('[data-slot="side-sheet"]') ??
+          null,
+      ).toBeNull();
       await userEvent.keyboard("{Escape}");
       await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     } finally {

@@ -140,5 +140,15 @@ export const IsMovedByItsButtonsAndByTheArrowKeys: Story = {
     await userEvent.keyboard("{Enter}");
     await waitFor(() => expect(status()).toBe("1 of 5"), { timeout: 3000 });
     await waitFor(() => expect(next).toHaveFocus());
+
+    // Next pressed once, then the row taken to its end by its own keys: the
+    // focus stays on the row.
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(status()).toBe("2 of 5"), { timeout: 3000 });
+    row.focus();
+    await userEvent.keyboard("{End}");
+    await waitFor(() => expect(status()).toBe("5 of 5"), { timeout: 3000 });
+    await expect(next).toBeDisabled();
+    await expect(row).toHaveFocus();
   },
 };
