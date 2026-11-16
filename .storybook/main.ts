@@ -30,6 +30,10 @@ const config: StorybookConfig = {
       alias: [
         { find: new RegExp(`^${KIT}$`), replacement: `${root}/index.ts` },
         { find: new RegExp(`^${KIT}/`), replacement: `${root}/` },
+        // A block imports the kit as the registry writes it for the CLI to
+        // rewrite to a project's `ui` alias (scripts/build-registry.mjs,
+        // "blocks"). Here it is the kit's barrel.
+        { find: /^@\/registry\/ds\/ui\/ds$/, replacement: `${root}/index.ts` },
         ...toAliasList(config.resolve?.alias),
       ],
     },

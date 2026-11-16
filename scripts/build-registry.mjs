@@ -1079,6 +1079,42 @@ const base = {
   ...stamp,
 };
 
+/* ---- blocks ------------------------------------------------------------ */
+
+// A block is a part neither Material nor React Aria describes (a pager, a
+// stepper), built from the kit's components and handed to a project to be
+// edited: it is the project's from the moment it lands.
+//
+// - It lands outside the kit's folder, in the project's components, where
+//   the CLI puts a `registry:component` of a `registry:block`.
+// - It is no dependency of `ds`, and depends on no kit item but the
+//   licence: adding one to an older install must not bring newer kit files
+//   with it. What it needs of the kit, it imports from the kit's barrel,
+//   written `@/registry/ds/ui/ds` in its source, which the CLI rewrites to
+//   the project's `ui` alias.
+// - It has no release record and is in none: `changed.mjs` does not name it
+//   and an update does not replace it.
+const BLOCK = "registry:block";
+const blockItem = ({ name, title, description, path }) => ({
+  name,
+  type: BLOCK,
+  title,
+  description,
+  registryDependencies: [`${NS}/${LICENSE}`],
+  files: [{ path, type: "registry:component" }],
+  ...stamp,
+});
+
+const blocks = [
+  blockItem({
+    name: "pager-block",
+    title: "Pager (block)",
+    description:
+      "The pages of a list or a table: the range shown, previous and next, and a page-size menu. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's IconButton, Button, Menu and Body.",
+    path: "blocks/pager/Pager.tsx",
+  }),
+];
+
 const registry = {
   $schema: "https://ui.shadcn.com/schema/registry.json",
   name: "ds",
@@ -1094,6 +1130,7 @@ const registry = {
     ...components,
     everything,
     ...skills,
+    ...blocks,
   ],
 };
 
@@ -1141,6 +1178,8 @@ rmSync(RECORDS, { recursive: true, force: true });
 mkdirSync(RECORDS);
 for (const found of registry.items) {
   if (reached.has(found.name) || !found.files?.length) continue;
+  // A block is the project's once it lands: it carries no record.
+  if (found.type === BLOCK) continue;
   const own = { item: found.name, version: VERSION, kit: {} };
   for (const f of found.files) {
     const [group, landed] = placed(f);
@@ -1163,7 +1202,9 @@ for (const found of registry.items) {
 // its target is known, with the function the check itself uses. It records
 // neither itself nor the items' own records.
 const record = { version: VERSION, kit: {}, project: {}, optional: sorted(optional) };
-for (const f of registry.items.flatMap((i) => i.files ?? [])) {
+for (const f of registry.items
+  .filter((i) => i.type !== BLOCK)
+  .flatMap((i) => i.files ?? [])) {
   if (f.path === RECORD || f.path.startsWith(`${RECORDS}/`)) continue;
   const [group, landed] = placed(f);
   record[group][landed] = entry(f.path, landed);

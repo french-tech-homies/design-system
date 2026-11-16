@@ -317,3 +317,13 @@ quality bar (story, interaction test, axe under both presets), and keep
 `README.md`'s component table, "Components", current. A component Material 3
 does not describe is not on this list: it joins the kit only through the
 group in `README.md`, "The kit's own".
+
+A part neither Material nor React Aria describes is never a component of the
+kit. Where the coverage corpus asks for one again and again, it is a block:
+a file under `blocks/<name>/`, built from the kit's components, that a
+project copies into its own components and edits. It clears the same bar
+(stories under `stories/blocks/`, titled `MD3/Blocks/<Name>`, a keyboard
+test, axe, the focus walk, pictures), imports the kit as
+`@/registry/ds/ui/ds`, and opens with a comment that says what it is, which
+kit components it needs and what it borrows from Material. See
+`docs/what-this-kit-is.md`, "Blocks".
