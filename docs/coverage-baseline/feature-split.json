@@ -1,0 +1,497 @@
+{
+ "note": "The 117 leaves the baseline's builders logged as `feature`, split afterwards into `option` (the kit's component lacked a prop, a part or a behaviour the job needed) and `use` (the kit used as it means to be). Keys are <screen>.<part>.<index of the leave in that part>; `g` is the run's general leaves. Read by hand, one reader, on 2026-11-16.",
+ "leaves": {
+  "01.1.0": {
+   "kind": "option",
+   "what": "Wrote useMediaQuery / useWindowClass (window.matchMedia through useSyncExternalStore) and render exactly one of the three navigations by window class."
+  },
+  "01.2.1": {
+   "kind": "option",
+   "what": "No elevation or colour change when content scrolls under the sticky bar."
+  },
+  "01.4.0": {
+   "kind": "option",
+   "what": "The trigger is a kit IconButton whose `icon` is a small component that ignores `size` and draws a 32px Avatar inside an aria-hidden span."
+  },
+  "01.5.0": {
+   "kind": "option",
+   "what": "Skip link made from the kit's Link: href=\"#main-content\", classes sr-only / focus:not-sr-only on inverse-surface, and an onPress that focuses <main tabIndex={-1"
+  },
+  "01.g.1": {
+   "kind": "option",
+   "what": "Clients table drops two columns on a phone by rendering fewer Column/Cell (and re-keying the Table)."
+  },
+  "02.4.0": {
+   "kind": "use",
+   "what": "Turned React Aria's \"all\" into the ids of the page shown, and an emptied selection into 'this page's rows removed', so a selection is kept from page to page.",
+   "because": "the project's own logic: a selection kept across pages"
+  },
+  "02.4.4": {
+   "kind": "use",
+   "what": "The bar counts and acts on the selected orders the filtered list still holds, computed by hand, not on the table's raw selection.",
+   "because": "the project's own logic"
+  },
+  "02.5.2": {
+   "kind": "use",
+   "what": "Row-menu actions update the orders with functional state updates and an Undo that restores only the changed ids.",
+   "because": "the project's own logic"
+  },
+  "02.8.0": {
+   "kind": "option",
+   "what": "Did not use TableBody's `renderEmptyState`; the three states are panels under the header row, outside the grid, inside the same card."
+  },
+  "03.1.0": {
+   "kind": "option",
+   "what": "Bound DatePicker to the form myself with react-hook-form's Controller, holding the date as an ISO string and converting with parseDate / toString."
+  },
+  "03.1.1": {
+   "kind": "option",
+   "what": "Wrote the switch's second line (\"Shown in the shop from its date\") as spans inside Switch's children."
+  },
+  "03.2.0": {
+   "kind": "option",
+   "what": "Wrote a react-hook-form resolver by hand (src/product/validation.ts) that holds every rule."
+  },
+  "03.2.1": {
+   "kind": "option",
+   "what": "Passed validationBehavior=\"aria\" to every field by hand and put noValidate on the form."
+  },
+  "03.2.2": {
+   "kind": "use",
+   "what": "Server refusals are kept beside the form (field, refused value, message) and replayed by the resolver while the field still holds that value, instead of setErro",
+   "because": "the project's own logic; its builder says it is no gap"
+  },
+  "03.2.3": {
+   "kind": "option",
+   "what": "The picture is validated on submit and on change only, never on blur."
+  },
+  "03.3.1": {
+   "kind": "option",
+   "what": "Focus a field from the summary by a DOM query inside a data-field wrapper (first input / textarea / spinbutton, else first button)."
+  },
+  "03.4.0": {
+   "kind": "option",
+   "what": "Passed the two actions as JSX (text \"Keep editing\", text error-colour \"Discard\") instead of the { confirm, cancel } object."
+  },
+  "04.3.0": {
+   "kind": "option",
+   "what": "Used DateRangePicker as it is: its calendar opens full screen at every width."
+  },
+  "04.4.0": {
+   "kind": "use",
+   "what": "Controlled the selection and ignored the empty set in onSelectionChange, instead of disallowEmptySelection.",
+   "because": "the project's own choice of how the toggle behaves"
+  },
+  "04.6.0": {
+   "kind": "option",
+   "what": "Put ListItem in a plain ul/li and overrode its cursor with className=\"cursor-default\"."
+  },
+  "04.6.1": {
+   "kind": "option",
+   "what": "Wrapped Avatar in an aria-hidden span."
+  },
+  "05.2.0": {
+   "kind": "option",
+   "what": "A settings row made from Switch with className 'w-full flex-row-reverse justify-between px-4 py-3' so the switch trails and the whole row is the target; name an"
+  },
+  "05.3.2": {
+   "kind": "use",
+   "what": "onChange hands back a plain string, cast to each setting's union at four call sites.",
+   "because": "React Aria's own typing, passed through"
+  },
+  "05.4.0": {
+   "kind": "option",
+   "what": "className 'max-w-none' to lift the 300px cap on the root."
+  },
+  "05.4.1": {
+   "kind": "option",
+   "what": "Added the class 'group' to the slider that can be disabled (sound volume)."
+  },
+  "05.5.0": {
+   "kind": "option",
+   "what": "actions passed as JSX (a text Cancel with autoFocus, a Button color=\"error\" with isLoading) instead of the { confirm, cancel } object."
+  },
+  "05.5.1": {
+   "kind": "option",
+   "what": "className 'w-80 sm:w-96' on the dialog."
+  },
+  "05.5.2": {
+   "kind": "option",
+   "what": "Guards in the handlers (if isDeleting return) and isDisabled on Cancel while deleting."
+  },
+  "06.1.3": {
+   "kind": "option",
+   "what": "Hid the Team and Last active columns under `sm` with `max-sm:hidden` on both the Column and each of its Cells."
+  },
+  "06.1.4": {
+   "kind": "use",
+   "what": "Row given `className=\"h-16\"` for a two-line cell with a 40dp avatar.",
+   "because": "a row's height passed by className, which Table's doc comment names"
+  },
+  "06.1.5": {
+   "kind": "option",
+   "what": "The sheet's header is a generic string title (\"Member\" / \"Invitation\") and the person's name, avatar and tags are composed in the body as an h3."
+  },
+  "06.2.1": {
+   "kind": "option",
+   "what": "Did not use the kit's input `Chip`."
+  },
+  "06.2.2": {
+   "kind": "option",
+   "what": "The chips sit under the TextField, not inside it; splitting on comma, semicolon, space, Enter and paste, validation, duplicates and 'already a member' are writt"
+  },
+  "06.2.5": {
+   "kind": "option",
+   "what": "Composed `Modal` + `Dialog` in place of `ModalDialog`."
+  },
+  "06.3.0": {
+   "kind": "option",
+   "what": "Wrapped the Avatar in an `aria-hidden` span where it sits beside the visible name (the table, the sheet)."
+  },
+  "06.3.1": {
+   "kind": "option",
+   "what": "Three container pairs chosen from the member's id through `className` (primary, secondary, tertiary container), and a neutral one (`surface-container-highest` /"
+  },
+  "06.g.0": {
+   "kind": "option",
+   "what": "`font-<role> text-<role>` written raw on a `dt` and a `dd` in the sheet."
+  },
+  "07.1.1": {
+   "kind": "use",
+   "what": "Focus is moved by hand to each step's heading (tabIndex -1, a ref, an effect) when the step changes.",
+   "because": "a block, which is the project's: it moved the focus itself"
+  },
+  "07.1.2": {
+   "kind": "use",
+   "what": "onStepPress is passed only on the verify step, so only 'Account' is gone back to and only before the email is verified.",
+   "because": "a block, which is the project's"
+  },
+  "07.2.0": {
+   "kind": "option",
+   "what": "Show and hide is a toggle IconButton passed as an element to TextField's trailingIcon, with -mr-2 to sit as Material's trailing icon does, and the input's type "
+  },
+  "07.2.2": {
+   "kind": "option",
+   "what": "Validation is a resolver written by hand, since the adapter's Form* fields do not pass `rules` to Controller."
+  },
+  "07.2.3": {
+   "kind": "option",
+   "what": "After a refused submit the first invalid input is found with querySelector('[aria-invalid=true]') and focused by hand."
+  },
+  "07.4.0": {
+   "kind": "option",
+   "what": "The error message under the checkbox is a Body written by hand, tied to it with aria-describedby and a role=alert wrapper."
+  },
+  "08.1.2": {
+   "kind": "option",
+   "what": "The seek bar is React Aria's Slider, SliderTrack and SliderThumb imported from react-aria-components and styled by hand with role utilities, not the kit's Slide"
+  },
+  "08.1.3": {
+   "kind": "use",
+   "what": "Wrapped lucide's Heart and Bookmark in two small components that pass fill=\"currentColor\", and swapped the icon from the toggle's state.",
+   "because": "IconButton's doc comment says to swap the icon"
+  },
+  "08.1.7": {
+   "kind": "option",
+   "what": "The tip card is drawn tonal by passing className=\"bg-tertiary-container text-on-tertiary-container\" over the filled variant."
+  },
+  "08.2.1": {
+   "kind": "option",
+   "what": "Left the chips wrapping onto two rows at a phone's width."
+  },
+  "08.3.0": {
+   "kind": "option",
+   "what": "Wrote the loading by hand: an IntersectionObserver on a sentinel under the list (600px ahead), remade after each page, not made while a page loads or at the end"
+  },
+  "08.4.3": {
+   "kind": "option",
+   "what": "Wrote the dialog's action row by hand (Cancel, and a Button type=\"submit\") inside the form."
+  },
+  "08.7.0": {
+   "kind": "option",
+   "what": "Passed media components that ignore the className EmptyState hands them and set size-20 themselves."
+  },
+  "09.1.1": {
+   "kind": "option",
+   "what": "Added a 'Show all 5 photos' text button under the carousel and made each item open a dialog listing every photo, in place of previous/next buttons, a position i"
+  },
+  "09.1.2": {
+   "kind": "option",
+   "what": "CarouselItem must be a button or a link (onPress or href is required), so each photo was given an action: open the photo dialog at that photo."
+  },
+  "09.2.2": {
+   "kind": "use",
+   "what": "A sold-out size is a disabled chip with an aria-label 'UK 6, sold out' and a supporting text that lists the sold-out sizes.",
+   "because": "the project's own content"
+  },
+  "10.1.1": {
+   "kind": "use",
+   "what": "Each step's heading is a plain h2 with tabIndex -1 and the kit's focusRing, written with raw text-headline-small font-headline-small, and focused from an effect",
+   "because": "a block, which is the project's"
+  },
+  "10.1.2": {
+   "kind": "option",
+   "what": "Per-step validation written by hand: a plain resolver function, handleSubmit with an onInvalid that keeps only this step's errors (clearErrors on the rest) and "
+  },
+  "10.2.1": {
+   "kind": "option",
+   "what": "The lookup is simulated with a 450ms timer; while it runs, and while fewer than 3 characters are typed, the menu is given one disabled ComboBoxItem ('Searching "
+  },
+  "10.2.2": {
+   "kind": "option",
+   "what": "defaultFilter={() => true} passed through to React Aria so the lookup's answers are not filtered a second time by 'contains'."
+  },
+  "10.3.1": {
+   "kind": "use",
+   "what": "RadioTileGroup bound to react-hook-form with a Controller written by hand.",
+   "because": "a block, which is the project's"
+  },
+  "10.4.1": {
+   "kind": "use",
+   "what": "The radio-tile block edited (it is the project's): a `trailing` prop for the window's fee, and the title, description and trailing fade to on-surface at 38% whe",
+   "because": "a block edited, which is what a block is for"
+  },
+  "11.1.1": {
+   "kind": "option",
+   "what": "Type and size checks (PNG/JPEG/WebP, 5 MB), FileReader to a data URL and the busy state written by hand around FileTrigger; rejections said in a snackbar."
+  },
+  "11.2.1": {
+   "kind": "option",
+   "what": "A switch row is a GridListItem whose onAction sets the value, with a controlled Switch (aria-label) in ListItem's trailingElement; the row's textValue carries '"
+  },
+  "11.2.2": {
+   "kind": "option",
+   "what": "Gave every row supporting text so all rows are 72px."
+  },
+  "11.2.3": {
+   "kind": "option",
+   "what": "Long supporting text (an email) wraps with wrap-anywhere instead of truncating."
+  },
+  "11.2.6": {
+   "kind": "option",
+   "what": "className=\"-outline-offset-3\" on every GridListItem, so the focus ring is drawn inside the row."
+  },
+  "11.3.1": {
+   "kind": "option",
+   "what": "Passed className=\"mx-4 w-auto max-w-140\" to ModalDialog to cap the dialog at 560px and keep 16px from a phone's edges."
+  },
+  "11.3.2": {
+   "kind": "option",
+   "what": "Guards written by hand so Cancel, Escape and a second confirm do nothing while the sign-out request runs."
+  },
+  "12.1.1": {
+   "kind": "option",
+   "what": "On close, the controlled inputValue is put back to the submitted query from a ref (onOpenChange), so the bar does not show text that was typed and abandoned."
+  },
+  "12.1.2": {
+   "kind": "option",
+   "what": "A first row 'Search \"<typed>\"' is an ordinary SearchViewItem whose textValue is the typed text, so it passes the view's filter."
+  },
+  "12.2.0": {
+   "kind": "option",
+   "what": "Removing a recent search is not in the search view: it is on the page under the bar, a GridList of ListItems each with a remove IconButton. In the view the Rece"
+  },
+  "12.3.0": {
+   "kind": "option",
+   "what": "The sheet's Reset / 'Show N results' row is a hand-written sticky footer inside the content (classNames.content 'pb-0', footer '-mx-6 sticky bottom-0' on surfac"
+  },
+  "12.3.1": {
+   "kind": "option",
+   "what": "Slider given className='max-w-none'."
+  },
+  "12.3.2": {
+   "kind": "option",
+   "what": "Active-filter chips (variant='input') remove on the chip's own press, with aria-label 'Remove filter: …'; onRemove is also passed so the X is drawn."
+  },
+  "12.3.3": {
+   "kind": "option",
+   "what": "Result cards are not pressable; the one control on a card is a save toggle (IconButton isToggle)."
+  },
+  "12.4.0": {
+   "kind": "option",
+   "what": "The media is a wrapper component that discards the className EmptyState gives and sets size-16 and on-surface-variant."
+  },
+  "12.4.1": {
+   "kind": "option",
+   "what": "Both actions are passed as one node in `action`, in a flex row with a gap."
+  },
+  "13.1.2": {
+   "kind": "option",
+   "what": "className on each TreeItem: data-drop-target:bg-primary/8 and a primary outline"
+  },
+  "13.2.2": {
+   "kind": "option",
+   "what": "headline and supportingText wrapped in a span with truncate and contain-inline-size"
+  },
+  "13.4.2": {
+   "kind": "option",
+   "what": "isDropTarget classes on ListItem and on the tile"
+  },
+  "13.5.0": {
+   "kind": "option",
+   "what": "target.closest('[data-key]') to learn which item the menu was asked for on"
+  },
+  "14.1.1": {
+   "kind": "use",
+   "what": "On a phone the focus is moved by hand: to the conversation's back button when it opens, back to its row on return (a matchMedia test and two refs).",
+   "because": "the project's own layout"
+  },
+  "14.1.2": {
+   "kind": "option",
+   "what": "NavigationDrawer narrowed and squared with className (`w-64 rounded-none`), and rendered twice (standard in a `hidden lg:block` wrapper, modal beside it)."
+  },
+  "14.2.0": {
+   "kind": "option",
+   "what": "Long names and subjects are cut with `line-clamp-1 break-all` / `line-clamp-2` in the nodes passed to `headline` and `supportingText`."
+  },
+  "14.2.1": {
+   "kind": "option",
+   "what": "The unread count is repeated in a VisuallyHidden span beside the Badge."
+  },
+  "14.2.2": {
+   "kind": "option",
+   "what": "The open conversation's row is tinted with a className (`bg-surface-container-highest`) and says \"open\" to a screen reader in hidden text."
+  },
+  "14.4.0": {
+   "kind": "option",
+   "what": "An address that is not a contact is made an option while it is typed (\"Add x@y.com\"), kept in a list of the project's so its chip has a name, and committed on c"
+  },
+  "14.4.1": {
+   "kind": "option",
+   "what": "The recipients field is bound with react-hook-form's Controller by hand instead of the adapter's FormComboBox."
+  },
+  "14.4.2": {
+   "kind": "option",
+   "what": "The dialog's width is a className on its content (`w-screen max-w-xl max-h-dvh overflow-y-auto`): full-bleed on a phone, 36rem on a desktop."
+  },
+  "14.5.1": {
+   "kind": "use",
+   "what": "`disallowTypeAhead` (React Aria's) on the kit's GridList.",
+   "because": "a React Aria prop passed through"
+  },
+  "15.2.2": {
+   "kind": "option",
+   "what": "Styled the list's own `data-drop-target` (a `primary` outline and `bg-primary/8`) by className on GridList."
+  },
+  "15.2.4": {
+   "kind": "option",
+   "what": "GridListDragHandle takes no `size`: it is a 40px icon button on every card, pulled into the corner with negative margins."
+  },
+  "15.4.2": {
+   "kind": "use",
+   "what": "Kept 'which card' and 'is open' as two states so the content stays while the sheet slides out.",
+   "because": "the project's own state"
+  },
+  "16.1.0": {
+   "kind": "option",
+   "what": "Overrode the docked Toolbar's classes (h-auto, flex-wrap, justify-start, 8dp gaps, at both breakpoints) so fifteen controls sit start-aligned and wrap."
+  },
+  "16.1.1": {
+   "kind": "use",
+   "what": "Set gap-1 on each ButtonGroup of toggles.",
+   "because": "a gap passed by className"
+  },
+  "16.1.2": {
+   "kind": "option",
+   "what": "Put the chevron of the paragraph-style button in its children, with classNames.label made a flex row."
+  },
+  "16.1.3": {
+   "kind": "use",
+   "what": "Toggles are driven by onPress on each IconButton with the group's selectedKeys controlled from the text's state; the group's onSelectionChange is not used.",
+   "because": "the project's own logic"
+  },
+  "16.3.0": {
+   "kind": "option",
+   "what": "While publishing (a 1.2s timer) the label becomes \"Publishing…\" and both halves are disabled."
+  },
+  "16.4.1": {
+   "kind": "use",
+   "what": "className max-w-64 and placement=\"bottom\" on every tooltip.",
+   "because": "a width and a placement passed as props"
+  },
+  "16.6.0": {
+   "kind": "option",
+   "what": "On a phone the SearchView's bar is hidden with className and the full-screen view is opened from an IconButton through isOpen; the focus is put back on that but"
+  },
+  "16.6.1": {
+   "kind": "use",
+   "what": "onSubmit runs the first matching command, with my own filter passed so both agree.",
+   "because": "the project's own choice"
+  },
+  "17.1.2": {
+   "kind": "option",
+   "what": "Deep-imported datePickerStyles from <kit>/components/date-picker-styles"
+  },
+  "17.3.1": {
+   "kind": "option",
+   "what": "Did not use TimePicker"
+  },
+  "17.4.0": {
+   "kind": "option",
+   "what": "Used Modal + Dialog in place of ModalDialog"
+  },
+  "17.4.1": {
+   "kind": "option",
+   "what": "Passed 'max-h-dvh overflow-auto' to the dialog so a form taller than the window scrolls"
+  },
+  "18.4.0": {
+   "kind": "option",
+   "what": "Wrote src/lib/snackbar-queue.ts: a first-in first-out line that hands one message at a time to the kit's snackbar() and shows the next from its onClose. Every q"
+  },
+  "20.2.0": {
+   "kind": "option",
+   "what": "The emphasised card is a filled Card with className=\"bg-primary-container text-on-primary-container\", plus a filled primary Tag \"Most popular\" and the only fill"
+  },
+  "20.2.1": {
+   "kind": "use",
+   "what": "CardContent not used: the card's insides are composed as children.",
+   "because": "children composed, as Card's doc comment says"
+  },
+  "20.5.1": {
+   "kind": "option",
+   "what": "TooltipTrigger is controlled (isOpen, onOpenChange) with a ref that remembers whether the tooltip showed before the press, and a document pointerdown listener t"
+  },
+  "21.1.0": {
+   "kind": "option",
+   "what": "Wrote the form's rules as a hand-written react-hook-form resolver function."
+  },
+  "21.1.1": {
+   "kind": "option",
+   "what": "Focus on the first invalid field after a refused submit is done by hand: each field sits in a div[data-field], and an effect focuses the input, textarea or trig"
+  },
+  "21.1.2": {
+   "kind": "option",
+   "what": "Wrote the consent checkbox's error message by hand (a Body in text-error inside a role=alert wrapper), tied to the box with aria-describedby, with the privacy l"
+  },
+  "21.1.3": {
+   "kind": "option",
+   "what": "Wrote the required mark into the Select's label text (\"Topic *\") and into the checkbox's label (an aria-hidden asterisk)."
+  },
+  "21.1.4": {
+   "kind": "option",
+   "what": "'Send another message' remounts the form with a new key instead of calling reset()."
+  },
+  "21.2.1": {
+   "kind": "option",
+   "what": "Passed React Aria's isPending beside the kit's isLoading, kept a ref guard against a second submit, and added a role=status line beside the button."
+  },
+  "21.3.1": {
+   "kind": "option",
+   "what": "Deep-imported ErrorIcon from the kit's icons.tsx."
+  },
+  "21.g.1": {
+   "kind": "use",
+   "what": "site-header-block copied from kit-blocks/ (the shadcn command was refused here) and edited: a `current` flag on a link sets aria-current=\"page\".",
+   "because": "a block edited"
+  },
+  "22.4.1": {
+   "kind": "use",
+   "what": "variant=\"secondary\" chosen for tabs that are not a screen's navigation, and isScrollable used only to size tabs to their labels.",
+   "because": "a variant chosen"
+  },
+  "22.5.1": {
+   "kind": "option",
+   "what": "The seek bar is React Aria's Slider, SliderTrack and SliderThumb, not the kit's Slider."
+  }
+ }
+}
