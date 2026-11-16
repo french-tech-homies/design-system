@@ -43,6 +43,77 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-11-16
+
+### Action needed
+
+#### Input chip: the remove is reached from the keyboard and named ([#63](https://github.com/french-tech-homies/design-system/pull/63))
+
+**Action needed if you draw `<Chip variant="input" onRemove={…}>`.** Two things change:
+
+- A press anywhere on a chip that has `onRemove` and no `onPress` now removes it, where only the icon did.
+- A chip given both `onPress` and `onRemove` is now two buttons. If your `onPress` was itself the removal (a way round the old icon), drop `onPress` and any `aria-label` you wrote for it: the chip names itself "Remove <its text>".
+
+After a removal, move the focus yourself, to the next chip or to the field the chips belong to.
+
+#### Dialog: Material's 560dp maximum, a destructive confirm, and a hold while a request runs ([#66](https://github.com/french-tech-homies/design-system/pull/66))
+
+**Action needed if a dialog of yours is wider than 560dp.** Every dialog is now at most 560dp wide, Material's maximum, and its text wraps there. That holds for a dialog given a width class too: `className="w-[720px]"` is now capped. To keep a wider one, pass a maximum beside it: `className="w-[720px] max-w-none"`, or `max-w-3xl`. Search your source for `ModalDialog`, `Dialog` and `DialogContent` given a `w-` class.
+
+A `ModalDialog` now keeps 16dp from the window's edges, and is dismissed by neither the scrim nor Escape while one of its `actions` is loading.
+
+#### react-hook-form adapter: rules on each field, and focus on the first invalid one ([#67](https://github.com/french-tech-homies/design-system/pull/67))
+
+**Every form built on the adapter's `Form*` fields now puts the focus in its first invalid field after a refused submit.** That is react-hook-form's default (`shouldFocusError`), which had nothing to focus before. A form that did it by hand can drop that code; a form that must not move the focus passes `shouldFocusError: false` to `useForm`.
+
+The adapter is its own item and comes with the update when you name it, as `docs/updating.md` writes the command.
+
+#### Button: while loading it takes no press and submits no form ([#70](https://github.com/french-tech-homies/design-system/pull/70))
+
+Nothing to run. A handler that guarded against a second press while `isLoading` can drop the guard. If you relied on a loading button still being pressable, pass the spinner as `icon` and leave `isLoading` off.
+
+#### Slider: Material's slider, with a filled track and no width cap ([#71](https://github.com/french-tech-homies/design-system/pull/71))
+
+**Action needed if you draw `Slider`.** Two things change:
+
+- It is as wide as what holds it, where it stopped at 300px. Give it or its container a width: `className="max-w-xs"`. A `max-w-none` you wrote to lift the cap can go.
+- It looks different: a thick filled track and a slim tall handle, 44dp high where the old track row was 32dp.
+
+#### Checkbox: a box that stands alone shows its own error message ([#72](https://github.com/french-tech-homies/design-system/pull/72))
+
+**Action needed if you wrote an error message under a `FormCheckbox` yourself.** `FormCheckbox` now draws the field's message under the box, so a form that also writes its own shows it twice: remove yours. A plain `Checkbox` is unchanged unless you pass `errorMessage`.
+
+#### EmptyState's media follows its size, and a list row outside a list is not pressable ([#73](https://github.com/french-tech-homies/design-system/pull/73))
+
+Nothing to run. Two things look different:
+
+- An `EmptyState` with media: the media is 128dp at the default size where it grew to 256dp on a wide window; pass `size="lg"` for 192dp. A media wrapper written to shrink it can go.
+- A `ListItem` that is not inside a `GridListItem` no longer shows the pointer's hand. If you draw one inside something else that is pressed (a link, a button, a row of your own), add `className="cursor-pointer"` to it.
+
+### Added
+
+- Type primitives draw any text element: p, li, dt, dd and more ([#64](https://github.com/french-tech-homies/design-system/pull/64))
+- Dialog: Material's 560dp maximum, a destructive confirm, and a hold while a request runs ([#66](https://github.com/french-tech-homies/design-system/pull/66))
+- react-hook-form adapter: rules on each field, and focus on the first invalid one ([#67](https://github.com/french-tech-homies/design-system/pull/67))
+- Skeleton: a placeholder the shape of content that is loading ([#69](https://github.com/french-tech-homies/design-system/pull/69))
+- Slider: Material's slider, with a filled track and no width cap ([#71](https://github.com/french-tech-homies/design-system/pull/71))
+- Checkbox: a box that stands alone shows its own error message ([#72](https://github.com/french-tech-homies/design-system/pull/72))
+- Blocks: an app shell whose navigation follows its width ([#74](https://github.com/french-tech-homies/design-system/pull/74))
+- Lists and trees draw where a drop will land, and the form adapter binds a date picker ([#75](https://github.com/french-tech-homies/design-system/pull/75))
+
+### Fixed
+
+- Input chip: the remove is reached from the keyboard and named ([#63](https://github.com/french-tech-homies/design-system/pull/63))
+- Avatar with no alt is decorative, where it was an image with no name ([#65](https://github.com/french-tech-homies/design-system/pull/65))
+- Button: while loading it takes no press and submits no form ([#70](https://github.com/french-tech-homies/design-system/pull/70))
+- EmptyState's media follows its size, and a list row outside a list is not pressable ([#73](https://github.com/french-tech-homies/design-system/pull/73))
+- A checkbox keeps the focus when its error message clears ([#77](https://github.com/french-tech-homies/design-system/pull/77))
+
+### Docs
+
+- Docs: the coverage rule tells an option the kit lacks from the kit used as meant; the baseline is 52 of 119 ([#62](https://github.com/french-tech-homies/design-system/pull/62))
+- Docs: what the kit was given since the baseline, and what it should be worth ([#76](https://github.com/french-tech-homies/design-system/pull/76))
+
 ## [0.8.0] — 2026-11-16
 
 ### Action needed
