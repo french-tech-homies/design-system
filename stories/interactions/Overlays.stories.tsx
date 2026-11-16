@@ -22,6 +22,7 @@ import {
 import Modal from "@french-tech-homies/design-system/components/Modal";
 import { ModalDialog } from "@french-tech-homies/design-system/components/ModalDialog";
 import { page } from "vitest/browser";
+import TextField from "@french-tech-homies/design-system/components/TextField";
 import SideSheet from "@french-tech-homies/design-system/components/SideSheet";
 import BottomSheet, {
   type BottomSheetProps,
@@ -178,6 +179,77 @@ export const ModalDialogHoldsWhileARequestRuns: Story = {
     await expect(
       within(dialog).getByRole("button", { name: "Cancel" }),
     ).toBeDisabled();
+    await userEvent.keyboard("{Escape}");
+    await expect(screen.getByRole("dialog")).toBeVisible();
+  },
+};
+
+function RenameDialogHarness() {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saves, setSaves] = useState(0);
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Rename the folder</Button>
+      <p data-testid="saves">{saves}</p>
+      <ModalDialog
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        title="Rename"
+        actions={{
+          cancel: { label: "Cancel", onPress: () => setOpen(false) },
+          confirm: {
+            label: "Save the name",
+            type: "submit",
+            form: "rename-form",
+            isLoading: saving,
+            loadingLabel: "Saving",
+          },
+        }}
+      >
+        <form
+          id="rename-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSaving(true);
+            setSaves((n) => n + 1);
+          }}
+        >
+          <TextField label="Name" defaultValue="Invoices" autoFocus className="w-72" />
+        </form>
+      </ModalDialog>
+    </>
+  );
+}
+
+/**
+ * A dialog with a form of its own keeps the kit's headline and its two
+ * actions: the confirm submits the form, as Enter in its field does, and
+ * while the request runs the dialog holds as any other.
+ */
+export const ModalDialogWithAFormKeepsItsActions: Story = {
+  render: () => <RenameDialogHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Rename the folder" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    await expect(
+      within(dialog).getByRole("heading", { name: "Rename" }),
+    ).toBeVisible();
+    const field = within(dialog).getByRole("textbox", { name: "Name" });
+    await waitFor(() => expect(field).toHaveFocus());
+
+    await userEvent.keyboard("{Enter}");
+    await expect(canvas.getByTestId("saves")).toHaveTextContent("1");
+    await expect(
+      within(dialog).getByRole("button", { name: "Cancel" }),
+    ).toBeDisabled();
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Save the name" }),
+    );
+    await expect(canvas.getByTestId("saves")).toHaveTextContent("1");
     await userEvent.keyboard("{Escape}");
     await expect(screen.getByRole("dialog")).toBeVisible();
   },
