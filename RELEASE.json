@@ -206,8 +206,8 @@
       "loose": "334ca970da6d0da9e32ab7a6fe70e556179be86eb142e4a095d86a8fe14ec7b7"
     },
     "components/Slider.tsx": {
-      "exact": "97ec9ac3d861307466f2f7f421eaad28452115f16db837699198cfc59957a68d",
-      "loose": "14ba357ce65e1e766f4d29eb340b47d80f8dd1542eda4077478e1816f3ec935b"
+      "exact": "0525b9d9b2457507253371d95dc1d2fcec0a1d1259f8dca2d596a0b5a10aab87",
+      "loose": "ae909dd10a532320f336bbfc2036dcc7e7e08289bd82b11330d16e5cb4a49fa3"
     },
     "components/Snackbar.tsx": {
       "exact": "9dc137813948faf676c941e937ac25ca780b4fa325e318b4324be54dca46649b",

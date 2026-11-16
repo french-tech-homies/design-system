@@ -188,7 +188,7 @@ export const SliderArrowsChangeValue: Story = {
     await expect(thumb).toHaveFocus();
     const ring = getComputedStyle(drawn);
     await expect(ring.outlineStyle).toBe("solid");
-    await expect(ring.outlineWidth).toBe("2px");
+    await expect(ring.outlineWidth).toBe("3px");
     await expect(ring.outlineOffset).toBe("2px");
 
     await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");

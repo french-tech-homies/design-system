@@ -46,3 +46,12 @@ export const WithoutOutput: Story = {
 export const Disabled: Story = {
   args: { label: "Locked", defaultValue: [40], isDisabled: true },
 };
+
+/** The slider is as wide as what holds it: here, 480px. */
+export const FillsItsContainer: Story = {
+  render: (args) => (
+    <div className="w-[480px]">
+      <Slider {...args} label="Brightness" defaultValue={70} />
+    </div>
+  ),
+};
