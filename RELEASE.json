@@ -205,6 +205,10 @@
       "exact": "50aceed2ab2918c4fbeba0dbffdb9c387148a26e060c7d83d7d079cb71dca4bd",
       "loose": "334ca970da6d0da9e32ab7a6fe70e556179be86eb142e4a095d86a8fe14ec7b7"
     },
+    "components/Skeleton.tsx": {
+      "exact": "d79a2bca4cffc19b480873780c1fd34ee44dbcc9d7b27b16ac45f90827f18a0d",
+      "loose": "4b497b60b55956726d6e0ac3579cc64a182a065eda2e96f39c54b1af910f5034"
+    },
     "components/Slider.tsx": {
       "exact": "980f734dfbfe1df1e7aff15a48cfc9d20a7b5068d540726a7a090f94e816e975",
       "loose": "6a74cce8fbc07ad8aa078326b20b24c2c1658add1ac797c19bf29efd9abffee4"
