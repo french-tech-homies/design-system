@@ -294,11 +294,11 @@
       "loose": "f53873012a0ccb6815603ab3e49154577deef31809651d1b1b6ad7c74045c38f"
     },
     "index.ts": {
-      "exact": "2544420f9269b8868ad445b1de730fce7b2a1c2d388c993265e25b2a890c5138",
-      "loose": "15e4525b6ace34297b673010743243c3449d48821ce2a633282126dcf0e039ba",
+      "exact": "ec4a817b90954d5414df8cb5cbfb78b441adfc383f08c7689526d9eb625cd6ec",
+      "loose": "7301eb64888153b32c0ed9905f2b5df496e34e7d37f49dbd90a58da924916ed9",
       "landed": {
-        "exact": "063ea64358c704eb347bbcdfe062a4928687023bb70232ee221b9910a9c68faa",
-        "loose": "a5c7d0af0f93b5d761e783ceae4f529ee26c67a382816ea0a3f6c04a722c2dfb"
+        "exact": "8ce521951dc0909c4a787a8b6c72250c68d3dd754bdf7e4ac4ba6347bde00724",
+        "loose": "8f298431d672b43e58b999705f4362e3ef5f8a3235261edfa3e91b40df82a038"
       }
     },
     "primitives/StateLayer.tsx": {
@@ -306,11 +306,11 @@
       "loose": "6b6f7aac23c4324de2b709e240637cb3d23ffc725ee47ec62cf7a88390028024"
     },
     "primitives/Typography.tsx": {
-      "exact": "e11ba885c11445c60eb7ffc97ef3ec4e98750f4e9fc8cd59b7721e55bf112b49",
-      "loose": "b60fb27c702aff7130f30277396bb8fb393b57a39944b6f0a10715f5ee61aba6",
+      "exact": "1bfad5fa6a7ff450d86ad45f1f71190de0b368f96dd8b9934e94e8768268d71c",
+      "loose": "76238f332b0d3c108b021e7d7050f5f8dbdc37cb53192157737da2d9363e9b36",
       "landed": {
-        "exact": "b265b9411f02e59466ce4c5693200f823de8621b906640f2a628900c6df8cd8d",
-        "loose": "986b63470a6391ba7148ab1d07fd3b5d75ac89b069bb078a54af717438b05d0f"
+        "exact": "c9cdd6848ee295d67886f604156136962efb36f39a40d7c47cfc6c26c3bb7731",
+        "loose": "b1c3f7ea763704a90c3d6fbe7d380911b1007b8cc7a2004cfa2d7c6578960d46"
       }
     },
     "render-props.ts": {
@@ -352,8 +352,8 @@
   },
   "project": {
     ".claude/skills/ds-build/SKILL.md": {
-      "exact": "742a2863c579ea4cc38866a99557062663a1be47372946b27e1206ae9459aae7",
-      "loose": "74fa0b750ceb32290c25c5757a9df771841e99ed50998b5d29c260ef76371d06"
+      "exact": "b3821653a5c40d45f3314b4f22e69523a4649e62a51eb3675d7bc729c398331c",
+      "loose": "d2e95ef524220f2c962ad46f933b2c6371847c75962f64b94a809d7235bddb24"
     },
     ".claude/skills/ds-spec/SKILL.md": {
       "exact": "96df5b9d9585d4dfb4f5ef97d0baa936a5d7176111ef5247d29a04670d8fd25e",

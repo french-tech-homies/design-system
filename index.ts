@@ -43,6 +43,7 @@ export {
 
 // Primitives
 export { Display, Headline, Title, Body, Label } from "./primitives/Typography";
+export type { TextElement } from "./primitives/Typography";
 export {
   default as StateLayer,
   type StateLayerColor,
