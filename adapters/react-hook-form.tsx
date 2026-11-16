@@ -344,6 +344,26 @@ function toKeys(value: unknown): Iterable<Key> {
  * Autocomplete / chips field. The field holds one key (or `null`) for
  * `selectionMode="single"` and an array of keys for `"multiple"`.
  */
+/**
+ * `ComboBox` bound to a field that holds the chosen option: its key, or an
+ * array of keys with `selectionMode="multiple"`. It does not hold the text
+ * typed: text that matches no option is not the field's value.
+ *
+ * For a field whose value is the text itself, with options as suggestions
+ * (an address that fills other fields, a tag to be created), bind the kit's
+ * `ComboBox` yourself, on its text:
+ *
+ *   <Controller control={form.control} name="street"
+ *     render={({ field, fieldState }) => (
+ *       <ComboBox label="Street" items={suggestions} allowsCustomValue
+ *         inputValue={field.value} onInputChange={field.onChange}
+ *         onBlur={field.onBlur} validationBehavior="aria"
+ *         isInvalid={fieldState.invalid}
+ *         errorMessage={fieldState.error?.message}>
+ *         {(s) => <ComboBoxItem id={s.id} label={s.label} />}
+ *       </ComboBox>
+ *     )} />
+ */
 export function FormComboBox<
   TValues extends FieldValues,
   T extends object,
