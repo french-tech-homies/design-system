@@ -18,8 +18,8 @@
       "loose": "106c1ed867b4e5db332aa3bea8e76be4c646eb6722dd2e0404c3ba134126e78b"
     },
     "adapters/react-router.tsx": {
-      "exact": "b99280fdbc87e3294b73599894f8802c5ade25826cb8cbb7563650f0125d9dab",
-      "loose": "dc46065d70763a05ae86ad9a0aec8506ca407822bc2ed9cf343daceb27704949"
+      "exact": "77c38261aa88c9621ab1ac531e2a93a024cc3a88162e5c7be2af434c71442e66",
+      "loose": "9b04745931ec2c2110e9edfb7761e21f1fd38ad90143fa2e8f9a0cd46cae9646"
     },
     "changed.mjs": {
       "exact": "8e6aa45cdeafac353b0b8a744ff1cdeec85e07efb7457e58f3c2ef541be868cf",
@@ -90,8 +90,8 @@
       "loose": "f17346b87379c9ca6263de1a5b4863e3a7ed0d5866da9a5ed1cb9e5efb713783"
     },
     "components/EmptyState.tsx": {
-      "exact": "4bdb5d899049d815309a7ec375947cb2c554a0a15730d850576e03fba06197fa",
-      "loose": "045897835f23fa5494b23889cf9c2d28ea1fa17d637a6900ed0121ec65bacc25"
+      "exact": "4ff295392fb38a0338d18796528a5044354fb2088af5fa3fc88429d8be943208",
+      "loose": "7b17881b5917d6c41ab9ef753553b2306e419dbc08f958069f4d0562d1cafc82"
     },
     "components/FabMenu.tsx": {
       "exact": "3eca2e25b49ab37887f011172aae13038a585cc200681db4e001fc2bc0ae1b24",
