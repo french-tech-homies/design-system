@@ -1,0 +1,327 @@
+{
+  "screen": "File browser",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A folder tree",
+      "built": "yes",
+      "kit": [
+        "Tree",
+        "TreeItem",
+        "ContextMenu",
+        "SideSheet",
+        "IconButton",
+        "TopAppBar",
+        "Skeleton",
+        "SkeletonGroup",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Rendered the tree from data, each TreeItem's level given through React Aria's Collection (src/files/FolderTree.tsx).",
+          "why": "Tree's doc comment: \"give each `TreeItem` its children with React Aria's `Collection` (`<Collection items={item.children}>`)\"."
+        },
+        {
+          "kind": "use",
+          "what": "Single selection is the open folder (selectedKeys, onSelectionChange, disallowEmptySelection), expandedKeys controlled so that opening a folder from the pane or the path opens its ancestors; density=\"dense\".",
+          "why": "Tree's doc comment: \"`selectionMode` (`\"single\"`, `\"multiple\"`) makes rows selected, with `selectedKeys` and `onSelectionChange` ... `expandedKeys`, `defaultExpandedKeys` and `onExpandedChange` hold what is open\"."
+        },
+        {
+          "kind": "layout",
+          "what": "The pane beside the content from 768px is a plain `aside` on surface-container-low, 288px wide; under that width the same tree is in a modal SideSheet opened from the app bar.",
+          "why": "SideSheet's standard form is at least 360px wide (min-w-[360px] in its styles) and draws a header with a close button: too wide and too much for a tree beside a list. Nothing in the kit chooses between a pane and a sheet by width for something that is not navigation destinations (AppShell is for three to five destinations, not a tree)."
+        },
+        {
+          "kind": "option",
+          "what": "Cancelled the modal SideSheet's 16px content padding with a `-m-4` wrapper so the tree's rows run to the sheet's edges.",
+          "why": "SideSheet has `className` for the sheet only and no `classNames` for its content part; its body is always `p-4`."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tree.tsx whole and SideSheet.tsx's styles and body.",
+          "why": "To learn that a multiple-selection tree draws checkboxes but a single one does not, and to find SideSheet's widths and padding, which its doc comment does not give."
+        }
+      ],
+      "notes": "Not seen running: no browser here. The tree shows folders only (files are in the pane). The tree is rendered twice (pane and sheet), sharing one expanded state. The first open of each folder shows a 450 ms simulated load in the pane, not in the tree."
+    },
+    {
+      "n": 2,
+      "part": "A grid and a list of the same items, toggled",
+      "built": "yes",
+      "kit": [
+        "GridList",
+        "GridListItem",
+        "ListItem",
+        "Card",
+        "ButtonGroup",
+        "IconButton",
+        "Body",
+        "Skeleton",
+        "SkeletonGroup"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Wrapped the kit GridList in React Aria's Virtualizer, with ListLayout (rowHeight 72) for the list and GridLayout plus layout=\"grid\" for the grid: one folder holds 420 files.",
+          "why": "ds-build skill: \"A list of hundreds of rows | `Virtualizer`, `ListLayout`, `GridLayout` | Around the kit's `GridList`. The layout takes sizes in pixels: a row's height is the kit row's.\""
+        },
+        {
+          "kind": "value",
+          "what": "The grid tile's size is written in pixels: new Size(148, 132) to new Size(240, 132), 12px apart.",
+          "why": "GridLayout takes pixel sizes and the kit names no size for a tile; the skill only gives the list row's (\"a row's height is the kit row's\")."
+        },
+        {
+          "kind": "option",
+          "what": "Gave the Card its selected look by class from the row's state: `group-data-selected/grid-list-item:bg-secondary-container` with its text and border, and the same on the tile's icon and supporting line.",
+          "why": "ListItem has `isSelected`; Card has no selected state, though GridListItem's doc comment offers a Card as a row's look."
+        },
+        {
+          "kind": "option",
+          "what": "Passed `-outline-offset-2` on every GridListItem (and `h-full` on a tile's) so the focus ring is drawn inside the row.",
+          "why": "Under the Virtualizer each row sits in a wrapper with `overflow: hidden` (React Aria's VirtualizerItem), and the kit's focus ring is drawn 2px outside the row (`outline-offset-2` in focusRing): it would be clipped. The skill recommends Virtualizer around GridList without saying so; the kit's Tree row already draws its ring inside."
+        },
+        {
+          "kind": "option",
+          "what": "Gave the Card a drop-target look by class (`group-data-drop-target/grid-list-item:bg-primary-container` and a primary border).",
+          "why": "GridListItem tints itself when dropped onto (bg-primary/8), but an outlined Card paints its own `bg-surface` over that tint, so a folder tile would show only the outline."
+        },
+        {
+          "kind": "use",
+          "what": "The toggle is a connected ButtonGroup with selectionMode=\"single\" and two IconButtons with isToggle and an id; its width set by className.",
+          "why": "SegmentedButton's doc comment: \"for new work prefer `<ButtonGroup variant=\"connected\" selectionMode=…>`\"; ButtonGroup's: \"Its children are then `Button`s or `IconButton`s with `isToggle` and an `id`.\""
+        },
+        {
+          "kind": "use",
+          "what": "Cut names to one line by passing them wrapped in `<span className=\"block truncate\">`.",
+          "why": "ListItem's doc comment: \"to cut a long name to one line, pass it wrapped (`<span className=\"block truncate\">`) and give the list a width\"."
+        },
+        {
+          "kind": "layout",
+          "what": "The tile's insides (icon, actions, name, size and date) in the Card's content part, through classNames.content; the skeleton rows and tiles; the scrolling flex column the list fills.",
+          "why": "Expected of a screen."
+        },
+        {
+          "kind": "read",
+          "what": "Read ListItem.tsx and Card.tsx past their doc comments, and GridLayout's source in node_modules. Also React Aria's VirtualizerItem style.",
+          "why": "To confirm the two-line row is 72px (the virtualizer needs the number), that Card has no selected variant, and how GridLayout derives a tile's height from min and max sizes."
+        }
+      ],
+      "notes": "Not seen running. The virtualized list needs a definite height: it is a flex child (`min-h-0 flex-1`) of a column under `h-dvh`; that chain was reasoned, not observed. Items are sorted folders first, then by name; there is no sort control. Both views are the same GridList with the same selection, drag and menu."
+    },
+    {
+      "n": 3,
+      "part": "Multiple selection",
+      "built": "yes",
+      "kit": [
+        "GridList",
+        "GridListItem",
+        "ListItem",
+        "ButtonGroup",
+        "IconButton",
+        "Menu",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "selectionMode=\"multiple\" with selectionBehavior=\"replace\" on the GridList, controlled: a click selects, Shift and Ctrl or Cmd extend, Ctrl+A selects all, Escape clears; double click or Enter opens a folder (onAction on folder rows only).",
+          "why": "GridList's doc comment: \"React Aria `GridList`, which gives the rows their keyboard navigation, selection and actions.\""
+        },
+        {
+          "kind": "option",
+          "what": "A keydown handler on the element around the list: Delete asks to delete the selection, F2 renames a single one.",
+          "why": "The kit has no way to give a list keys of its own; Menu items show a `shortcut` text but nothing binds it."
+        },
+        {
+          "kind": "layout",
+          "what": "A row above the list that follows the selection: the count, then a standard ButtonGroup (a toolbar) of Move, Rename, Delete and Clear.",
+          "why": "The kit's Toolbar is the docked or floating bar at the bottom of a window, where the snackbar also sits; a contextual row for a selection is the project's."
+        }
+      ],
+      "notes": "Not seen running. With `replace`, rows draw no checkbox: on a touch screen React Aria selects on a long press, then taps toggle; a tap on a folder opens it and a tap on a file selects it. On Android the same long press also asks for the context menu, so both happen: unverified how that feels. The selection toolbar's icon buttons have names but no tooltips (ButtonGroup wants its buttons as direct children)."
+    },
+    {
+      "n": 4,
+      "part": "Moving by drag and drop",
+      "built": "yes",
+      "kit": [
+        "GridList",
+        "GridListItem",
+        "GridListDragHandle",
+        "Tree",
+        "ModalDialog",
+        "Button",
+        "Headline",
+        "Body",
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "hook",
+          "what": "useDragAndDrop twice: on the pane's GridList (drag source and drop target: items dropped on a folder row) and on the Tree (drop target only: items dropped on a folder).",
+          "why": "ds-build skill: \"Moving items by drag and drop, by pointer and by keyboard | `useDragAndDrop`, `isFileDropItem` | Pass its `dragAndDropHooks` to the kit's `GridList` or `Table`\"; Tree's doc comment: \"`dragAndDropHooks` is React Aria's, as on `GridList`.\""
+        },
+        {
+          "kind": "use",
+          "what": "A GridListDragHandle in every row and tile, named \"Drag <name>\".",
+          "why": "GridListItem's doc comment: \"put a `GridListDragHandle` in each row: the pointer drags the row from anywhere, and the handle is how the keyboard and a screen reader pick it up.\""
+        },
+        {
+          "kind": "layout",
+          "what": "The drag preview (a pill on primary with the name or the count) written by hand through renderDragPreview.",
+          "why": "The kit draws where a drop lands, not what is dragged."
+        },
+        {
+          "kind": "option",
+          "what": "The \"Move to…\" dialog is a ModalDialog with children: its headline is a Headline and its Cancel and Move buttons are written by hand.",
+          "why": "DialogContent's `actions` cannot be given with `children` (the type says `actions?: never`), so a dialog that holds a field or a tree loses the kit's action row and its loading handling. The headline by hand is what the doc expects (\"write the headline yourself\")."
+        },
+        {
+          "kind": "read",
+          "what": "Read React Aria's useDroppableCollectionState and useDroppableCollection in node_modules.",
+          "why": "To know which drops it refuses by itself (a root drop of the list's own items, an item on itself) and which I had to refuse (a folder into its own descendant, an item into the folder it is already in)."
+        }
+      ],
+      "notes": "Not seen running: drag and drop is the part most in need of a browser. Moves: selection dragged onto a folder in the pane or in the tree; refused onto itself, a descendant or its current folder. A name already in the destination is kept apart (\"Name (2)\"). Every move has Undo in the snackbar. The other ways to move: \"Move to…\" in the row menu, the context menu and the selection toolbar, which is also the phone's way (the tree is behind a modal sheet there, so nothing can be dragged onto it). Tree rows are not draggable; breadcrumbs are not drop targets."
+    },
+    {
+      "n": 5,
+      "part": "A context menu",
+      "built": "yes",
+      "kit": [
+        "ContextMenu",
+        "Menu",
+        "IconButton",
+        "ModalDialog",
+        "TextField",
+        "Button",
+        "Headline"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "One ContextMenu around the pane and one around the tree, `items` a function of the target: a row's or the selection's actions, the open folder's on empty space. A right click on an unselected row selects it first.",
+          "why": "ContextMenu's doc comment: \"Or a function of what the menu was asked for on, to give each row of a list its own entries from one area: `(target) => itemsFor(target.closest(\"[data-key]\"))`.\""
+        },
+        {
+          "kind": "use",
+          "what": "The same entries in places a person sees: a Menu on a \"more\" IconButton in every row and tile, the selection toolbar, and the app bar's menu for the folder's own actions.",
+          "why": "ContextMenu's doc comment: \"It is never the only way to an action ... a `Menu` on an icon button in the row, a toolbar that follows the selection.\""
+        },
+        {
+          "kind": "option",
+          "what": "My items function returns nothing when the target is inside `[role=\"menu\"]`.",
+          "why": "ContextMenu's Popover is a React child of its area, so a right click inside the open menu bubbles (through React's tree) to the area's own onContextMenu, where `closest(\"[data-key]\")` finds a menu item's key. Without the guard the menu reopens as another menu."
+        },
+        {
+          "kind": "option",
+          "what": "Rename and New folder are ModalDialogs with children: a form with the kit's TextField, and Cancel and submit Buttons by hand.",
+          "why": "As in part 4: `actions` is refused beside `children`. The `title` is still required with children though it is not drawn (it is the accessible name), which I learned from DialogContent's types."
+        },
+        {
+          "kind": "read",
+          "what": "Read ContextMenu.tsx, Menu.tsx, ModalDialog.tsx and DialogContent.tsx past their doc comments.",
+          "why": "To see where the menu's popover sits in the tree (the guard above), that a divider is an entry with an id that could collide with a row's key, and what a dialog with children still needs."
+        }
+      ],
+      "notes": "Not seen running. Delete is confirmed in an alertdialog and has Undo. Menu items show \"F2\" and \"Del\"; those keys are bound on the list by my handler (part 3), not in the tree."
+    },
+    {
+      "n": 6,
+      "part": "Breadcrumbs",
+      "built": "yes",
+      "kit": [
+        "Breadcrumbs",
+        "Breadcrumb"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "The path as data with `items` and `onAction`, inside a `nav` named \"Path\".",
+          "why": "Breadcrumbs' doc comment: \"With `items` and a function it renders a path that is data, and `onAction` is called with the `id` of the level pressed, for a path that changes state instead of the address\" and \"put it in a `nav` with a name\"."
+        },
+        {
+          "kind": "layout",
+          "what": "The nav and its padding.",
+          "why": "Expected of a screen."
+        }
+      ],
+      "notes": "Not seen running. A long path wraps onto a second line at a phone's width, as the component's doc says; it is not collapsed into a menu."
+    },
+    {
+      "n": 7,
+      "part": "Upload by dropping files",
+      "built": "yes",
+      "kit": [
+        "DropZone",
+        "FileTrigger",
+        "Button",
+        "UploadIcon",
+        "ProgressIndicator",
+        "GridList",
+        "Tree",
+        "Title",
+        "snackbar"
+      ],
+      "leaves": [
+        {
+          "kind": "hook",
+          "what": "Files dropped on the list land through the same useDragAndDrop as the moves: onRootDrop uploads to the open folder, onItemDrop on a folder row (and on a tree folder) uploads into it, read with isFileDropItem.",
+          "why": "ds-build skill names `useDragAndDrop`, `isFileDropItem` together for the kit's GridList."
+        },
+        {
+          "kind": "option",
+          "what": "Did not wrap the list in `<DropZone variant=\"bare\">`; the kit DropZone is used only for an empty folder, where no collection is inside it.",
+          "why": "DropZone's doc offers `bare` \"for an area that has its own look, such as a list files are dropped onto\", but a GridList that has dragAndDropHooks is a drop target itself and React Aria's useDrop stops the drag events from reaching an ancestor (stopPropagation in node_modules/react-aria/dist/private/dnd/useDrop.mjs): the zone would never see a file over the list. The doc does not say which to use when the list is also dragged."
+        },
+        {
+          "kind": "use",
+          "what": "The empty folder's DropZone refuses the drive's own dragged items with getDropOperation, and holds a FileTrigger; a second FileTrigger button is always in the app bar.",
+          "why": "DropZone's doc comment: \"`getDropOperation` refuses what the zone does not take (return `\"cancel\"` for types it does not want)\" and \"Dropping is never the only way in: put a `FileTrigger` in it, or beside it.\""
+        },
+        {
+          "kind": "layout",
+          "what": "The simulated upload: a determinate ProgressIndicator above the list filled by a timer, then the files appear, selected, with a snackbar.",
+          "why": "Expected of a screen with mock data."
+        },
+        {
+          "kind": "read",
+          "what": "Read React Aria's useDrop source and DragTypes in node_modules. Also getDropOperationForPoint in useDroppableCollection, to confirm that a file held over a row that refuses it falls back to the list itself (it does).",
+          "why": "To settle whether a DropZone around a droppable list receives anything, and how to tell a file drag from the drive's own (types.has of my custom type)."
+        }
+      ],
+      "notes": "Not seen running. No real upload: a dropped or chosen file's name and size become a node after about 1.5 s. A dropped directory is ignored (only isFileDropItem items are taken). While files are over the populated list, the kit's own drop-target outline and tint on the GridList is the only cue; a line of text says \"Drop files on the list to upload\" from 640px up."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page: `h-dvh` column, TopAppBar, then the tree pane and `main` side by side.",
+      "why": "Expected of a screen. No block was used: none of the six fits a file browser (AppShell switches three to five navigation destinations, not a tree)."
+    },
+    {
+      "kind": "use",
+      "what": "Icons from lucide-react passed as components (folder, file types, more, list, grid, move, rename, delete).",
+      "why": "ds-build skill: \"Icons are any component taking `{ size, className }`. The kit ships no icon library.\""
+    },
+    {
+      "kind": "use",
+      "what": "Classes passed by `className`: `md:hidden` on the app bar's menu IconButton, `min-h-64` on the DropZone, `w-24 shrink-0` on the view ButtonGroup, a maximum height, corner and surface tier on the Tree in the Move dialog, `min-h-0 flex-1` on the GridList, padding on ProgressIndicator.",
+      "why": "ds-build skill: \"First try, in order: a token in `DESIGN.md` (the `ds-theme` skill), a `className` on the component\"."
+    },
+    {
+      "kind": "use",
+      "what": "The drag preview's label is raw `text-label-large font-label-large` on `bg-primary text-on-primary`.",
+      "why": "ds-build skill: \"A raw `text-title-medium` sets size, line height, tracking and weight, and no family: write `font-title-medium` beside it\"."
+    },
+    {
+      "kind": "read",
+      "what": "On the first pass I printed whole files (Tree, GridList, ContextMenu, Menu, Breadcrumbs, DropZone, FileTrigger, SegmentedButton), and my extracts of ButtonGroup, Button, Snackbar and ProgressIndicator also ran past their doc comments into styles and bodies.",
+      "why": "Habit, and no quick way to print only a component's doc comment and props. For Breadcrumbs, DropZone, FileTrigger and GridList the doc comment would have been enough."
+    }
+  ],
+  "friction": "Nothing was run in a browser here: the build (tsc -b && vite build) is green and a server render of the screen and of the dialog forms does not throw, and that is all the evidence there is for behaviour. What was hard: (1) Dropping files onto a list that is also dragged. DropZone's doc points `bare` at exactly \"a list files are dropped onto\", the skill points `useDragAndDrop` + `isFileDropItem` at GridList, and neither says that the two do not nest; I had to read React Aria's useDrop to learn the zone would be starved. One sentence in DropZone's doc (\"around a GridList or Tree with dragAndDropHooks, take files in the hooks' onRootDrop and onItemDrop instead\") would have settled it. (2) Card as a GridListItem's look has hover, focus, press and drag but no selected and no dropped-onto state, while ListItem has `isSelected`: a grid of selectable tiles is rebuilt by class each time. (3) A dialog with children loses `actions`, so every form dialog rewrites the button row; an `actions` that works beside children, or a doc line showing the form pattern, would help. (4) ContextMenu: its popover is inside its own area in React's tree, so a right click in the open menu re-enters the handler; and with `items` as a function there is no word on selecting the row that was right-clicked, which every file list needs. (5) SideSheet has no `classNames` for its content padding, and its standard form's 360px minimum is only in the styles. (6) The skill's Virtualizer row says sizes are pixels and the row's height is the kit row's, but the number (56 one line, 72 two) is in ListItem's doc, and nothing gives a tile size for GridLayout. (7) Under the Virtualizer the row's wrapper clips the kit's focus ring, drawn outside the row; found only by reading React Aria's VirtualizerItem. (8) No guidance on a tree pane that becomes a sheet at a phone's width: the app-shell block covers destinations only. What was easy: Tree with `items` and Collection, Breadcrumbs with `onAction`, the connected ButtonGroup as a view toggle, snackbar with Undo, and the first build passed type-checking without a wrong prop, which the doc comments earned."
+}

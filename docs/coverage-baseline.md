@@ -143,6 +143,10 @@ those gone, the same logs give **64 parts of 119, 54%**. That is a reading
 of old logs against new code, by the one who wrote the code: the figure
 that counts is the next run's.
 
+**Measured since:** the 22 screens were built again on release 0.9.1, and
+the figure is 61 parts of 119, 51%:
+[the run on 0.9.1](coverage-run-0.9.1.md).
+
 What still stands between a part and the kit, in those logs:
 
 - 52 `option` leaves, most met by one screen each. The ones met by more:

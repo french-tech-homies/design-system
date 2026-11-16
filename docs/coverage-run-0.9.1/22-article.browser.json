@@ -1,0 +1,87 @@
+{
+  "screen": "Article",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Long-form type: headings, lists, quotes, code",
+      "works": "yes",
+      "tried": "Read the outline and computed styles at 1280 and 400 (light; in dark, the text and ground colours of every text node, all legible): one h1 (36px at 1280, 28px at 400), h2 24px, h3 22px, body 16/24, ul disc, ol decimal, figure with a 4px bar + blockquote 22px + figcaption, inline code and kbd in mono on a tinted ground, pre in mono 14/20, strong at 700; measure 546px at 1280. Tabbed to the in-text link 'business profile' and pressed Enter: the other article loaded and its h1 took the focus. Tabbed to a code block (pre, role=group, named 'cURL code'), pressed ArrowRight five times: it scrolled sideways (scrollLeft 0 -> 129 at 1280, 0 -> 200 at 400) and the page did not.",
+      "failures": [],
+      "could_not_exercise": []
+    },
+    {
+      "n": 2,
+      "part": "Breadcrumbs",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to 'Getting paid' in nav 'Path' (ring shown, 48px high), Enter -> /help/getting-paid, h1 'Getting paid', crumbs 'Help centre / Getting paid'. There, Tab to 'Help centre', Enter -> /help, h1 'Help centre'. Browser Back twice returned to the article. The last crumb is a span role=link aria-disabled=true aria-current=page, out of the tab order. At 400 the three crumbs wrap onto two lines, nothing cut, no sideways scroll.",
+      "failures": [
+        "Enter on the crumb 'Getting paid', or on 'Help centre', from the article (both pressed): the list screen draws and document.activeElement is the body; nothing takes the focus and nothing is announced (document.title stays 'base' on every route). The h1 of the new screen should take the focus, as it does when one article leads to another.",
+        "Unsure: from /help/getting-paid, Enter on 'Help centre' keeps the focus on that same crumb (the element is reused), so the two crumbs behave differently."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 3,
+      "part": "A table of contents that follows the scroll",
+      "works": "partly",
+      "tried": "1280: scrolled by wheel in 100px steps and by Home/End: exactly one link of nav 'On this page' carries aria-current=location at a time, each of the ten entries in turn, none above the first heading; the nav stays stuck at the top. Tabbed to 'Add line items', 'Before you start', 'Send the draft', 'What happens next', 'Create a draft' in turn and pressed Enter: the address took the hash, the heading came to 32px from the top (the last to 347px, at the page's end), the heading took the focus with a ring, the pressed entry was the one marked each time; next Tab went on into the text. Direct load of #api-create scrolled and focused it. Back restored the previous section. 400: the bar is a button 'On this page / <section>' with aria-expanded and aria-controls; Enter and Space open and close it; panel is hidden=until-found and its links out of the tab order when closed; Tab walks the ten links (the panel scrolls them into view); Escape closes and returns the focus to the button; Tab past the last link closes it; Enter on a link closes it, scrolls the heading to 96px (bar ends at 57px), focuses the heading and the bar then names it. The bar sticks at top 0 and its title follows the scroll through all ten. Mouse: click opens, click outside closes, click on a link follows. No sideways scroll with the panel open.",
+      "failures": [
+        "400: Shift+Tab up the page puts focused controls under the sticky bar (0-57px). 'Copy the cURL sample' (second set) was focused at top 7px, bottom 47px: wholly hidden, only its tooltip showed. 'Play' was focused at top 44px (13px hidden), the other player buttons at 52px (5px hidden). The focused element should be scrolled clear of the bar (no scroll-padding for it).",
+        "Unsure: 1280: the list comes after the whole article in the Tab order (the 32nd stop, after Previous/Next), though it is drawn beside the title; a keyboard reaches it only through every control of the article (or by landmark with a screen reader).",
+        "Unsure: 400: the bar stays on screen while reading, but in the Tab order it sits before the article; from a heading reached through it, getting back to it is Shift+Tab through everything above (I pressed it back from 'Add line items': the page scrolled up to y=117 on the way)."
+      ],
+      "could_not_exercise": [
+        "Touch scrolling and a real phone's moving toolbar (dvh): mouse wheel and keys only."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "Tabs of code samples",
+      "works": "partly",
+      "tried": "1280 and 400: Tab lands on the selected tab only (roving tabindex); ArrowRight/ArrowLeft/Home/End move and select, wrapping at both ends; aria-selected and the tabpanel (labelled by its tab) follow; picking Python in the first set selected Python in the second ('Send an invoice') and wrote localStorage; a reload kept it. Tab goes tab -> 'Copy the Python sample' -> the code block -> the next set. Enter and Space on Copy: the clipboard held the sample (read back), the role=status said 'Copied', the icon became a check for about 2.5s, focus stayed on the button. With the clipboard refusing: status 'Could not copy: select the code instead'. Mouse: clicking a tab and Copy work, hover shows the tooltip 'Copy'. The four tabs fit at 400 (tablist 368px, no scroll).",
+      "failures": [
+        "In the second set ('Send an invoice'), every arrow key that changes the language scrolls the page by 316 to 396px, at both widths: scrollY 2780 -> 2464 -> 2860 -> 2464 -> 2860 at 1280 for ArrowRight x3 then ArrowLeft, and the focused tab jumps between top 376px and top 752px (the window's bottom edge). The first set above changes height by only 20 to 60px with the language, which does not account for it; unsure of the cause (the tab being scrolled into view after the page above it moved). The tab stays in view, the page jumps under the reader. In the first set the focused tab did not move (top 606px before and after ArrowRight)."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 5,
+      "part": "An audio player with captions",
+      "works": "partly",
+      "tried": "1280 and 400, reading the audio element itself (paused, currentTime, playbackRate, muted, volume). Position slider (named 'Position in the recording', thumb shows a 3px ring): ArrowRight +1s, PageUp +5s, End 45s, Home 0, valuetext 'N seconds'; from 7.13s ArrowRight gave 8. Play: Enter started it, the button became 'Pause' and kept the focus; after 7s the clock read 0:07, the caption had moved to the second cue and the second transcript line carried aria-current; Space paused. Forward 10 and Back 10 move by 10s; Forward stops at 45.24 (the end) and Back, pressed three times from 10s, at 0. Play at the end starts again from 0; played to its natural end the button returns to 'Play'. Speed: Enter opens a menu of five menuitemradio named by the button, focus on the checked one; ArrowDown + Enter set playbackRate 1.25, the button reads 'Speed: 1.25x', focus back on it; Escape closes with focus back. Captions: aria-pressed toggles and the caption box goes and returns. Mute: aria-pressed and audio.muted toggle. Volume slider (1280): arrows by 5%, End 100%, Home 0 and muted. Transcript: disclosure opens, eight lines are buttons; Enter on the third moved the recording to 11.5s and marked it, Space on the fourth to 17s. Tooltips show on keyboard focus and on hover. Blocked the .mp3: role=alert 'The recording could not be loaded.' with 'Try again', Play/Back/Forward and the slider disabled; unblocked, Enter on 'Try again' loaded it. Mouse: click on the track seeks (23s), dragging the thumb seeks (9s), click on Play plays. Leaving the article while it played removed the audio. No sideways scroll at 400 with the menu or the transcript open. The one console line of the whole run came from my blocking the .mp3: \"Failed to load resource: net::ERR_FAILED\".",
+      "failures": [
+        "Enter on 'Try again': the alert and its button are removed while it loads, and document.activeElement is the body, both when the retry fails again and when it succeeds. The focus should go to the Play button or stay on something in the player.",
+        "1280: volume slider Home (0%, 'Mute' becomes pressed), then Enter on 'Mute': the button reads not pressed and audio.muted is false, but audio.volume is 0 and the slider reads 0%: unmuted and still silent. Unmuting should bring back a volume.",
+        "Unsure: 1280: with the volume at 100%, Enter on 'Mute', then ArrowRight on the volume slider: the volume becomes 5% and unmuted, not the 100% it was (the slider shows 0 while muted and steps from there).",
+        "400: there is no volume slider (display none below 640px): on a phone-sized window the volume cannot be set from the page, by keyboard or pointer; only Mute. The source says this is on purpose ('A phone has its own volume keys')."
+      ],
+      "could_not_exercise": [
+        "Hearing it: headless Chromium has no sound out; I read the element's time, rate, volume and muted state instead.",
+        "Whether the captions match speech: the recording is a mock of tones (the builder's log says so); I checked only that the cue shown is the one whose times hold currentTime.",
+        "A screen reader's reading of the caption box (it is not a live region, on purpose per the source)."
+      ]
+    },
+    {
+      "n": 6,
+      "part": "Tags",
+      "works": "partly",
+      "tried": "1280 and 400: the four tags are links (kit Chip with href) in a list under an h2 'Tags'; Tab reaches each with a ring; Enter on 'Payments' -> /tags/payments, h1 'Articles tagged “Payments”', two articles listed; Enter on 'API' -> /tags/api, one article. At 400 they wrap onto two rows, no sideways scroll.",
+      "failures": [
+        "Enter on a tag: the list of articles draws and document.activeElement is the body; nothing takes the focus or is announced (title stays 'base'). The new screen's h1 should take the focus.",
+        "Unsure (history through the skeleton more than the tag itself): Browser Back from the tag's list: the article reloads behind its 900ms skeleton and stands at its top (scrollY 48 at 1280, 100 at 400), focus on the body, not back at the tags the person left at the foot of the article.",
+        "Unsure: a tag is 32px high with no larger target (the builder's log says the same of the kit's chips); small for a finger at 400."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 7,
+      "part": "Previous and next links",
+      "works": "yes",
+      "tried": "1280 and 400: nav 'Previous and next articles' holds two links (rel=prev, rel=next), named 'Previous Set up your business profile' and 'Next Get paid faster with reminders', each whole card focusable with a ring, 80px high; side by side at 1280, stacked at 400. Enter on Next: the address changed, a role=status 'Loading the article' showed for 900ms (focus on the body meanwhile), then the new h1 took the focus at scrollY 0, in view, with a ring. The last article shows only Previous, the first only Next. Enter on Previous went back the same way; the next Tab after the h1 went on into the article.",
+      "failures": [],
+      "could_not_exercise": []
+    }
+  ]
+}

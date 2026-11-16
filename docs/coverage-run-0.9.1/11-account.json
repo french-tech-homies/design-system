@@ -1,0 +1,64 @@
+{
+  "screen": "Account",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "An avatar that is replaced by upload",
+      "built": "yes",
+      "kit": ["Avatar", "FileTrigger", "StateLayer", "focusRing", "cn", "LoadingIndicator", "Button", "snackbar", "SnackbarRegion"],
+      "leaves": [
+        { "kind": "component", "what": "react-aria-components `Button` is the pressable inside the kit's FileTrigger; it holds the Avatar, a kit StateLayer, the kit focus ring, a camera badge and the upload overlay, so that pressing the picture itself opens the chooser.", "why": "The kit has no pressable that holds arbitrary content: Button and IconButton take a label and an icon. FileTrigger's doc says 'wrap a `Button` or an `IconButton` in it', which would have meant a small icon button beside the picture and a picture that does nothing when tapped." },
+        { "kind": "option", "what": "ImageField not used; the upload flow (type and 5 MB check, object URL preview, pending state, undo, remove) is the project's own around FileTrigger.", "why": "ImageField is a rectangular drop zone and preview (aspect ratios 16:9, 4:3, 1:1, auto) with its own label, Replace button and file name: it has no round or avatar form, and Avatar has no editable form, no badge slot and no loading state." },
+        { "kind": "option", "what": "The camera badge and the loading scrim are siblings of the Avatar inside a relative, round button, not children of it.", "why": "Avatar's root is `overflow-hidden` and takes no children: anything overlaid on its edge has to be placed around it." },
+        { "kind": "layout", "what": "The badge (32px circle on secondary-container, elevation 1), the scrim over the picture while uploading, the column with the 'Remove photo' text button.", "why": "Expected of a screen." },
+        { "kind": "value", "what": "`bg-scrim/50` for the dimming over the picture while it uploads.", "why": "A role with an alpha of my own choosing; copied from the kit's Modal, which writes the same. There is no token for a scrim's opacity." },
+        { "kind": "hook", "what": "`VisuallyHidden` with role=status says 'Uploading photo' once.", "why": "The skill lists it under 'What comes straight from React Aria': 'Text only a screen reader gets | VisuallyHidden | For a status, or a name with no visible text.' LoadingIndicator's own label sits inside a button, where it is not announced." },
+        { "kind": "read", "what": "Avatar's source: the root clips, and without `alt` it is aria-hidden (the doc comment says the second, not the first).", "why": "To know whether a badge could go inside it." },
+        { "kind": "read", "what": "ImageField's whole source, to see whether its preview could be made round.", "why": "The doc comment does not say that the shape is only the four aspect ratios." },
+        { "kind": "read", "what": "React Aria's FileTrigger in node_modules: it clears the input before each press, so the same file can be chosen twice, and `acceptedFileTypes` only filters the chooser.", "why": "The kit's FileTrigger doc says neither; the type and size are therefore checked in the project." }
+      ],
+      "notes": "Not run in a browser: nothing here was seen or pressed. The upload is a 1.4 s timer; one still running when the page is left (a chevron row, sign out) is dropped. The Undo snackbar is closed when another picture is chosen and when the page is left. The picture starts as initials (no mock image). A snackbar with Undo stays until acted on or closed, the kit's default for a snackbar with an action. The LoadingIndicator inside the button is visual only for a screen reader; the status region speaks for it."
+    },
+    {
+      "n": 2,
+      "part": "A list of settings rows with trailing switches and chevrons",
+      "built": "yes",
+      "kit": ["GridList", "GridListItem", "ListItem", "Switch", "ChevronRightIcon", "Title", "Body", "adapters/react-router AriaRouterProvider", "TopAppBar", "IconButton", "ArrowBackIcon", "RadioGroup", "Radio", "TextField", "Button", "Skeleton", "SkeletonGroup", "snackbar"],
+      "leaves": [
+        { "kind": "option", "what": "A switch row is wired by hand: a controlled Switch in the ListItem's trailingElement with an `aria-label` that repeats the headline, and `onAction` on the GridListItem so a press anywhere on the row, or Enter, toggles it.", "why": "The kit has no settings row: nothing ties a row's headline to the switch as its label, or the row's press to the switch. Switch draws its children after the track, so it cannot be the row itself with the label leading." },
+        { "kind": "option", "what": "`-outline-offset-3` on each GridListItem, to draw the focus ring inside the row.", "why": "The kit's ring is `outline-offset-2`, outside the row, and the kit's GridList is `overflow-auto` (and mine clips to rounded corners): the ring of the first, the last and every row's sides would be cut. Neither doc comment says how a row's ring is meant to show in a list." },
+        { "kind": "option", "what": "A chevron row's trailing element is composed by hand: the setting's current value in body-medium on on-surface-variant, truncated at `max-w-40`, then ChevronRightIcon.", "why": "ListItem has one trailing slot and no trailing supporting text or navigation affordance of its own." },
+        { "kind": "use", "what": "A Switch, and a value with a chevron, passed as ListItem's `trailingElement`.", "why": "ListItem's doc: '`leadingElement` and `trailingElement` are whatever a slot holds (an icon, an avatar, a checkbox, text), 16dp from the text.'" },
+        { "kind": "use", "what": "`href` on GridListItem for the chevron rows, client-side through the kit's react-router adapter under a HashRouter.", "why": "The adapter's header: 'Without it, React Aria's links — `Button href`, `IconButton href`, `Chip href`, `Menu` item `href`, `ListItem href` — still render a real `<a>`, but a click does a full page load'. It names `ListItem href`, which does not exist: the prop is GridListItem's, passed through to React Aria, and GridListItem's own doc does not mention it." },
+        { "kind": "use", "what": "The list's surface and corners by `className` on GridList (`rounded-shape-large bg-surface-container-low`); the kit's own `overflow-auto` clips the rows to the corners.", "why": "GridList's doc: 'It draws nothing of its own; render a `ListItem` inside each `GridListItem`.'" },
+        { "kind": "layout", "what": "Three sections, each a `section` with a title-small heading on primary and its own GridList named by that heading; three small setting pages (Personal details, Units, Weekly goal) so each chevron leads somewhere real.", "why": "The kit has no list section header or grouped list. Expected of a screen." },
+        { "kind": "read", "what": "ListItem's and GridList's sources: the row's state layer follows `group/grid-list-item` only (so a plain `ul` of rows would show no hover), and GridList clips.", "why": "To choose between a GridList and a plain list of switches and links." },
+        { "kind": "read", "what": "`utils.ts`: `focusRing` is `outline-3 outline-offset-2`.", "why": "To know where a row's ring is drawn against a list that clips, and what to override." },
+        { "kind": "read", "what": "Switch's source: the track comes first, the children after, `min-h-12`.", "why": "To see whether the Switch could be the whole row with its label leading." },
+        { "kind": "read", "what": "React Aria in node_modules (usePress, useToggle, useSelectableItem, useGridListItem): a press on the switch stops at the switch and does not also fire the row's action; with no selection, Enter fires a row's action and Space does not.", "why": "A double toggle would have left the switch where it was, and no browser was allowed to check. Neither is in the kit's docs." }
+      ],
+      "notes": "Not run in a browser. Read from source, not seen: the switch does not double-toggle; Enter on a row toggles or navigates; Space on a focused row does nothing (Right arrow to the switch, then Space, does); Tab moves between the three lists, arrows within one. A screen reader hears each switch row as a row holding a switch with the same name. Rows carry no dividers: a Divider cannot sit between GridListItems."
+    },
+    {
+      "n": 3,
+      "part": "Sign out confirmed in a dialog",
+      "built": "yes",
+      "kit": ["Button", "ModalDialog", "Headline", "Body"],
+      "leaves": [
+        { "kind": "use", "what": "`className=\"max-w-sm\"` on ModalDialog; `role=\"alertdialog\"`; `actions` with `isLoading` on confirm during the simulated request.", "why": "ModalDialog's doc: 'The basic dialog keeps 16dp from the window's edges and is at most 560dp wide, Material's maximum; `className` gives another (`max-w-sm`).' and 'While an action of `actions` is loading, nothing dismisses the dialog'." },
+        { "kind": "read", "what": "DialogContent's source past its doc: a confirm or cancel press closes nothing, the project closes the dialog itself.", "why": "The doc comment shows `onPress: close` for cancel but does not say that the dialog never closes on its own." },
+        { "kind": "read", "what": "Button's source: the comment in its styles on `color: error` ('Reserve it for actions that delete or cancel'), and DialogContent's rendering of the two actions.", "why": "To decide whether Sign out is an error-coloured action; the doc comment says only 'the destructive button (see the styles)'." },
+        { "kind": "read", "what": "Typography's source: the primitives forward a ref and pass DOM props (tabIndex) to the element.", "why": "The signed-out heading must take the focus; the doc comment does not say a ref is forwarded." },
+        { "kind": "layout", "what": "The signed-out page (heading, a line, 'Sign in again'), written by hand; its heading takes the focus, since the button the dialog would return it to is gone.", "why": "EmptyState draws a bordered box for 'nothing to show' and gives no handle on its title for focus. Expected of a screen." }
+      ],
+      "notes": "Not run in a browser. The confirm button is primary, not `color=\"error\"`: Button's source reserves error 'for actions that delete or cancel', and signing out destroys nothing. The sign-out is a 1.1 s timer; signing in again reloads the mock account, so an uploaded picture is lost, as it would be without a server."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "`Frame`: TopAppBar and a `main` in one centred column (`max-w-xl`), the same at 400px and on a desktop; the loading skeleton of the page (the lists' heights are estimates, `mt-11` stands for a section heading).", "why": "Expected of a screen. No block used: none of the six serves a part, and AppShell would have needed invented destinations." },
+    { "kind": "layout", "what": "After a navigation inside the app, `main` takes the focus (tabIndex -1), by hand.", "why": "The adapter says of fragments 'The focus is not moved: move it yourself', and nothing in the kit moves focus on a route change." },
+    { "kind": "use", "what": "Icons from lucide-react (already a dependency) for the rows, the camera badge and sign out.", "why": "The skill: 'Icons are any component taking `{ size, className }`. The kit ships no icon library.'" }
+  ],
+  "friction": "No type error and no second attempt: the build was green at the first run, so there is no `guess`. Nothing was seen: no browser was allowed, so every claim about behaviour comes from source. What was hard: (1) Nothing says how a row with a trailing control should be built: whether the Switch's press also fires the row's action, which keys fire `onAction`, and how the switch gets its name from the headline had to be read in react-aria's own source. One example of a settings row in ListItem's or Switch's doc would have settled it. (2) The focus ring of a GridListItem is drawn outside the row while GridList clips; the docs do not say what to do. (3) An avatar that is changed is a common part and falls between Avatar (no children, clips), FileTrigger ('wrap a Button or an IconButton') and ImageField (rectangles only): a round ImageField, or a line in Avatar's doc on how to make it pressable, would have removed the react-aria Button. (4) The react-router adapter's header names 'ListItem href', which does not exist: `href` is GridListItem's. (5) DialogContent's doc does not say that an action never closes the dialog. (6) ModalDialog's doc was complete and exact; the skill's table of what comes straight from React Aria (VisuallyHidden) was useful."
+}

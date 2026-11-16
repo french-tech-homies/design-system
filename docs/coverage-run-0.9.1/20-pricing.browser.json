@@ -1,0 +1,68 @@
+{
+  "screen": "Pricing",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A monthly and yearly toggle",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to the group (role=radiogroup, named \"Billing period\", one Tab stop), Space on Monthly, Space again, ArrowRight/ArrowLeft/ArrowDown, Enter on Yearly, Tab out and Shift+Tab back; a mouse click too. Checked aria-checked on both radios, the aria-live line under the group, the three cards' prices and small print, the table's first row and every /signup href: all follow the choice. A second Space on the selected one leaves it selected.",
+      "failures": [
+        "Tab into the group from above lands on \"Monthly\" (aria-checked=false) although \"Yearly\" is the selected one; a radiogroup should take the focus on its checked radio. Shift+Tab back into it lands on the one last focused.",
+        "unsure: ArrowRight/ArrowLeft move the focus between the two role=radio buttons without selecting (Space or Enter is needed); a screen reader announces radios, where arrows are expected to select."
+      ],
+      "could_not_exercise": [
+        "Whether a screen reader speaks the aria-live line: only its text and attribute were checked."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Plan cards with one emphasised",
+      "works": "yes",
+      "tried": "At 1280 (three columns) and 400 (one column), light and dark: the skeleton (role=status, \"Loading the plans\") shows first, then three li cards each named by its h2. Solo alone is data-variant=elevated with a tinted ground, a shadow, a filled call to action and a \"Most popular\" tag; the others are outlined. Looked at the screenshots: the emphasis reads in dark too (ground and filled button; the shadow is not visible there). Tabbed to each call to action and each term in the points (focus ring visible, in view), pressed Enter on \"Try Solo free for 30 days\": the address became /signup?plan=solo&billing=yearly.",
+      "failures": [],
+      "could_not_exercise": [
+        "Where a call to action leads: the mock has no /signup route, the preview server answers it with the same pricing page."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "A table comparing plans",
+      "works": "partly",
+      "tried": "At 1280 and 400: checked the grid (named \"The plans compared\", 4 column headers, 13 row headers, check and dash icons carry hidden \"Included\"/\"Not included\", first row follows the toggle). Tab lands on the first row (one Tab stop), then ArrowDown/Up/Left/Right through rows, cells and the terms in the feature column, Home, End, Ctrl+Home, Ctrl+End, PageUp, PageDown, Tab out, Shift+Tab back (returns to the cell left). At 400 the table is 672px in a 366px box: the arrow keys scroll the box so the focused cell is in view (scrollLeft 0, 153, 306), and a mouse wheel scrolls it sideways; the page itself does not scroll sideways.",
+      "failures": [
+        "Home or End on a cell or a column header (both widths): the focus moves to the first or last cell of the row and the page also scrolls to its very top or bottom, so the focused cell is out of the window (at 1280, End on \"Invoices a month\": scrollY 921 to 1477, focused cell \"Unlimited\" at top=-414; Home: scrollY 0, focused cell at top=1063 in an 800px window). The focused cell should stay in view.",
+        "Ctrl+Home (both widths): focus goes to \"Price a month, billed yearly\" and the page scrolls to the top, the focused cell at top=1011 (1280) or 1977 (400), below the window. Ctrl+End happens to leave its cell in view because the table is near the page's end."
+      ],
+      "could_not_exercise": [
+        "A finger's sideways swipe of the table at 400 (a mouse wheel was used instead)."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "Questions that open and close",
+      "works": "yes",
+      "tried": "At 1280 and 400: Tab through the six headers (each a button inside an h3, aria-expanded, aria-controls to a role=group panel labelled by it; the first open at load). Enter opened the second while the first stayed open, Space closed and reopened it, Enter closed the first, Enter opened the last; a mouse click opened the fourth. aria-expanded and the panel (height 0, hidden=until-found, aria-hidden=true when closed) followed each time; the focus stayed on the header pressed, ring visible. At 400 the last question's answer opens just under the window (panel at 800 to 900 of 800), its header still in view: left out of the failures on purpose, the page scrolls to it.",
+      "failures": [],
+      "could_not_exercise": []
+    },
+    {
+      "n": 5,
+      "part": "Tooltips on terms",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to each of the nine terms outside the table (VAT, and those in the cards) and arrow keys to the six in the table's feature column: a role=tooltip with the term's headline and meaning shows on focus, the trigger's aria-describedby names it, it lies whole inside the window (placement also checked in a 500px-high window, where no focus happened to scroll the page), Escape hides it and the focus stays on the term, Tab away hides it. Mouse: resting on a term shows it (also in the table), moving away hides it after about 1.5s, a click does not put it away. Touch (hasTouch context): a tap shows it, a second tap hides it, a tap elsewhere or on another term hides it, a scroll hides it; the same in the table.",
+      "failures": [
+        "At 400, a term in the table reached with ArrowLeft from the cell on its right (for instance row \"Transaction fee\": from \"2%\" press ArrowLeft): the focus lands on the term's button, the box scrolls sideways (scrollLeft 153 to 0) and no tooltip shows (no role=tooltip, no aria-describedby, still none after 1.5s); Enter does not show it either. It should show as it does at 1280. It shows only after leaving the cell and coming back (ArrowDown, ArrowUp).",
+        "Tab out of the table while a row has the focus (both widths; from a cell: not sampled): the tooltip of \"Multi-currency\" (the table's last term) flashes at full opacity and fades over about 150ms while the focus is already on the first question. No tooltip should show.",
+        "unsure: after Escape hides a term's tooltip, Enter and Space on the term do not bring it back; the keyboard has to leave the term and return (Tab, Shift+Tab)."
+      ],
+      "could_not_exercise": [
+        "A real finger: taps were Playwright's emulated touch in Chromium, at both widths.",
+        "Whether a screen reader reads the tooltip: only role=tooltip and aria-describedby were checked.",
+        "Whether a term whose focus scrolls the page vertically also loses its tooltip, as the sideways scroll at 400 does: no Tab step scrolled the page in the runs made.",
+        "The tooltip's own colours and contrast, light or dark: no picture of an open tooltip was taken, and the text-contrast walk ran only at load."
+      ]
+    }
+  ]
+}

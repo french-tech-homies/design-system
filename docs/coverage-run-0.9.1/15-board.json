@@ -1,0 +1,63 @@
+{
+  "screen": "Board",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Columns of cards",
+      "built": "yes",
+      "kit": ["TopAppBar", "GridList", "GridListItem", "Card", "Title", "Label", "Body", "Skeleton", "SkeletonGroup"],
+      "leaves": [
+        { "kind": "layout", "what": "The page (app bar over a row of four columns that scrolls sideways on a phone and shares the width from lg up), each column's shell (a section on surface-container-low with a heading and a count), the empty column's line of text, and the loading placeholder (four column shells of rectangle skeletons, 900 ms timer).", "why": "A board and its columns are the screen's own composition; no kit component or block is a board." },
+        { "kind": "use", "what": "A Card inside each GridListItem, the item carrying the action and the focus ring.", "why": "GridListItem's doc comment: \"put the row's look inside it (a `ListItem`, or a `Card`, whose state layer follows the row's hover, focus, press and drag)\"." },
+        { "kind": "use", "what": "className on GridList (min-h-24, p-1, a corner) and on GridListItem (mb-2, block, the medium corner so the focus ring follows the card).", "why": "ds-build, \"What a project may change\": \"First try, in order: a token in `DESIGN.md` (the `ds-theme` skill), a `className` on the component\"." },
+        { "kind": "use", "what": "Card's content part set to `gap-3 p-3`.", "why": "Card's doc comment: \"To lay them out another way or to run them to the card's edges, say so on that part: `classNames={{ content: \"p-0\" }}`\"." },
+        { "kind": "read", "what": "Read GridList.tsx and Card.tsx whole.", "why": "GridList's doc comment does not say that the list is `overflow-auto` (it clips its rows' focus rings unless padded) nor how rows should be spaced when drop indicators are rendered between them; Card's root doc comment is below 150 lines of styles and types, so the file was read to find it." }
+      ],
+      "notes": "Not seen in a browser: types and the build only. The list is padded by 4px so `overflow-auto` does not clip the rows' focus rings; rows are spaced by a margin on the row, not a gap on the list, so a drop indicator between two rows does not add a gap. Both are reasoned, not observed."
+    },
+    {
+      "n": 2,
+      "part": "A card moved within and between columns by drag and by keyboard",
+      "built": "yes",
+      "kit": ["GridList", "GridListItem", "GridListDragHandle", "Card", "Select", "SelectItem"],
+      "leaves": [
+        { "kind": "hook", "what": "`useDragAndDrop` and `isTextDropItem` from react-aria-components, one call a column: getItems with a custom type, acceptedDragTypes, getDropOperation 'move', onReorder (same column), onInsert (another column, between cards), onRootDrop (onto the column, or an empty one).", "why": "ds-build, \"What comes straight from React Aria\": \"Pass its `dragAndDropHooks` to the kit's `GridList` or `Table`: both hand React Aria's props down.\" The skill names `useDragAndDrop` and `isFileDropItem`; `isTextDropItem`, which reading a card's id from a drop between two lists needs, is not named." },
+        { "kind": "use", "what": "A GridListDragHandle in each card's bottom row, named \"Drag <title>\", pulled in by -m-1.", "why": "GridListItem's doc comment: \"put a `GridListDragHandle` in each row: the pointer drags the row from anywhere, and the handle is how the keyboard and a screen reader pick it up.\"" },
+        { "kind": "read", "what": "Read react-aria-components' useDragAndDrop.d.ts for the option and event shapes.", "why": "The kit and the skill show a list reordered; neither shows a move between two lists (which events fire, that `onInsert`'s items are read asynchronously with `getText(type)`, that `onRootDrop` serves an empty list)." },
+        { "kind": "layout", "what": "The project's own move logic: one pure function that takes a card out of wherever it is and inserts it before or after a target, or last.", "why": "State is the project's; the kit holds none." }
+      ],
+      "notes": "Not exercised: there is no browser here, so the pointer drag, the keyboard path (arrow to the handle, Enter, Tab between columns' drop targets, Enter, Escape) and the screen reader's announcements are React Aria's as typed, verified by types and the build only. A second way to move a card, with no drag, is the Column select in the card's sheet (it puts the card last in the chosen column). Unsure: whether a pointer drag scrolls the board sideways at a phone's width when the target column is out of view; the select covers that case. The dragged card's look is the Card's state layer and the kit's drop line; I added nothing of my own."
+    },
+    {
+      "n": 3,
+      "part": "Tags and avatars on a card",
+      "built": "yes",
+      "kit": ["Tag", "Avatar", "Label", "Title"],
+      "leaves": [
+        { "kind": "layout", "what": "The card's insides: a wrapping row of tags, the title, then a row of overlapping avatars, the id, due date and subtask count, and the drag handle.", "why": "A card's insides are the screen's." },
+        { "kind": "option", "what": "Overlapped the avatars by hand: `-ms-2 ring-2 ring-surface` on each Avatar's className, the ring in the card's own surface role.", "why": "The kit has no avatar group (a stack with its overlap, its separating ring and a \"+2\" overflow); Avatar's doc comment says nothing of className or of stacking." },
+        { "kind": "read", "what": "Read Avatar.tsx and Tag.tsx past their doc comments.", "why": "Tag's `color` values (neutral, primary, secondary, tertiary, error) are only in its `tv` variants: the doc comment shows two of them. Avatar's source was read to learn that `className` reaches the root and that the initials' size follows `size`." }
+      ],
+      "notes": "Each avatar on a card has `alt`, so it is an image named for the person; in the sheet the name is written beside it and the avatar is decorative, as Avatar's doc comment asks. Every avatar is primary-container: the kit gives no per-person colour and I did not invent one. A tag's meaning rests on its word; its colour (error for Bug, tertiary for Design...) is only a second cue."
+    },
+    {
+      "n": 4,
+      "part": "A card's detail in a side sheet",
+      "built": "yes",
+      "kit": ["SideSheet", "Select", "SelectItem", "Checkbox", "Tag", "Avatar", "Title", "Body", "Label"],
+      "leaves": [
+        { "kind": "layout", "what": "The sheet's insides: the id, the Column select, description, due date and tags as a definition list, assignees as a list of avatar and name, subtasks as checkboxes that tick.", "why": "A sheet's content is the screen's." },
+        { "kind": "read", "what": "Read SideSheet.tsx whole.", "why": "Its doc comment has no usage example and does not say that `standard` is the default variant (the modal one must be asked for), that a string `title` becomes an h2 and the dialog's name, that the close button comes only with a `title`, or that the sheet has `min-w-[360px]`." },
+        { "kind": "use", "what": "Project logic around the sheet: the card shown is held apart from `isOpen`, so the title and content stay while the sheet slides out.", "why": "SideSheet's own comment in its source: \"a caller that drops the sheet's content the moment it closes ... leaves a nameless dialog for the length of the exit\". It is in the source, not the doc comment, so this is close to an `option`." },
+        { "kind": "guess", "what": "Passed `value` / `onChange` to Select for the controlled column, from memory of React Aria 1.22, after a grep of the type files did not show the props; it type-checked at the first build.", "why": "Select's doc comment shows `label` and `items` only, no controlled example." }
+      ],
+      "notes": "Opened by a card's action (a press, or Enter on the focused card); closed by the X, Escape or the scrim, focus then returning to the card (React Aria's, not observed here). Not seen in a browser. At about 400px the sheet is `calc(100% - 56px)` wide with a 360px minimum, so it should be 360px with 40px of scrim: computed from the classes, not measured. Moving the card with the Column select re-renders the board behind the open sheet; the sheet stays on the same card."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "use", "what": "No block used: none of the six (pager, stepper, radio tile, reading carousel, site header, app shell) serves a single-screen board.", "why": "BRIEF: \"Use one where it serves a part\"." },
+    { "kind": "layout", "what": "`sr-only` text after each column's count (\"4 cards\") rather than React Aria's VisuallyHidden.", "why": "Either does it; the skill names VisuallyHidden \"for a status, or a name with no visible text\", and I used Tailwind's class. A small departure." }
+  ],
+  "friction": "The build was green at the first attempt, so nothing was verified beyond types: with no browser allowed, drag, keyboard moves, the phone width and dark mode are unobserved, and the log says so part by part. What was hard: (1) a board is the obvious use of GridList's drag and drop, and neither the skill nor GridList's comment shows a move between two lists: which of onReorder / onInsert / onRootDrop to write, that items are read with `getText`, and that `isTextDropItem` is needed; a ten-line example in the skill's React Aria table would have saved the read of the type file. (2) SideSheet's doc comment explains its internals and gives no example: the default variant, the title's role and the minimum width were found in the source. (3) Card's doc comment sits under its styles and types, and index.ts gives no hint of where a file's comment is. (4) There is no avatar group; overlapping avatars are on every card of every board. (5) Tag's colours are not listed in its doc comment. (6) Select's controlled props are not shown. (7) GridList being `overflow-auto` clips its rows' focus rings unless the list is padded: the comment could say so, or the list could pad itself."
+}

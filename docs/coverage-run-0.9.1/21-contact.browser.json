@@ -1,0 +1,53 @@
+{
+  "screen": "Contact",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Text fields, a multi-line field, a select, a consent checkbox",
+      "works": "partly",
+      "tried": "At 1280 and 400, light and dark: Tab and Shift+Tab through name, email, company, select, message, checkbox, Send; typed in every field; Enter in a field and on the button with the form empty and with a bad email; opened the select with Enter, Space and ArrowDown, moved with arrows, Home, End and type-ahead, picked with Enter, closed with Escape; Enter for a new line in the message and 1005 characters against its 1000 limit; Space on the checkbox. Then the same with the mouse (click, hover, click outside the list, drag of the textarea's resize handle).",
+      "failures": [
+        "Select, after Enter on 'Send message' with the form empty: the trigger button carries neither aria-invalid nor aria-required (both null), while the three required inputs/textarea and the checkbox carry aria-required=true and aria-invalid=true; the hidden <select> is required=false and inside aria-hidden. Its error 'Choose what your message is about' is a plain span, reached only through the trigger's aria-describedby, not a role=alert as the text fields' errors are. Required and invalid should be announced on the select as on the other fields.",
+        "Checkbox, Tab onto it: the only sign of focus is the 40px state layer at opacity 0.1 (rgb(25,28,31) on rgb(250,251,255)); every outline in the label computes to 'none', whereas every other control shows a 3px solid outline. Unsure: it may be the kit's intended Material focus state, but it is very faint (verify/ce-focused-light.png against verify/ce-unfocused-light.png).",
+        "Multi-line field: its floated label sits inside the box, from 0 to 16px below the box's top edge, and the first line of text starts at 15px; the single-line fields float theirs onto the border (-8 to +8px). Text and label touch. One picture (verify/checkbox-focus-1280.png) shows the label drawn over the first line 'Too short'; unsure, not reproduced in five further runs, probably caught mid-transition after focus.",
+        "At 400, Enter on Send with an address the server refuses (ada@example.com): focus goes to Email and the page scrolls it flush to the window's top (input top=0), so its floated label 'Email*' is cut in half (label top=-8) (verify/e422-top-400.png). The field itself and its error are visible."
+      ],
+      "could_not_exercise": [
+        "A screen reader's actual speech: only roles, names and aria-* were read from the page.",
+        "Touch: headless Chromium was driven with keyboard and mouse only; no touch events, no on-screen keyboard (inputMode=email, autocomplete were not observable).",
+        "Browser autofill of name/email/organization."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "The state after sending",
+      "works": "partly",
+      "tried": "With Math.random pinned to 0.9 by an init script (the server succeeds): filled the form by keyboard and sent with Enter on the button, Space on the button and Enter in the name field; pressed Enter and Space again while it was sending; read the button and the role=status text during the 1.4s wait; read the receipt; Tab to 'Write another message', Enter; chose another topic (ArrowDown x3, Enter), wrote and sent a second message. At 1280 and 400, light and dark, and by mouse. Also with a 70-character email and a long URL in the message.",
+      "failures": [
+        "At 400, receipt with a long unbroken value: email 'bartholomew.featherstonehaugh@consultancy-partners-international.co.uk' is cut at the card's edge in 'We answer at …' (text right edge 442px, card content ends 384px, the card is overflow hidden), and a message holding 'https://app.tally.example/invoices/2041/preview?token=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is cut too (396px > 384px): the end of both is unreadable and cannot be scrolled to (verify/st-sent-long-400-true.png). A 42-character email and a 43-character URL were whole; at 1280 nothing was cut.",
+        "At 400, when the receipt appears: focus goes to its heading and the page scrolls the heading flush to the window's top (top=0): the top of its focus ring is cut and the check mark above it is scrolled out (verify/sent-top-400.png). The heading text is visible.",
+        "While sending (1.4s) the fields stay editable: Shift+Tab twice and typing ' EXTRA' in the message was accepted, then the receipt showed the message without it. Unsure that it is a failure: what is typed during the wait is silently dropped from what was sent, and the form is replaced."
+      ],
+      "could_not_exercise": [
+        "Whether a screen reader speaks 'Sending your message…' (role=status, filled on submit) and the newly focused heading: the DOM is right, speech was not heard.",
+        "Two submits at once sending two messages: Enter and Space during the wait changed nothing visible, and one receipt came; the mock server records nothing to count."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "An error from the server",
+      "works": "partly",
+      "tried": "503 on purpose (ada@fail.test) and at random (Math.random pinned to 0.1 with a normal address): sent by keyboard, read the role=alert, the button's new name 'Send again', the values kept; sent again and failed again; Shift+Tab back to Email, corrected it, Enter: receipt. Made the message too short after a 503 and resubmitted: the alert went and the field's own error came. 422 (ada@example.com): the server's message lands on Email with aria-invalid and aria-describedby, focus on Email; one typed character clears it; corrected and sent. At 1280 and 400, light and dark.",
+      "failures": [
+        "At 1280x800, Enter on 'Send message' with ada@fail.test (and with any address when the random failure hits): the alert is inserted above the button and pushes the still-focused button, now 'Send again', below the window: button top=812 bottom=868, innerHeight=800, scrollY unchanged at 118 (alert at 688-788, visible). The focused element is off-screen; a second failed 'Send again' leaves it there. It should be scrolled into view. At 400x800 it stays visible (652-708)."
+      ],
+      "could_not_exercise": [
+        "Whether a screen reader speaks the alert when it is inserted: role=alert and its text are in the DOM, speech was not heard.",
+        "A second 503 replacing the first is not announced again as far as the DOM shows (the same alert node keeps the same text); unsure, not verifiable without a screen reader.",
+        "The unknown-error path (status 0, 'Something went wrong on the way.'): the mock server never throws anything but its own error."
+      ]
+    }
+  ]
+}

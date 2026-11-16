@@ -4,7 +4,8 @@ A React Aria component that Material 3 does not describe joins the kit when
 a screen here needs it: the rule is in
 [What this kit is](what-this-kit-is.md). Four of the screens were run once,
 to test what this page asks: [the pilot](coverage-pilot.md). All twenty-two were
-then run once: [the baseline](coverage-baseline.md).
+then run once: [the baseline](coverage-baseline.md), and once more on
+release 0.9.1: [the run on 0.9.1](coverage-run-0.9.1.md).
 
 The kit aims to serve 95% of what a product's screens need, and to leave a
 project only what is truly its own. This page is what that figure is counted

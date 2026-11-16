@@ -1,0 +1,71 @@
+{
+  "screen": "People and roles",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A table whose row opens a side sheet",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab into the grid (role=grid, label Members), Arrow keys over rows and cells, Home/End, ArrowUp into the headers and Enter to sort Name and Role (aria-sort and row order checked), Enter on a row or a cell to open the sheet (role=dialog named 'Member details', focus on the dialog, Tab cycles Close / Role select / footer buttons, page behind inert), Escape, Close and a mouse click on the scrim to shut it (focus back on the row or cell it came from), 'Remove from workspace' by Enter (row gone, count updated, focus on the next row, snackbar), Tab to the snackbar's Undo and Enter (row back, focus back on a row). In the invited person's sheet 'Resend invitation' by Enter (snackbar 'Invitation sent again to ...', focus stays on the button) and 'Cancel invitation' (sheet closes, row gone, focus on the row above, Undo from the snackbar puts it back). Owner's sheet opened at both widths (no footer buttons, only Close takes Tab). Search field typed into, empty state reached, 'Clear search' pressed. Mouse click on a row, hover. Window resized 1280 > 800 > 400 > 1280 with focus in a cell (columns drop and return, no error). Sheet measured for all ten people at 400.",
+      "failures": [
+        "At 400 wide the sheet does not stay at the window's right edge for 6 of the 10 people: Enter on Amara Okafor (owner) puts the sheet at x -16..344, Samuel Adeyemi -18..344, Jonas Lindqvist and Priya Raman 17..377, Mateo Fernández 29..389, and the invited tom.whitfield@brightlane.agency -86..344 (430 wide). Its left part is cut off by the window and cannot be scrolled to, and a strip of scrim shows at its right. For the invited person the title reads 'er details', the avatar (x -70..-6) is wholly off screen, the Role select's label and value and the dt labels Team / Invited / Last active are cut off. It should sit at 40..400 as it does for Hannah, Ingrid, Kenji and Léa. The fixed wrapper is 'w-fit right-0' and the section 'w-[calc(100%-56px)] min-w-[360px]': when the content's one-line width (it varies with the person: the name and email line, the select's role description, the two footer buttons) is wider than 360px the wrapper grows and the section stays at its left; the cause is read from the measured boxes, unsure. Not an overflow of the document (scrollWidth stays 400). At 1280 the sheet is always 720..1280.",
+        "At 400 wide the same shift happens while the sheet is open: with Hannah Becker's sheet at 40..400, picking Admin in the Role select moved it to 17..377, and Guest moved the select trigger to x -2..328.",
+        "Enter on 'Clear search' in the empty state (after typing 'zzz' in Search members): the search is cleared and the ten rows return, but document.activeElement is the body; the next Tab starts again at 'Invite people'. Focus should go to the search field or the table. Same at 400.",
+        "At 400 wide a snackbar (16..384 x 716..784) lies over the open sheet's footer buttons (y 744..784): after 'Resend invitation' or a role change, document.elementFromPoint at the centre of 'Resend invitation' and of 'Cancel invitation' is the snackbar, so a pointer cannot press them until it leaves. The keyboard still reaches and presses them. At 1280 they are clear of it."
+      ],
+      "could_not_exercise": [
+        "A screen reader's reading of the row name, the sort change and the snackbar: only roles, names and aria attributes were read from the DOM.",
+        "A real touch on a phone: 400 wide was a narrow desktop Chromium window with the keyboard and Playwright's mouse."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "An invitation dialog taking several email addresses",
+      "works": "partly",
+      "tried": "At 1280 and 400: Tab to 'Invite people', Enter (dialog named 'Invite people', focus in 'Email addresses'). Enter in the empty field (error 'Enter at least one email address', aria-invalid, described). Addresses typed and ended with a comma, a space, a semicolon and Enter (each becomes a chip, status region says 'x added', button becomes 'Send n invitations'); 'nope' refused; an existing member and an already invited address refused with the reason, case-insensitive; a duplicate dropped; a list of four pasted with Ctrl+V (three chips, 'bad@@x' left typed with its error). Backspace in the empty field goes to the last chip; Backspace, Delete, Enter and Space on a chip remove it and focus returns to the field; Shift+Tab walks the chips. 'Invite as' select opened, changed to Admin, Escape on its popover leaves the dialog open. A typed remainder is taken on send. Sent with Enter on the button and with Enter in the empty field; waited the 1.2 s: dialog closes, focus back on 'Invite people', rows added as 'Invitation pending' with the chosen role, header count and snackbar '4 invitations sent'. Escape and a scrim click while sending do nothing, as meant. Dismissed by Cancel (Enter, with and without a chip; focus back on 'Invite people'; reopened empty), by a scrim click, and by Escape from Cancel and from the send button.",
+      "failures": [
+        "Escape with focus in the 'Email addresses' field, which is where the dialog opens, does not close the dialog (waited 1.5 s; tried with the field empty, with a draft, with chips; pressed twice). It closes only after Tab moves focus to the 'Invite as' select, Cancel or the send button, where Escape works. Escape should close it from the field. Same at 400.",
+        "Enter in the empty field with a chip present sends the form, the field becomes disabled and document.activeElement is the body for the 1.2 s of sending (Tab then lands on the aria-disabled send button). Focus should stay on something in the dialog. Sent from the button, focus stays on the button.",
+        "The sending state is not announced: the send button gets aria-disabled='true' and a spinner svg that is aria-hidden, with no aria-busy, no progressbar role and no text in the status region. Unsure how much a screen reader says here."
+      ],
+      "could_not_exercise": [
+        "A real paste from another application: the paste was Ctrl+V of text written with navigator.clipboard.writeText.",
+        "An on-screen phone keyboard (inputMode=email) and its comma/space keys."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "Avatars",
+      "works": "partly",
+      "tried": "Read in the page at both widths, light and dark: ten 40px round avatars in the rows, initials for the nine named people (AO, HB, ...), a person icon for the invited address; a 64px one in the sheet. All are aria-hidden beside the visible name, so the row's name is the person's name and email only. Text contrast on the avatar 7.33:1 in both themes. They are not interactive: nothing to press.",
+      "failures": [
+        "At 400 wide the sheet's 64px avatar leaves the window with the shifted sheet (part 1): for tom.whitfield@brightlane.agency it is at x -70..-6, not visible at all; for Amara Okafor at 0..64 and Samuel Adeyemi at -2..62, against or past the window's edge."
+      ],
+      "could_not_exercise": [
+        "An avatar with a photo: the data has none, every avatar is the fallback (initials or icon)."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "Role tags",
+      "works": "yes",
+      "tried": "Read in the page at both widths, light and dark: each row's Role cell holds a tag with the role's word (Owner filled, Admin and Member tonal, Guest outlined), none clipped at 400 (Role column 100px), contrast 6.4:1 to 10.9:1. The sheet shows the person's tag under the name. Changing the role in the sheet's select changes the tag in the sheet and in the row at once (Hannah Becker: Member > Admin > Guest); sorting by Role orders them Owner, Admin, Member, Guest. An invited address gets the tag of the role chosen in the dialog. They are not interactive.",
+      "failures": [],
+      "could_not_exercise": []
+    },
+    {
+      "n": 5,
+      "part": "A role select",
+      "works": "partly",
+      "tried": "In the sheet and in the dialog, at 1280 and 400: Tab to the trigger (button, aria-haspopup=listbox, named by its value and its label 'Role' / 'Invite as', described by the supporting text), opened with Enter, Space and ArrowDown (listbox labelled by the label, focus on the selected option, three options Admin / Member / Guest each with its description, aria-selected), ArrowUp/Down, Home, typing 'g', Enter to choose (focus back on the trigger, value, row tag and sheet tag change, snackbar 'Hannah Becker is now an Admin'), Escape closes the list only and changes nothing, Tab stays in the open list, typing a letter on the closed trigger changes the value. Owner's sheet: the select is disabled and shows 'Owner' with 'Ownership is transferred from the workspace settings.'; it is skipped by Tab. Mouse: opened, an option clicked, a click outside closes the list. The list fits the window at 400 (56..384).",
+      "failures": [
+        "At 400 wide, in the sheet, the trigger is cut off by the window's left edge with the shifted sheet (part 1): for the invited tom.whitfield@brightlane.agency it is at x -70..328, so the label 'Role' and the value 'Guest' are off screen and only '...only the projects shared with them' shows; for Samuel Adeyemi -2..328. Choosing Guest for Hannah Becker moved the focused trigger itself to x -2..328 (partly outside the window).",
+        "At 400 wide the trigger's second line is cut without an ellipsis: 'Manages people, roles and setting' for Admin, 'Billing, and everything an admin c' for Owner (seen in the picture; unsure whether meant)."
+      ],
+      "could_not_exercise": [
+        "The native picker a phone shows for a select: this is a desktop Chromium at 400 wide."
+      ]
+    }
+  ]
+}

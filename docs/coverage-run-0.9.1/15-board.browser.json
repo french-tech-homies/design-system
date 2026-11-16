@@ -1,0 +1,72 @@
+{
+  "screen": "Board",
+  "console": [],
+  "overflow": [
+    "400x800, light and dark: document.documentElement.scrollWidth is 1196 against innerWidth 400, and the window does scroll sideways (window.scrollTo(500,0) gives scrollX 500). The cause is the four `<span class=\"sr-only\"> cards</span>` in the column headers: they are position:absolute inside the board's `overflow-x-auto` row, which is not positioned, so they escape its clipping (their left edges are at 283, 587, 891 and 1195). With those four spans hidden, scrollWidth is 400. With Playwright's mobile emulation (isMobile, hasTouch) the layout viewport itself becomes 1196 wide.",
+    "1280x800, light and dark: none (scrollWidth 1280)."
+  ],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Columns of cards",
+      "works": "partly",
+      "tried": "Loaded at 400 and 1280, light and dark; waited out the 900 ms skeleton (role=status, \"Loading board\"). Read the structure: four sections each named by its h2 (Backlog 4, In progress 3, In review 2, Done 2), each a role=grid with that name and its rows named by the card's title. Tab and Shift+Tab across the columns, Up/Down/Home/End within one, Left/Right to the card's drag handle. Emptied a column to see its empty state. Measured the contrast of every text node (all 4.5:1 or more in both themes).",
+      "failures": [
+        "400 wide: the page scrolls sideways (see overflow): the four sr-only \" cards\" spans stick out of the board's own scroller.",
+        "400 wide, Tab from the Backlog card: focus goes to \"Due dates shift by a day in Auckland\" in the next column at x=332..596 and the board is not scrolled: 68 px of the focused card is in the window. Tab again to \"In review\" scrolls it fully into view, Tab again to \"Export a board as CSV\" leaves it at x=372 (28 px visible). Should have scrolled each focused card into view.",
+        "400 wide, Shift+Tab back: \"Due dates shift by a day in Auckland\" is focused at x=-236..28 (28 px visible, board not scrolled), then \"Offline queue for comments\" at x=-35 (cut on the left).",
+        "400 wide, Tab to the empty column: its grid is focused at x=265..537, partly outside the window.",
+        "Both widths: the card's last line is truncated and loses the subtask count it is there to show: \"TSK-204 · Due 24 Nov…\", \"TSK-198 · Due 18 Nov · 2…\" at 1280; \"TSK-219 · Due 3 Dec · …\" at 400. The full text is in the DOM only.",
+        "Unsure: Shift+Tab into a column whose last-focused card was not its first lands on that card's drag handle button (\"Drag Colour contrast of the tag palette\"), not on the card; into a column whose first card was last focused it lands on the card."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 2,
+      "part": "A card moved within and between columns by drag and by keyboard",
+      "works": "partly",
+      "tried": "Keyboard, 1280 and 400: Tab to a card, Right to its handle, Enter (\"Started dragging…\" announced, assertive), Up/Down between the insert positions of a column, Tab between columns, Enter to drop, Escape and Enter-on-the-handle to cancel. Reordered TSK-204 within Backlog (to third, then last), moved it between two cards of In progress, onto the Done column, and into an emptied In review; the order, the counts and the focus were read after each. Mouse at 1280: dragged a card below another in its column, into another column above a card, into the middle of a column's list (it went between two cards), into an emptied column (the whole column lit as the target, the card landed), and by its handle. Mouse at 400: within a column, and to a column out of view.",
+      "failures": [
+        "1280 wide, focus lost to the body: Tab to the first card, Right, Enter (drag started), Tab five times (the three other columns, the card's own handle, back to \"Insert between Offline queue for comments and Interview five team leads about reports\"), Enter. \"Drop complete.\" is announced, nothing moves (right: it is the card's own place) and document.activeElement is BODY, still so 600 ms later; the next Tab lands on \"Drag Interview five team leads about reports\", the handle of another card. Focus should have gone back to the dragged card, as it does when Enter is pressed on that same position without the Tab round (checked: focus returns to the card).",
+        "The column's own drop target has no usable name. While dragging, Tab to another column focuses a role=button with aria-label \"Drop on\" and aria-labelledby=\"<itself> <the grid>\"; the grid is named only by aria-labelledby, so Chromium computes the name \"Drop on Drop on Insert before Due dates shift by a day in Auckland TSK-198 · Due 18 Nov · 2/3 Drag Due dates shift by a day in Auckland Insert between … Insert after Push notifications arrive twice\" (the whole column read out). It should be \"Drop on In progress\".",
+        "For an empty column the same target's name is \"Drop on Drop on\": nothing says which column. With two empty columns they could not be told apart.",
+        "400 wide, mouse: dragging a card to the right edge and holding it there scrolls the board to its end in about 1.5 s and then scrolls the window itself sideways (scrollX 20 at 1.5 s, 362 at 2 s, 796 at 2.5 s) until every column is off the left of the window (Backlog at x=-1612, Done at x=-700) and the page is blank; the drop then moves nothing. Dropping as soon as the next column appears does work (TSK-211 went from Backlog into In progress). Caused by the sideways overflow of the page.",
+        "400 wide, keyboard: after a drop the window was once left scrolled sideways (scrollX 40) with the dropped card focused at x=68.",
+        "400 wide, keyboard: while dragging, Tab to the next column focuses its drop position (\"Insert between Due dates shift by a day in Auckland and Redesign the card's quick actions\") at x=331 with the board not scrolled: 68 px of the target column is in the window. The next Tab (In review) does scroll the board."
+      ],
+      "could_not_exercise": [
+        "A touch drag (long press, then drag) at 400: Playwright's touchscreen only taps; not tried.",
+        "What a screen reader actually speaks: only the live regions' text and Chromium's computed names were read."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "Tags and avatars on a card",
+      "works": "partly",
+      "tried": "Read every card at 400 and 1280, light and dark: the tags' words and colours (Bug error, Design tertiary, Backend secondary, Mobile primary, Research and Docs neutral), each avatar's role=img and name (\"Ben Okafor\"), the initials. Measured tag and initials contrast (all 4.5:1 or more) and looked at the screenshots. Nothing here is operable; the tags and names are also in the sheet.",
+      "failures": [
+        "Where a card has two or three people, each avatar but the last is covered by the next one's 8 px overlap and ring, which cuts the second initial: \"BO\" reads \"BC\", \"DP\" reads \"DF\", \"AM\" reads \"AN\", \"CL\" reads \"Cl\" (TSK-204, TSK-190, TSK-201, TSK-181, both widths, both themes). The names are only in aria-label, so a sighted person has just the cut initials."
+      ],
+      "could_not_exercise": [
+        "A hover: the avatars and tags have no tooltip or hover state to try."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "A card's detail in a side sheet",
+      "works": "partly",
+      "tried": "Keyboard, 1280 and 400, light and dark: Enter on a focused card opens a role=dialog named by the card's title (h2), focus on the dialog, #root inert; Tab cycles Close, the Column select and the subtask checkboxes and stays inside. Space on a checkbox toggles it (checked true to false and back; the count on the card behind follows, 1/3 to 2/3 on ticking, 2/4 to 1/4 on unticking). Column select: Enter or Down opens a listbox named \"Column\", arrows and type-ahead (\"Do\") move, Enter selects, the card moves to the end of that column and the counts change, Escape closes the listbox only. Escape and Enter on Close close the sheet; focus returns to the card. Mouse: a click on a card opens, a click on the scrim and on the X close. Opened a card with no subtasks (no Subtasks section).",
+      "failures": [
+        "800 px high window, card TSK-201 (four subtasks): Tab to the last checkbox \"Hand-off\" focuses it at y=800..848 (1280 wide) or 816..864 (400 wide), below the window; the sheet's scroller stays at scrollTop 0 (64 or 80 px left to scroll) and PageDown, ArrowDown and End do not scroll it. Space still ticks it, unseen. The focused control should have been scrolled into view.",
+        "Unsure that it is wrong: after the Column select moved the card (TSK-204 to In review, TSK-201 to Done), Escape or Close puts focus on the card that took its place in the old column (\"Interview five team leads about reports\", \"Push notifications arrive twice\"), not on the card that was open.",
+        "400 wide: the sheet is on the left of the window (x=0..360) and the 40 px left over is on the right; it should be against the right edge. Its fixed wrapper (`w-fit right-0`) is 400 wide with the 360 px sheet at its start.",
+        "400 wide, mouse: a click on the 40 px of dimmed board beside the sheet (x=380) does not close it: the sheet's wrapper covers that strip, no scrim is reachable. Escape and the X do close it.",
+        "The Column field's floating label sits on a patch of the page's surface colour (white in light, near-black in dark) against the sheet's surface-container: a visible box behind the word \"Column\", both themes.",
+        "Unsure: the dialog has no aria-modal (Chromium reports modal=false); the page behind is inert, so nothing behind is reachable."
+      ],
+      "could_not_exercise": [
+        "A window shorter than 800 px, and a swipe to dismiss the sheet on a touch screen: not tried."
+      ]
+    }
+  ]
+}

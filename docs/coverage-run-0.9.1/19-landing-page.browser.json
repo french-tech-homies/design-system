@@ -1,0 +1,74 @@
+{
+  "screen": "Landing page",
+  "console": [],
+  "overflow": [
+    "None at 400x800 or 1280x800, light or dark (scrollWidth equals innerWidth in all four).",
+    "Not an asked width: at 320 wide the page scrolls sideways by 2px (scrollWidth 322); the #pricing panel's heading, paragraph and form box end at x=322. None at 360 or 375."
+  ],
+  "beyond_parts": [
+    "The sign-up in #pricing, where both 'Start free' actions lead, is not one of the six parts. Typed an email, Enter: the button shows a spinner and aria-disabled=true (no aria-busy, no progressbar role found: unsure it is announced), then after 1.2s the form is replaced by role=status 'Check your inbox ...' and document.activeElement is the body: focus is lost when the form is removed. An empty Enter sets aria-invalid and 'Please fill out this field.' on the input, focus stays in it.",
+    "From /?dark, Enter on a footer page link (/help) loads the landing page again in light: the dark switch is the address's ?dark and the link drops it."
+  ],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A header of links that folds to a menu",
+      "works": "partly",
+      "tried": "1280: Tab through Tally, Features, Customers, Pricing, Start free (each a link with a 3px focus ring, nav named 'Sections'); Enter on each: hash set, section scrolled to 64-80px from the top, clear of the 65px sticky header, next Tab continues from the section. 400 and 700: nav is display:none, Tab reaches a button 'Menu' (aria-haspopup, aria-expanded false); Enter, Space and ArrowDown each open a role=menu of three menuitem links inside the window, focus on Features; ArrowDown/Up, Home, End move and wrap; Tab stays in the menu; Escape closes, aria-expanded false, focus back on Menu. Enter or Space on each item: menu closes, hash set, section scrolled into place, focus on the Menu button (visible, in the sticky header). Mouse click and touch tap on the button and an item do the same; a click outside closes. Dark menu drawn and readable.",
+      "failures": [
+        "Folded (400, 700): after Enter on a menu item (e.g. Pricing, page at scrollY 2897), focus is on the Menu button; the next Tab goes to the hero's 'Start free' and the page scrolls back to the top (scrollY 17). It should go on from the section just reached, as it does at 1280 where the next Tab after Enter on 'Pricing' is the Work email field.",
+        "Sticky header hides the focused control when tabbing backwards: Shift+Tab from the Work email field focuses the carousel's 'Next' (1280: at y=24-64) or 'Previous' (400, when enabled; 'Next' at y=4-44) under the 65px header; elementFromPoint at its centre is the header's 'Start free'. The focused element should be scrolled clear of the header.",
+        "Unsure: in the open menu, typing 'p' leaves focus on 'Features'; a menu's typeahead should move it to 'Pricing'.",
+        "Unsure, minor: Enter on the brand 'Tally' (#top) from a scrolled page stops at scrollY 65, not 0: main#top has no scroll margin, so its first 65px lie under the header (only the hero's padding)."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 2,
+      "part": "A hero with two actions",
+      "works": "yes",
+      "tried": "At 1280 and 400: Tab to 'Start free' and 'See what it does' (links, 56px tall, visible, 3px focus ring, not covered); Enter on each: hash #pricing / #features, section 80px from the top under the header, next Tab is the Work email field / the carousel row. Space scrolls the page, as on any link. The picture is one role=img with a label and nothing focusable inside. Two columns at 1280, one at 400, buttons side by side at both.",
+      "failures": [],
+      "could_not_exercise": []
+    },
+    {
+      "n": 3,
+      "part": "Feature cards",
+      "works": "yes",
+      "tried": "At 1280, 700 and 400, light and dark: a ul of six li, each with an h3 and a paragraph and an aria-hidden icon, in 3, 2 and 1 columns; no text clipped, contrast above 4.5:1; nothing focusable, so the keyboard passes over them and the header's and hero's links scroll to the section's heading.",
+      "failures": [],
+      "could_not_exercise": ["Nothing to operate: the cards are read, not pressed."]
+    },
+    {
+      "n": 4,
+      "part": "A carousel of quotes",
+      "works": "partly",
+      "tried": "Loading: a role=status group 'Loading what customers say', replaced after the timer by section[aria-roledescription=carousel] 'What customers say'; focus is not moved. Tab to the row (group, named, 3px ring): ArrowRight/ArrowLeft step one slide, End and Home go to the ends, the aria-live text follows ('1 to 3 of 5' ... '3 to 5 of 5' at 1280; '1 of 5' ... '5 of 5' at 400), Previous and Next disable at the ends, PageDown still scrolls the page. Tab to Next (Previous is skipped while disabled), Enter and Space step. Mouse: click on Next and a horizontal wheel scroll work. Touch: a swipe by raw touch events steps one slide each way and snaps.",
+      "failures": [
+        "Pressed Enter/Space on 'Next' until the last slide (1280: 2 presses, 400: 4): the button becomes disabled while focused and document.activeElement is the body; focus should stay on a control (Previous, or the row).",
+        "The same on 'Previous' back to the first slide: disabled, focus on the body. In both cases the next Tab does go on from that place (Work email / Next), so the place is kept but nothing is focused.",
+        "See part 1: 'Next' / 'Previous' are hidden under the sticky header when reached by Shift+Tab from the Work email field."
+      ],
+      "could_not_exercise": [
+        "The scrollbar: headless Chromium draws overlay scrollbars (the row's offsetHeight equals its clientHeight), so there was none to drag.",
+        "A mouse drag on the row scrolls nothing (scrollLeft unchanged); the block does not claim one."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "A footer of link columns",
+      "works": "yes",
+      "tried": "Four nav landmarks named by their h2 (Product, Resources, Company, Legal), 4 columns at 1280, 2 at 400, no overflow. Tab reaches all 15 links in reading order, each 48px tall, in view, uncovered, with a 3px ring (light and dark); after the last, focus leaves the page. Enter on Features, Customers, Pricing scrolls to the section clear of the header; Enter on Changelog and Privacy policy loads /changelog and /privacy, which this app answers with the landing page (pages the screen does not have).",
+      "failures": [],
+      "could_not_exercise": []
+    },
+    {
+      "n": 6,
+      "part": "The display type at each width",
+      "works": "yes",
+      "tried": "The one h1, computed at 320, 400, 767, 768, 1023, 1024 and 1280 wide: 36px/44px up to 767, 45px/52px from 768, 57px/64px with -0.25px tracking from 1024; weight 400; 3 lines at 400 and 1280, 4 at 1024; its text never passes the window's edge. Section headings are 28px/36px at every width.",
+      "failures": [],
+      "could_not_exercise": []
+    }
+  ]
+}

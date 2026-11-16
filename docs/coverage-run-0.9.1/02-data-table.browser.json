@@ -1,0 +1,103 @@
+{
+  "screen": "Data table (Orders)",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Sortable columns",
+      "works": "partly",
+      "tried": "Tab into the grid, ArrowUp to the header row, ArrowRight to each of the seven sortable headers, Enter twice and Space on each, at 1280 and at 400; went to page 2 first to see the sort return to page 1; clicked a header with the mouse.",
+      "failures": [
+        "At both widths the Items header draws as \"It…\" at its default width (96px: the label span is 25px wide for 40px of text), so the column's name cannot be read until the column is resized. Sorting it still works.",
+        "unsure: the focused, sortable header is a <div role=\"presentation\"> inside the th (focus is not on the columnheader itself); aria-sort is on the th and does change (none → ascending → descending), but what a screen reader says on that div was not heard."
+      ],
+      "could_not_exercise": [
+        "What a screen reader announces when the sort changes: no screen reader here, only aria-sort was read."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Search",
+      "works": "yes",
+      "tried": "Tab to the search field (named \"Search by order, customer or email\"), typed a name without its accent (amelie → 4 rows), an order number, an email in capitals, nonsense (empty state); Escape, Ctrl+A/Backspace and the mouse on the clear button empty it; the count under the title (aria-live polite) follows: \"4 of 60 orders\". Same at 400.",
+      "failures": [],
+      "could_not_exercise": [
+        "The clear button is not in the Tab order (Escape does its job from the field), so it was pressed with the mouse only."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "Filter chips",
+      "works": "yes",
+      "tried": "Tab to the chips (a toolbar named \"Filter by status\"), ArrowRight/ArrowLeft between them, Space and Enter to toggle; aria-pressed and the check mark follow, the rows hold only the chosen statuses (Pending + Cancelled → 17 of 60), combined with a search, back to page 1; Tab leaves the group and Shift+Tab returns to the chip left. Same at 400, where the chips wrap on two lines.",
+      "failures": [],
+      "could_not_exercise": []
+    },
+    {
+      "n": 4,
+      "part": "Multiple selection with a bulk-action bar",
+      "works": "partly",
+      "tried": "Space on rows, Shift+ArrowDown, Ctrl+A, Escape, Space on \"Select all\" and on a row's checkbox; selected on page 1 then page 2 (count holds: 3 selected, Select all indeterminate); a filter or a search drops the hidden rows from the selection; Tab from the grid to the bar (toolbar \"Actions on the selected orders\"), arrows between its four named buttons with their tooltips; Mark as shipped (partial: \"1 order marked as shipped, 1 left as it was\"), Export as CSV (orders.csv downloaded with the 3 selected), Cancel orders (alertdialog, Tab trapped, Escape returns to the button, confirm cancels), Undo in the snackbar reached by Tab (4 presses from the bar) and by F6 then Tab twice, Enter: the order reads Paid/Pending again; Clear the selection. At 1280 and 400 (the bar fits: 289px).",
+      "failures": [
+        "Enter on \"Clear the selection\": the bar is removed and focus falls to <body>; it should go back to the table (or somewhere named).",
+        "Enter on \"Mark as shipped\" in the bar with one paid order selected, and Enter on \"Cancel order\" in the confirmation with one pending order selected: the action leaves the selection empty, the bar is removed and focus falls to <body> (it stays on <body> after Undo too).",
+        "With the page scrolled to its end (which Tab to the bar or the pager does at 1280x800 and at 400x800), the snackbar is drawn on top of the bulk-action bar: bar at y 656–720, snackbar at y 656–704, so \"3 orders exported to orders.csv\" hides the count and the bar's buttons for about 5 s. Its `bottom-24` only clears the bar while the bar is stuck to the window's bottom.",
+        "unsure: a selection is announced twice, by React Aria's own announcer (\"1 item selected.\") and by the screen's role=status (\"1 order selected\").",
+        "unsure: Undo after a bulk action gives the orders their status back (read: #10476 Paid, #10480 Pending again) but not their place in the selection: the bar does not come back."
+      ],
+      "could_not_exercise": [
+        "Shift+click range selection with the mouse (only a single click on a checkbox was tried: it selects)."
+      ]
+    },
+    {
+      "n": 5,
+      "part": "A row's menu",
+      "works": "partly",
+      "tried": "In the grid, ArrowRight to a row's \"Actions for order N\" button (it scrolls into view at 400), Enter and Space open the menu (named after its button), arrows and End move and skip the disabled items, Escape closes and returns to the button; View details (dialog \"Order #N\", Tab trapped, Escape and Close return to the button), Mark as shipped on a paid order (row turns Shipped, snackbar with Undo, focus stays on the button), Cancel order… (alertdialog, confirm, row turns Cancelled); Enter on a row opens its details; mouse click opens, click outside closes. At 1280 and 400.",
+      "failures": [
+        "unsure: typing a letter in the open menu does nothing: \"c\" or \"can\" leaves focus on \"View details\", it should move to \"Cancel order…\" (type-ahead)."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 6,
+      "part": "Paging or loading more",
+      "works": "partly",
+      "tried": "Tab to the pager (nav \"Pages of orders\"): Enter/Space on Next page and Previous page, to the last page and back; the range (\"11–20 of 60\", aria-live polite) and the rows follow; the size menu (menuitemradio, 10/25/50) with Enter, arrows, End; a search or a sort returns to page 1. At 1280 and 400.",
+      "failures": [
+        "Space/Enter on \"Previous page\" when it lands on page 1: the button becomes disabled under the focus and focus falls to <body>; it should stay in the pager.",
+        "Enter on \"Next page\" when it lands on the last page (51–60 of 60): same, the button is disabled and focus falls to <body>.",
+        "Choosing \"25 per page\" (or 50) in the size menu: focus returns to the \"25 per page\" button, but the table has grown and the button is now 780px below the window (button at y=1516, window 800 high, scrollY unchanged): the focused element is not visible, and Enter again opens the menu off screen too. The window only follows at the next Tab."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 7,
+      "part": "Resizable columns",
+      "works": "partly",
+      "tried": "In the header row, ArrowRight to a column's \"Resizer\" (a slider named after its column, value text \"259 pixels\"), Enter, ArrowRight/ArrowLeft (10px a press), Enter or Escape to end (a first Tab ends it too and leaves focus on the resizer, the next Tab leaves the table); the minimum widths hold (Customer 160, Total 104), the table scrolls sideways inside its card once wider than it, the page never does; the widths hold through paging. Mouse: dragged the Email edge +60 and −400 (stops at 160) at 1280 and the Order edge +80 at 400, without sorting the column by accident.",
+      "failures": [
+        "Widening a column with ArrowRight once the table is wider than its card: the scroller does not follow the focused resizer, which leaves the visible part of the card. At 400, Customer's resizer is out of sight after 5 presses (resizer at x=384, card ends at 383, scrollLeft stays 0) and at x=634 after 30, still out of sight after Enter; at 1280 the same with Total (+30 presses: resizer at x=1482, card ends at 1255). The person resizes blind until an arrow key moves focus to a header.",
+        "unsure: the focused resizer shows only as its 1px divider turning 2px and darker, with no focus ring, and while it is focused the column's label loses room (\"Order\" draws as \"Ord…\").",
+        "unsure: Escape ends the resize but keeps the new width; it does not put the old one back."
+      ],
+      "could_not_exercise": [
+        "A touch drag on a phone: only the mouse was used at 400."
+      ]
+    },
+    {
+      "n": 8,
+      "part": "Empty, loading, error",
+      "works": "partly",
+      "tried": "Loading: seen at load and after each reload, a role=status skeleton \"Loading orders\" and \"Loading orders…\" under the title, search and chips still reachable. Error: `/?error` and the page menu's \"Reload with a failure (demo)\" (Page actions → End → Enter): role=alert \"Orders could not be loaded\", the chips and the search keep their state, \"Export what is listed\" is disabled; Enter/Space on \"Try again\" reloads. Empty: a search with no match shows \"No orders match\" and \"Clear search and filters\". Light and dark, 1280 and 400.",
+      "failures": [
+        "Enter on \"Try again\": the button is removed with the error and focus falls to <body>, and is still on <body> once the table has loaded.",
+        "Enter on \"Clear search and filters\" in the empty state: the button is removed and focus falls to <body>; it should go to the search field or the table."
+      ],
+      "could_not_exercise": [
+        "An empty state with no filter at all (no orders in the shop): the mock data always holds 60, nothing in the screen reaches it."
+      ]
+    }
+  ]
+}

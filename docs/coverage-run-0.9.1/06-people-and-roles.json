@@ -1,0 +1,212 @@
+{
+  "screen": "People and roles",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A table whose row opens a side sheet",
+      "built": "yes",
+      "kit": [
+        "Table",
+        "TableHeader",
+        "TableBody",
+        "Column",
+        "Row",
+        "Cell",
+        "Card",
+        "SideSheet",
+        "Skeleton",
+        "SkeletonGroup",
+        "EmptyState",
+        "TextField",
+        "SearchIcon",
+        "Button",
+        "Headline",
+        "Title",
+        "Body",
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read Table.tsx whole. Put `onAction` on each `Row` rather than `onRowAction` on the `Table`.",
+          "why": "Row's doc comment says a row acted on by \"`href`, `onAction`, or the table's `onRowAction`\" shows the state layer, but the source sets `data-interactive` only from the row's own `href`/`onAction` or a selection mode: with `onRowAction` alone the row would open the sheet and show no hover, press or focus layer."
+        },
+        {
+          "kind": "read",
+          "what": "Read SideSheet.tsx whole to learn its props.",
+          "why": "Its doc comment describes the two forms and the React Aria parts, and names no prop: that `title` is what draws the Close button, that `footer` exists, that `onClose` is also the scrim's and Escape's, and that the modal sheet is at least 360px wide are only in the source."
+        },
+        {
+          "kind": "option",
+          "what": "Columns that follow the window: `Team` and `Last active` are rendered only from 64rem and 40rem, by a `matchMedia` hook of the project's (useSyncExternalStore), with `dependencies` on `TableBody` so the rows are redrawn.",
+          "why": "The table has no way to say a column is dropped under a width; a `hidden sm:table-cell` class would leave cells the arrow keys still land on."
+        },
+        {
+          "kind": "use",
+          "what": "The name cell holds an avatar, the name and the email, each cut by `truncate` of the project's; `className=\"max-w-0 py-2\"` on the `Cell` and `className=\"w-full\"` on its `Column`.",
+          "why": "Table's doc comment: \"A cell that holds more than text (a value and a control) is the project's composition.\" and \"give the `Column` one (`className=\"w-64\"`, or `w-full` for the column that takes what is left)\". The `max-w-0` that lets the cell's text be cut is not in the doc: it is copied from the kit's own `truncate` variant, read in the source, so that half is an `option`."
+        },
+        {
+          "kind": "use",
+          "what": "The table in an outlined `Card` with `classNames={{ content: \"p-0\" }}`, and `showLastRowDivider={false}`.",
+          "why": "Table: \"Wrap it in a `Card` for an outlined container.\" Card: \"to run them to the card's edges, say so on that part: `classNames={{ content: \"p-0\" }}`\". Table: \"A table that closes with an edge of the project's own (a frame, a card's border) says `<Table showLastRowDivider={false}>`\"."
+        },
+        {
+          "kind": "option",
+          "what": "`className=\"overflow-hidden\"` on the `Card`.",
+          "why": "The rows paint `bg-surface` to the card's square corners; nothing says the card clips what runs to its edges, and Card's doc says `className` is \"never its insides\". Unsure it is needed: not seen in a browser."
+        },
+        {
+          "kind": "use",
+          "what": "`EmptyState` with `className=\"my-6 border-0 bg-transparent\"` in `renderEmptyState`, for a search that finds no one.",
+          "why": "EmptyState: \"To draw it bare inside a card or a table, pass `className=\"border-0 bg-transparent\"`.\""
+        },
+        {
+          "kind": "option",
+          "what": "The sheet's open flag and the person it shows are two states of the project's, and a person removed from the sheet is kept in a third, so the content stays while the sheet slides out.",
+          "why": "SideSheet takes `isOpen` and its children and keeps nothing itself: a caller that derives the content from what is selected empties the sheet during its exit. Only a comment inside the source says so (\"a caller that drops the sheet's content the moment it closes ... leaves a nameless dialog\")."
+        },
+        {
+          "kind": "layout",
+          "what": "The page (heading, count, invite button, search field), the skeleton rows that stand for the table while it loads, and the sheet's insides (avatar and name, the role select, a `dl` of team, joined and last active, the footer's two buttons). The `dl` is `grid-cols-[auto_1fr]`, an arbitrary grid template.",
+          "why": "A page's composition is the project's."
+        }
+      ],
+      "notes": "Not seen in a browser: the build is the only check. Enter or a click on a row opens the modal sheet; Escape, the scrim and Close shut it, and React Aria should return the focus to the row. Sorting is on Name and Role. Unsure: that a `Column` rendered conditionally redraws the cells cleanly when the window crosses 40rem or 64rem; that the 360px minimum of the modal sheet sits well on a phone narrower than 360px. Removing a person from the sheet has no confirmation: it is undone from the snackbar's Undo, which puts that one person back."
+    },
+    {
+      "n": 2,
+      "part": "An invitation dialog taking several email addresses",
+      "built": "yes",
+      "kit": [
+        "Modal",
+        "Dialog",
+        "TextField",
+        "Chip",
+        "Select",
+        "SelectItem",
+        "Button",
+        "Headline",
+        "Body",
+        "snackbar"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "The several-addresses field is the kit's `TextField` under a `ul` of the kit's input `Chip`s, with the project's logic around both: an address becomes a chip on a comma, a semicolon, a space, Enter or a pasted list, and what is still typed is taken when the form is sent; each is checked (an address, not twice, not already a member or invited); Backspace in the empty field goes to the last chip; a removed chip hands the focus to the field; a `role=status` line says what was added or removed.",
+          "why": "The kit has no field that holds chips: `TextField` has no part for input chips inside its container (Material's input chips sit in the field), and there is no `TagGroup`. The chips are drawn above the field, not in it."
+        },
+        {
+          "kind": "option",
+          "what": "The field's input is reached with `querySelector(\"input\")` from a wrapping `div`'s ref, to give it the focus after a chip is removed; the last chip's button the same way.",
+          "why": "Chip's doc asks the caller to move the focus (\"move it, to the next chip or to the field the chips belong to\") and `TextField` documents no way to reach its input (no `inputRef`, nothing said of `ref`)."
+        },
+        {
+          "kind": "use",
+          "what": "`Modal` around `Dialog` with `children`, in place of `ModalDialog`; `isDismissable` and `isKeyboardDismissDisabled` follow the sending state.",
+          "why": "Dialog: \"render it inside a `Modal` or a React Aria `DialogTrigger` and `Popover`, or use `ModalDialog`\"."
+        },
+        {
+          "kind": "option",
+          "what": "`ModalDialog` left aside: the dialog is held open while the invitations are sent by the project's own `isDismissable` and `isKeyboardDismissDisabled` on `Modal`, and a guard in `onSubmit`.",
+          "why": "ModalDialog holds a dialog open during a request only when it reads `actions.confirm.isLoading`, and `actions` is typed `never` beside `children`, which a form needs. It has no prop to say a request is running."
+        },
+        {
+          "kind": "layout",
+          "what": "The dialog's insides: a `form`, the headline written by hand (`Headline`), the supporting line, the field, the role select, and the Cancel and Send buttons in a row.",
+          "why": "DialogContent: \"With `children` nothing else is drawn, the `title` included: write the headline yourself\"."
+        },
+        {
+          "kind": "value",
+          "what": "`max-h-[calc(100dvh-2rem)] overflow-y-auto` on the `Dialog`, and `mx-4 w-full max-w-xl` on the `Modal`.",
+          "why": "A dialog with a field, chips and a select can be taller than a phone with its keyboard up; `DialogContent` is `overflow-hidden` with no height limit, and no token says \"the window less the dialog's margins\". The `Modal` width copies what `ModalDialog` passes (`mx-4`), read in its source."
+        },
+        {
+          "kind": "read",
+          "what": "Read Dialog.tsx, DialogContent.tsx, ModalDialog.tsx and Modal.tsx whole, and Chip.tsx's prop types.",
+          "why": "To learn that `children` excludes `actions`, where dismissal is decided, and what class `ModalDialog` gives the modal."
+        }
+      ],
+      "notes": "Not seen in a browser. Sending is a 1.2 s timer: the button shows its spinner, the field and the select are disabled, and nothing dismisses the dialog. The invited addresses are added to the table as pending rows and a snackbar says so. Unsure: that `onPaste` on the kit's `TextField` reaches the input in every browser (it type-checks); that Enter in the empty field submits the form (it relies on the browser's implicit submit); how a very long address sits in a chip at 400px. An address typed and not yet followed by a separator is not made a chip when the field is left (a chip appearing under the pointer would move the Send button mid-press): it is taken at Send, or refused there with its error."
+    },
+    {
+      "n": 3,
+      "part": "Avatars",
+      "built": "yes",
+      "kit": [
+        "Avatar"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "Initials computed by the project and passed as `fallback`; no `alt`, since the name is written beside each avatar; 40dp in the table, `size={64}` in the sheet; a person not yet joined gets the default person glyph.",
+          "why": "Avatar's doc: \"Leave it out where the name is written beside the avatar\". Used as documented; there are no pictures in the mock data, so the image path is not exercised."
+        }
+      ],
+      "notes": "Every avatar is `primary-container`: the kit's avatar has one colour, so people are told apart by initials alone."
+    },
+    {
+      "n": 4,
+      "part": "Role tags",
+      "built": "yes",
+      "kit": [
+        "Tag"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "`RoleTag`, a wrapper of the project's that maps a role to the `Tag`'s `variant` and `color`: Owner filled primary, Admin tonal primary, Member tonal secondary, Guest outlined.",
+          "why": "ds-build: \"First try, in order: ... a `className` on the component, ... a wrapper component in the project\"."
+        },
+        {
+          "kind": "read",
+          "what": "Read Tag.tsx's variants table.",
+          "why": "The doc comment shows four examples; the full list of colours (neutral, primary, secondary, tertiary, error) and that `outlined` ignores `color` are in the styles."
+        }
+      ],
+      "notes": "Static, as a tag is: the role is changed in the sheet, not on the tag."
+    },
+    {
+      "n": 5,
+      "part": "A role select",
+      "built": "yes",
+      "kit": [
+        "Select",
+        "SelectItem"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read Select.tsx whole and React Stately's `useSelectState.d.ts` in node_modules before writing the controlled props: `value` and `onChange`.",
+          "why": "Select's doc comment shows an uncontrolled example only; `selectedKey` and `onSelectionChange`, the names I knew, are marked deprecated in the installed React Aria."
+        },
+        {
+          "kind": "use",
+          "what": "`RoleSelect`, a wrapper of the project's: the roles as `items`, each `SelectItem` with a `supportingText` saying what the role may do. In the sheet it changes the person's role (the row's tag follows, a snackbar says so); in the invitation dialog it sets the role of everyone invited. The owner's is shown disabled, with why under it.",
+          "why": "ds-build: \"a wrapper component in the project\"."
+        }
+      ],
+      "notes": "Not seen in a browser. Not placed in the table's rows: the field is 56dp tall in a 52dp row, and a row is already pressed to open the sheet. Unsure: how the kit's `MenuItem` draws a two-line option inside the select's popover, and that the popover opens above the modal sheet and the dialog."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "use",
+      "what": "`SortDescriptor` imported as a type from `react-aria-components` for the table's sort state.",
+      "why": "The kit's barrel exports the table's components and not React Aria's types for their props. Table: \"optional sorting (`sortDescriptor` / `onSortChange`, `allowsSorting` per column)\"."
+    },
+    {
+      "kind": "use",
+      "what": "The Invite button's icon is `UserPlus` from `lucide-react`, which the project has.",
+      "why": "ds-build: \"Icons are any component taking `{ size, className }`. The kit ships no icon library.\""
+    },
+    {
+      "kind": "layout",
+      "what": "A `sr-only` `role=status` span for the email field's announcements, as `SkeletonGroup` writes its own, rather than React Aria's `VisuallyHidden`.",
+      "why": "Either does it; the class was at hand."
+    }
+  ],
+  "friction": "No block served this screen. The build was green at the first run, so no guess is logged, but that was bought by reading sources: ten kit files were read whole (Table, SideSheet, Select, Dialog, ModalDialog, Modal, DialogContent, Avatar, Tag, Skeleton), because the doc comment did not say how to use them. SideSheet's comment names no prop at all (title, footer, onClose, modalProps, the Close button that comes only with a title): a props table or a one-line example of the modal form opened from state would have been enough. Row's comment promises the state layer for the table's `onRowAction`, and the code gives it only for the row's own `onAction`: one of the two should change. Select shows no controlled example, and React Aria has renamed the props (`value`/`onChange`): one line would save a trip to node_modules. The dialog family is four files (Modal, Dialog, DialogContent, ModalDialog) and the rule that matters for a form, that `children` excludes `actions` and so loses ModalDialog's hold while a request runs, is found only by reading the types; a `isPending` prop on ModalDialog, or an example of a form in a dialog, would settle it. The biggest gap is the field of several values: Material's input chips live inside a text field, the kit has the chip and the field and nothing that joins them, nor a wrapper of React Aria's TagGroup, and the skill's table of what comes straight from React Aria does not mention it. A `TextField` part for chips, or a block, would have replaced about 150 lines of the project's own logic, and TextField gives no documented way to focus its input, which Chip's own doc asks the caller to do. Last, nothing in the guidance says how a table should behave at a phone's width (drop columns, scroll sideways, or become a list)."
+}

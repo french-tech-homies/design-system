@@ -1,0 +1,162 @@
+{
+  "screen": "Search",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A search bar that opens a search view",
+      "built": "yes",
+      "kit": ["SearchView", "Title"],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read components/Search.tsx whole, past its doc comment.",
+          "why": "The doc comment does not say in which order the callbacks run. The source shows onSubmit and onAction are called before the view's own setOpen(false) in the same tick, and that both always close the view. I needed both facts: to put the bar's text back to the last run query on close without a stale closure (a ref), and to keep the view open after one entry (part 2)."
+        },
+        {
+          "kind": "use",
+          "what": "Chose the layout from the window's width with a matchMedia hook of the project's (src/lib/useMediaQuery.ts): full-screen under 600px, docked from 600px.",
+          "why": "SearchView's doc comment: \"Material swaps from full screen in a compact window to docked from a medium one; the app chooses, by the window it knows.\" The kit has no hook for the window size class, so the project writes one."
+        },
+        {
+          "kind": "use",
+          "what": "Controlled inputValue and isOpen; on close without a search, the field's text is set back to the query the results answer, so the closed bar never shows text that was not searched.",
+          "why": "SearchViewProps: \"Controlled query.\" and \"Controlled: whether the view is open.\" The closed bar shows inputValue as it is, typed or run: the component has no notion of a submitted query apart from the typed one."
+        },
+        {
+          "kind": "layout",
+          "what": "A sticky page header holding the bar, centred, and a visually hidden h1.",
+          "why": "Page layout is the screen's."
+        }
+      ],
+      "notes": "Not exercised in a browser (none allowed): opening, typing, Escape twice, Back, focus returning to the bar. The empty state's \"Search again\" button opens the view through controlled isOpen; when the search that follows replaces the empty state, the button the focus would return to is gone, and where focus lands then is unverified. Enter on an empty field runs onSubmit(\"\"), which the screen takes as clearing the search."
+    },
+    {
+      "n": 2,
+      "part": "Recent and suggested entries in sections",
+      "built": "yes",
+      "kit": ["SearchViewSection", "SearchViewItem"],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "\"Clear recent searches\" is an entry of the Recent section, and its action must leave the view open. SearchView closes on every onAction, so the close is vetoed: a ref set in onAction makes the controlled onOpenChange(false) that follows be ignored once.",
+          "why": "SearchView has no way to act from the list without closing (onAction: \"An item was chosen... The view closes.\"), no slot outside the listbox for an action (a footer, a section header's action), and a button in an item's `trailing` sits inside a listbox option where the keyboard cannot reach it. A recent entry can therefore not be removed one by one either: only the whole list is cleared."
+        },
+        {
+          "kind": "read",
+          "what": "Read react-aria's collection source in node_modules (SectionNode.filter) to learn whether a section whose entries are all filtered out keeps its header.",
+          "why": "Neither SearchViewSection's doc comment nor SearchView's says what a section does when typing filters all its entries. The source drops a section left with only its header, so \"Recent\" does not stay as an empty heading."
+        },
+        {
+          "kind": "use",
+          "what": "Project logic around the list: recents held in state (newest first, five at most, no duplicate), suggestions that are already recent left out, the clear entry rendered only while the field is empty so it never passes for a match, and an emptyState that says Enter still searches.",
+          "why": "SearchViewProps: \"`SearchViewItem`s and `SearchViewSection`s, or a function of an item.\" and \"What the list says when nothing matches. Default \\\"No results\\\".\""
+        }
+      ],
+      "notes": "Typing filters both sections with the view's default \"contains\" rule. Icons are lucide's (History, TrendingUp, Trash2): the kit ships a ScheduleIcon but no history or trend icon. Unverified without a browser: the arrow keys through sections, and what the virtual focus does when the highlighted \"Clear recent searches\" entry disappears with its section."
+    },
+    {
+      "n": 3,
+      "part": "Results with filters in a bottom sheet",
+      "built": "yes",
+      "kit": [
+        "BottomSheet",
+        "RadioGroup",
+        "Radio",
+        "ChipGroup",
+        "Chip",
+        "Slider",
+        "CheckboxGroup",
+        "Checkbox",
+        "Switch",
+        "Button",
+        "IconButton",
+        "Card",
+        "Skeleton",
+        "SkeletonGroup",
+        "Title",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read components/BottomSheet.tsx whole.",
+          "why": "To learn whether the modal sheet's children unmount on close (they do: the draft filters live in a child and are dropped on dismiss) and how the content part scrolls and pads (`min-h-0 grow overflow-y-auto px-6 pb-6`), which the footer below depends on. The doc comment says neither."
+        },
+        {
+          "kind": "option",
+          "what": "The sheet's actions (Reset, Show N results) are a hand-made row at the foot of the scrolling content: `sticky bottom-0`, negative side margins to reach the sheet's edges, the sheet's own surface colour restated, and the content part's bottom padding removed with classNames={{ content: \"pb-0\" }}.",
+          "why": "BottomSheet has a title and a content part and no actions or footer part, so a filter form's confirm button would scroll away with the form. The row has to know the content's padding (24dp) and the sheet's colour (surface-container-low) to sit right, which are the component's insides."
+        },
+        {
+          "kind": "use",
+          "what": "Opened the sheet at defaultHeight=\"expanded\".",
+          "why": "BottomSheetProps: \"The height the sheet opens at, uncontrolled, each time it opens.\" The partial height is capped at half the screen, about 240px of form on a phone once the handle, title and actions are counted."
+        },
+        {
+          "kind": "read",
+          "what": "Read Slider.tsx's body for how a range writes its output.",
+          "why": "The doc comment says `showOutput` \"writes the value beside the label\" and not what a range writes, nor that formatOptions reaches it. The source joins each thumb's formatted value with a dash, so the currency format is passed as React Aria's formatOptions."
+        },
+        {
+          "kind": "read",
+          "what": "The implementations of Button and IconButton were printed with their doc comments by the command I used to extract them, and Card's style block was grepped for its root classes.",
+          "why": "Not needed for Button and IconButton: the doc comments were enough. For Card, the doc comment does not say the root clips (`overflow-hidden`), which decides whether a picture at the card's edge needs corners of its own and whether the save button's 48dp target is cut."
+        },
+        {
+          "kind": "option",
+          "what": "The Filters button writes its count in its label (\"Filters (2)\") and turns tonal when filters are in use.",
+          "why": "Button has no `badge`; IconButton has one, but an icon alone is a poorer name for the screen's main control."
+        },
+        {
+          "kind": "use",
+          "what": "After an input chip is removed, focus is sent to the Filters button through a ref.",
+          "why": "Chip's doc comment: \"The chip that is removed held the focus: move it, to the next chip or to the field the chips belong to.\""
+        },
+        {
+          "kind": "layout",
+          "what": "The results header (count, Filters button, chips of the filters in use), the responsive grid of results (2, 3, 4 columns), each card's insides (picture placeholder, save toggle over it, price, title, condition, city, delivery, age), the skeleton grid, the filter form's column, and the start state's row of popular searches (assist chips).",
+          "why": "Composition is the screen's. The card's insides run to its edges with classNames={{ content: \"h-full p-0\" }}, as Card's doc comment gives (`classNames={{ content: \"p-0\" }}`)."
+        },
+        {
+          "kind": "value",
+          "what": "The picture placeholder's category icon is drawn at size={40}, a number passed to the icon.",
+          "why": "There is no token for an icon's size; 40 is one of the kit's own icon sizes (the xlarge button's)."
+        }
+      ],
+      "notes": "Loading is a 700ms timer keyed on the query and the applied filters, shown as skeletons. Filters are a draft until \"Show N results\" (the count follows the draft live); Escape, the scrim and the close button discard it. A result card is display only with a working Save toggle: the screen has no listing page to open, so cards are not pressable (Card refuses handlers, and GridList would be the route if there were a destination). Pictures are placeholders: the mock data has no images. Unverified without a browser: that the sticky action row sits flush at the sheet's foot at both heights, the form's `min-h-full` inside the sheet's flex content, the range slider's two thumbs, the drag handle, and the look in dark."
+    },
+    {
+      "n": 4,
+      "part": "A state for no result",
+      "built": "yes",
+      "kit": ["EmptyState", "Button"],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "Two cases with their own words and actions: nothing matches the query (Search again, which opens the search view; Clear search), and matches exist but the filters hide them all (Clear filters; Edit filters, with the filter chips still above). `size` follows the window: sm on a phone, md from 600px.",
+          "why": "EmptyState's doc comment: \"optional media, a title, a description and up to two actions\" and \"`sm` suits a panel or a phone and `lg` an empty page\"."
+        },
+        {
+          "kind": "layout",
+          "what": "A flex wrapper so the state's own `m-auto` centres it under the header.",
+          "why": "Page layout."
+        }
+      ],
+      "notes": "The search view has its own, separate empty line when no suggestion matches what is typed (SearchView's emptyState). The media is lucide's SearchX, passed as the SVG component the prop asks for; it type-checked at the first attempt. Try \"piano\" for no match, or \"lamp\" with the category Books for the filtered case."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "hook",
+      "what": "React's useSyncExternalStore over window.matchMedia, in src/lib/useMediaQuery.ts (not a React Aria hook).",
+      "why": "The kit offers nothing that tells a component the window's size class, though SearchView and EmptyState both leave that choice to the app."
+    },
+    {
+      "kind": "layout",
+      "what": "The page's root restates `bg-surface text-on-surface` and a minimum height.",
+      "why": "I did not check whether the theme paints the page's background itself; the skill says only that on-surface is the ambient colour."
+    }
+  ],
+  "friction": "The build was green at the first attempt and no prop was guessed wrong; the kit covered every control. What cost time: (1) SearchView's doc comment says both callbacks close the view but not the order of onSubmit/onAction and onOpenChange, and offers no entry that acts without closing nor any place for an action outside the listbox, so clearing recents meant reading the source and vetoing a close; a `shouldCloseOnAction` (or an onAction that may return false) and a footer slot would have made it one prop. A removable recent entry is not possible at all. (2) BottomSheet has no actions part: every filter sheet needs a pinned confirm row, and building one needs the content's padding and the sheet's colour from the source. (3) Whether a modal sheet's children unmount on close, and whether Card clips, are not in the doc comments. (4) Slider's doc comment does not say what a range's output shows nor mention formatOptions. (5) There is no window-size-class hook, while two components tell the app to choose by the window. (6) Extracting doc comments is awkward: the files are long and the comment sits mid-file after the styles, so a plain read of a component drags its whole implementation into view; a doc-only index (or the doc comment at the top of the file) would keep reads honest. ds-spec could not be run here, so Material's search and bottom-sheet pages were taken from the kit's doc comments alone."
+}

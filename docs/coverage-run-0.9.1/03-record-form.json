@@ -1,0 +1,185 @@
+{
+  "screen": "Record form",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Text, select, combo box, date, number, phone, image, switch",
+      "built": "yes",
+      "kit": [
+        "FormTextField",
+        "FormSelect",
+        "SelectItem",
+        "FormComboBox",
+        "ComboBoxItem",
+        "FormDatePicker",
+        "FormNumberField",
+        "FormPhoneField",
+        "FormImageField",
+        "FormSwitch",
+        "Card",
+        "Title",
+        "Body",
+        "TopAppBar",
+        "IconButton",
+        "Button",
+        "Skeleton",
+        "SkeletonGroup",
+        "EmptyState"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The page, a two-column grid that folds to one, each group of fields on an outlined Card with an h2, the actions row, and the loading placeholder drawn as bordered boxes of Skeletons.",
+          "why": "Expected of every screen."
+        },
+        {
+          "kind": "use",
+          "what": "validationBehavior=\"aria\" and isRequired passed to every bound field, with noValidate on the form.",
+          "why": "ds-build: \"`validationBehavior=\"aria\"` where the form decides what is valid: the field is then marked invalid for assistive technology and the browser's own validation does not stop the submit before the form has run.\" The adapter does not set it itself, so it is written on each of nine fields."
+        },
+        {
+          "kind": "use",
+          "what": "classNames={{ content: \"gap-4\" }} on Card to space the fields.",
+          "why": "Card: \"To lay them out another way or to run them to the card's edges, say so on that part: `classNames={{ content: \"p-0\" }}`\"."
+        },
+        {
+          "kind": "guess",
+          "what": "Passed autoCapitalize=\"characters\" to FormTextField for the SKU: a type error, removed.",
+          "why": "TextField takes React Aria's TextField props, which do not include autoCapitalize; nothing in the doc comment says which input attributes pass."
+        },
+        {
+          "kind": "guess",
+          "what": "Wrote rules.validate as (value: string) => …: seven type errors. Second attempt reads the field from validate's second argument, the form's values.",
+          "why": "The adapter types `name` as FieldPath<TValues> with no generic for the one field, so a rule's value is the union of every field's type (string | number | boolean | string[] | null | undefined)."
+        },
+        {
+          "kind": "option",
+          "what": "Supporting text under the Published switch written as a Body beneath it and tied with aria-describedby.",
+          "why": "Switch has a label (children) and no supportingText, unlike every other field."
+        },
+        {
+          "kind": "option",
+          "what": "A matchMedia hook of the project's chooses DatePicker's layout: modal under 600px, docked above.",
+          "why": "The doc comment says what Material recommends on compact windows, and layout is a fixed prop: nothing follows the width."
+        },
+        {
+          "kind": "value",
+          "what": "aspect-[4/3] on the image's Skeleton.",
+          "why": "It stands for ImageField at aspectRatio=\"4:3\", which uses the same arbitrary class inside; there is no token for a ratio."
+        },
+        {
+          "kind": "read",
+          "what": "Grepped ImageField's source for onBlur and isRequired, and field-styles.ts for the field's root, to learn that fields stretch in a column and that the image field reports no blur.",
+          "why": "Neither is in a doc comment."
+        }
+      ],
+      "notes": "Twelve fields: name, SKU, description (multiline with a counter), category (Select), brand (ComboBox, one option), tags (ComboBox, multiple), price (currency), stock (steppers), available from (DatePicker), supplier phone, image, published (Switch). Nothing was run in a browser (the brief forbids it): pointer, keyboard, phone width and dark are as the kit's components give them, not seen. NumberField reports its value on commit, so the price and the stock reach the form on blur or Enter, not per keystroke."
+    },
+    {
+      "n": 2,
+      "part": "Validation on blur and on submit, from the server too",
+      "built": "yes",
+      "kit": [
+        "adapters/react-hook-form (rules, isInvalid, errorMessage on each Form* field)",
+        "Button (isLoading)",
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "use",
+          "what": "react-hook-form's own rules on each Form* field, with useForm({ mode: \"onTouched\" }): a field is checked when it is left, then as it is corrected, and all of them on submit.",
+          "why": "Adapter: \"Validation is a resolver's (`zodResolver(schema)` above) or, with no schema library, each field's own `rules`, react-hook-form's\"."
+        },
+        {
+          "kind": "use",
+          "what": "The mock server's refusals (a SKU or a name another product has, a price above €10,000) are put on their fields with form.setError after the save's timer; the field draws them as any other error and they clear when the field is corrected.",
+          "why": "ds-build: the adapter \"binds each field, and passes the form's errors to it\". The project's own logic around it."
+        },
+        {
+          "kind": "use",
+          "what": "A cross-field rule: a published product needs an image, with rules={{ deps: [\"image\"] }} on FormSwitch so the switch re-checks the image.",
+          "why": "Adapter, on `rules`: \"react-hook-form's own rules for this field (`required`, `minLength`, `pattern`, `validate`)\". FormSwitch takes rules and shows no error of its own, so the message is the image's."
+        },
+        {
+          "kind": "option",
+          "what": "The image is not validated on blur: only on submit, and on change after that.",
+          "why": "ImageField has no onBlur, and FormImageField passes none, so react-hook-form never sees the field touched."
+        }
+      ],
+      "notes": "The server refuses deterministically, so it can be tried: SKU BAG-001, KIT-014 or STA-207, the name \"Linen tote bag\", or a price above 10,000. Not exercised in a browser. The phone rule is react-phone-number-input's isValidPhoneNumber, as PhoneField's doc comment suggests."
+    },
+    {
+      "n": 3,
+      "part": "An error summary",
+      "built": "yes",
+      "kit": ["Title", "Body", "Link", "focusRing", "ErrorIcon (deep import from icons.tsx)"],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "src/components/ErrorSummary.tsx: a focusable group on error-container / on-error-container with the medium corner, a count as its h2 and a list of the refused fields.",
+          "why": "The kit has no banner, inline alert or error summary."
+        },
+        {
+          "kind": "use",
+          "what": "Each item is a kit Link with onPress and no href.",
+          "why": "Link: \"without `href` it is a link that acts (`onPress`)\"."
+        },
+        {
+          "kind": "use",
+          "what": "A link puts the focus in its field with form.setFocus(name); shouldFocusError is turned off so a refused submit puts the focus on the summary instead of the first field.",
+          "why": "Adapter: \"`form.setFocus(name)` reaches a field: each `Form*` renders a hidden marker before its control for that.\""
+        },
+        {
+          "kind": "use",
+          "what": "focusRing({ className }) on the summary's container, which takes the focus by script.",
+          "why": "ds-build: \"The ring is `focusRing` from `<kit>/utils.ts`; extend it, do not invent another.\""
+        },
+        {
+          "kind": "option",
+          "what": "ErrorIcon deep-imported from <kit>/icons.",
+          "why": "The barrel exports the kit's other icons and not this one, the one its own fields use for an error."
+        }
+      ],
+      "notes": "The summary appears after the first refused submit (client rules or server), takes the focus, and follows the form: a field put right leaves it, and it goes when none is left. Focus timing after a refused submit rests on react-hook-form's state landing in a render; written to wait for it, not seen in a browser."
+    },
+    {
+      "n": 4,
+      "part": "A dialog on unsaved changes",
+      "built": "yes",
+      "kit": [
+        "ModalDialog (role=\"alertdialog\", actions)",
+        "adapters/react-router (AriaRouterProvider)",
+        "Button (href)",
+        "IconButton (href)"
+      ],
+      "leaves": [
+        {
+          "kind": "option",
+          "what": "react-router's useBlocker, on a data router (createBrowserRouter), holds a navigation while the form is dirty and opens the kit's ModalDialog: \"Keep editing\" resets it, \"Discard\" (color error) proceeds. A beforeunload listener covers closing or reloading the tab with the browser's own question.",
+          "why": "The kit's router adapter wires links to the router and offers nothing for a navigation that must ask first; the guard is the project's."
+        },
+        {
+          "kind": "read",
+          "what": "Read DialogContent's and ModalDialog's source to learn that an action's onPress does not close the dialog by itself, and that onClose is Escape.",
+          "why": "The doc comments describe `actions` and do not say whether pressing one closes the dialog."
+        }
+      ],
+      "notes": "Asked on the app bar's back button, on Cancel, and on the browser's back. Not asked after a successful save. As an alertdialog the scrim does not dismiss it; Escape keeps editing. Not exercised in a browser."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "A small Products page (TopAppBar, ListItem rows in a plain ul with Divider, Tag, an edit IconButton, Skeletons) so the form has somewhere to leave to and to be opened from for editing; routes / (new), /products, /products/:id/edit.",
+      "why": "The unsaved-changes dialog and the edit half of create-and-edit need a second place. No block is used: none of the six serves a part of a form."
+    },
+    {
+      "kind": "value",
+      "what": "max-w-5xl and max-w-3xl for the pages' widths, Tailwind's own scale.",
+      "why": "The kit names no page width."
+    }
+  ],
+  "friction": "The form adapter was the fastest part of the kit to use: its header comment is a full example. Three things cost time. (1) validationBehavior=\"aria\" is asked for by the skill and set by nothing: it is repeated on every bound field, and a field that forgets it would let the browser stop the submit; an adapter that set it, or a line in the adapter's comment, would settle it. (2) A rule's `validate` receives the union of every field's type, because the Form* components are not generic on the field's name: the first attempt at typing the value failed seven times; an example of `validate` in the adapter's comment, or a TName generic, would have avoided it. (3) There is nothing for a form's messages above the field level: no banner or summary, ErrorIcon is not in the barrel, Switch has no supporting text, and ImageField has no onBlur, so 'validate on blur' cannot be whole. For the unsaved-changes dialog the kit's parts were enough, but whether a dialog action closes the dialog had to be read in the source. The advisor tool was rate-limited and no browser was allowed, so behaviour is checked by the type-checker and by reading, not by use."
+}

@@ -1,0 +1,82 @@
+{
+  "screen": "Landing page",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A header of links that folds to a menu",
+      "built": "yes",
+      "kit": ["site-header-block", "Link", "Button", "IconButton", "Menu", "Title"],
+      "leaves": [
+        { "kind": "use", "what": "Edited the block (src/components/SiteHeader.tsx): moved the row into an inner div held to the page's column (mx-auto max-w-6xl px-4), leaving the container query and the border on the header.", "why": "The block's comment: \"it is copied into your project to be edited. It is yours from then on\". As shipped its row runs the full window width, so it did not line up with the page's column." },
+        { "kind": "use", "what": "Made it sticky by className (sticky top-0 z-10), and gave each link target scroll-mt so the header does not cover it.", "why": "The block takes `className` on its header; nothing in its comment mentions a sticky header or the offset the targets then need." }
+      ],
+      "notes": "Not seen in a browser. Links are bare hashes (#features, #customers, #pricing; the brand goes to #top). Unverified: that a Menu item with a hash href scrolls to its section and closes the menu, with no router adapter set. Folds under 48rem of the header's own width; at 400px the row holds the brand, one small button and the menu button."
+    },
+    {
+      "n": 2,
+      "part": "A hero with two actions",
+      "built": "yes",
+      "kit": ["Display", "Body", "Button", "Label", "Title", "Headline"],
+      "leaves": [
+        { "kind": "layout", "what": "The hero's grid (one column, two from lg), the wrapping row of the two buttons, and the picture: an invoice drawn by hand from role surfaces and type primitives, as one role=\"img\" with a label.", "why": "A page's composition and a placeholder picture; expected." },
+        { "kind": "layout", "what": "The picture's \"Paid\" mark is a Label on tertiary-container, not the kit's Tag.", "why": "It is part of a picture, not a tag of the page; I did not read Tag to see whether it fits." },
+        { "kind": "read", "what": "Read Button.tsx's style tables and prop types before reaching its doc comment.", "why": "The doc comment is about 300 lines down the file, under the styles; the sizes and `href` are only said there." }
+      ],
+      "notes": "Both actions are Button with href, size medium (56dp): \"Start free\" goes to #pricing (the sign-up, see general_leaves), \"See what it does\" to #features. Not seen in a browser."
+    },
+    {
+      "n": 3,
+      "part": "Feature cards",
+      "built": "yes",
+      "kit": ["Card", "Title", "Body", "IconComponent"],
+      "leaves": [
+        { "kind": "use", "what": "Six filled cards as <Card component=\"li\"> in a ul, their insides set by classNames={{ content: \"gap-3 p-6\" }}, children composed (icon, Title h3, Body) instead of CardContent.", "why": "Card's comment: \"To lay them out another way or to run them to the card's edges, say so on that part: classNames={{ content: ... }}\" and \"A card that is one of a list is an `li`\"." },
+        { "kind": "layout", "what": "The grid (1, 2, 3 columns) and each card's icon tile (secondary-container, 48px, medium corner) with a lucide-react icon.", "why": "The kit ships no icon library and no icon tile; expected." },
+        { "kind": "read", "what": "Read Card.tsx's styles and types above its doc comment.", "why": "Same as Button: the comment comes after 110 lines of styles." }
+      ],
+      "notes": "The cards are read, not pressed, so they carry no state layer or tab stop."
+    },
+    {
+      "n": 4,
+      "part": "A carousel of quotes",
+      "built": "yes",
+      "kit": ["reading-carousel-block", "Card", "Avatar", "Body", "Title", "Skeleton", "SkeletonGroup", "IconButton"],
+      "leaves": [
+        { "kind": "layout", "what": "Each quote: an outlined Card holding a figure, Body as blockquote, a figcaption with Avatar (no alt, beside the visible name), name and role.", "why": "A card's insides; expected." },
+        { "kind": "option", "what": "h-full on the Card's className and on its content part, so the quotes of one row are equally tall.", "why": "Card's comment says className is \"its width, its margin\" and does not speak of height; the block's comment says each slide is \"as tall as it is\", which leaves cards of a row ragged. Card also cannot be a `figure`, so the figure is inside it." },
+        { "kind": "layout", "what": "Loading: the quotes arrive after a 900ms timer; until then a SkeletonGroup of one, two or three rectangles stands for the row.", "why": "Mock loading, as the brief asks." },
+        { "kind": "read", "what": "Saw Skeleton's body under its doc comment (the grep ran on).", "why": "Not needed: the comment was enough." }
+      ],
+      "notes": "The block is used unedited (src/components/ReadingCarousel.tsx), three slides at most. Not seen in a browser: its scroll, snap, arrow keys, Previous and Next, and the \"1 to 3 of 5\" status are the block's own and unverified here. The skeleton's breakpoints are the window's, the carousel's are its container's, so the count of placeholders can differ from the count of slides by one near a breakpoint."
+    },
+    {
+      "n": 5,
+      "part": "A footer of link columns",
+      "built": "yes",
+      "kit": ["Link", "Title", "Body"],
+      "leaves": [
+        { "kind": "layout", "what": "Four nav landmarks, each named by its Title (h2) with a ul of links; two columns on a phone, four from md; a closing line under a hairline.", "why": "The kit has no footer; a composition. Expected." },
+        { "kind": "use", "what": "Each link is <Link color=\"inherit\" underline=\"hover\"> inside a Body li, with inline-flex min-h-12 items-center for the target.", "why": "Link's comment: \"`inherit` takes the colour of the text around it, for a list of links that is already set in a role of its own, such as a footer column\"; the target classes are the site-header block's own." }
+      ],
+      "notes": "Product's first three links go to the page's sections. The other twelve (/changelog, /help, /about, /terms ...) are real paths to pages this screen does not have: with no router they are full page loads, which this app answers with the landing page again (and without ?dark)."
+    },
+    {
+      "n": 6,
+      "part": "The display type at each width",
+      "built": "yes",
+      "kit": ["Display"],
+      "leaves": [
+        { "kind": "use", "what": "The one h1: <Display size=\"small\" className=\"md:text-display-medium md:font-display-medium lg:text-display-large lg:font-display-large text-balance\">: 36/44 on a phone, 45/52 from 768px, 57/64 from 1024px.", "why": "Display's comment: \"`size` is the size on the narrowest screen; name a larger one from a breakpoint with the two utilities a role is made of, its text and its font\"." },
+        { "kind": "read", "what": "Read Typography.tsx whole, the tv table included.", "why": "I printed the file; the Display comment alone answered the question." }
+      ],
+      "notes": "Verified only that the six responsive classes are in the built CSS, not by eye. Section headings are Headline medium at every width."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "A seventh section, #pricing: the price on primary-container and a sign-up (kit TextField and Button with isLoading in a plain form; a 1.2s timer, then a role=\"status\" confirmation).", "why": "The header's button and the hero's first action needed somewhere real to land; none of the six parts is one." },
+    { "kind": "layout", "what": "The page column (mx-auto max-w-6xl px-4) and section rhythm, written once as a class string.", "why": "The kit has no page container." },
+    { "kind": "use", "what": "The two blocks were copied from kit-blocks/ into src/components/.", "why": "`npx shadcn@latest add @ds/...` was refused by the session's permissions; the brief gives this fallback." }
+  ],
+  "friction": "Little: the build was green at the first run and nothing was guessed wrong. What cost time: (1) a component's doc comment sits under its style tables (Button's is ~300 lines down, Card's ~110), so 'doc comment first' means scrolling past the source one is told not to need; a comment at the top of the file, or a line number in index.ts, would do. (2) The site-header block has no word on being sticky nor on holding its row to a page column: both are the first things a landing page asks, and the column needed an edit of its markup. (3) The reading carousel's slides are 'each as tall as it is' and Card's className is said to be 'its width, its margin': equal-height quote cards is the usual wish and neither says how. (4) Card cannot be a figure, though Typography offers blockquote and figcaption. (5) Nothing says what a Menu item or a Link with a bare hash href does without a router adapter; the skill only says href 'does a full page load'. (6) No footer or page-container block, so those are written by hand on every public page. (7) With no browser, the fold, the carousel's keys and the type steps are unverified."
+}

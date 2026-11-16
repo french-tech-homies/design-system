@@ -1,0 +1,82 @@
+{
+  "screen": "Feed",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Cards of mixed content, one playing a video with its controls",
+      "works": "partly",
+      "tried": "1280 and 400 in light; in dark only the save toggles and Play inside Saved were worked. First page holds the four kinds (recipe, video, tip, collection), each an li named by its h2. Tab to Play: Enter plays (paused=false, label becomes Pause, clock and slider advance), Space pauses. Tab to the Seek slider: ArrowRight/ArrowLeft +-1 s, PageUp +2 s, Home 0, End 20, aria-valuetext '5 seconds', clock text follows, focus ring on the thumb. Tab to Mute: Space/Enter flip aria-pressed and video.muted. Played to the end: label returns to Play, Enter replays. Going to Saved, or scrolling it away, pauses it. Save toggle on a card: Space/Enter flip aria-pressed, focus stays, snackbar 'Saved to your cookbook' + Undo, Saved badge named 'Saved, 1 saved'. Mouse: click on the picture plays/pauses, dragging and clicking the seek track seeks.",
+      "failures": [
+        "Seek slider: pressed End (0:20 / 0:20), Shift+Tab to Play, Enter: nothing visible happens (the video goes straight to ended, the button still says Play, clock stays 0:20). A second Enter restarts from 0:00. The first press should have replayed.",
+        "Snackbar 'Saved to your cookbook' (5 s): its Undo is the last thing in the Tab order, after every remaining control of the feed (10 Tabs from the first card with 6 cards loaded, about 25 with 22 loaded), so by Tab it is gone before it is reached once more of the feed is loaded. F6 jumps to it and focus inside it holds the timer, but nothing on screen says so. Unsure whether to count F6 as known to a person.",
+        "After a snackbar's Undo has been pressed by keyboard once, saving throws focus into the snackbar: save a card, Tab to Undo, Enter; then Enter on 'Save Brown butter miso cookies' (focus stays), Tab, Enter on 'Save Salt your pasta water late': document.activeElement is the new snackbar (alertdialog 'Saved to your cookbook'), at the end of the Tab order, not the button pressed. Same in Saved: after an Undo, unsaving 'A pan sauce in 20 seconds' put focus on the snackbar 'Removed from your cookbook' instead of main. Without a prior Undo, three saves in a row each keep focus on their button. Both widths."
+      ],
+      "could_not_exercise": [
+        "Sound: headless Chromium, no audio out. Only video.muted and aria-pressed were checked."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Filter chips",
+      "works": "yes",
+      "tried": "1280 and 400 (chips wrap to two rows at 400). Tab reaches the toolbar 'Filter recipes' as one stop; ArrowRight/ArrowLeft move between the five chips; Space and Enter toggle (aria-pressed true/false, check mark drawn); focus stays on the chip, in view. Each change swaps the list for the placeholder, then the filtered list: Vegetarian gives only cards filed Vegetarian, Vegetarian+Dessert 4, Under 30 min+Dessert 1, adding Video none (empty state). Rapid on/on/off within 600 ms ended on the right list (no stale page). Shift+Tab from the feed returns to the chip last focused. Mouse click toggles too.",
+      "failures": [],
+      "could_not_exercise": []
+    },
+    {
+      "n": 3,
+      "part": "Endless loading",
+      "works": "partly",
+      "tried": "1280: Tab to the last card's Save button brings the end of the list into view: aria-busy=true on the list, a progressbar 'Loading more recipes', then 12, 18, 22 cards, focus kept on the same button, status says '12 recipes shown.' ... '22 recipes shown, the end of the feed.', then 'You have seen all 22 recipes.'; 22 unique titles, next Tab goes on to the new cards. Also from the skip link (focus on main) with End/PageDown, and with the mouse wheel, at both widths; and under the Vegetarian filter (6 then 16, all Vegetarian).",
+      "failures": [
+        "400 wide: Tab to the last card's Save button ('Save Five soups for a cold week') and wait: nothing loads, still 6 cards after 1.5 s and after 8 more rounds; the next Tab leaves the page (focus on body, then 'Skip to content'). The button is scrolled in only as far as the window's bottom (main scrollTop 1588 of 1740), so the end of the list never comes into view. Tab alone should load the next page as it does at 1280. Pressing ArrowDown x3 (or PageDown/End) on that button scrolls main and does load it (12 cards), after which Tab reaches the new cards.",
+        "With Under 30 min + Dessert the end line reads 'You have seen all 1 recipes.' and the status '1 recipes shown, the end of the feed.': should be '1 recipe'."
+      ],
+      "could_not_exercise": [
+        "A failed load ('The feed did not load', Try again): the mock never fails."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "A FAB",
+      "works": "partly",
+      "tried": "400: the FAB 'New recipe' floats over the feed's corner, 6th Tab stop (after the navigation bar, before the feed). 1280: it is the rail's header, 2nd Tab stop; exactly one is visible at each width. Enter and Space open the dialog 'New recipe' (role=dialog, focus in Name, Tab and Shift+Tab stay inside: Name, chips, Cancel, Add recipe). Escape and Cancel close it, focus back on the FAB. Enter on an empty Name keeps it open: aria-invalid=true, 'Please fill out this field.' described on the field. Typed a name, Tab to chips, ArrowRight + Space on Vegetarian, Enter on Add recipe (and Enter in Name): dialog closes, focus on the FAB, card at the top of the feed, '7 recipes shown.', snackbar 'Recipe added to the top of the feed'. With Dessert filtered: snackbar 'Recipe added. The filters hide it.' with 'Clear filters', reached by Tab and pressed: filters cleared, the new card first.",
+      "failures": [
+        "400 wide: the FAB covers a card's focused Save button. Tab to 'Save Five soups for a cold week' (6th card; also 'Save Lunches that survive a commute', 16th): the button is scrolled to 335,663 40x40, under the FAB at 328,648 56x56; elementFromPoint at its centre is the FAB and its focus ring cannot be seen. The focused control should be visible.",
+        "Snackbar action 'Clear filters' (after adding a recipe the filters hide): Tab to it, Enter: the filters clear and the snackbar goes, but document.activeElement is body. Focus should go somewhere in the page (the chips, or back where it was)."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 5,
+      "part": "Bottom navigation",
+      "works": "yes",
+      "tried": "400: nav 'Main' is the bar at the bottom, four buttons, Tab stops 2-5 (before the feed, drawn last); Enter and Space choose: aria-current=page moves, h1 becomes Explore / Saved / Profile, main shows that view, focus stays on the item, Home returns to the feed with its 6 cards kept. Badge: after saving, the item is named 'Saved, 3 saved' and shows 3. Focus ring visible on each item (its bottom edge is cut by the window's edge). At 1280 the same destinations are the expanded rail instead (no bar), worked the same way. Arrow keys do not move between destinations; Tab does.",
+      "failures": [],
+      "could_not_exercise": []
+    },
+    {
+      "n": 6,
+      "part": "A placeholder while loading",
+      "works": "partly",
+      "tried": "Looked at 50-700 ms after load and right after each chip toggle, both widths, light and dark: a role=status group 'Loading recipes' with six cards (aria-hidden, nothing focusable in it) stands for the list for about 1.1 s, then the list and '6 recipes shown.'. Focus stays on the chip throughout. Read the screenshots.",
+      "failures": [
+        "The placeholder's shapes cannot be seen: every Skeleton inside a card computes to the card's own colour (light: rgb(226, 227, 233) on rgb(226, 227, 233); dark: rgb(50, 53, 57) on rgb(50, 53, 57)), so what is drawn is six blank grey cards with no picture, lines or button shape, and the pulse (opacity on the shapes) shows nothing. It should show the shape of a card."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 7,
+      "part": "An empty state",
+      "works": "partly",
+      "tried": "Two of them, both widths, light and dark. Feed: chips Vegetarian+Dessert+Video (or Vegan+Dessert) give 'No recipes match' (h2), 'Nothing is filed under 3 filters at once. Remove one, or clear them all.', button 'Clear filters' one Tab after the chips; Enter or Space clears every chip, the placeholder then the full feed return, focus lands on a chip (the one last focused, in view). Saved with nothing saved: 'Nothing saved yet' (h2), its line, 'Back to the feed'. Unsaving the last card in Saved puts focus on main, and the next Tab is 'Back to the feed'; unsaving one of several also puts focus on main (except after a keyboard Undo: see part 1), Undo in the snackbar brings the card back.",
+      "failures": [
+        "Saved, empty: Tab to 'Back to the feed', Enter: the feed shows and Home is current, but document.activeElement is body (the button is removed with its view). The next Tab starts again at 'Skip to content'. Focus should go to the feed (main) or to Home.",
+        "The empty feed is not announced: the feed's role=status says 'Loading recipes', then is empty (\"\") when 'No recipes match' appears, where a loaded list says '6 recipes shown.'. Focus stays on the chip, so a screen reader user is told nothing. Unsure how each screen reader treats it, but no live region carries the result."
+      ],
+      "could_not_exercise": []
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "screen": "Sign in and up",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "Several steps with their progress",
+      "works": "partly",
+      "tried": "At 1280 and 400, keyboard only: sign up Account > Verify > Terms > done, Sign out, sign in Password > Verify > done, and the provider's shortcuts. Read the stepper at each step (nav 'Opening an account' / 'Signing in', aria-current=\"step\" on the current item, '2 of 3: Verify'). From Terms, Shift+Tab to 'Account, done. Go back to this step', Enter: back on Account, email kept, password emptied, the code asked again on the way forward. 'Change your email' (Enter) from the code step does the same. After every step change document.activeElement is the <section> named by the new h1 (or the code input on the code step), in view; on the done state the stepper is gone and the section 'Your account is open' / 'You are signed in' has the focus. Focus never fell to <body>.",
+      "failures": [
+        "Read by its accessibility tree, a step that is not the current one has no name: its label is display:none (the stepper is in its narrow form) and its number is aria-hidden. On Account the list reads 'listitem \"1 of 3: Account\", listitem (empty), listitem (empty)'; on Terms the locked Verify step reads only ', done'. It should say 'Verify, done' and name the steps ahead. Same at 400 and 1280.",
+        "At 1280 the stepper still draws its phone form: only the current step has its label ('1 of 3: Account'), the others are a bare '2', '3' or a check; the all-labels form never appears at any width (the column is narrower than the block's 32rem container breakpoint). So the one control in it, the go-back button, is drawn as a bare check with no text: Shift+Tab lands on a ringed check mark and a sighted keyboard user cannot tell it means 'go back to Account' (its aria-label says so, nothing on screen does).",
+        "After 'Continue with Google' on sign up the stepper shows Verify with a check and ', done' though no code was asked. Unsure: the builder chose it."
+      ],
+      "could_not_exercise": [
+        "What a screen reader says when the focus lands on the step's section: read from roles and names only, no screen reader was run."
+      ]
+    },
+    {
+      "n": 2,
+      "part": "Email and password with show and hide",
+      "works": "partly",
+      "tried": "Tab order: Continue with Google, Email, Password, Show password, Continue, Sign in. Enter in the empty form: 'Enter your email' and 'Choose a password' appear in role=alert, both inputs aria-invalid=true with the message in aria-describedby, focus on Email. 'not-an-email' / 'short': the pattern and length messages. taken@example.com: after 0.9s 'An account already uses this email. Sign in instead.', focus back on Email. Sign in with no password: 'Enter your password', focus on Password. Tab to the toggle (button 'Show password', aria-pressed): Space, Enter, Space switch the input type password > text > password > text, aria-pressed follows, the value is kept, the focus stays on the toggle with its ring; Shift+Tab goes back into the field. With the mouse the toggle does the same. A valid pair goes to the code step. Same at 400 and in dark.",
+      "failures": [
+        "The wait is not announced: pressed Enter on 'Continue', and for the 0.9s the timer runs the button only gains aria-disabled=\"true\" and a spinner that is aria-hidden. Polled every 60ms: no aria-busy, no progressbar, no change of name, and the page's live regions (role=alert, role=status) stay empty. A screen reader user hears nothing until the focus moves to the next step. It should say it is working. Same on 'Sign in'."
+      ],
+      "could_not_exercise": [
+        "A password manager's or the browser's autofill (autocomplete=email / new-password / current-password are set; nothing filled them here)."
+      ]
+    },
+    {
+      "n": 3,
+      "part": "A one-time code",
+      "works": "partly",
+      "tried": "The step opens with the focus in the one input (textbox 'Verification code', described by 'For this demo the code is 424242.', inputmode=numeric, autocomplete=one-time-code); the cell that takes the next digit carries the ring and a caret. Typed '12a3': 123 (the letter is dropped). ArrowLeft, Home then a digit: appended at the end. Backspace takes the last digit. Enter on 4 digits: 'Enter the 6 digits of the code' in role=alert, aria-invalid=true, focus kept. Ctrl+A then 111111: replaced, checked by itself, Verify aria-disabled meanwhile, then the field is emptied, 'That code is not right. Check the email and try again.', focus still in the input. Ctrl+V of '42 42-99': 424299. 424242: on to Terms (sign up) or done (sign in); Enter twice does not skip a step. Waited the 30s out: Tab reaches 'Send a new code', Enter: aria-disabled while sending, then role=status says 'A new code is on its way to a•••@example.com.', the countdown restarts and the focus goes back to the input. Tab order: input, Verify, (Send a new code once enabled), Change your email. Mouse click and touch tap on the 4th/5th cell focus the input and digits go in from the first cell. Same at 400 and in dark.",
+      "failures": [
+        "The field stays editable during the 0.9s check and the check's result is applied to whatever is there by then. Typed 111111, then at once Ctrl+A and 4242: 0.9s later the field was emptied and 'That code is not right…' shown, the 4 new digits gone. Typed 424242 then Backspace twice (field shows 4242): the step still moved on to Terms. It should either lock the field while it checks or drop a result that is no longer the field's value.",
+        "The wait is not announced: pressed Enter on 'Verify', and for the 0.9s the timer runs the button only gains aria-disabled=\"true\" and a spinner that is aria-hidden. Polled every 60ms: no aria-busy, no progressbar, no change of name, and the page's live regions (role=alert, role=status) stay empty. A screen reader user hears nothing until the focus moves to the next step. It should say it is working. 'Send a new code' is the same while it sends (0.8s), though its outcome is then said in role=status."
+      ],
+      "could_not_exercise": [
+        "The code a phone offers from a message (autocomplete=one-time-code): no such keyboard in headless Chromium.",
+        "A real on-screen numeric keypad at 400: only the attribute inputmode=numeric was read."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "Consent checkbox with a link in its label",
+      "works": "partly",
+      "tried": "Tab order on Terms: the box (checkbox 'I have read and agree to the terms of service', aria-required=true), the link 'terms of service', the second box, 'Open my account'. Enter on 'Open my account' with the box empty: 'Agree to the terms to open your account' under the box, aria-invalid=true, the message in aria-describedby, focus moved to the box, the step does not move on. Space on the box ticks and unticks it and clears / restores the error. On the link, Enter opens the dialog 'Terms of service' (role=dialog, named, focus inside, Tab cycles Close and Agree only) and leaves the box as it was; Space on the link does nothing. Escape and Close shut it with the box unchanged, Agree shuts it with the box ticked; each time the focus is back on the link, in view. Space on the second box ticks it. Enter on 'Open my account': aria-disabled for 1.1s, then 'Your account is open'. At 400 the dialog is 368px wide, inside the window, no sideways scroll. Then the pointer: mouse click and touch tap on the link, and a click on the label's text.",
+      "failures": [
+        "Pointer only: a mouse click on the link 'terms of service' opens the dialog AND flips the box: empty, it comes back ticked (accepted false -> true); ticked, it comes back empty (true -> false). The same with a touch tap at 400 (false -> true). The box should stay as it was: on a phone a person cannot open the terms without the consent being given for them, and Close leaves it ticked. By keyboard (Enter on the link) the box is not touched.",
+        "The wait is not announced: pressed Enter on 'Open my account', and for the 1.1s the timer runs the button only gains aria-disabled=\"true\" and a spinner that is aria-hidden. Polled every 60ms: no aria-busy, no progressbar, no change of name, and the page's live regions (role=alert, role=status) stay empty. A screen reader user hears nothing until the focus moves to the next step. It should say it is working.",
+        "Unsure: the focused checkbox shows no ring, only the kit's round state layer at 10% opacity around the box (seen in light and dark); it is faint next to the 3px ring on the link and the buttons."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 5,
+      "part": "A provider button",
+      "works": "partly",
+      "tried": "First tab stop: button 'Continue with Google', focus ring drawn, the G mark before the label. Enter (sign in) and Space (sign up): the mark turns into a spinner, the button is aria-disabled=true and keeps the focus, 'Continue' / 'Sign in' is disabled; a second Enter meanwhile does nothing more. After 1.2s: sign in lands on 'You are signed in' ('Signed in as amelia.okafor@gmail.com.'), sign up lands on Terms with that address, the focus on the new section each time. With the mouse: hover raises the button's state layer from opacity 0 to 0.08, a click does the same as Enter. Same at 400 and in dark.",
+      "failures": [
+        "The wait is not announced: pressed Enter on 'Continue with Google', and for the 1.2s the timer runs the button only gains aria-disabled=\"true\" and a spinner that is aria-hidden. Polled every 60ms: no aria-busy, no progressbar, no change of name, and the page's live regions (role=alert, role=status) stay empty. A screen reader user hears nothing until the focus moves to the next step. It should say it is working."
+      ],
+      "could_not_exercise": [
+        "A real provider: the button is a timer that returns a fixed address, there is no pop-up or redirect to work."
+      ]
+    }
+  ]
+}

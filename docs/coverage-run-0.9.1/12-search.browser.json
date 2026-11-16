@@ -1,0 +1,61 @@
+{
+  "screen": "Search",
+  "console": [],
+  "overflow": [],
+  "parts": [
+    {
+      "n": 1,
+      "part": "A search bar that opens a search view",
+      "works": "yes",
+      "tried": "At 1280 (docked) and 400 (full screen): Tab to the bar (button \"Search second-hand\", aria-expanded=false), Enter and Space open a dialog \"Search second-hand\" with focus in its searchbox and the page behind hidden; Tab/Shift+Tab stay inside (Back, field); typed \"lamp\" + Enter: view closes, bar reads \"Search second-hand: lamp\", focus on the bar, skeleton status \"Searching for lamp\", then \"3 results for “lamp”\". Escape with text clears the text, Escape again closes and the bar shows the last run query again; Back (Shift+Tab, Enter) closes; emptied field + Enter clears the search. Focus returned to the bar every time. Mouse: click on the bar, on the x, on Back, outside the docked view; tap on the bar with touch at 400.",
+      "failures": [
+        "unsure: with text typed, Tab from the field goes to Back and never to the \"Clear search\" x button of the view (tabindex=-1); Escape does the same job from the keyboard, so nothing is blocked."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 2,
+      "part": "Recent and suggested entries in sections",
+      "works": "partly",
+      "tried": "Both widths: listbox \"Recent and suggested searches\" with groups \"Recent\" (3 entries + \"Clear recent searches\") and \"Suggested\" (8). ArrowDown/ArrowUp/Home/End move aria-activedescendant through both sections, the highlighted option stays scrolled in view; Enter on \"Road bike\" runs it, closes the view, focus on the bar, and it moves to the top of Recent; typing \"la\" filters both sections; \"zzz\" shows \"No suggestion. Press Enter to search for “…”.\"; ArrowDown x4 + Enter on \"Clear recent searches\" keeps the view open, removes the Recent section, focus stays in the field and the highlight moves to \"Lamp\"; ArrowDown + Enter then runs \"Bike\". Mouse click and touch tap on an entry also run it.",
+      "failures": [
+        "After Enter on \"Clear recent searches\" the view's polite status still reads \"12 results\" while 8 options are left (still so 1.5 s later): the removal is not announced and the count is wrong. It should read 8.",
+        "The view's status counts the \"Clear recent searches\" action as a result: on opening it says \"12 results\" for 3 recent + 8 suggested entries + that action.",
+        "unsure: Home and End in the field move the list highlight (first/last entry) and not the caret."
+      ],
+      "could_not_exercise": []
+    },
+    {
+      "n": 3,
+      "part": "Results with filters in a bottom sheet",
+      "works": "partly",
+      "tried": "Both widths, after searching \"lamp\": Tab to \"Filters\", Enter or Space opens the modal dialog \"Filters\" (focus on the dialog, page behind hidden, Tab trapped: Drag handle, Close, Sort by radios, Category chips, two price thumbs, Condition checkboxes, switch, Reset, Show N results). ArrowDown on the radios; ArrowRight + Space/Enter on the category chips (aria-pressed); ArrowLeft/Right, PageDown, Home, End on both slider thumbs (aria-valuetext \"€20\", output \"€20 – €220\"); Space on checkboxes and the switch; the submit's label follows the draft live (\"Show 2 results\", \"Show no results\"); Enter on it applies: \"Filters (5)\", a group \"Filters in use\" of chips \"Remove Home & garden\"…, 2 cards. Reset clears the draft and keeps focus; Escape, Close and a scrim click discard the draft and put focus back on \"Filters\"; reopening shows the applied filters. Removed chips with Enter, Backspace and Delete/tap. Save toggle on a card: Space/Enter flip aria-pressed. Enter/Space/click on the Drag handle toggle the sheet between full and half height. Mouse: wheel scroll in the sheet, drag of the high price thumb, click on a chip, drag on the handle; touch tap on a checkbox, on submit and on a chip's remove.",
+      "failures": [
+        "In the sheet, Tab onto the checkboxes \"Like new\", \"Good\", \"Fair\" and the switch \"Only what the seller ships\" does not scroll them into view (the sheet's scroller stays at scrollTop 0; their rows sit at y 780–1044 in an 800px window, at both widths): the focused control is below the fold or under the sticky Reset/Show row, and \"New\" is half covered by that row. Space still toggles them, blind. The focused control should be scrolled into view above the action row. (A mouse wheel does scroll the sheet.)",
+        "Enter on \"Show N results\" when the filters changed: the sheet closes and focus falls to the body (document.activeElement is BODY, still so after the results load) at both widths. The \"Filters\" button it was opened from is unmounted by the loading skeleton. Focus should return to \"Filters (n)\".",
+        "Enter, Backspace or Delete on a chip of \"Filters in use\" removes the filter and focus falls to the body (BODY at 150 ms and after loading). The code focuses the Filters button, which the skeleton then unmounts. Focus should end on \"Filters (n)\" or the next chip.",
+        "Enter on a popular chip (\"Bike\") runs the search and focus falls to the body: the chip is unmounted with its section. Focus should move to the bar or the results.",
+        "Enter on a radio, a slider thumb or the switch inside the sheet submits the form: the draft is applied and the sheet closes (unsure whether intended; a person pressing Enter to toggle the switch gets the sheet closed).",
+        "The results count is an h2 given role=\"status\" (\"3 results for “lamp”\"): it is no longer a heading, so the results have no heading to jump to; and it is mounted anew with its text after the skeleton's status is removed, so unsure that it is announced.",
+        "The sheet's handle is a button named \"Drag handle\" with no state (no aria-expanded or value) for the full/half height it toggles; dragging it with the mouse (300px down, slowly) or with synthetic touch events (360px) neither resizes nor dismisses the sheet (unsure whether the synthetic touch is a fair test)."
+      ],
+      "could_not_exercise": [
+        "A real finger's swipe on the sheet: only Playwright's mouse and CDP touch events were available.",
+        "What a screen reader actually says for the live regions: only the DOM roles and aria-live were read."
+      ]
+    },
+    {
+      "n": 4,
+      "part": "A state for no result",
+      "works": "partly",
+      "tried": "Both widths. \"piano\" + Enter: after the skeleton, heading (h2) \"No results for “piano”\", its advice, buttons \"Search again\" and \"Clear search\", no Filters button; focus stays on the bar and Tab reaches both buttons. Enter on \"Search again\" opens the view with \"piano\" in the focused field; Escape twice closes it and focus returns to \"Search again\". Typed \"desk\" + Enter from there; Enter on \"Clear search\". Filtered case: \"lamp\" with category Books: status \"No results for “Lamp”\", chip \"Remove Books\", heading \"Nothing with these filters\", \"3 listings match…\", \"Clear filters\" and \"Edit filters\"; Enter on \"Edit filters\" opens the sheet with Books pressed, Escape returns focus to \"Edit filters\"; Enter on \"Clear filters\" brings back the 3 results. In the view, an unmatched text shows \"No suggestion. Press Enter to search for “…”.\" and status \"No results\".",
+      "failures": [
+        "Enter on \"Clear search\": the popular chips come back and focus falls to the body (BODY), the button being unmounted. Focus should go to the search bar.",
+        "Enter on \"Clear filters\": the results come back and focus falls to the body (BODY at 150 ms and after loading). Focus should go to the Filters button or the results.",
+        "\"Search again\", then a new query + Enter: the view closes and focus falls to the body, because the button that opened it is gone with the empty state. Focus should go to the search bar.",
+        "The no-match state is not announced: when \"Searching for piano\" (role=status) is replaced there is no live region left on the page (no role=status, no aria-live); \"No results for “piano”\" is only a heading. The filtered case does have the status \"No results for “Lamp”\"."
+      ],
+      "could_not_exercise": []
+    }
+  ]
+}
