@@ -62,6 +62,43 @@ export const CheckboxSpaceToggles: Story = {
   },
 };
 
+/**
+ * A settings row: the label and its supporting line first, the switch at
+ * the row's far end. The line is the switch's description, the row is as
+ * wide as what holds it, and a press anywhere on it toggles.
+ */
+export const SwitchAsASettingsRow: Story = {
+  render: () => (
+    <div className="w-96">
+      <Switch labelPosition="start" supportingText="A sound for each new message">
+        Notification sounds
+      </Switch>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const sw = canvas.getByRole("switch", { name: "Notification sounds" });
+    await expect(sw).toHaveAccessibleDescription("A sound for each new message");
+    const row = canvasElement.querySelector<HTMLElement>('[data-slot="switch"]');
+    const track = canvasElement.querySelector<HTMLElement>('[data-slot="switch-track"]');
+    const text = canvas.getByText("Notification sounds");
+    if (!row || !track) throw new Error("no switch");
+    await expect(Math.round(row.getBoundingClientRect().width)).toBe(384);
+    // The switch is at the row's far end.
+    await expect(Math.round(track.getBoundingClientRect().right)).toBe(
+      Math.round(row.getBoundingClientRect().right),
+    );
+    await expect(track.getBoundingClientRect().left).toBeGreaterThan(
+      text.getBoundingClientRect().right,
+    );
+    await userEvent.click(canvas.getByText("A sound for each new message"));
+    await expect(sw).toBeChecked();
+    sw.focus();
+    await userEvent.keyboard(" ");
+    await expect(sw).not.toBeChecked();
+  },
+};
+
 /** Space toggles a switch, and the accessible state follows. */
 export const SwitchSpaceToggles: Story = {
   render: () => <Switch defaultSelected>Accepting orders</Switch>,
