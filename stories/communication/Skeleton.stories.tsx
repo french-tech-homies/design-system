@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, within } from "storybook/test";
 
+import KitCard from "@french-tech-homies/design-system/components/Card";
 import { Skeleton, SkeletonGroup } from "@french-tech-homies/design-system/components/Skeleton";
 import { Body, Title } from "@french-tech-homies/design-system/primitives/Typography";
 
@@ -66,6 +67,34 @@ export const Card: Story = {
       </Body>
     </SkeletonGroup>
   ),
+};
+
+/** On a filled `Card`, the kit's highest surface container, the placeholders
+    are still seen: their fill is not the card's own. A corner by
+    `className` stands for a button. */
+export const OnAFilledCard: Story = {
+  render: () => (
+    <KitCard variant="filled" className="w-80">
+      <SkeletonGroup label="Loading plan" className="flex flex-col gap-3">
+        <Title component="div">
+          <Skeleton className="w-1/2" />
+        </Title>
+        <Body component="div">
+          <Skeleton />
+        </Body>
+        <Skeleton shape="rectangle" className="rounded-shape-full h-10 w-28" />
+      </SkeletonGroup>
+    </KitCard>
+  ),
+  play: async ({ canvasElement }) => {
+    const group = within(canvasElement).getByRole("status");
+    const card = canvasElement.querySelector('[data-slot="card"]') ?? group;
+    const bar = group.querySelector('[data-slot="skeleton"]');
+    if (!bar) throw new Error("no skeleton in the group");
+    await expect(getComputedStyle(bar).backgroundColor).not.toBe(
+      getComputedStyle(card).backgroundColor,
+    );
+  },
 };
 
 /**
