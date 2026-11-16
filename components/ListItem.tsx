@@ -1,5 +1,5 @@
 import React from "react";
-import { Body, Title } from "../primitives/Typography";
+import { Body } from "../primitives/Typography";
 import { focusRing, tv, type VariantProps } from "../utils";
 
 const styles = tv({
@@ -74,6 +74,24 @@ export type ListItemProps = VariantProps<typeof styles> & {
  * MD3 list item: a headline, optional supporting text, and a leading and a
  * trailing element. It draws the row; `GridListItem` gives it its behaviour.
  *
+ *   <ListItem
+ *     headline="Design principles"
+ *     supportingText="Edited yesterday"
+ *     leadingElement={<Avatar name="Ada" />}
+ *     trailingElement={<Label>12 MB</Label>}
+ *   />
+ *
+ * `headline` is Material's label text, in body-large on `on-surface`;
+ * `supportingText` is body-medium on `on-surface-variant`. Both are any
+ * node, drawn in a `div`, and both wrap: to cut a long name to one line, pass
+ * it wrapped (`<span className="block truncate">`) and give the list a
+ * width. `leadingElement` and `trailingElement` are whatever a slot holds
+ * (an icon, an avatar, a checkbox, text), 16dp from the text. The row is at
+ * least 56dp high with 16dp at each side. `isDisabled` draws it at 38%,
+ * `isSelected` on `primary-container`. `isHovered`, `isPressed` and
+ * `isFocused` are accepted and not read: the state layer follows the
+ * `GridListItem` around it.
+ *
  * Spec: https://m3.material.io/components/lists/{overview,specs,guidelines,accessibility}
  */
 export default function ListItem(props: ListItemProps) {
@@ -103,13 +121,15 @@ export default function ListItem(props: ListItemProps) {
           <div className={styles().leadingElement()}>{leadingElement}</div>
         )}
         <div className={styles().content()}>
-          <Title
+          {/* Material's list item label text is body-large (16/24), in
+              on-surface: md.comp.list.list-item.label-text. */}
+          <Body
             size="large"
             className={styles({ isDisabled }).headline()}
             component="div"
           >
             {headline}
-          </Title>
+          </Body>
           {supportingText && (
             <Body
               className={styles({ isDisabled }).supportingText()}
