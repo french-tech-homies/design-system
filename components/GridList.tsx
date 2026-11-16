@@ -51,7 +51,13 @@ export function GridList<T extends object>({
 }
 
 const itemStyles = tv({
-  base: [focusRing(), "group/grid-list-item", droppedOnto],
+  // The ring is drawn inside the row: a row fills its list, and the list
+  // scrolls, so it cuts what is drawn outside it.
+  base: [
+    focusRing({ className: "-outline-offset-2" }),
+    "group/grid-list-item",
+    droppedOnto,
+  ],
 });
 
 /**
