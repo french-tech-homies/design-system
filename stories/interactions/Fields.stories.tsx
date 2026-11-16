@@ -169,6 +169,34 @@ export const TextFieldErrorStaysErrorOnFocus: Story = {
 };
 
 /**
+ * A required `Select` draws the asterisk a required text field draws, and
+ * says "required" in its trigger's name: a button has no `aria-required`.
+ * Its error is the trigger's description.
+ */
+export const SelectRequiredIsMarkedAndNamed: Story = {
+  render: () => (
+    <Select
+      label="Topic"
+      isRequired
+      isInvalid
+      errorMessage="Choose a topic"
+      className="w-80"
+    >
+      <SelectItem id="billing" label="Billing" />
+      <SelectItem id="other" label="Something else" />
+    </Select>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: /Topic\s*, required/ });
+    await expect(
+      canvasElement.querySelector('[data-slot="label"]'),
+    ).toHaveTextContent("Topic*");
+    await expect(trigger).toHaveAccessibleDescription(/Choose a topic/);
+  },
+};
+
+/**
  * An invalid outlined `Select` stays in `error` through the keyboard path:
  * Tab draws the 3dp outline in `error`, Enter opens the menu and the outline
  * and the floated label keep `error` instead of turning `primary`. The
