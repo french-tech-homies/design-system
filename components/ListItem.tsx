@@ -40,10 +40,20 @@ const styles = tv({
         supportingText: "text-on-surface-variant/38",
       },
     },
+    // Material's selected list item: the container on secondary-container,
+    // and every text and icon on it on on-secondary-container
+    // (md.comp.list.list-item.selected.*).
     isSelected: {
       true: {
-        base: "bg-primary-container",
+        base: "bg-secondary-container text-on-secondary-container",
+        headline: "text-on-secondary-container",
+        supportingText: "text-on-secondary-container",
       },
+    },
+    // Material's heights: 56dp for one line, 72dp for two.
+    lines: {
+      one: {},
+      two: { base: "min-h-[72px]" },
     },
   },
   defaultVariants: {
@@ -87,8 +97,12 @@ export type ListItemProps = VariantProps<typeof styles> & {
  * it wrapped (`<span className="block truncate">`) and give the list a
  * width. `leadingElement` and `trailingElement` are whatever a slot holds
  * (an icon, an avatar, a checkbox, text), 16dp from the text. The row is at
- * least 56dp high with 16dp at each side. `isDisabled` draws it at 38%,
- * `isSelected` on `primary-container`. `isHovered`, `isPressed` and
+ * least 56dp high, 72dp with supporting text, with 16dp at each side.
+ * `isDisabled` draws it at 38%, `isSelected` on `secondary-container` with
+ * its text on `on-secondary-container`.
+ *
+ * Gaps: Material's three-line item (88dp, its content aligned to the top),
+ * its overline, and the expressive list's segmented shapes are not built. `isHovered`, `isPressed` and
  * `isFocused` are accepted and not read: the state layer follows the
  * `GridListItem` around it.
  *
@@ -105,12 +119,14 @@ export default function ListItem(props: ListItemProps) {
     isSelected,
   } = props;
 
+  const lines = supportingText ? "two" : "one";
   const baseStyles = styles().base({
     className,
     hasLeadingElement: !!leadingElement,
     hasTrailingElement: !!trailingElement,
     isDisabled,
     isSelected,
+    lines,
   });
 
   return (
@@ -125,14 +141,14 @@ export default function ListItem(props: ListItemProps) {
               on-surface: md.comp.list.list-item.label-text. */}
           <Body
             size="large"
-            className={styles({ isDisabled }).headline()}
+            className={styles({ isDisabled, isSelected }).headline()}
             component="div"
           >
             {headline}
           </Body>
           {supportingText && (
             <Body
-              className={styles({ isDisabled }).supportingText()}
+              className={styles({ isDisabled, isSelected }).supportingText()}
               component="div"
             >
               {supportingText}

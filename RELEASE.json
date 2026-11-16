@@ -130,8 +130,8 @@
       "loose": "14b0b8fea8a44f3522492f24e67cc16933e5b9cc0f040a7d1e86ee8f3f41763d"
     },
     "components/ListItem.tsx": {
-      "exact": "3e620d1a7e04c4cea6308b10efb995a0ce5c9e75d1a50f378904d9434d0e7f49",
-      "loose": "9e07ceffbb286278fb1e30f89ada73d1fb6625d7272f9a9a6ccd39e41ea87d08"
+      "exact": "e21237a3558d5e9967902979d57c326847a6354ce4ed75f98cbb5882dd40c9d0",
+      "loose": "dcb0959712e256e84222bec1862d2bcb15f70044167692dc4d0340fd20db344a"
     },
     "components/LoadingIndicator.tsx": {
       "exact": "be9bd6554a00af357efa95b5a0a1df22406b7df757e0bdaa95f31ee06d743b8a",
