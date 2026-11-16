@@ -59,8 +59,9 @@ kit, not inside it, on `react-aria-components`, following the rules below.
 
 For some of those the kit has a block to start from: a pager, a stepper, a
 radio drawn as a tile, a carousel of content that is read, a public page's
-header (`pager-block`, `stepper-block`, `radio-tile-block`,
-`reading-carousel-block`, `site-header-block`). `npx shadcn add @ds/pager-block`
+header, an application's frame whose navigation follows its width
+(`pager-block`, `stepper-block`, `radio-tile-block`,
+`reading-carousel-block`, `site-header-block`, `app-shell-block`). `npx shadcn add @ds/pager-block`
 copies one into the project's components, outside `<kit>`. It is the
 project's from then on: edit it freely, an update of the kit never replaces
 it. It imports the kit's components from `<kit>`'s barrel, so it needs the
