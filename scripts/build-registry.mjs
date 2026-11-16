@@ -1141,6 +1141,13 @@ const blocks = [
       "The header of a public page: a brand link, a row of links that folds into a menu on a phone, and actions that stay in view. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's Link, IconButton, Menu and Title.",
     path: "blocks/site-header/SiteHeader.tsx",
   }),
+  blockItem({
+    name: "app-shell-block",
+    title: "AppShell (block)",
+    description:
+      "An application's frame with the navigation that fits its width: the navigation bar under 600dp, the rail from 600dp, the rail expanded from 1200dp, a skip link and a scrolling main. A block: copied into your components to be edited, and not updated with the kit. Needs the kit's BottomNavigation, NavigationRail and Link.",
+    path: "blocks/app-shell/AppShell.tsx",
+  }),
 ];
 
 const registry = {

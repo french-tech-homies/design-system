@@ -256,6 +256,8 @@ on, and an update of the kit never replaces it. What a block is:
   a time.
 - `site-header-block`: the header of a public page, its links folding into
   a menu on a phone.
+- `app-shell-block`: an application's frame, its navigation a bar on a
+  phone, a rail on a tablet and an expanded rail on a desktop.
 
 [color]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-color--roles
 [typography]: https://french-tech-homies.github.io/design-system/?path=/story/md3-foundations-typography--scale
