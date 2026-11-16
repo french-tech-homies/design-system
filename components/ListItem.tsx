@@ -10,7 +10,9 @@ const styles = tv({
       "absolute inset-0 transition pointer-events-none",
       "bg-on-surface opacity-0 group-hover/grid-list-item:state-opacity-hover group-data-focus-visible/grid-list-item:state-opacity-focus group-data-pressed/grid-list-item:state-opacity-pressed group-data-dragging/grid-list-item:state-opacity-dragged",
     ],
-    content: "flex flex-col justify-center grow",
+    // min-w-0: a flex child is at least as wide as its text unless told
+    // otherwise, and a headline cut to one line could not be cut.
+    content: "flex min-w-0 flex-col justify-center grow",
     headline: "text-on-surface",
     supportingText: "text-on-surface-variant",
     leadingElement: "mr-4 flex items-center justify-center shrink-0",
@@ -87,7 +89,7 @@ export type ListItemProps = VariantProps<typeof styles> & {
  *   <ListItem
  *     headline="Design principles"
  *     supportingText="Edited yesterday"
- *     leadingElement={<Avatar name="Ada" />}
+ *     leadingElement={<Avatar alt="Ada Martin" fallback="AM" />}
  *     trailingElement={<Label>12 MB</Label>}
  *   />
  *

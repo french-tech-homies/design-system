@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import React from "react";
+import { expect } from "storybook/test";
 import ListItem from "@french-tech-homies/design-system/components/ListItem";
 import { Checkbox } from "@french-tech-homies/design-system/components/Checkbox";
 
@@ -88,5 +90,38 @@ export const SelectedListItemWithTrailingElement: Story = {
     isSelected: true,
     leadingElement: <Thumb size={80} />,
     trailingElement: <Checkbox aria-label="Select" isSelected />,
+  },
+};
+
+/** A name longer than the row is cut to one line when it is passed wrapped
+ *  (`block truncate`) and the list has a width. Left bare, it wraps. */
+export const LongNameCutToOneLine: Story = {
+  args: {
+    headline: (
+      <span className="block truncate">
+        Quarterly report, final, reviewed by finance, do not edit (3).pdf
+      </span>
+    ),
+    supportingText: "Edited yesterday",
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-64">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const text = canvasElement.querySelector<HTMLElement>(".truncate")!;
+    const row = canvasElement.querySelector<HTMLElement>(
+      '[data-slot="list-item"]',
+    )!;
+    // Cut, not wrapped and not spilling: narrower than its own text, one
+    // line high, and inside the row.
+    await expect(text.scrollWidth).toBeGreaterThan(text.clientWidth);
+    await expect(text.getBoundingClientRect().height).toBeLessThan(30);
+    await expect(text.getBoundingClientRect().right).toBeLessThanOrEqual(
+      row.getBoundingClientRect().right,
+    );
   },
 };
