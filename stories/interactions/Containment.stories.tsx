@@ -895,6 +895,12 @@ export const GridListRowIsMovedByTheKeyboard: Story = {
       await waitFor(() => expect(place()).not.toBe(before));
     }
     await expect(place()).toBe("Insert after Desserts");
+    // Where the row will land is drawn: a line between two rows.
+    const line = canvasElement.querySelector(
+      ".react-aria-DropIndicator[data-drop-target]",
+    )!;
+    await expect(getComputedStyle(line).outlineStyle).toBe("solid");
+    await expect(getComputedStyle(line).outlineWidth).toBe("1px");
     await userEvent.keyboard("{Enter}");
 
     await waitFor(() =>

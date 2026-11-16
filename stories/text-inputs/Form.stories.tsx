@@ -10,6 +10,7 @@ import {
   FormCheckboxGroup,
   FormChipGroup,
   FormComboBox,
+  FormDatePicker,
   FormImageField,
   FormNumberField,
   FormPhoneField,
@@ -254,6 +255,7 @@ type Contact = {
   name: string;
   topic: string;
   budget: number;
+  opensOn: string;
   service: string;
   consent: boolean;
 };
@@ -286,6 +288,12 @@ function RulesAndFocus() {
         name="budget"
         label="Budget"
         rules={{ required: "Enter a budget" }}
+      />
+      <FormDatePicker
+        control={form.control}
+        name="opensOn"
+        label="Opens on"
+        rules={{ required: "Pick a date" }}
       />
       <FormRadioGroup
         control={form.control}
@@ -328,6 +336,7 @@ export const RulesAndFocusOnTheFirstError: Story = {
     const consent = canvas.getByRole("checkbox", { name: "You may contact me" });
     await expect(consent).toHaveAccessibleDescription("Agree to be contacted");
     await expect(canvas.getByText("Choose a topic")).toBeVisible();
+    await expect(canvas.getByText("Pick a date")).toBeVisible();
     await waitFor(() =>
       expect(canvas.getByRole("textbox", { name: /Name/ })).toHaveFocus(),
     );
