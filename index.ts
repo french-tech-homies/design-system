@@ -92,6 +92,12 @@ export { default as ListItem, type ListItemProps } from "./components/ListItem";
 export { Tag, type TagProps } from "./components/Tag";
 export { Link, type LinkProps } from "./components/Link";
 export {
+  Breadcrumbs,
+  Breadcrumb,
+  type BreadcrumbsProps,
+  type BreadcrumbProps,
+} from "./components/Breadcrumbs";
+export {
   Badge,
   badgeAccessibleText,
   BADGE_MAX,

@@ -441,6 +441,15 @@ const components = [
     deps: ["utils", "render-props"],
   }),
   item({
+    name: "breadcrumbs",
+    title: "Breadcrumbs",
+    description:
+      "The path to the current page on React Aria Breadcrumbs: links to each level above it and the page itself, with a mirrored chevron between two.",
+    files: [file("components/Breadcrumbs.tsx")],
+    dependencies: [RAC],
+    deps: ["utils", "render-props", "icons", "link"],
+  }),
+  item({
     name: "badge",
     title: "Badge",
     description:
