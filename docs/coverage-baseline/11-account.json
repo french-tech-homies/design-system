@@ -1,0 +1,170 @@
+{
+  "screen": "Account",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "An avatar that is replaced by upload",
+      "built": "yes",
+      "kit": [
+        "Avatar",
+        "FileTrigger",
+        "IconButton",
+        "LoadingIndicator",
+        "Button",
+        "snackbar",
+        "SnackbarRegion"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A relative wrapper holding the 112px Avatar, a filled camera IconButton (inside FileTrigger) on its bottom corner, a scrim circle with a contained LoadingIndicator while the mock upload runs, and a text 'Remove photo' button under it.",
+          "why": "The kit has an Avatar and a FileTrigger but no avatar-with-upload composition; ImageField is a rectangular drop zone with a preview card, not an avatar."
+        },
+        {
+          "kind": "feature",
+          "what": "Type and size checks (PNG/JPEG/WebP, 5 MB), FileReader to a data URL and the busy state written by hand around FileTrigger; rejections said in a snackbar.",
+          "why": "FileTrigger only opens the chooser; the validation, reading and rejection that ImageField has inside it are not offered apart from ImageField's drop zone."
+        },
+        {
+          "kind": "read",
+          "what": "Read Avatar.tsx whole (how src/fallback/size and the failed-image swap work) and the first 110 lines of ImageField.tsx to decide it did not fit.",
+          "why": "Needed to know whether Avatar takes a data URL and resets after a failed image, and whether ImageField could be drawn round; the doc comments do not say."
+        },
+        {
+          "kind": "value",
+          "what": "Avatar size={112}: a pixel number chosen by hand.",
+          "why": "Avatar's size is a free number; its doc names 24 to 40 only, and no token or named size exists for a profile-header avatar."
+        },
+        {
+          "kind": "guess",
+          "what": "First wrote the profile name as <Headline component=\"p\">: a type error, changed to h2.",
+          "why": "The type primitives' component accepts only div, h1-h6 and span; found by the compiler."
+        },
+        {
+          "kind": "control",
+          "what": "After 'Remove photo' the focus is moved by hand to the upload button (querySelector on a wrapper), and the upload button is left enabled during an upload so the focus the file chooser returns is not dropped; a newer choice cancels the pending one.",
+          "why": "The composition is the project's, so its focus handling is too; nothing in the kit covers a control that removes itself."
+        }
+      ],
+      "notes": "Not seen in a browser. Unsure: how the 40px IconButton's 48px target sits over the avatar's corner; that the scrim circle over the avatar reads well in dark. The photo is a data URL held in memory (lost on reload, as mock data). Undo in the snackbar restores the previous photo. Checked in React Aria's source: FileTrigger clears its input before opening, so the same file can be chosen again after Undo or Remove."
+    },
+    {
+      "n": 2,
+      "part": "A list of settings rows with trailing switches and chevrons",
+      "built": "yes",
+      "kit": [
+        "GridList",
+        "GridListItem",
+        "ListItem",
+        "Switch",
+        "ChevronRightIcon",
+        "Title",
+        "Body",
+        "AriaRouterProvider (adapters/react-router)",
+        "TopAppBar",
+        "IconButton",
+        "ArrowBackIcon",
+        "TextField",
+        "RadioGroup",
+        "Radio",
+        "Button"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "Three labelled sections, each a Title and a GridList on a rounded surface-container-low panel; the trailing slot of a chevron row is a hand-written span of an optional value and ChevronRightIcon; four small sub-screens (personal details, units, privacy, help) behind the chevron rows, routed with react-router.",
+          "why": "The kit has no settings-group or list-section-header composition, and a chevron row has to lead somewhere."
+        },
+        {
+          "kind": "feature",
+          "what": "A switch row is a GridListItem whose onAction sets the value, with a controlled Switch (aria-label) in ListItem's trailingElement; the row's textValue carries ', on' / ', off' so the row itself says its state.",
+          "why": "ListItem/GridListItem have no switch row: nothing ties the row's action to the trailing control or announces its state on the row. Composed by hand from two controls that both set the same value."
+        },
+        {
+          "kind": "feature",
+          "what": "Gave every row supporting text so all rows are 72px.",
+          "why": "Switch is min-h-12 inside a ListItem with py-2, so a one-line switch row would be 64px beside 56px chevron rows; ListItem has no way to even them."
+        },
+        {
+          "kind": "feature",
+          "what": "Long supporting text (an email) wraps with wrap-anywhere instead of truncating.",
+          "why": "ListItem's doc says to truncate with a span and 'give the list a width', but its content column has no min-w-0 and className reaches only the root, so a long unbroken string cannot be cut to one line from outside."
+        },
+        {
+          "kind": "read",
+          "what": "Read ListItem.tsx, GridList.tsx and Switch.tsx whole.",
+          "why": "To learn that ListItem's state layer only answers inside a GridListItem (group/grid-list-item), what Switch's height is, and whether a Switch may sit in trailingElement; the doc comments show no row with a control and an action together."
+        },
+        {
+          "kind": "read",
+          "what": "Read adapters/react-router.tsx's header and AriaRouterProvider.",
+          "why": "To learn where to mount it and that GridListItem's href then navigates client-side; the adapter mentions 'ListItem href', which ListItem does not have (it is GridListItem's)."
+        },
+        {
+          "kind": "feature",
+          "what": "className=\"-outline-offset-3\" on every GridListItem, so the focus ring is drawn inside the row.",
+          "why": "focusRing is a 3px outline offset 2px outward; the kit's GridList is overflow-auto and the panel clips its corners, so a full-width row's ring is cut at the sides. GridListItem has no inset-ring option."
+        },
+        {
+          "kind": "read",
+          "what": "Read focusRing in utils.ts, render-props.ts and Typography.tsx's component body.",
+          "why": "To learn the ring's offset, that a className passed to GridListItem wins over the kit's, and that Title forwards id (the sections name their lists with aria-labelledby)."
+        }
+      ],
+      "notes": "Not seen in a browser. Unsure: that a press on the Switch itself does not also reach the row's onAction (both set the same explicit value, so the result should be one change either way); how a screen reader reads a row holding a switch; Enter activates a row, Space on a focused row may not toggle (Right arrow moves into the Switch, where Space does). Chevron rows are links (GridListItem href) to real sub-screens; Units' value shows back on its row. Unsure: the inset ring's square corners on the first and last row of a rounded panel."
+    },
+    {
+      "n": 3,
+      "part": "Sign out confirmed in a dialog",
+      "built": "yes",
+      "kit": [
+        "Button",
+        "ModalDialog",
+        "Headline",
+        "Body"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A signed-out page (headline, text, 'Sign in again' button with autoFocus) shown after the confirm's mock request.",
+          "why": "Sign out needs somewhere to land; a page composition, written by hand."
+        },
+        {
+          "kind": "feature",
+          "what": "Passed className=\"mx-4 w-auto max-w-140\" to ModalDialog to cap the dialog at 560px and keep 16px from a phone's edges.",
+          "why": "Modal, Dialog and DialogContent set min-w-[280px] w-full and no maximum or side margin, so long supporting text would run the dialog to the screen's edges."
+        },
+        {
+          "kind": "feature",
+          "what": "Guards written by hand so Cancel, Escape and a second confirm do nothing while the sign-out request runs.",
+          "why": "The structured actions take isLoading on confirm but nothing disables cancel or dismissal meanwhile."
+        },
+        {
+          "kind": "read",
+          "what": "Read Dialog.tsx, ModalDialog.tsx, DialogContent.tsx and Modal.tsx whole, and Button.tsx's prop types.",
+          "why": "To find the shape of actions ({confirm, cancel} with label/onPress/isLoading), that nothing closes by itself, the missing width cap, and that color=\"error\" exists; ModalDialog's own doc comment names none of its props."
+        }
+      ],
+      "notes": "Not seen in a browser. role=\"alertdialog\": the scrim does not dismiss, Escape does. The confirm is the kit's filled primary button, by choice: the structured {confirm, cancel} actions draw it so, and passing buttons of my own as actions (which the kit allows) was not needed; the trigger is an outlined error button. Unsure: the dialog's exact width at 400px; where focus lands after sign out (autoFocus on 'Sign in again' is intended)."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page: TopAppBar, a centred max-w-2xl main, and a loading placeholder of pulsing blocks in the page's footprint (900ms timer).",
+      "why": "The kit has no skeleton/placeholder component and no page scaffold."
+    },
+    {
+      "kind": "read",
+      "what": "Read TopAppBar's, Snackbar's, IconButton's, Radio's, EmptyState's and LoadingIndicator's doc comments and prop types by grep.",
+      "why": "Doc comments were enough for these; logged for completeness."
+    },
+    {
+      "kind": "component",
+      "what": "Icons from lucide-react (Camera, Bell, Mail, Users, HeartPulse, UserRound, Ruler, ShieldCheck, LifeBuoy, LogOut).",
+      "why": "The kit ships a small icon set for its own components and says icons are any {size, className} component; it has no camera, bell and so on. ChevronRightIcon and ArrowBackIcon are the kit's."
+    }
+  ],
+  "friction": "No block serves this screen (pager, stepper, radio tile, carousel, site header), so none was added. Hardest: the settings row. ListItem's doc shows only passive trailing content; nothing says how a row with a trailing Switch should behave (who owns the action, how state is announced, the 64 vs 56px heights), and ListItem bare has no state layer or focus ring, which is only learnt from its source. A documented 'row with a switch' and 'row that navigates' example on ListItem/GridListItem, or a SettingsRow, would have made it easy. Second: the avatar. ImageField holds the validation and reading logic but only with its drop zone; an avatar variant, or that logic exported as a hook, would remove hand-written upload code. Third: ModalDialog's doc lists no props and the dialog has no max width or phone margin; the actions shape is found only in DialogContent's types. The type primitives refuse component=\"p\". ListItem's truncation advice does not work as written (no min-w-0 on its content column). Nothing here was verified in a browser: the brief forbids one, so pointer, keyboard and dark-mode behaviour are reasoned from source, not observed."
+}

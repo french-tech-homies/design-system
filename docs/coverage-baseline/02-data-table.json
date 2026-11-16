@@ -1,0 +1,213 @@
+{
+  "screen": "Data table",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Sortable columns",
+      "built": "yes",
+      "kit": [
+        "Table",
+        "TableHeader",
+        "TableBody",
+        "Column",
+        "Row",
+        "Cell",
+        "Tag",
+        "Card"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read the whole of components/Table.tsx, styles and CellText included, not only its doc comments.",
+          "why": "I printed the file to find the exports; the doc comments alone would have been enough for sorting, selection, truncation and resizing."
+        },
+        {
+          "kind": "layout",
+          "what": "The page (header, search, chips, the card holding table, states and pager) and the six columns' cells, written by hand; sorting itself is a comparator in the client.",
+          "why": "Expected: the kit draws the table, the data and its order are the screen's."
+        }
+      ],
+      "notes": "Every data column sorts (order, customer, placed, status, items, total); sorting returns to page 1 and keeps the selection. Not run in a browser: the arrow, Enter on a heading and the announced sort direction are React Aria's and the kit's, unverified here. Card's `component=\"section\"` with `aria-label` and `aria-busy` was written from one line of its doc comment and type-checked first time."
+    },
+    {
+      "n": 2,
+      "part": "Search",
+      "built": "yes",
+      "kit": [
+        "SearchBar"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read SearchBar's render in components/Search.tsx past the doc comment.",
+          "why": "To confirm it takes React Aria's `value` / `onChange` (the doc comment shows only `onSubmit`) and how it is named for assistive technology."
+        }
+      ],
+      "notes": "Filters as one types, over order number, customer and email, every word having to match; clears with Escape or the bar's clear button; resets the page and drops the selection. SearchBar is Material's 56dp elevated bar, up to 720dp wide: it is heavier than a table's filter field usually is, and I kept it as the kit draws it. Unverified in a browser."
+    },
+    {
+      "n": 3,
+      "part": "Filter chips",
+      "built": "yes",
+      "kit": [
+        "ChipGroup",
+        "Chip"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read components/Chip.tsx past the doc comment, down to ChipGroup.",
+          "why": "The doc comment's example does not show `selectedKeys` / `onSelectionChange`, nor that ChipGroup takes an `aria-label` in place of the visible `label`."
+        }
+      ],
+      "notes": "Six status chips, several at once, combined with the search. No count on a chip. They wrap onto two or three rows at 400px. Unverified in a browser."
+    },
+    {
+      "n": 4,
+      "part": "Multiple selection with a bulk-action bar",
+      "built": "yes",
+      "kit": [
+        "Table",
+        "Toolbar",
+        "IconButton",
+        "TooltipTrigger",
+        "Tooltip",
+        "Label",
+        "ModalDialog",
+        "snackbar",
+        "SnackbarRegion",
+        "XIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Turned React Aria's \"all\" into the ids of the page shown, and an emptied selection into 'this page's rows removed', so a selection is kept from page to page.",
+          "why": "The Table hands selection straight through: with paging, 'Select all' means every row of the page, and nothing in the kit or its guidance says how a selection should live across pages."
+        },
+        {
+          "kind": "layout",
+          "what": "The bar is the kit's floating vibrant Toolbar, placed by hand in a fixed, centred strip at the window's bottom, with a count beside its buttons, a separate visually hidden `role=status` for the count, bottom padding on the page, and the SnackbarRegion raised above it.",
+          "why": "Toolbar leaves the placement to the layout; it has no slot for text such as '3 selected', and no bulk-action or contextual bar exists in the kit."
+        },
+        {
+          "kind": "read",
+          "what": "Read Toolbar's styles past its doc comment.",
+          "why": "To see whether a floating toolbar already sets its height and padding, and what it paints onto children, before putting a text label in it."
+        },
+        {
+          "kind": "read",
+          "what": "Read the SnackbarRegion's styles in components/Snackbar.tsx.",
+          "why": "To learn where the region sits (fixed, bottom-4) so a snackbar could be raised above the selection's bar; the doc comment says to place it with `className` but not what it starts from."
+        },
+        {
+          "kind": "feature",
+          "what": "The bar counts and acts on the selected orders the filtered list still holds, computed by hand, not on the table's raw selection.",
+          "why": "An action can take a selected row out of the filters (a paid order marked shipped under the 'Paid' chip); the Table keeps its key selected, and the bar would act on rows nobody sees."
+        }
+      ],
+      "notes": "Actions: mark as shipped (paid orders only), export CSV (a real download), cancel (confirmed in an alert dialog), each change with an Undo snackbar that puts back only the orders it changed; clear selection. The live count is a visually hidden `role=status` (Tailwind's `sr-only`). Buttons are icons with tooltips at every width, so the bar fits 400px; labelled buttons would read better on a desktop. A disabled Ship or Cancel shows no tooltip (a disabled button takes no hover or focus), so why it is disabled is said only in its aria-label's count. Known weak points, none checked in a browser: when 'Clear selection' is pressed the bar unmounts and focus falls to the page; the bar is in the DOM before the table, so Tab reaches it from the chips, but it is drawn at the bottom; whether the header checkbox shows the mixed state when only other pages hold selected rows; the Label's colour inside the vibrant toolbar is inherited from the toolbar's container."
+    },
+    {
+      "n": 5,
+      "part": "A row's menu",
+      "built": "yes",
+      "kit": [
+        "Menu",
+        "IconButton",
+        "ModalDialog",
+        "Button",
+        "Tag",
+        "snackbar"
+      ],
+      "leaves": [
+        {
+          "kind": "read",
+          "what": "Read components/Menu.tsx whole (menuRow, the popover) and DialogContent / ModalDialog past their doc comments.",
+          "why": "To know whether `actions` takes a JSX element as well as the confirm/cancel pair, and that a ModalDialog is rendered always and driven by `isOpen`."
+        },
+        {
+          "kind": "layout",
+          "what": "The details dialog's insides (a definition list) written by hand in `supportingText`.",
+          "why": "Expected."
+        },
+        {
+          "kind": "feature",
+          "what": "Row-menu actions update the orders with functional state updates and an Undo that restores only the changed ids.",
+          "why": "React Aria keeps a rendered row while its item object is unchanged, so a row menu's `onAction` can be a closure of an earlier render; the kit's Menu and Table doc comments do not warn of it. Caught in review, not by the build."
+        }
+      ],
+      "notes": "View details, copy number, mark as shipped, refund, cancel (confirmed); what does not apply to an order is disabled, not hidden. Activating a row (Enter, or a click while nothing is selected) also opens the details. Refund is not confirmed, only undoable. Unverified in a browser: the menu button inside a selectable row (that a press on it does not toggle the row), reaching it with the arrow keys, and the 40dp button in the 52dp row."
+    },
+    {
+      "n": 6,
+      "part": "Paging or loading more",
+      "built": "yes",
+      "kit": [
+        "Menu",
+        "Button",
+        "IconButton",
+        "Body",
+        "ChevronDownIcon"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "Composed the pager by hand in src/orders/Pager.tsx from kit controls: a page-size Menu (single choice), the range shown, first / previous / next / last IconButtons.",
+          "why": "The kit has a `pager-block` for exactly this, but `npx shadcn@latest add @ds/pager-block -y` was refused twice by this session's permission system, so the block was never seen. I did not fetch it another way."
+        }
+      ],
+      "notes": "Paging, 10 / 25 / 50 a page; the page resets on search, filter, sort and page-size change, and is clamped when rows are filtered away. A move that disables the pressed button (reaching the first or last page) may drop focus from it. Unverified in a browser."
+    },
+    {
+      "n": 7,
+      "part": "Resizable columns",
+      "built": "yes",
+      "kit": [
+        "ResizableTableContainer",
+        "Column"
+      ],
+      "leaves": [],
+      "notes": "All six data columns are resizable with a default and a minimum width; the checkbox and menu columns are fixed. Widths are kept while the page is open (the table stays mounted through loading, error and empty) and are not saved across reloads. At 400px the container scrolls sideways. Not run in a browser: dragging, the keyboard path to the handle, and how `Cell truncate` (max-w-0) behaves in the container's fixed widths are the kit's, taken on its doc comment. The Customer column is `1fr` so the table fills the card on a wide screen; the others are in pixels."
+    },
+    {
+      "n": 8,
+      "part": "Empty, loading, error",
+      "built": "yes",
+      "kit": [
+        "EmptyState",
+        "LoadingIndicator",
+        "Button",
+        "Body",
+        "Menu",
+        "IconButton"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Did not use TableBody's `renderEmptyState`; the three states are panels under the header row, outside the grid, inside the same card.",
+          "why": "The empty and error states need a button (clear filters, try again). React Aria's grid is one Tab stop: its Tab handler (node_modules/react-aria/dist/private/selection/useSelectableCollection.mjs) moves focus past any tabbable element inside, so a button in `renderEmptyState` is skipped by Tab. The kit's doc says nothing about controls in an empty state."
+        },
+        {
+          "kind": "read",
+          "what": "Read React Aria's useSelectableCollection in node_modules, and EmptyState and LoadingIndicator past their doc comments (props only).",
+          "why": "To settle the Tab question above, and to find the props."
+        },
+        {
+          "kind": "layout",
+          "what": "The three panels' boxes (min height, centring, role=status / role=alert) by hand; EmptyState drawn bare with the className its doc comment gives.",
+          "why": "Expected. EmptyState takes no role and has no error form; its title is a `Headline medium`, large for a panel in a table."
+        }
+      ],
+      "notes": "Loading: a 1.2 s timer on first load and on every reload. Error: reached honestly only by the header menu's 'Reload, and let it fail (demo)'; 'Try again' recovers. Empty: a search or filter with no match, with 'Clear search and filters'. No skeleton rows. An emptied table is a grid with a header and no rows, then the panel: how a screen reader reads that pair is unverified."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "read",
+      "what": "Read the styles and props of Button, IconButton, Tag, Tooltip, Card and Typography by grep, past their doc comments.",
+      "why": "To find the variant and size names (`CommonVariant`, Tag's colours, IconButton's `standard`), which sit in the types and the `tv` call, not in the doc comment's prose."
+    }
+  ],
+  "friction": "1. The pager block could not be added: the one allowed command was refused by the session's permission system (twice), so part 6 is hand-written and the block is untested by this run. 2. Nothing says what a table does with paging: what 'Select all' selects, how a selection lives across pages, where a bulk-action bar goes. A paragraph in Table's doc comment, or a block (table + pager + selection bar), would have saved the most thought. 3. `renderEmptyState` is offered as the empty state, but a button inside it is passed over by Tab; one sentence saying 'text only, put actions outside the grid' (or an `EmptyState` that works there) is needed. 4. Prop values live in types, not in doc comments: Button's variants, Tag's colours, that ChipGroup and SearchBar are controlled with React Aria's props. A short props table at the top of each doc comment would remove most `read` leaves. 5. Toolbar has no place for a text label and no example of a contextual (selection) use. 6. The whole screen was verified by `tsc` and `vite build` only: no browser was allowed, so every keyboard and layout claim above is from the code and the kit's doc comments. 7. `Key`, `Selection` and `SortDescriptor` are imported as types from `react-aria-components`: the kit's barrel does not re-export them, though every controlled Table, Menu and ChipGroup needs them. 8. Not leaves, for the record: icons are lucide-react's (the kit ships none for 'more', reload or double chevrons), and layout sizes are Tailwind's own scale (`max-w-6xl`, `min-h-64`, `pb-28`, `bottom-24`); no hex, palette class or bracketed value was written."
+}

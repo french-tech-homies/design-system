@@ -3,7 +3,8 @@
 A React Aria component that Material 3 does not describe joins the kit when
 a screen here needs it: the rule is in
 [What this kit is](what-this-kit-is.md). Four of the screens were run once,
-to test what this page asks: [the pilot](coverage-pilot.md).
+to test what this page asks: [the pilot](coverage-pilot.md). All twenty-two were
+then run once: [the baseline](coverage-baseline.md).
 
 The kit aims to serve 95% of what a product's screens need, and to leave a
 project only what is truly its own. This page is what that figure is counted
@@ -39,6 +40,9 @@ written down.
 | `value`      | A hex value, a palette class or a pixel size where a role utility should be.  |
 | `guess`      | A prop, a slot or an import guessed wrong: a type error or a second attempt.  |
 | `read`       | The kit's source read past a doc comment to learn how a component is used.    |
+
+A block of the kit that a builder adds and edits is no leave: the kit
+offered it.
 
 `component`, `feature`, `control` and `edit` are gaps in the kit. `layout`
 is none: arranging the kit's parts is a project's work, and a layout that

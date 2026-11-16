@@ -1,0 +1,227 @@
+{
+  "screen": "Dashboard",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "Figure cards",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Title",
+        "Headline",
+        "Label",
+        "cn"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The four cards' grid (a ul, two columns on a phone, four on a desktop) and each card's insides: name, figure, and a change line with a lucide trend icon and the words Up/Down.",
+          "why": "Expected: the kit has no figure or stat card; CardContent is headline, supporting text and actions."
+        },
+        {
+          "kind": "guess",
+          "what": "Wrote <Label component=\"h3\">, <Label component=\"p\"> (twice) and <Headline component=\"p\">: four type errors. Second attempt: Title size small as the h3, div for the others.",
+          "why": "Each type primitive takes its own short list of elements (Label: div, label, span; Headline: div, h1-h6, span). The lists are in the types only; the doc comment at the top of Typography.tsx does not give them."
+        },
+        {
+          "kind": "read",
+          "what": "Read Typography.tsx's types after the errors, for the elements each primitive takes and for colorRole.",
+          "why": "The element lists are not in the doc comment."
+        }
+      ],
+      "notes": "The change line's colour is primary for good news and error for bad; the words and the arrow carry the meaning. Not seen in a browser: the truncation of a long figure at phone width is unverified. The change line may wrap to two lines at phone width while its placeholder is one, so a card's height may move a line when it arrives: unverified."
+    },
+    {
+      "n": 2,
+      "part": "Meters and progress",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Title",
+        "Meter",
+        "ProgressIndicator"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The card's column: one progress indicator (a month-end invoice run that advances on a timer) and four meters (revenue against the range's goal, trials converted, seats, emails over the plan).",
+          "why": "Expected."
+        }
+      ],
+      "notes": "The revenue goal is a Meter, not a ProgressIndicator: a reading for a range, by the kit's own distinction. The meter over its range says so in its label, as Meter's comment asks. Both served as documented. The loaded state was rendered to a string once (4 meters, 1 progressbar, their value texts right); not seen in a browser."
+    },
+    {
+      "n": 3,
+      "part": "A date-range filter",
+      "built": "yes",
+      "kit": [
+        "DateRangePicker"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Used DateRangePicker as it is: its calendar opens full screen at every width.",
+          "why": "There is no docked or popover range picker. For a filter on a desktop dashboard a full-screen dialog is heavy; a range calendar in a popover would serve better. Typing in the field stays quick."
+        },
+        {
+          "kind": "read",
+          "what": "Read DatePicker.tsx's prop types (FieldProps, DateRangePickerProps) for supportingText, className and what the range picker refuses.",
+          "why": "The doc comment names the layouts and the draft; the field's own props are only in the types."
+        },
+        {
+          "kind": "layout",
+          "what": "The filter row that holds the period toggle and the field, stacked on a phone.",
+          "why": "Expected."
+        }
+      ],
+      "notes": "Two states are kept, the field's value (may be null, half-typed or refused) and the applied range, so only a whole range that ends by today reaches the figures. A range that ends after today is refused by maxValue and not applied. Unverified in a browser: the field's width at 400px with two dates and the calendar button."
+    },
+    {
+      "n": 4,
+      "part": "A period toggle",
+      "built": "yes",
+      "kit": [
+        "ButtonGroup",
+        "Button",
+        "Label"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Controlled the selection and ignored the empty set in onSelectionChange, instead of disallowEmptySelection.",
+          "why": "The toggle must show nothing selected when the range typed in the field is no period, yet a press on the selected period must not unselect it. The group has one switch for both."
+        },
+        {
+          "kind": "read",
+          "what": "Read ButtonGroup.tsx past its comment for the selection props it forwards (selectedKeys, onSelectionChange) and Button.tsx's toggle types.",
+          "why": "The comment says the children are Buttons with isToggle and an id, with no example of a connected, selected group."
+        },
+        {
+          "kind": "layout",
+          "what": "A visible Label above the group, tied with aria-labelledby, and the row that holds the toggle and the date field.",
+          "why": "Expected."
+        }
+      ],
+      "notes": "Week, Month and Quarter write the last 7, 30 or 90 days into the date range; a range typed by hand that is none of them leaves the toggle empty. Chose ButtonGroup connected over SegmentedButton because the kit's comment says to."
+    },
+    {
+      "n": 5,
+      "part": "A slot for a chart",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Title",
+        "Body",
+        "Label",
+        "LoadingIndicator"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "The placeholder area: a dashed outline-variant frame, an icon, the words \"Chart slot\" and what the chart library draws there.",
+          "why": "Expected: a slot is the project's."
+        }
+      ],
+      "notes": "No chart is drawn, as the screen asks."
+    },
+    {
+      "n": 6,
+      "part": "A list of recent activity",
+      "built": "yes",
+      "kit": [
+        "Card",
+        "Title",
+        "Body",
+        "ListItem",
+        "Avatar",
+        "Tag",
+        "EmptyState",
+        "Button"
+      ],
+      "leaves": [
+        {
+          "kind": "feature",
+          "what": "Put ListItem in a plain ul/li and overrode its cursor with className=\"cursor-default\".",
+          "why": "The rows are read, not pressed, so GridList's focus and keyboard would promise an action there is none of. ListItem draws cursor-pointer always and has no read-only form."
+        },
+        {
+          "kind": "feature",
+          "what": "Wrapped Avatar in an aria-hidden span.",
+          "why": "Without src and alt, Avatar is role=\"img\" with no name; with alt it repeats the name the headline already says. It has no decorative form."
+        },
+        {
+          "kind": "read",
+          "what": "Read ListItem.tsx's styles (the cursor, the state layer's group classes) and Avatar.tsx's markup (the role).",
+          "why": "Neither is in the doc comment. ListItem's example also writes <Avatar name=\"Ada\" />, a prop Avatar does not have."
+        },
+        {
+          "kind": "layout",
+          "what": "The card's heading, the count line, and \"Show 6 more\" under the list.",
+          "why": "Expected."
+        },
+        {
+          "kind": "control",
+          "what": "\"Show 6 more\" paging by hand: a text Button under the list that reveals six more rows; on its last press the list (tabIndex -1) takes the focus the button held.",
+          "why": "pager-block may have served here, but `npx shadcn@latest add @ds/pager-block -y` was refused by this session's permission system, so the block was never seen. Not worked around."
+        },
+        {
+          "kind": "read",
+          "what": "Read EmptyState.tsx's props and markup for its sizes and the bare form.",
+          "why": "Its comment gives the bare className; the `size` values are in the styles."
+        }
+      ],
+      "notes": "The list follows the date range, shows six rows and six more on each press; an empty range would show EmptyState (the mock data has an event every day, so it is not reached). A quarter holds about 170 events, six at a time: a pager would serve that better than \"Show more\"; see the leave on the block. The focus move on the last press is reasoned, not tried in a browser."
+    },
+    {
+      "n": 7,
+      "part": "A state for each card while it loads",
+      "built": "yes",
+      "kit": [
+        "LoadingIndicator",
+        "Card"
+      ],
+      "leaves": [
+        {
+          "kind": "layout",
+          "what": "A Placeholder (a pulsing surface-container-highest bar) written by hand, laid out as each card's content: figure and change, five bars, six rows. The chart slot shows LoadingIndicator.",
+          "why": "The kit has no skeleton or placeholder component; LoadingIndicator in seven cards at once would be seven spinners."
+        },
+        {
+          "kind": "value",
+          "what": "animate-pulse (Tailwind's own keyframes and timing), stopped under reduced motion.",
+          "why": "The kit's motion tokens are durations and easings; there is no looping animation to name."
+        },
+        {
+          "kind": "hook",
+          "what": "VisuallyHidden from react-aria-components, for the hidden \"Loading\" text, the page's polite status and a hidden heading.",
+          "why": "ds-build lists it as coming straight from React Aria and not a leave; logged because the brief's `hook` kind covers a utility."
+        }
+      ],
+      "notes": "A useLoading hook gives each card its own wait (0.5s to 1.9s) after the range, the period or Refresh changes, with aria-busy on the card. Only the loading branch runs before effects, so both branches were rendered to a string once to check them; the pulse and the timing were not seen in a browser."
+    }
+  ],
+  "general_leaves": [
+    {
+      "kind": "layout",
+      "what": "The page: a main on surface, a header with the title and a Refresh IconButton, the filters, the cards' grids.",
+      "why": "Expected."
+    },
+    {
+      "kind": "read",
+      "what": "Read IconButton.tsx's prop types for `icon`, `variant` and the required aria-label.",
+      "why": "Quicker than its long comment."
+    },
+    {
+      "kind": "guess",
+      "what": "No block is used. Whether one serves was not established: the one `shadcn add` tried (pager-block) was refused by the session's permission system, so none of the five was read.",
+      "why": "The blocks are not in the project until added, and nothing in the installed files shows what a block contains."
+    },
+    {
+      "kind": "layout",
+      "what": "Boundary slip: a throwaway check script was first written to a folder beside the project (scratchpad/_tmp_04) and removed at once; the check was then run from src/ and deleted.",
+      "why": "Mine, not the kit's."
+    }
+  ],
+  "friction": "Nothing was seen in a browser, so the layout at 400px and in dark is reasoned, not checked. Hard to find: (1) which elements each type primitive accepts as `component` (four type errors): one line a primitive in its doc comment would do. (2) What a loading card should be: the kit has LoadingIndicator and ProgressIndicator and says nothing about placeholders; a Skeleton, or a sentence in ds-build saying it is the project's, would settle it. (3) A list that is only read: ListItem's comment says GridListItem gives it its behaviour, and nothing says what to do when there is none; its example passes Avatar a `name` prop that does not exist. (4) A selected connected ButtonGroup: an example with selectionMode, selectedKeys and Button isToggle id in the comment would have saved reading the source. (5) DateRangePicker is full screen only, which the comment says plainly; a docked range picker is what a filter wants."
+}

@@ -1,0 +1,71 @@
+{
+  "screen": "Landing page",
+  "build": "green",
+  "parts": [
+    {
+      "n": 1,
+      "part": "A header of links that folds to a menu",
+      "built": "yes",
+      "kit": ["site-header-block (SiteHeader)", "Link", "Button", "Label", "Menu", "IconButton", "Title"],
+      "leaves": [
+        { "kind": "layout", "what": "Edited the block (src/components/SiteHeader.tsx, the project's file): wrapped its row in a max-w-6xl column so the header's ends line up with the page's sections; made it sticky through className; added a skip link before it.", "why": "The block runs edge to edge with px-4 and has no prop for an inner width." },
+        { "kind": "guess", "what": "Wrote <Label component=\"p\">; the type refused it (Label takes div, span or label). Changed to div.", "why": "Each primitive's allowed elements differ (Body takes p, Label and Title do not) and only the type says so." }
+      ],
+      "notes": "Not run in a browser (none allowed): the fold at 48rem of the header's own width, the menu's fragment links (href=\"#features\" in a Menu item with no router provider) and the sticky header are as the block and the kit promise, unverified by eye. 'Sign in' shows only in the wide form and is not in the folded menu; it goes to /signin, a page this one-screen build does not have. No router is mounted: the links are fragments on one page, followed by the browser."
+    },
+    {
+      "n": 2,
+      "part": "A hero with two actions",
+      "built": "yes",
+      "kit": ["Display", "Body", "Label", "Button", "Card", "Title", "Divider"],
+      "leaves": [
+        { "kind": "layout", "what": "The hero's two-column grid, the eyebrow pill (a Label on secondary-container) and the picture: an invoice drawn inside an elevated Card, exposed as one role=\"img\".", "why": "Page composition; the kit has no hero or illustration." }
+      ],
+      "notes": "Both actions are Buttons with href: 'Start free trial' goes to the trial form in #pricing, 'See what it does' to #features. The trial form (TextField, Button isLoading, snackbar) simulates its request with a 1.2 s timer; it is an extra the primary action needed to lead somewhere real."
+    },
+    {
+      "n": 3,
+      "part": "Feature cards",
+      "built": "yes",
+      "kit": ["Card", "Title", "Body", "Headline"],
+      "leaves": [
+        { "kind": "layout", "what": "A ul grid (1, 2, 3 columns) of Card component=\"li\"; each card's insides (icon tile, h3, text) composed as children with classNames.content, not CardContent.", "why": "CardContent's headline is a fixed Headline style with media and actions slots; a feature card wants an icon tile and a title-large h3." },
+        { "kind": "read", "what": "Read Card.tsx past the doc comment to see the content part's padding and how classNames.content merges (p-6 replaces p-4).", "why": "Wanted to be sure the override wins rather than doubles." }
+      ],
+      "notes": "Icons are lucide-react (the kit ships no icon set). Cards are not pressed: they hold text only."
+    },
+    {
+      "n": 4,
+      "part": "A carousel of quotes",
+      "built": "yes",
+      "kit": ["reading-carousel-block (ReadingCarousel)", "Card", "Avatar", "Body", "Title", "IconButton"],
+      "leaves": [
+        { "kind": "layout", "what": "The quote card (figure, blockquote, figcaption in a filled Card) and a hand-drawn loading placeholder (pulsing bars) shown for 900 ms before the quotes arrive.", "why": "The kit has no skeleton or placeholder component." },
+        { "kind": "read", "what": "Read Avatar.tsx's body: with no src it is role=\"img\" named by alt, so an Avatar beside a visible name needs hiding by a wrapper. Wrapped it in an aria-hidden span.", "why": "The doc comment says the fallback is aria-hidden when alt names the person, not what happens when the name is already beside it; alt=\"\" would have made an unnamed img." }
+      ],
+      "notes": "The block is used unedited. Its scroll, snap, arrow keys and the '1 to 3 of 5' status were not exercised in a browser. Equal card heights rest on h-full inside the block's stretched slides."
+    },
+    {
+      "n": 5,
+      "part": "A footer of link columns",
+      "built": "yes",
+      "kit": ["Link", "Title", "Body", "Divider"],
+      "leaves": [
+        { "kind": "layout", "what": "Four nav landmarks, each named by its heading, in a grid of 2 columns on a phone and 4 from sm, beside the brand's blurb from lg; links are the kit's Link (inherit, underline on hover) at a 48px row.", "why": "The kit has no footer; the Link doc comment names a footer column as its case." }
+      ],
+      "notes": "Three footer links go to this page's sections; the others go to paths (/help, /legal/privacy, …) that this one-screen build does not have."
+    },
+    {
+      "n": 6,
+      "part": "The display type at each width",
+      "built": "yes",
+      "kit": ["Display", "Headline"],
+      "leaves": [],
+      "notes": "Hero: <Display size=\"small\"> with md:text-display-medium md:font-display-medium lg:text-display-large lg:font-display-large, exactly as Display's doc comment shows (36px, 45px, 57px). Section headings: Headline small, large from md. Checked that the kit's cn keeps all the stepped classes and that they are in the built CSS; not seen in a browser."
+    }
+  ],
+  "general_leaves": [
+    { "kind": "layout", "what": "The page's ground (bg-surface text-on-surface on a min-h-screen wrapper) and one column constant (max-w-6xl, px-4/md:px-6) shared by every section.", "why": "The theme paints no page background and the kit has no page container." }
+  ],
+  "friction": "Little. The two blocks did the two hard parts, and Display's doc comment answers the stepped type directly. What cost time: (1) the element each type primitive accepts differs (Label and Title refuse p) and is only in the types; one line in ds-build would save the type error. (2) ds-build does not say whether a fragment href in a Link, Button or Menu item works without a router adapter; the react-router adapter's comment talks of fragments, the skill only of a full page load. (3) Avatar beside a visible name: no stated way to make it decorative. (4) SiteHeader has no inner-width prop, so a centred page column means editing the block (fine, but the first edit everyone will make). (5) The theme does not paint the page's ground and nothing says where a project should; a wrapper was used. (6) No skeleton or placeholder in the kit. Nothing was verified in a browser, as the brief forbids one."
+}
