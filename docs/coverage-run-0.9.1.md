@@ -11,8 +11,13 @@ with the report of the browser pass beside it (`<screen>.browser.json`).
 A part is the kit's when it was built with no `component`, `option`,
 `control` or `edit` leave: the corpus's rule.
 
-**61 parts of 119, 51%**, where the baseline had 52 (44%) and the corpus
+**60 parts of 119, 50%**, where the baseline had 52 (44%) and the corpus
 aims at 95%. The baseline's page projected 64 (54%).
+
+That is the figure from the logs, as the baseline's was. One of the 60, the
+checkout's delivery time, cannot be done by keyboard (see "In a browser"),
+and the corpus counts a part that does not work as a leave: by the corpus's
+whole rule the figure is 59.
 
 | #  | Screen             | Parts | Baseline | The kit's | Works clean in a browser |
 | :- | :----------------- | ----: | -------: | --------: | -----------------------: |
@@ -30,7 +35,7 @@ aims at 95%. The baseline's page projected 64 (54%).
 | 12 | Search             |     4 |        0 |         2 |                        1 |
 | 13 | File browser       |     7 |        3 |         2 |                        0 |
 | 14 | Inbox              |     5 |        2 |         1 |                        0 |
-| 15 | Board              |     4 |        3 |         4 |                        0 |
+| 15 | Board              |     4 |        3 |         3 |                        0 |
 | 16 | Editor chrome      |     7 |        1 |         1 |                        2 |
 | 17 | Schedule           |     5 |        0 |         0 |                        0 |
 | 18 | Activity           |     4 |        2 |         2 |                        0 |
@@ -38,16 +43,16 @@ aims at 95%. The baseline's page projected 64 (54%).
 | 20 | Pricing            |     5 |        2 |         3 |                        2 |
 | 21 | Contact            |     3 |        0 |         2 |                        0 |
 | 22 | Article            |     7 |        4 |         3 |                        2 |
-|    | **All**            | **119** |   **52** |    **61** |                   **24** |
+|    | **All**            | **119** |   **52** |    **60** |                   **24** |
 
-Every screen built. No kit file was edited in any run. 100 parts of 119
+Every screen built. No kit file was edited in any run. 99 parts of 119
 took no control from outside the kit (no `component`, `control` or `edit`
 leave), where the baseline had 93.
 
-Leaves over the 22 runs, as read: 93 `option`, 14 `component`, 8 `control`,
-no `edit`; and beside the figure 200 `use`, 133 `layout`, 111 `read`,
-17 `value`, 10 `hook`, 9 `guess`. The baseline had 22 `component`,
-14 `control` and 29 `guess`.
+Leaves over the 22 runs, as read: 94 `option`, 14 `component`, 9 `control`,
+no `edit`; and beside the figure 199 `use`, 132 `layout`, 111 `read`,
+17 `value`, 10 `hook`, 9 `guess`. The baseline had 93 `option`,
+22 `component`, 14 `control` and 29 `guess`.
 
 ## How the figure was read
 
@@ -58,19 +63,25 @@ reader. Asked for both kinds, with a doc comment's line to quote for each
 117. By their own sorting the figure is 47 parts of 119, 39%: not a number to
 hold against 52.
 
-The 121 `option` leaves and the 15 `component` leaves were then read one by
-one by the reader who split the baseline, against the same rule. 28 `option`
+The logs were then read by the reader who split the baseline, against the
+same rule and both ways: each of the 121 `option` and 15 `component` leaves,
+and each `use` leave of a part that would otherwise count. 28 `option`
 leaves became `use` (the project's own logic, a React Aria prop passed
 through, a block edited, children composed, a size or a position added by
-`className`) and one `component` leave became none (`VisuallyHidden`, which
-the skill names). Each is in
+`className`). One `component` leave became none (`VisuallyHidden`, which
+the skill names). One `use` became an `option` (a drag handle pulled in by
+a negative margin, an option at the baseline), and the record form's error
+summary, logged as a layout, is counted a `control` as the baseline's was.
+Each is in
 [`coverage-run-0.9.1/reading.json`](coverage-run-0.9.1/reading.json). A
 component's own look replaced by a class (a `Skeleton`'s corner, a
 `TabPanel`'s padding) stayed an `option`, as at the baseline. One reader made
 the reading: a second would move a few.
 
 **Five screens went down by one part**, none because the kit lost anything:
-their builders logged smaller things than the baseline's did. A screen's
+their builders logged smaller things than the baseline's did. The number of
+`option` leaves did not fall (93, then 94): thirteen things were closed, and
+builders asked to sort the kinds found as many smaller ones. A screen's
 count moves by a part or two from one run to the next; the total is steadier.
 
 **Each log was held against its project's code.** Every import from React
@@ -94,7 +105,7 @@ each, of 22:
 | The adapter's `FormDatePicker`                              |       2 |
 
 The guess ten baseline screens made, a type primitive refusing an element,
-was made by none. Eleven of the nineteen `Avatar`s are decorative.
+was made by none.
 
 ## What still stands between a part and the kit
 
@@ -127,14 +138,16 @@ dark, and by pointer where a part is a pointer's too. A part "works clean"
 when its job is done by keyboard and nothing is wrong on the way.
 
 **24 parts of 119 work clean, 94 do their job with something wrong, 1 cannot
-be done.** Of the 61 parts that are the kit's by their log, 16 work clean.
+be done.** Of the 60 parts that are the kit's by their log, 16 work clean.
 The baseline has no such column, and the checkers were told not to be kind:
 a part with one fault they were unsure of is counted among the 94.
 
-No screen printed an error or a warning of the kit's or React Aria's to the
-console. Nineteen screens never scroll sideways at 400 or 1280; the board
-does on a phone, as the baseline's did, and the record form by 4px once a
-field shows its error.
+Twenty-one screens printed nothing to the console, no error and no warning.
+The application shell threw one page error, "External navigation is not
+allowed", each time its `mailto:` link was pressed: the link goes through
+the kit's react-router adapter. Twenty screens never scroll sideways at 400
+or 1280; the board does on a phone, as the baseline's did, and the record
+form by 4px once a field shows its error.
 
 What the 22 reports repeat, with whose it is. The counts are of reports
 read, and approximate:
@@ -146,12 +159,12 @@ read, and approximate:
 |       8 | A snackbar is drawn over what is focused, a toolbar or a sheet's buttons                | The kit's region is placed by the project; nothing reserves the space |
 |       8 | A focused control is not scrolled into view: in a sheet, under a sticky bar             | Both |
 |       3 | The modal `SideSheet` on a phone: off the window, at the wrong edge, not closed by Escape | To reproduce in the kit |
-|       2 | Today's number is invisible when today is an end of a range                             | The kit's: its date-picker styles |
+|       2 | Today's number is invisible when today is an end of a range                             | To reproduce in the kit: both screens draw it with the kit's date-picker styles |
 |       1 | `Skeleton` cannot be seen on a filled `Card`: the same colour (and one builder's log)    | The kit's |
 |       2 | `PhoneField` selects its prefix on Tab in, and a typed national number replaces it      | To reproduce in the kit |
 |       2 | A required `Select` has no `aria-required`, and an invalid one no `aria-invalid`        | To reproduce in the kit |
 |       2 | `DropZone` holds a zero-size button that Tab stops on                                   | To reproduce in the kit |
-|       2 | The `Stepper` block's steps other than the current one have no name                     | The kit's block |
+|       2 | The `Stepper` block's steps other than the current one have no name in its compact form | The kit's block: it hides their labels |
 |       2 | A letter typed in an open `Menu` does not move to its item                              | To reproduce in the kit |
 |       2 | `BottomSheet`'s handle: no state, and no drag by a mouse                                | To reproduce in the kit |
 |       1 | A delivery time cannot be chosen by keyboard: no radio of an empty `radio-tile-block` group is a Tab stop | To reproduce in the kit |
@@ -161,24 +174,27 @@ read, and approximate:
 kit" is what a checker saw in a screen and nobody has yet seen in a story:
 some will be the screen's.
 
-A real file dropped onto `DropZone`, onto a list, a folder's row and a tree
-was seen to work, and so was a card dragged by a mouse between two lists:
-neither had been seen before.
+Files dropped onto a list, a folder's row, a tree and an empty folder's
+`DropZone` landed, and so did a card dragged by a mouse between two lists:
+neither had been seen before. The files were dropped with the browser's
+own drag events, not from a file manager, and in the record form the zone
+ignored a drop made of synthetic events.
 
 ## What the run did not hold to
 
-- **The command that adds a block was refused by every builder's own
-  permissions.** All six block files were in each project beforehand and
-  each builder took its block from there: no part was written by hand for
-  want of a block. Eight screens used blocks.
+- **The command that adds a block was refused by most builders' own
+  permissions**; the registry's log shows four blocks fetched by builders.
+  All six block files were in each project beforehand and a refused builder
+  took its block from there: no part was written by hand for want of a
+  block. Ten screens used blocks.
 - **Two readers of the kinds, not one instrument.** The builders' sorting
-  and the reading above differ by 14 parts. The figure to compare with the
+  and the reading above differ by 13 parts. The figure to compare with the
   baseline's is the reading's.
 - **The checkers were agents, with a script.** They heard no screen reader,
   touched no screen and saw no drag preview. What they could not exercise is
   in each report.
 - **`ds-spec` did not run:** the builders had no network.
 - **The kit measured was built on this machine** from the commit tagged
-  `v0.9.1`, and its items were compared, byte for byte, with those the
+  `v0.9.1`, and each of its 92 items is, byte for byte, the one the
   registry serves.
 - **One run each.**
