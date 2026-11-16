@@ -112,9 +112,8 @@
    "what": "actions passed as JSX (a text Cancel with autoFocus, a Button color=\"error\" with isLoading) instead of the { confirm, cancel } object."
   },
   "05.5.1": {
-   "kind": "use",
-   "what": "className 'w-80 sm:w-96' on the dialog.",
-   "because": "a width passed by className, as the dialog expects"
+   "kind": "option",
+   "what": "className 'w-80 sm:w-96' on the dialog."
   },
   "05.5.2": {
    "kind": "option",
@@ -273,9 +272,8 @@
    "what": "className=\"-outline-offset-3\" on every GridListItem, so the focus ring is drawn inside the row."
   },
   "11.3.1": {
-   "kind": "use",
-   "what": "Passed className=\"mx-4 w-auto max-w-140\" to ModalDialog to cap the dialog at 560px and keep 16px from a phone's edges.",
-   "because": "a width passed by className, as the dialog expects"
+   "kind": "option",
+   "what": "Passed className=\"mx-4 w-auto max-w-140\" to ModalDialog to cap the dialog at 560px and keep 16px from a phone's edges."
   },
   "11.3.2": {
    "kind": "option",
@@ -363,9 +361,8 @@
    "what": "The recipients field is bound with react-hook-form's Controller by hand instead of the adapter's FormComboBox."
   },
   "14.4.2": {
-   "kind": "use",
-   "what": "The dialog's width is a className on its content (`w-screen max-w-xl max-h-dvh overflow-y-auto`): full-bleed on a phone, 36rem on a desktop.",
-   "because": "a width passed by className, as the dialog expects"
+   "kind": "option",
+   "what": "The dialog's width is a className on its content (`w-screen max-w-xl max-h-dvh overflow-y-auto`): full-bleed on a phone, 36rem on a desktop."
   },
   "14.5.1": {
    "kind": "use",
@@ -430,9 +427,8 @@
    "what": "Did not use TimePicker"
   },
   "17.4.0": {
-   "kind": "use",
-   "what": "Used Modal + Dialog in place of ModalDialog",
-   "because": "a width passed by className, on the parts ModalDialog is made of"
+   "kind": "option",
+   "what": "Used Modal + Dialog in place of ModalDialog"
   },
   "17.4.1": {
    "kind": "option",

@@ -45,8 +45,8 @@ The last column reads the same logs for a part that took no `component`,
 Every screen built, in each builder's hands and again here. No kit file was
 edited in any run.
 
-Leaves over the 22 runs: 89 `option`, 22 `component`, 14 `control`, no
-`edit`; and beside the figure 125 `layout`, 115 `read`, 29 `guess`, 28 `use`,
+Leaves over the 22 runs: 93 `option`, 22 `component`, 14 `control`, no
+`edit`; and beside the figure 125 `layout`, 115 `read`, 29 `guess`, 24 `use`,
 22 `value`, 10 `hook`.
 
 ## How the figure was read
@@ -54,12 +54,12 @@ Leaves over the 22 runs: 89 `option`, 22 `component`, 14 `control`, no
 The builders logged one kind, `feature`, for anything a kit component did
 not do by itself: 117 leaves. That kind counted two things alike: an option
 the kit lacks (a dialog whose actions cannot be destructive) and the kit
-used as it means to be (a width passed to that dialog by `className`). By
+used as it means to be (a row's height passed to a table by `className`). By
 the rule as it then stood the figure was 41 parts of 119, 34%.
 
 The corpus now has two kinds in its place, `option` and `use`, as `hand`
 became `control` and `layout` after the pilot. The 117 were read one by one
-afterwards and split: 89 `option`, 28 `use`. The split, with each leave and,
+afterwards and split: 93 `option`, 24 `use`. The split, with each leave and,
 for a `use`, why it is one, is
 [`coverage-baseline/feature-split.json`](coverage-baseline/feature-split.json).
 One reader made it: a second would move a few.
@@ -73,7 +73,7 @@ page, none of whose six parts was the kit's in the pilot, is the kit's
 whole: its header and its carousel are two of the new blocks, its links the
 kit's `Link`.
 
-**What a builder meets now is a component that lacks an option**: 89 times,
+**What a builder meets now is a component that lacks an option**: 93 times,
 in 21 screens of 22. Forty-one parts took no control from outside the kit
 and still are not the kit's, each for an option. They repeat: the table
 below is short, and its first five lines are met by seven screens or more.

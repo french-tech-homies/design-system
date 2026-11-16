@@ -46,7 +46,7 @@ A block of the kit that a builder adds and edits is no leave: the kit
 offered it.
 
 `component`, `option`, `control` and `edit` are gaps in the kit. `use` is
-none: a width or a gap passed by `className`, a React Aria prop passed
+none: a gap or a height passed by `className`, a React Aria prop passed
 through, the project's own logic around a component, a block edited. It is
 logged so that what a builder had to work out stays on record, and it is the
 kind to choose only where the kit, by its doc comment or its skill, expects
