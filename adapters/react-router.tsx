@@ -74,6 +74,14 @@ function ScrollToFragment() {
   return null;
 }
 
+/** React Router's `useHref` makes every address a path of the app, a
+    `mailto:` or an `https:` one too, and the link then leads nowhere. An
+    address with a scheme, or one that starts with `//`, is left as it is. */
+function useAppHref(to: string) {
+  const href = useHref(to);
+  return /^([a-z][a-z0-9+.-]*:|\/\/)/i.test(to) ? to : href;
+}
+
 export function AriaRouterProvider({
   children,
 }: {
@@ -86,7 +94,7 @@ export function AriaRouterProvider({
       navigate={(path, options) =>
         void navigate(path, options as NavigateOptions | undefined)
       }
-      useHref={useHref}
+      useHref={useAppHref}
     >
       <ScrollToFragment />
       {children}

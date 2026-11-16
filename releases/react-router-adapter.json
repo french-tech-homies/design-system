@@ -3,8 +3,8 @@
   "version": "0.9.1",
   "kit": {
     "adapters/react-router.tsx": {
-      "exact": "77c38261aa88c9621ab1ac531e2a93a024cc3a88162e5c7be2af434c71442e66",
-      "loose": "9b04745931ec2c2110e9edfb7761e21f1fd38ad90143fa2e8f9a0cd46cae9646"
+      "exact": "a7ab9e810ca5bf18b33b8f8230c1f45826985cb3f35c2a859978efe731c9ab1a",
+      "loose": "d647d54d91ee61309484a7832ca9ab3da07b450ae2a5cab233a6340659b83391"
     }
   }
 }
