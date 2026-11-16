@@ -43,6 +43,39 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.10.0] — 2026-11-16
+
+### Action needed
+
+#### The pager and carousel blocks keep the focus, and the stepper names every step ([#83](https://github.com/french-tech-homies/design-system/pull/83))
+
+A block is copied into a project and never updated: a project that already added `pager-block`, `reading-carousel-block` or `stepper-block` keeps the file it has. To take these fixes, compare the project's copy with the block's new file and carry the change over by hand: in the pager and the carousel, the two refs and the effect that moves the focus; in the stepper, `sr-only @lg:not-sr-only` in place of `hidden @lg:inline` on a step's label.
+
+#### A required Select draws the required mark, and says so in its name ([#86](https://github.com/french-tech-homies/design-system/pull/86))
+
+A project that wrote the mark into a required `Select`'s label by hand ("Topic *") now shows two: take it out of the label. A required `Select`'s accessible name now ends in ", required", in English: a test that finds one by its exact name must take that in.
+
+### Added
+
+- A dialog takes content of its own and keeps the kit's actions ([#90](https://github.com/french-tech-homies/design-system/pull/90))
+
+### Fixed
+
+- A loading Button says so to a screen reader ([#82](https://github.com/french-tech-homies/design-system/pull/82))
+- The pager and carousel blocks keep the focus, and the stepper names every step ([#83](https://github.com/french-tech-homies/design-system/pull/83))
+- Skeleton is seen on a filled Card ([#84](https://github.com/french-tech-homies/design-system/pull/84))
+- Today's number is read when today is an end of a date range ([#85](https://github.com/french-tech-homies/design-system/pull/85))
+- A required Select draws the required mark, and says so in its name ([#86](https://github.com/french-tech-homies/design-system/pull/86))
+- DropZone shows its focus, PhoneField keeps its calling code, and a mailto link works through the router adapter ([#87](https://github.com/french-tech-homies/design-system/pull/87))
+- A radio group bound to an empty form field is reached by Tab ([#88](https://github.com/french-tech-homies/design-system/pull/88))
+- The modal SideSheet fits a phone, at its own edge ([#89](https://github.com/french-tech-homies/design-system/pull/89))
+- A loading button is heard inside a modal dialog, and the carousel takes no focus that left it ([#91](https://github.com/french-tech-homies/design-system/pull/91))
+
+### Docs
+
+- Docs: the coverage run on 0.9.1, measured ([#80](https://github.com/french-tech-homies/design-system/pull/80))
+- The build skill says where the focus goes, and names the dialog, loading and placeholder options ([#92](https://github.com/french-tech-homies/design-system/pull/92))
+
 ## [0.9.1] — 2026-11-16
 
 ### Action needed
