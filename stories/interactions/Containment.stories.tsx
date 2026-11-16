@@ -3,6 +3,7 @@ import React, { useRef } from "react";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import {
   I18nProvider,
+  type SortDescriptor,
   useDragAndDrop,
   useListData,
 } from "react-aria-components";
@@ -888,17 +889,14 @@ export const GridListRowIsMovedByTheKeyboard: Story = {
     And a heading that sorts still sorts on Enter. */
 export const TableColumnIsResizedByTheKeyboard: Story = {
   render: function Render() {
-    const [sort, setSort] = React.useState<{
-      column: React.Key;
-      direction: "ascending" | "descending";
-    }>();
+    const [sort, setSort] = React.useState<SortDescriptor>();
     return (
       <div className="w-[560px]">
         <ResizableTableContainer>
           <Table
             aria-label="Files"
-            sortDescriptor={sort as never}
-            onSortChange={(next) => setSort(next as never)}
+            sortDescriptor={sort}
+            onSortChange={setSort}
           >
             <TableHeader>
               <Column
