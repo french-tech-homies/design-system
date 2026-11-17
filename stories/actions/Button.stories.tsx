@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import Button from "@french-tech-homies/design-system/components/Button";
+import * as React from "react";
+import { expect, fn, userEvent, within } from "storybook/test";
+import Button, {
+  type ButtonProps,
+} from "@french-tech-homies/design-system/components/Button";
 import { Download, Plus, Send, Settings, Trash2 } from "lucide-react";
 
 const meta = {
@@ -148,10 +152,50 @@ export const ExtendedFabLoading: Story = {
   },
 };
 
+/** What a router's own link (TanStack Router's `createLink`, say) does with
+ *  the component it wraps: it hands it the address, its intent handlers, which
+ *  preload the route, and `aria-current` on the current page. */
+const preload = fn();
+const intentFocus = fn();
+const RouterLink = React.forwardRef<HTMLButtonElement, ButtonProps & { href: string }>(
+  (props, ref) => (
+    <Button
+      {...props}
+      ref={ref}
+      aria-current="page"
+      data-status="active"
+      onMouseEnter={preload}
+      onFocus={intentFocus}
+    />
+  ),
+);
+RouterLink.displayName = "RouterLink";
+
 /** With `href` the button is a React Aria `Link` — a real anchor drawn like
- *  the button, for navigation that reads as an action. */
+ *  the button, for navigation that reads as an action. A router's link
+ *  wrapped around it keeps what it hands the anchor: here the hover and focus
+ *  that preload a route, `aria-current` and a `data-*` mark. */
 export const AsLink: Story = {
   args: { children: "Open app", href: "#app", variant: "tonal" },
+  render: (args) => <RouterLink {...args} href="#app" />,
+  play: async ({ canvasElement }) => {
+    preload.mockClear();
+    intentFocus.mockClear();
+    const link = within(canvasElement).getByRole("link", { name: "Open app" });
+    await expect(link).toHaveAttribute("aria-current", "page");
+    await expect(link).toHaveAttribute("data-status", "active");
+    await userEvent.hover(link);
+    await expect(preload).toHaveBeenCalledTimes(1);
+    await userEvent.unhover(link);
+    await userEvent.tab();
+    await expect(link).toHaveFocus();
+    await expect(intentFocus).toHaveBeenCalledTimes(1);
+    // The focus leaves the link, so the story is drawn at rest.
+    await userEvent.tab();
+    await expect(link).not.toHaveFocus();
+    await expect(link).not.toHaveAttribute("data-hovered");
+    await expect(link).not.toHaveAttribute("data-focus-visible");
+  },
 };
 
 /** `color="error"` is the destructive button MD3 does not define: the same
