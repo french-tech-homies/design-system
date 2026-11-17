@@ -176,6 +176,14 @@ export const TextFieldErrorStaysErrorOnFocus: Story = {
  * Its error is the trigger's description.
  */
 export const SelectRequiredIsMarkedAndNamed: Story = {
+  // The asterisk shown and ", required" said keep the label's words in the
+  // trigger's name (WCAG 2.5.3): axe's experimental
+  // `label-content-name-mismatch` runs only when a run's options name it.
+  parameters: {
+    a11y: {
+      options: { rules: { "label-content-name-mismatch": { enabled: true } } },
+    },
+  },
   render: () => (
     <Select
       label="Topic"

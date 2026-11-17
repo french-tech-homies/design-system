@@ -216,6 +216,14 @@ const expiry = [
 
 /** Enter opens the listbox, arrows move, Enter commits, focus returns. */
 export const SelectKeyboardOpenAndPick: Story = {
+  // With a value picked, the trigger shows it beside its label, and its name
+  // holds both as they are shown (WCAG 2.5.3): axe's experimental
+  // `label-content-name-mismatch` runs only when a run's options name it.
+  parameters: {
+    a11y: {
+      options: { rules: { "label-content-name-mismatch": { enabled: true } } },
+    },
+  },
   render: () => (
     <Select label="Link expires in" items={expiry} className="w-72">
       {(item: (typeof expiry)[number]) => (
