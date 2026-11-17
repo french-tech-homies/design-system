@@ -212,9 +212,15 @@ const expiry = [
   { id: "1", name: "1 day" },
   { id: "7", name: "1 week" },
   { id: "30", name: "1 month" },
+  { id: "0", name: "Never", supportingText: "Anyone with the link can join" },
 ];
 
-/** Enter opens the listbox, arrows move, Enter commits, focus returns. */
+/**
+ * Enter opens the listbox, arrows move, Enter commits, focus returns. A row
+ * with supporting text, once chosen, is the trigger's text with both lines,
+ * which its name holds as shown (WCAG 2.5.3); the pick then goes back to
+ * "1 week", so the story ends as it draws.
+ */
 export const SelectKeyboardOpenAndPick: Story = {
   // With a value picked, the trigger shows it beside its label, and its name
   // holds both as they are shown (WCAG 2.5.3): axe's experimental
@@ -227,7 +233,11 @@ export const SelectKeyboardOpenAndPick: Story = {
   render: () => (
     <Select label="Link expires in" items={expiry} className="w-72">
       {(item: (typeof expiry)[number]) => (
-        <SelectItem id={item.id} label={item.name} />
+        <SelectItem
+          id={item.id}
+          label={item.name}
+          supportingText={item.supportingText}
+        />
       )}
     </Select>
   ),
@@ -250,6 +260,27 @@ export const SelectKeyboardOpenAndPick: Story = {
     await expect(trigger).toHaveFocus();
     // `getByText` would also match the hidden native <option> React Aria keeps
     // for form submission, so assert on the trigger itself.
+    await expect(trigger).toHaveTextContent("1 week");
+
+    // The last row has supporting text. Chosen, the trigger shows both lines
+    // and its label, and its name is that text as shown: the two lines run
+    // together ("NeverAnyone…") would be text its name does not contain.
+    await userEvent.keyboard("{Enter}");
+    await screen.findByRole("listbox");
+    await userEvent.keyboard("{End}{Enter}");
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    const shown = (trigger.textContent ?? "").replace(/\s+/g, " ").trim();
+    await expect(shown).toBe(
+      "Never Anyone with the link can join Link expires in",
+    );
+    await expect(trigger).toHaveAccessibleName(shown);
+
+    // Back to "1 week", the state this story is drawn in.
+    await userEvent.keyboard("{Enter}");
+    await screen.findByRole("listbox");
+    await userEvent.keyboard("{Home}{ArrowDown}{Enter}");
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(trigger).toHaveFocus();
     await expect(trigger).toHaveTextContent("1 week");
   },
 };
