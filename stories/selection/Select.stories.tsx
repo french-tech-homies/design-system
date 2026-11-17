@@ -13,7 +13,16 @@ import { Select, SelectItem } from "@french-tech-homies/design-system/components
 // demand args); every story uses `render`.
 const meta = {
   title: "MD3/Selection/Select",
-  parameters: { layout: "centered" },
+  parameters: {
+    layout: "centered",
+    // axe's `label-content-name-mismatch` (WCAG 2.5.3, Label in Name) is
+    // experimental, which axe runs only when a run's options name it (a
+    // `config.rules` entry does not). The trigger shows its label and its
+    // value: its name must hold both, as a person sees them.
+    a11y: {
+      options: { rules: { "label-content-name-mismatch": { enabled: true } } },
+    },
+  },
   tags: ["autodocs"],
 } satisfies Meta;
 
