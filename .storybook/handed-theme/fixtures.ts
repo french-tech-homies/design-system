@@ -22,7 +22,8 @@ const typography = (brand: string, plain: string) =>
   ).join("\n");
 
 /** A small DESIGN.md: a written primary, a square-ish pill, two faces the
-    catalog has not loaded, a ring for the first elevation, and one colour
+    catalog has not loaded, a ring for the first elevation, a selected switch
+    track pointed at `on-surface` by its component token, and one colour
     name the kit does not read (so the generator has a warning to give). */
 const designMd = (darkMode: "class" | "system") => `---
 version: alpha
@@ -51,6 +52,7 @@ A fixture.
 :root {
   --md3-dark-mode: ${darkMode};
   --md-sys-elevation-1: 0 0 0 3px rgb(200 30 90);
+  --md-comp-switch-selected-track-color: var(--md-sys-color-on-surface);
 }
 \`\`\`
 `;

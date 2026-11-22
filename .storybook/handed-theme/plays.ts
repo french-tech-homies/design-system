@@ -54,7 +54,13 @@ type Drawn = {
   face: string;
   /** The first elevation level, on an elevated card. */
   elevation: string;
+  /** The selected switch track's component token, read as the switch reads
+      it: the spec's `primary` unless the theme points it elsewhere. */
+  departure: string;
 };
+
+const TRACK_READ =
+  "var(--md-comp-switch-selected-track-color, var(--md-sys-color-primary))";
 
 const computed = (element: Element, property: string) =>
   getComputedStyle(element).getPropertyValue(property);
@@ -90,6 +96,7 @@ function read(canvasElement: HTMLElement): Drawn {
     corner: computed(button, "border-top-left-radius"),
     face: computed(headline, "font-family"),
     elevation: shadowOf(card),
+    departure: probe("background-color", TRACK_READ),
   };
 }
 
@@ -161,6 +168,11 @@ function fixture(designMd: string) {
       elevation: probe(
         "box-shadow",
         declared(themeV4Css, "--md-sys-elevation-1"),
+      ),
+      // The fixture points the track at its text's ink, in either scheme.
+      departure: probe(
+        "background-color",
+        declared(colors[scheme], "--md-sys-color-on-surface"),
       ),
     }),
     pair: () => [
