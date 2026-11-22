@@ -62,6 +62,21 @@ type Drawn = {
 const TRACK_READ =
   "var(--md-comp-switch-selected-track-color, var(--md-sys-color-primary))";
 
+/** One hidden element, made once and never changed, that reads the track's
+    token as the switch reads it. `read` runs inside `waitFor`, which calls it
+    again on every change to the document: an element added and removed there
+    would call it forever. */
+let trackProbe: HTMLElement | undefined;
+function trackToken() {
+  if (!trackProbe?.isConnected) {
+    trackProbe = document.createElement("div");
+    trackProbe.hidden = true;
+    trackProbe.style.setProperty("background-color", TRACK_READ);
+    document.body.append(trackProbe);
+  }
+  return getComputedStyle(trackProbe).getPropertyValue("background-color");
+}
+
 const computed = (element: Element, property: string) =>
   getComputedStyle(element).getPropertyValue(property);
 
@@ -96,7 +111,7 @@ function read(canvasElement: HTMLElement): Drawn {
     corner: computed(button, "border-top-left-radius"),
     face: computed(headline, "font-family"),
     elevation: shadowOf(card),
-    departure: probe("background-color", TRACK_READ),
+    departure: trackToken(),
   };
 }
 
@@ -139,6 +154,12 @@ function declared(css: string, name: string) {
   return found[1].trim();
 }
 
+/** The role a generated scheme block points the switch track at. */
+const trackRole = (css: string) =>
+  /--md-comp-switch-selected-track-color:\s*var\(--md-sys-color-([a-z-]+)\);/.exec(
+    css,
+  )?.[1] ?? "primary";
+
 function fixture(designMd: string) {
   const generated = generateTheme(designMd, template);
   const { themeCss, themeV4Css } = generated;
@@ -169,10 +190,11 @@ function fixture(designMd: string) {
         "box-shadow",
         declared(themeV4Css, "--md-sys-elevation-1"),
       ),
-      // The fixture points the track at its text's ink, in either scheme.
+      // The role the fixture points the track at, in this scheme, or the
+      // spec's `primary` where it points it nowhere.
       departure: probe(
         "background-color",
-        declared(colors[scheme], "--md-sys-color-on-surface"),
+        declared(colors[scheme], `--md-sys-color-${trackRole(colors[scheme])}`),
       ),
     }),
     pair: () => [
