@@ -334,8 +334,8 @@
       "loose": "cb0b2f4f16e4cbf0c46c40256514b088602a8c000aeef16993d6a86aadaf545c"
     },
     "tokens/design-md.mjs": {
-      "exact": "de262c1c7c29fb34d4e20c5d3d9b03661e673ff3383b4842b38365c57db69a55",
-      "loose": "ddb7a2db508848a31042100d0a8c312e0b2d89f900587681c68ecb1c98fbef35"
+      "exact": "f2e8c1c1badf2bd9fbe562fa11c0e6ce2cfe5d6b50b833506a52125573ac922f",
+      "loose": "4864c7d12812bebb569b3f38a107f2df438005f03cb794956edf5477da67a23e"
     },
     "tokens/generate-theme.mjs": {
       "exact": "0a7f19678cee574e34fbc5cde94afc8026bc5d57dba6e99b6d41a989663f6603",
@@ -376,8 +376,8 @@
       "loose": "bdeb55bee2be51b1c7ed77878a85eea9bef778a8012aec6984d10aacee4bb4da"
     },
     ".claude/skills/ds-theme/design-md.md": {
-      "exact": "aee99dc4b9752faac8aafde104b99c88298ccb7f5ca00886bee6da1a9694ff04",
-      "loose": "a48d9e6df6d8004ad2afabcce9828a248c544a21af2759cc440eeca1a5b659d4"
+      "exact": "8359d0b871aaab7371e98be3229409ce1ca1fe0543da4043b5fb31853c9fec7f",
+      "loose": "a09729b39e2bb32581c2816188078d1df72fdd1dac88e90c71fc96b3ca447471"
     }
   },
   "optional": {

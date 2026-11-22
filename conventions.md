@@ -135,7 +135,9 @@ is invited to touch only the first two:
   `bg-[color:var(--md-comp-switch-selected-track-color,var(--md-sys-color-primary))]`
   (`text-[color:…]` and `border-[color:…]` alike, with the variant prefix of
   the class it replaces). The kit declares none, so the default is the spec's
-  role on the element that draws it, in either scheme. A state the spec gives
+  role on the element that draws it, in either scheme, except the switch's
+  selected icon, which falls back to the kit's `on-primary-container` (the
+  spec gives `primary`) until its own fix card. A state the spec gives
   the same role, and a state layer tinted with that element, reads the same
   token; disabled and error colours read none. Each one is listed in
   `COMPONENT_TOKENS` (`tokens/design-md.mjs`), which `npm run theme:check`

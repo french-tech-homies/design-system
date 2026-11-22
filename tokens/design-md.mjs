@@ -47,7 +47,9 @@
                        pointing one part at one colour role, written
                        `var(--md-sys-color-<role>)` and nothing else. The kit
                        declares none: each part reads its token with the
-                       spec's role as the fallback. A written one goes into
+                       spec's role as the fallback, except the switch's
+                       selected icon, which falls back to the kit's
+                       `on-primary-container` (see COMPONENT_TOKENS). A written one goes into
                        both scheme blocks of theme.css, so it resolves in
                        either scheme and on a `.dark` subtree.
 

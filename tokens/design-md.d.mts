@@ -12,8 +12,9 @@ export type DesignMdWarning = {
 };
 
 /** Material's component tokens a DESIGN.md may point at another colour
-    role, by variable name, each with the spec's role and the component that
-    reads it. */
+    role, by variable name, each with its default role (the spec's, except
+    the switch's selected icon: the kit's `on-primary-container`) and the
+    component that reads it. */
 export const COMPONENT_TOKENS: Record<
   string,
   { component: string; role: string }

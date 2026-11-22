@@ -182,9 +182,11 @@ first top-level `:root` rule. The names are the theme's own, 27 of them:
 
 The same rule may point a part at another colour role through one of
 Material's **component tokens**, named as Material names it (`md.comp.<name>`
-written `--md-comp-<name>`). Each defaults to the role Material's spec gives
-it: the kit declares none, so a part whose token is not written is drawn as
-the spec draws it. These 15 are the ones the kit reads; Material has
+written `--md-comp-<name>`). Fourteen of the fifteen default to the role
+Material's spec gives them, and the switch's selected icon defaults to what
+the kit draws today, `on-primary-container`, where the spec gives `primary`,
+until its own fix card. The kit declares none, so a part whose token is not
+written is drawn with that default. These 15 are the ones the kit reads; Material has
 hundreds, and the rest are added to the kit as projects ask for them:
 
 | Part | Token | Default role | What reads it |

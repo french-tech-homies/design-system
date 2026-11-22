@@ -64,7 +64,9 @@ rule, and its value is one colour role:
 
 The generator writes it into both scheme blocks of your `theme.css`, so the
 part takes that role in light and in dark. The kit declares none of them:
-with none written, every part is drawn as the spec draws it.
+with none written, every part is drawn as the spec draws it, except the
+switch's selected icon, which keeps the kit's `on-primary-container` (the
+spec gives `primary`) until its own fix card.
 
 ### Every scale is a variable
 
