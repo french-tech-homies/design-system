@@ -375,6 +375,49 @@ project:
   follow the route it gives for a design system that lives in code. The
   same page says which plans have one.
 
+What the kit gives the one who builds it, and what it leaves to them:
+
+- **From this project**: `<kit>/`, with `<kit>/index.ts` the entry every
+  component is exported from, and the version held in `<kit>/RELEASE.json`
+  (`version`); the look in `theme/theme.css` and `theme/theme.v4.css`,
+  generated from `DESIGN.md`, every value filled in in
+  `theme/DESIGN.resolved.md`, and the faces the entry CSS loads.
+- **The kit's stories are not in this project**: the registry installs the
+  parts, not their stories. They are in the kit's repository at the tag
+  `v<version>`, `<version>` from `<kit>/RELEASE.json`. The repository is
+  read from the `@ds` entry of `registries` in `components.json`:
+  `https://<owner>.github.io/<name>/r/{name}.json` is
+  `https://github.com/<owner>/<name>`. A shallow clone of that tag
+  (`git clone --depth 1 --branch v<version> …`) holds them as
+  `stories/<category>/<Component>.stories.tsx`, titled
+  `MD3/<Category>/<Component>`, importing the kit by
+  the kit's package name and a path, `<package name>/<path>`, which is
+  `<kit>/<path>` here. `stories/blocks/` shows
+  blocks the install does not bring; `stories/interactions/` holds
+  behaviour tests, not cards. After a kit update, read them at the new tag.
+- **The guideline text is the doc comment** over each component
+  `<kit>/index.ts` exports: the kit requires one on every exported
+  component.
+- **The parts are written for React 19.** Those that declare `ref` among
+  their props take it as a prop. Where a design system runs its components
+  under React 18, such a `ref` is not handed on unless something in between
+  does it, and nothing says so.
+- **Dark is switched one way**, the one `DESIGN.md`'s `--md3-dark-mode`
+  chose (`design-md.md`, "Dark: by class or by the system setting"):
+  `class` (or none) writes the dark scheme under `.dark { … }`, `system`
+  under `@media (prefers-color-scheme: dark) { :root { … } }`; never both.
+  A design system that switches dark by a class or an attribute of its own
+  needs those selectors rewritten to match, in its own copy of the CSS,
+  never in the theme folder.
+- **The elevation values are written for Tailwind**: `theme/theme.v4.css`
+  writes each shadow's colour as `--alpha(var(--md-sys-color-shadow) / 30%)`.
+  Tailwind compiles `--alpha(X / N%)` to
+  `color-mix(in oklab, X N%, transparent)`: write that where the values are
+  read without Tailwind.
+- **The project's own stories become its cards**: a `*.stories.tsx` of the
+  project, of its own components or of pages built from the kit, is drawn
+  like the kit's.
+
 ## What this skill does not change
 
 A look that tokens cannot reach (a field's label position, a component's
