@@ -50,7 +50,8 @@ const styles = tv({
         stateLayer: "bg-on-surface-variant",
       },
       text: {
-        base: "bg-transparent text-primary",
+        base: "bg-transparent text-[color:var(--md-comp-button-text-label-text-color,var(--md-sys-color-primary))]",
+        stateLayer: "bg-[color:var(--md-comp-button-text-label-text-color,var(--md-sys-color-primary))]",
       },
       elevated: {
         base: "bg-surface-container-low text-primary shadow-elevation-1 hover:shadow-elevation-2",
