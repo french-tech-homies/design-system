@@ -409,9 +409,12 @@ What the kit gives the one who builds it, and what it leaves to them:
   A design system that switches dark by a class or an attribute of its own
   needs those selectors rewritten to match, in its own copy of the CSS,
   never in the theme folder.
-- **The elevation values are written for Tailwind**: `theme/theme.v4.css`
-  writes each shadow's colour as `--alpha(var(--md-sys-color-shadow) / 30%)`.
-  Tailwind compiles `--alpha(X / N%)` to
+- **The elevation values are written for Tailwind**: unless `DESIGN.md`
+  writes its own elevations (its `## Reference CSS`), `theme/theme.v4.css`
+  writes each of `--md-sys-elevation-1` to `-5` as two shadows, a key one
+  coloured `--alpha(var(--md-sys-color-shadow) / 30%)` and an ambient one at
+  `15%`; the project's own elevations may use `--alpha()` too. Tailwind
+  compiles `--alpha(X / N%)` to
   `color-mix(in oklab, X N%, transparent)`: write that where the values are
   read without Tailwind.
 - **The project's own stories become its cards**: a `*.stories.tsx` of the

@@ -49,10 +49,13 @@ what it leaves to them. `<ui>/ds/` below is the kit's folder in your project.
   both. A design system that switches dark by a class or an attribute of
   its own needs those selectors rewritten to match it, in its own copy of
   the CSS, never in `theme/`.
-- **The elevation values are written for Tailwind.** `theme/theme.v4.css`
-  writes each shadow's colour as
-  `--alpha(var(--md-sys-color-shadow) / 30%)`, a function only Tailwind
-  reads. Tailwind compiles `--alpha(X / N%)` to
+- **The elevation values are written for Tailwind.** Unless your
+  `DESIGN.md` writes its own elevations (its `## Reference CSS`),
+  `theme/theme.v4.css` writes each of `--md-sys-elevation-1` to `-5` as two
+  shadows, a key one whose colour is
+  `--alpha(var(--md-sys-color-shadow) / 30%)` and an ambient one at `15%`:
+  `--alpha()` is a function only Tailwind reads, and your own elevations
+  may use it too. Tailwind compiles `--alpha(X / N%)` to
   `color-mix(in oklab, X N%, transparent)`: write that where the values are
   read without Tailwind.
 - **Your own stories become your cards.** A `*.stories.tsx` of your project,
