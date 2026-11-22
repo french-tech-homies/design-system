@@ -19,6 +19,7 @@ import postcss from "postcss";
 
 import {
   CONTRAST_PAIRS,
+  COMPONENT_TOKENS,
   CONTRAST_THRESHOLD,
   CORNER_DEFAULTS,
   DesignMdError,
@@ -1103,6 +1104,131 @@ test("no choice, and --md3-dark-mode: class, both key dark on the .dark class", 
   assert.equal(byClass.themeCss, none.themeCss);
   assert.ok(none.themeCss.includes("\n.dark {\n"));
   assert.equal(none.themeCss.includes("prefers-color-scheme"), false);
+});
+
+/* ---- component tokens ------------------------------------------------ */
+
+const TRACK = "--md-comp-switch-selected-track-color";
+const ICON = "--md-comp-checkbox-selected-icon-color";
+
+/** The declarations of `name` in a rendered theme.css, each with the
+    selectors (and at-rules) it sits under, outermost first. */
+function declaredUnder(css, name) {
+  const found = [];
+  postcss.parse(css).walkDecls(name, (node) => {
+    const path = [];
+    for (let at = node.parent; at && at.type !== "root"; at = at.parent) {
+      path.unshift(
+        at.type === "atrule" ? `@${at.name} ${at.params}` : at.selector,
+      );
+    }
+    found.push([path.join(" > "), node.value]);
+  });
+  return found;
+}
+
+test("a written component token reaches both scheme blocks, keyed on the class or the system", () => {
+  const role = "var(--md-sys-color-on-surface)";
+  const byClass = generateTheme(withRoot(`  ${TRACK}: ${role};`), kitV4);
+  assert.deepEqual(byClass.warnings, []);
+  assert.deepEqual(declaredUnder(byClass.themeCss, TRACK), [
+    [":root", role],
+    [".dark", role],
+  ]);
+  const system = generateTheme(
+    withRoot("  --md3-dark-mode: system;", `  ${TRACK}: ${role};`),
+    kitV4,
+  );
+  assert.deepEqual(declaredUnder(system.themeCss, TRACK), [
+    [":root", role],
+    ["@media (prefers-color-scheme: dark) > :root", role],
+  ]);
+  // A component token is a colour of the scheme, never of the template.
+  assert.equal(byClass.themeV4Css, generateTheme(seedOnly, kitV4).themeV4Css);
+});
+
+test("a file that writes no component token gives a theme.css with none", () => {
+  for (const text of [seedOnly, readFileSync(join(here, "../DESIGN.md"), "utf8")]) {
+    assert.equal(generateTheme(text, kitV4).themeCss.includes("--md-comp-"), false);
+  }
+});
+
+test("a component token's value is one colour role, or the file is refused", () => {
+  for (const value of [
+    "#000000",
+    "var(--md-sys-color-brand)",
+    `var(${ICON})`,
+    "var(--md-sys-color-on-surface) !important",
+    "var(--md-sys-color-on-surface, red)",
+    "",
+  ]) {
+    refusal(withRoot(`  ${TRACK}: ${value};`), TRACK, "one colour role");
+  }
+});
+
+test("a --md-comp-* name the kit has no token for is ignored and listed, and not written", () => {
+  const unknown = "--md-comp-switch-unselected-track-color";
+  const { warnings, themeCss } = generateTheme(
+    withRoot(`  ${unknown}: var(--md-sys-color-on-surface);`),
+    kitV4,
+  );
+  assert.deepEqual(kinds(warnings), [["ignored", unknown]]);
+  assert.equal(themeCss.includes(unknown), false);
+});
+
+test("round trip: the resolved DESIGN.md carries the written component tokens", () => {
+  const first = generateTheme(
+    withRoot(
+      `  ${ICON}: var(--md-sys-color-surface);`,
+      `  ${TRACK}: var(--md-sys-color-on-surface);`,
+    ),
+    kitV4,
+  );
+  for (const name of [TRACK, ICON]) {
+    assert.match(first.resolvedDesignMd, new RegExp(`^  ${name}: var\\(`, "m"));
+  }
+  const again = generateTheme(first.resolvedDesignMd, kitV4);
+  assert.equal(again.themeCss, first.themeCss);
+  assert.equal(again.themeV4Css, first.themeV4Css);
+  assert.deepEqual(again.warnings, first.warnings);
+  assert.equal(again.resolvedDesignMd, first.resolvedDesignMd);
+});
+
+/* Each token is read where its part is drawn, with the role the table gives
+   as its fallback, and no part reads a name the table does not hold. */
+const kitSources = ["components", "primitives"].flatMap((folder) =>
+  readdirSync(join(here, "..", folder))
+    .filter((file) => /\.tsx?$/.test(file))
+    .map((file) => [
+      `${folder}/${file}`,
+      readFileSync(join(here, "..", folder, file), "utf8"),
+    ]),
+);
+
+test("every component token is read by its part, with the table's role as its fallback", () => {
+  assert.equal(Object.keys(COMPONENT_TOKENS).length, 15);
+  for (const [name, { component, role }] of Object.entries(COMPONENT_TOKENS)) {
+    assert.ok(Object.hasOwn(ROLES, role), name);
+    const source = kitSources.find(
+      ([path]) => path === `components/${component}.tsx`,
+    )?.[1];
+    assert.ok(source, `${name}: components/${component}.tsx`);
+    assert.ok(
+      source.includes(`var(${name},var(--md-sys-color-${role}))`),
+      `${name} is read in components/${component}.tsx with ${role} as its fallback`,
+    );
+  }
+  let reads = 0;
+  for (const [path, source] of kitSources) {
+    for (const [, name, fallback] of source.matchAll(
+      /var\((--md-comp-[a-z0-9-]+)(?:,var\(--md-sys-color-([a-z-]+)\)\))?/g,
+    )) {
+      reads++;
+      assert.ok(Object.hasOwn(COMPONENT_TOKENS, name), `${path}: ${name}`);
+      assert.equal(fallback, COMPONENT_TOKENS[name].role, `${path}: ${name}`);
+    }
+  }
+  assert.ok(reads >= 15);
 });
 
 /* ---- contrast --------------------------------------------------------- */

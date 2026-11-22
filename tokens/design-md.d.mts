@@ -11,6 +11,14 @@ export type DesignMdWarning = {
   message: string;
 };
 
+/** Material's component tokens a DESIGN.md may point at another colour
+    role, by variable name, each with the spec's role and the component that
+    reads it. */
+export const COMPONENT_TOKENS: Record<
+  string,
+  { component: string; role: string }
+>;
+
 /** DESIGN.md text + the current theme.v4.css text → the three generated
     files and what the kit could not apply. Throws `DesignMdError` on a file
     it refuses. */
@@ -20,7 +28,11 @@ export function generateTheme(
 ): {
   theme: {
     front: Record<string, unknown>;
-    reference: { darkMode: "class" | "system" };
+    reference: {
+      darkMode: "class" | "system";
+      /** The component tokens the file writes, name → `var(--md-sys-color-<role>)`. */
+      components: Record<string, string>;
+    };
   };
   themeCss: string;
   themeV4Css: string;
