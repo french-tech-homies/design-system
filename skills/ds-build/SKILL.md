@@ -253,8 +253,8 @@ way than it is:
 
 1. Read its spec (the `ds-spec` skill: its `specs` and `guidelines` pages)
    and say which of Material's tokens the change departs from.
-2. If the kit has a component token for it (`design-md.md` of the `ds-theme`
-   skill lists them), point the token at the role in `DESIGN.md`'s reference
+2. If the kit has a component token for it (the `ds-theme` skill lists
+   them, and `COMPONENT_TOKENS` in `<kit>/tokens/design-md.mjs`), point the token at the role in `DESIGN.md`'s reference
    block, and write the departure under `## Where we differ from Material`:
    the part, the token, the role and why.
 3. If it has none, write the departure there as wanted, and ask the kit for
