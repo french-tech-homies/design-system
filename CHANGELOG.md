@@ -43,6 +43,32 @@ before it stay as they were written.
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-11-22
+
+### Action needed
+
+#### Radio: its ring and dot stay circles whatever the theme's corner shapes ([#101](https://github.com/french-tech-homies/design-system/pull/101))
+
+A theme with square corners (a `DESIGN.md` that lowers `rounded.full`, or the Editorial preset) now draws round radios: the ring, the dot and the hover/press state layer are always circles, as Material 3 draws a radio button. If your theme squares its corners, look at your radio groups after this update. Switches, sliders, progress indicators and the checkbox's state layer still follow `rounded.full`, as Material ties them to the shape scale.
+
+#### Select: its trigger's accessible name contains its visible label, so axe's label-content-name-mismatch passes ([#104](https://github.com/french-tech-homies/design-system/pull/104))
+
+A story that draws a kit `Select` with a label and was marked `a11y: { test: "todo" }` only for `label-content-name-mismatch` can go back to axe's default once this release is installed. To run that experimental rule, name it in the story's run options, `parameters.a11y.options.rules["label-content-name-mismatch"] = { enabled: true }`; `config.rules` does not turn it on.
+
+### Added
+
+- kit: a theme points one part's colour elsewhere by Material's component tokens, and the guidance says how an app keeps its own identity ([#106](https://github.com/french-tech-homies/design-system/pull/106))
+
+### Fixed
+
+- Radio: its ring and dot stay circles whatever the theme's corner shapes ([#101](https://github.com/french-tech-homies/design-system/pull/101))
+- Button: with href, it hands a router link's own props to its anchor ([#103](https://github.com/french-tech-homies/design-system/pull/103))
+- Select: its trigger's accessible name contains its visible label, so axe's label-content-name-mismatch passes ([#104](https://github.com/french-tech-homies/design-system/pull/104))
+
+### Docs
+
+- docs: what the kit says about a design system in Claude matches what an adopter meets ([#105](https://github.com/french-tech-homies/design-system/pull/105))
+
 ## [0.11.0] — 2026-11-16
 
 ### Action needed
