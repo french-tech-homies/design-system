@@ -128,6 +128,22 @@ is invited to touch only the first two:
   roles and scales, never values, and no registry item writes a palette value
   — the `tokens` item carries the kit's files, `theme` / `base` write only
   the shadcn bridge's references, and `ds` writes nothing into an app's CSS.
+
+  **Component tokens** are the tokens layer's seam into one part. Each is
+  Material's own token, `md.comp.<name>` written `--md-comp-<name>`, read
+  where the part is drawn with the spec's role as its fallback:
+  `bg-[color:var(--md-comp-switch-selected-track-color,var(--md-sys-color-primary))]`
+  (`text-[color:…]` and `border-[color:…]` alike, with the variant prefix of
+  the class it replaces). The kit declares none, so the default is the spec's
+  role on the element that draws it, in either scheme, except the switch's
+  selected icon, which falls back to the kit's `on-primary-container` (the
+  spec gives `primary`) until its own fix card. A state the spec gives
+  the same role, and a state layer tinted with that element, reads the same
+  token; disabled and error colours read none. Each one is listed in
+  `COMPONENT_TOKENS` (`tokens/design-md.mjs`), which `npm run theme:check`
+  holds to the components, and in the `ds-theme` skill's `design-md.md`. One
+  is added only when a project asks for it, as a general seam whose default
+  is Material's, never one app's look.
 - **style modules** — `components/<x>-styles.ts` exporting a `tv` object named
   `<x>Styles`. `components/field-styles.ts` → `fieldStyles` is the precedent
   and the naming contract. These are the only component-level files whose

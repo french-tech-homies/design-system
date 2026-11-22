@@ -41,14 +41,14 @@ const radioStyles = tv({
       false: {
         ring: "border-on-surface-variant group-data-invalid/rd:border-error group-data-disabled/rd:border-on-surface/38",
         stateLayer:
-          "bg-on-surface group-data-invalid/rd:bg-error group-data-pressed/rd:bg-primary",
+          "bg-on-surface group-data-invalid/rd:bg-error group-data-pressed/rd:bg-[color:var(--md-comp-radio-button-selected-icon-color,var(--md-sys-color-primary))]",
         dot: "scale-0",
       },
       true: {
-        ring: "border-primary group-data-invalid/rd:border-error group-data-disabled/rd:border-on-surface/38",
+        ring: "border-[color:var(--md-comp-radio-button-selected-icon-color,var(--md-sys-color-primary))] group-data-invalid/rd:border-error group-data-disabled/rd:border-on-surface/38",
         stateLayer:
-          "bg-primary group-data-invalid/rd:bg-error group-data-pressed/rd:bg-on-surface",
-        dot: "scale-100 bg-primary group-data-invalid/rd:bg-error group-data-disabled/rd:bg-on-surface/38",
+          "bg-[color:var(--md-comp-radio-button-selected-icon-color,var(--md-sys-color-primary))] group-data-invalid/rd:bg-error group-data-pressed/rd:bg-on-surface",
+        dot: "scale-100 bg-[color:var(--md-comp-radio-button-selected-icon-color,var(--md-sys-color-primary))] group-data-invalid/rd:bg-error group-data-disabled/rd:bg-on-surface/38",
       },
     },
   },

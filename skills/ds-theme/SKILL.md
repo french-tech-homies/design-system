@@ -76,7 +76,40 @@ matter and one CSS block.
   pill unless the brief wants square buttons.
 - **`## Reference CSS`** in the body: elevation (a glow instead of a shadow, a
   hairline, `none`), state layer opacities, easings, durations, and
-  `--md3-dark-mode: class` or `system`.
+  `--md3-dark-mode: class` or `system`, and the component tokens a departure
+  points at another role (below).
+- **`## Where we differ from Material`** in the body: Material gives a project
+  a structure (which part does which job, its anatomy, its states, which role
+  goes on which surface) and a default look. Keep the first and make the
+  second the brief's:
+  1. **Follow Material's structure.** Choose parts, states and roles as the
+     spec says (the `ds-spec` skill). The kit draws them that way by default.
+  2. **Own the values, and the parts Material lacks.** The palette, type,
+     corners, elevation and motion are written in this file. A part Material
+     does not describe is built in the project beside the kit, from the kit's
+     parts, never as CSS laid over a kit part.
+  3. **Name every departure, with its reason.** Where a part must take a
+     different role than Material gives it (for example, a selected switch in
+     the project's text ink, so that `primary` keeps one meaning), point its
+     component token at that role in the reference block (`design-md.md`,
+     "The body: one reference block", lists the tokens). Then write the
+     departure under `## Where we differ from Material`: the part, the token,
+     the role and why. A departure the kit has no token for is asked of the
+     kit as a general seam whose default is Material's, never as one app's
+     look. Until then it is written down as wanted, not patched with CSS.
+
+  One entry a departure:
+
+  ```markdown
+  ## Where we differ from Material
+
+  - **Switch, selected track**: `--md-comp-switch-selected-track-color` is
+    `on-surface`. `primary` keeps one meaning, the one action of a screen.
+  - **Wanted, no token yet: secondary tab indicator** in `on-surface`, for
+    the same reason. Asked of the kit.
+  ```
+
+  A brief that departs from nothing writes no such section.
 - **The prose**: replace the kit's sections with the project's own (Overview,
   Colors, Typography, and whatever the brief needs). Remove what speaks of the
   kit's default.
@@ -230,6 +263,11 @@ kept in its storage until "Forget this theme".
 Commit `DESIGN.md` and the three files in `theme/` together. In the project's
 CI, run `theme:generate` and fail on a diff of `theme/`, so the theme is
 always its DESIGN.md's.
+
+Keep `## Where we differ from Material` in step with the reference block: a
+component token written there has its entry, an entry whose token is taken
+out goes with it, and a wanted departure the kit has since given a token is
+moved onto it.
 
 ## Taking a kit update
 

@@ -15,6 +15,10 @@
      an `@theme inline` block        theme.v4.css
      colour roles under `:root`      theme.css
 
+   A scheme's declarations are its colour roles and the component tokens the
+   project's DESIGN.md points at a role (`--md-comp-…-color`), drawn in the
+   scheme they are declared in.
+
    Nothing here touches the document, storage or the network.
    ========================================================================== */
 
@@ -50,6 +54,10 @@ const MAX_LIST = 60;
 const MAX_LINE = 400;
 
 const COLOR_NAME = /^--md-sys-color-[a-z0-9-]+$/;
+/** A component token, as the generator writes it into both scheme blocks. */
+const COMPONENT_NAME = /^--md-comp-[a-z0-9-]+-color$/;
+const SCHEME_NAME = (name: string) =>
+  COLOR_NAME.test(name) || COMPONENT_NAME.test(name);
 const SCALE_NAME =
   /^--(?:md-sys-(?:typescale|shape|elevation|state|motion)|md3-duration)-[a-z0-9-]+$/;
 const FONT_HOOK = /^--font-[a-z0-9-]+$/;
@@ -180,7 +188,7 @@ function readColors(file: HandedFile, theme: HandedTheme) {
   }
   const skipped = new Set<string>();
   const ambient = (scheme: Declarations) => (name: string) =>
-    COLOR_NAME.test(name)
+    SCHEME_NAME(name)
       ? scheme
       : // what every generated scheme block declares beside its roles: the
         // ambient content colour, the scheme and the scroll bars' roles
@@ -365,12 +373,12 @@ const cleanList = (value: unknown): string[] =>
 export function validate(value: unknown): HandedTheme | null {
   if (value === null || typeof value !== "object") return null;
   const stored = value as Record<string, unknown>;
-  const light = cleanDeclarations(stored.light, (name) => COLOR_NAME.test(name));
-  if (Object.keys(light).length === 0) return null;
+  const light = cleanDeclarations(stored.light, SCHEME_NAME);
+  if (!Object.keys(light).some((name) => COLOR_NAME.test(name))) return null;
   return {
     name: clip(typeof stored.name === "string" ? stored.name : "", 120),
     light,
-    dark: cleanDeclarations(stored.dark, (name) => COLOR_NAME.test(name)),
+    dark: cleanDeclarations(stored.dark, SCHEME_NAME),
     root: cleanDeclarations(
       stored.root,
       (name) => SCALE_NAME.test(name) || FONT_HOOK.test(name),

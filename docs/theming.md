@@ -11,7 +11,7 @@ first two:
 
 | layer | files | you may | a kit update |
 | --- | --- | --- | --- |
-| **tokens** | your `DESIGN.md` and the theme generated from it (`theme/theme.css`, `theme/theme.v4.css`), plus per-component escape-hatch variables (`--md3-field-notch`) | change anything, through `DESIGN.md` | never touches them. Components name roles and scales, never values, and no registry item writes a palette value or targets your theme folder. The kit's own `tokens/*` files are its default and are replaced by an update — import yours instead of editing them |
+| **tokens** | your `DESIGN.md` and the theme generated from it (`theme/theme.css`, `theme/theme.v4.css`), plus per-component escape-hatch variables (`--md3-field-notch`) and Material's component tokens (`--md-comp-switch-selected-track-color`), which point one part at another role | change anything, through `DESIGN.md` | never touches them. Components name roles and scales, never values, and no registry item writes a palette value or targets your theme folder. The kit's own `tokens/*` files are its default and are replaced by an update — import yours instead of editing them |
 | **style modules** | `components/<x>-styles.ts` exporting `<x>Styles`. Today three: `components/field-styles.ts` → `fieldStyles`, the field container behind `TextField`, `NumberField`, `PhoneField`, `Select`, `ComboBox` and the pickers; `components/date-picker-styles.ts` → `datePickerStyles`, the calendar behind `DatePicker` and `DateRangePicker`; `components/picker-dialog-styles.ts` → `pickerDialogStyles`, the dialog behind the date and time pickers | edit the file | replaces it, keeping the **slot and variant names**; what a slot contains may change, and your edit is put back by hand |
 | **behaviour** | the React Aria wiring, `utils.ts`, `render-props.ts`, `icons.tsx` | edit a file: allowed, priced, rarely needed | replaces every file that differs and promises no name in it; keeps following the four m3.material.io pages for behaviour and accessibility, even where your look departs from them |
 
@@ -24,6 +24,49 @@ it is not part of the promised seam. What an update costs a themed app is in
 The table is what an update promises each layer. What a project may change,
 and at what price, is one rule stated once:
 `skills/ds-build/SKILL.md`, "What a project may change".
+
+### Keep Material's guidance, own the identity
+
+Material gives a project two things: a structure (which part does which job,
+its anatomy, its states, which role goes on which surface) and a default look.
+Keep the first and make the second yours.
+
+1. **Follow Material's structure.** Choose parts, states and roles as the spec
+   says (`npm run md3 -- page <component> guidelines`). The kit draws them that
+   way by default.
+2. **Own the values, and the parts Material lacks.** Your palette, type,
+   corners, elevation and motion are written in your `DESIGN.md`. A part
+   Material does not describe is built in your project beside the kit, from
+   the kit's parts, never as CSS laid over a kit part.
+3. **Name every departure, with its reason.** Where a part must take a
+   different role than Material gives it (for example, a selected switch in
+   your text's ink, so that `primary` keeps one meaning), point its component
+   token at that role in your `DESIGN.md`'s reference block. Then write the
+   departure under `## Where we differ from Material`: the part, the token,
+   the role and why. A departure the kit has no token for is asked of the kit
+   as a general seam whose default is Material's, never as one app's look.
+   Until then it is written down as wanted, not patched with CSS.
+
+Material's design-tokens page gives a departure this place: "With three
+classes of tokens, teams can update design decisions globally or apply a
+change to a single component."
+
+The component tokens the kit reads, each with the part that reads it and the
+role it defaults to, are listed in `skills/ds-theme/design-md.md`, "The body:
+one reference block". A token is one line of the reference block's `:root`
+rule, and its value is one colour role:
+
+```css
+:root {
+  --md-comp-switch-selected-track-color: var(--md-sys-color-on-surface);
+}
+```
+
+The generator writes it into both scheme blocks of your `theme.css`, so the
+part takes that role in light and in dark. The kit declares none of them:
+with none written, every part is drawn as the spec draws it, except the
+switch's selected icon, which keeps the kit's `on-primary-container` (the
+spec gives `primary`) until its own fix card.
 
 ### Every scale is a variable
 
